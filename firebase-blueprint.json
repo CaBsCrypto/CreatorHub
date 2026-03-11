@@ -1,0 +1,117 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "A user of the application, either a content creator or an admin.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Firebase Auth UID"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "photoURL": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["creator", "admin"]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Campaign": {
+      "title": "Campaign",
+      "description": "A marketing campaign created by an admin.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "completed"]
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "UID of the admin who created the campaign"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["name", "status", "createdBy", "createdAt"]
+    },
+    "Content": {
+      "title": "Content",
+      "description": "A piece of content uploaded by a creator for a specific campaign.",
+      "type": "object",
+      "properties": {
+        "campaignId": {
+          "type": "string"
+        },
+        "creatorId": {
+          "type": "string",
+          "description": "UID of the creator"
+        },
+        "platform": {
+          "type": "string",
+          "enum": ["youtube", "instagram", "tiktok"]
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "title": {
+          "type": "string"
+        },
+        "views": {
+          "type": "number"
+        },
+        "likes": {
+          "type": "number"
+        },
+        "comments": {
+          "type": "number"
+        },
+        "uploadedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["campaignId", "creatorId", "platform", "url", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Users collection"
+    },
+    "/campaigns/{campaignId}": {
+      "schema": { "$ref": "#/entities/Campaign" },
+      "description": "Campaigns collection"
+    },
+    "/content/{contentId}": {
+      "schema": { "$ref": "#/entities/Content" },
+      "description": "Content collection"
+    }
+  }
+}

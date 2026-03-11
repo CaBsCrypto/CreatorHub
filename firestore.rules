@@ -1,0 +1,199 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: userId (matches auth.uid)
+    // Fields:
+    //   - uid: string (required) - matches auth.uid
+    //   - email: string (required) - user's email
+    //   - displayName: string (optional) - user's name
+    //   - photoURL: string (optional) - user's photo
+    //   - role: string (required) - 'creator' or 'admin'
+    //   - createdAt: string (optional) - ISO 8601 date string
+    //
+    // Collection: campaigns
+    // Document ID: auto-generated
+    // Fields:
+    //   - name: string (required) - campaign name
+    //   - description: string (optional) - campaign description
+    //   - status: string (required) - 'active' or 'completed'
+    //   - createdBy: string (required) - admin's uid
+    //   - createdAt: string (required) - ISO 8601 date string
+    //
+    // Collection: content
+    // Document ID: auto-generated
+    // Fields:
+    //   - campaignId: string (required) - ID of the campaign
+    //   - creatorId: string (required) - creator's uid
+    //   - platform: string (required) - 'youtube', 'instagram', or 'tiktok'
+    //   - url: string (required) - URL to the content
+    //   - title: string (optional) - title of the content
+    //   - views: number (optional) - number of views
+    //   - likes: number (optional) - number of likes
+    //   - comments: number (optional) - number of comments
+    //   - uploadedAt: string (optional) - ISO 8601 date string
+    //   - createdAt: string (required) - ISO 8601 date string
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+        (request.auth.token.email == "cabscryptocontacto@gmail.com" && request.auth.token.email_verified == true)
+      );
+    }
+
+    function isManager() {
+      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'manager';
+    }
+
+    function isCreator() {
+      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'creator';
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidDateString(dateStr) {
+      return dateStr is string && dateStr.matches("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*Z?$");
+    }
+
+    function isValidUrl(url) {
+      return url is string && (url.matches("^https://.*") || url.matches("^http://.*"));
+    }
+
+    function uidUnchanged() {
+      return !('uid' in request.resource.data) || request.resource.data.uid == request.auth.uid;
+    }
+
+    function uidNotModified() {
+      return !('uid' in request.resource.data) || request.resource.data.uid == resource.data.uid;
+    }
+
+    function areImmutableFieldsUnchanged(fields) {
+      return !request.resource.data.diff(resource.data).affectedKeys().hasAny(fields);
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+    function isValidUser(data) {
+      return hasRequiredFields(['uid', 'email', 'role']) &&
+             hasOnlyAllowedFields(['uid', 'email', 'displayName', 'photoURL', 'role', 'createdAt']) &&
+             data.uid is string && data.uid.size() > 0 && data.uid.size() < 100 &&
+             data.email is string && isValidEmail(data.email) && data.email.size() < 100 &&
+             (!('displayName' in data) || (data.displayName is string && data.displayName.size() < 100)) &&
+             (!('photoURL' in data) || (data.photoURL is string && data.photoURL.size() < 500)) &&
+             data.role in ['creator', 'admin', 'manager'] &&
+             (!('createdAt' in data) || isValidDateString(data.createdAt));
+    }
+
+    function isValidCampaign(data) {
+      return hasRequiredFields(['name', 'status', 'createdBy', 'createdAt']) &&
+             hasOnlyAllowedFields(['name', 'description', 'status', 'createdBy', 'createdAt']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 200 &&
+             (!('description' in data) || (data.description is string && data.description.size() < 2000)) &&
+             data.status in ['active', 'completed'] &&
+             data.createdBy is string && data.createdBy.size() > 0 && data.createdBy.size() < 100 &&
+             isValidDateString(data.createdAt);
+    }
+
+    function isValidContent(data) {
+      return hasRequiredFields(['campaignId', 'creatorId', 'platform', 'url', 'createdAt']) &&
+             hasOnlyAllowedFields(['campaignId', 'creatorId', 'platform', 'url', 'title', 'views', 'likes', 'comments', 'uploadedAt', 'createdAt']) &&
+             data.campaignId is string && data.campaignId.size() > 0 && data.campaignId.size() < 100 &&
+             data.creatorId is string && data.creatorId.size() > 0 && data.creatorId.size() < 100 &&
+             data.platform in ['youtube', 'instagram', 'tiktok', 'x', 'coinmarketcap'] &&
+             isValidUrl(data.url) && data.url.size() < 1000 &&
+             (!('title' in data) || (data.title is string && data.title.size() < 500)) &&
+             (!('views' in data) || data.views is number && data.views >= 0) &&
+             (!('likes' in data) || data.likes is number && data.likes >= 0) &&
+             (!('comments' in data) || data.comments is number && data.comments >= 0) &&
+             (!('uploadedAt' in data) || isValidDateString(data.uploadedAt)) &&
+             isValidDateString(data.createdAt);
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+    
+    match /users/{userId} {
+      // Users can read their own profile. Admins and managers can read all profiles.
+      allow read: if isOwner(userId) || isAdmin() || isManager();
+      
+      // Users can create their own profile. They cannot make themselves admin unless they are the default admin.
+      allow create: if isAuthenticated() && 
+                       isOwner(userId) && 
+                       isValidUser(request.resource.data) && 
+                       uidUnchanged() &&
+                       (request.resource.data.role == 'creator' || isAdmin());
+                       
+      // Users can update their own profile. They cannot change their role or uid. Admins can update roles.
+      allow update: if isAuthenticated() && 
+                       isValidUser(request.resource.data) && 
+                       uidNotModified() &&
+                       (
+                         (isOwner(userId) && request.resource.data.role == resource.data.role) || 
+                         isAdmin()
+                       );
+    }
+
+    match /campaigns/{campaignId} {
+      // Creators, Managers, and Admins can read campaigns
+      allow read: if isAuthenticated() && (isCreator() || isAdmin() || isManager());
+      
+      // Only admins and managers can create campaigns
+      allow create: if (isAdmin() || isManager()) && 
+                       isValidCampaign(request.resource.data) && 
+                       request.resource.data.createdBy == request.auth.uid;
+                       
+      // Only admins and managers can update campaigns
+      allow update: if (isAdmin() || isManager()) && 
+                       isValidCampaign(request.resource.data) && 
+                       areImmutableFieldsUnchanged(['createdBy', 'createdAt']);
+    }
+
+    match /content/{contentId} {
+      // Creators can read their own content. Admins and managers can read all content.
+      allow read: if isAuthenticated() && (isAdmin() || isManager() || (isCreator() && resource.data.creatorId == request.auth.uid));
+      
+      // Creators, managers, and admins can create content for themselves.
+      allow create: if (isCreator() || isAdmin() || isManager()) && 
+                       isValidContent(request.resource.data) && 
+                       request.resource.data.creatorId == request.auth.uid;
+                       
+      // Creators can update their own content (e.g., stats). Admins and managers can also update content stats.
+      allow update: if isAuthenticated() && 
+                       isValidContent(request.resource.data) && 
+                       areImmutableFieldsUnchanged(['campaignId', 'creatorId', 'createdAt']) &&
+                       (isAdmin() || isManager() || ((isCreator() || isAdmin() || isManager()) && resource.data.creatorId == request.auth.uid));
+                       
+      // Creators can delete their own content. Admins and managers can delete any content.
+      allow delete: if isAuthenticated() && (isAdmin() || isManager() || ((isCreator() || isAdmin() || isManager()) && resource.data.creatorId == request.auth.uid));
+    }
+  }
+}
