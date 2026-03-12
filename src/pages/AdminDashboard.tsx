@@ -2,8 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { collection, query, onSnapshot, addDoc, updateDoc, doc } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from '../firebase';
 import { useAuth } from '../AuthContext';
-import { Plus, Download, RefreshCw, Sparkles, ExternalLink, LayoutDashboard, List, Users, Youtube, Instagram, Globe } from 'lucide-react';
-import { format } from 'date-fns';
+import { Plus, Download, RefreshCw, Sparkles, ExternalLink, LayoutDashboard, List, Users, Youtube, Instagram, Globe, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isToday, addMonths, subMonths, isSameDay } from 'date-fns';
 import { BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import Papa from 'papaparse';
 
@@ -40,7 +40,7 @@ interface User {
 
 export default function AdminDashboard() {
   const { user, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'overview' | 'content' | 'creators' | 'team'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'content' | 'creators' | 'team' | 'calendar'>('overview');
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [content, setContent] = useState<Content[]>([]);
   const [users, setUsers] = useState<User[]>([]);
@@ -302,10 +302,23 @@ export default function AdminDashboard() {
 
   const navigation = [
     { id: 'overview', name: 'Overview', icon: LayoutDashboard },
+    { id: 'calendar', name: 'Calendar', icon: CalendarIcon },
     { id: 'content', name: 'Content Explorer', icon: List },
     { id: 'creators', name: 'Creators Analysis', icon: Users },
     { id: 'team', name: 'Team Management', icon: Users },
   ];
+
+  // Calendar State
+  const [currentCalendarDate, setCurrentCalendarDate] = useState(new Date());
+  
+  const calendarDays = useMemo(() => {
+    const start = startOfWeek(startOfMonth(currentCalendarDate));
+    const end = endOfWeek(endOfMonth(currentCalendarDate));
+    return eachDayOfInterval({ start, end });
+  }, [currentCalendarDate]);
+
+  const nextMonth = () => setCurrentCalendarDate(addMonths(currentCalendarDate, 1));
+  const prevMonth = () => setCurrentCalendarDate(subMonths(currentCalendarDate, 1));
 
   return (
     <div className="flex flex-col lg:flex-row min-h-[calc(100vh-4rem)] bg-gray-50 -m-4 sm:-m-6 lg:-m-8">
@@ -594,6 +607,61 @@ export default function AdminDashboard() {
                           <div className="bg-gray-50 px-2 py-1 rounded text-[10px] text-gray-600">Likes: {item.likes || 0}</div>
                         </div>
                         <a href={item.url} target="_blank" className="mt-2 text-[10px] text-indigo-600 font-medium flex items-center gap-1">Link <ExternalLink className="h-2 w-2" /></a>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'calendar' && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+                <h3 className="text-xl font-bold text-gray-900">{format(currentCalendarDate, 'MMMM yyyy')}</h3>
+                <div className="flex items-center gap-2">
+                  <button onClick={prevMonth} className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600"><ChevronLeft className="h-5 w-5" /></button>
+                  <button onClick={() => setCurrentCalendarDate(new Date())} className="px-3 py-1.5 text-sm font-medium hover:bg-gray-100 rounded-lg transition-colors text-gray-600">Today</button>
+                  <button onClick={nextMonth} className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600"><ChevronRight className="h-5 w-5" /></button>
+                </div>
+              </div>
+              <div className="grid grid-cols-7 border-b border-gray-100 bg-gray-50 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                  <div key={day} className="py-3 border-r border-gray-100 last:border-r-0">{day}</div>
+                ))}
+              </div>
+              <div className="grid grid-cols-7 auto-rows-[120px]">
+                {calendarDays.map((day, dayIdx) => {
+                  const dayContent = content.filter(c => c.uploadedAt && isSameDay(new Date(c.uploadedAt), day));
+                  return (
+                    <div 
+                      key={day.toString()} 
+                      className={`
+                        p-2 border-b border-r border-gray-100 last:border-r-0 overflow-hidden hover:bg-gray-50 transition-colors cursor-pointer group
+                        ${!isSameMonth(day, currentCalendarDate) ? 'bg-gray-50/50' : 'bg-white'}
+                        ${dayIdx % 7 === 6 ? 'border-r-0' : ''}
+                      `}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className={`text-sm font-medium w-6 h-6 flex items-center justify-center rounded-full ${
+                          isToday(day) ? 'bg-indigo-600 text-white' : !isSameMonth(day, currentCalendarDate) ? 'text-gray-400' : 'text-gray-900'
+                        }`}>
+                          {format(day, 'd')}
+                        </span>
+                        {dayContent.length > 0 && (
+                          <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded-full">{dayContent.length}</span>
+                        )}
+                      </div>
+                      <div className="space-y-1 overflow-y-auto max-h-[80px] pr-1 custom-scrollbar">
+                        {dayContent.map(item => {
+                          const creator = users.find(u => u.uid === item.creatorId);
+                          return (
+                            <div key={item.id} className="text-[10px] bg-white border border-gray-100 shadow-sm p-1.5 rounded truncate flex items-center gap-1 group-hover:border-indigo-200 transition-colors" title={item.title || item.url}>
+                              <span className="font-semibold text-gray-700 truncate">{creator?.displayName?.split(' ')[0] || 'User'}:</span>
+                              <span className="text-gray-500 truncate">{item.title || item.platform}</span>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   );
