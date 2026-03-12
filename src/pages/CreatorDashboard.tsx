@@ -208,7 +208,7 @@ export default function CreatorDashboard() {
       </div>
 
       {(isUploading || editingContent) && (
-        <div className="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-900/5">
+        <div className="mb-8 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 max-w-3xl mx-auto overflow-hidden animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-gray-900">
               {editingContent ? 'Edit Content' : 'Upload New Content'}
@@ -293,11 +293,11 @@ export default function CreatorDashboard() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         {content.map((item) => (
-          <div key={item.id} className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 flex flex-col hover:shadow-md transition-shadow duration-300">
+          <div key={item.id} className="group relative flex flex-col sm:flex-row items-center sm:items-start gap-4 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-gray-900/5 hover:shadow-md hover:ring-indigo-100 transition-all duration-300">
             {/* Thumbnail Header */}
-            <div className="relative aspect-video w-full bg-gray-100 overflow-hidden group">
+            <div className="relative aspect-video w-full sm:w-40 sm:h-24 sm:aspect-auto shrink-0 overflow-hidden rounded-xl bg-gray-100">
               {item.thumbnail ? (
                 <img 
                   src={item.thumbnail} 
@@ -307,66 +307,62 @@ export default function CreatorDashboard() {
               ) : (
                 <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-indigo-50 to-white">
                   <div className="text-indigo-200">
-                    {item.platform === 'youtube' && <Youtube className="h-12 w-12" />}
-                    {item.platform === 'instagram' && <Instagram className="h-12 w-12" />}
-                    {item.platform === 'tiktok' && <Music2 className="h-12 w-12" />}
-                    {item.platform === 'x' && <Twitter className="h-12 w-12" />}
-                    {item.platform === 'coinmarketcap' && <Globe className="h-12 w-12" />}
+                    {item.platform === 'youtube' && <Youtube className="h-8 w-8" />}
+                    {item.platform === 'instagram' && <Instagram className="h-8 w-8" />}
+                    {item.platform === 'tiktok' && <Music2 className="h-8 w-8" />}
+                    {item.platform === 'x' && <Twitter className="h-8 w-8" />}
+                    {item.platform === 'coinmarketcap' && <Globe className="h-8 w-8" />}
                   </div>
                 </div>
               )}
               {/* Platform Badge overlay */}
-              <div className="absolute top-2 right-2 p-1.5 rounded-lg bg-white/90 backdrop-blur shadow-sm">
-                {item.platform === 'youtube' && <Youtube className="h-4 w-4 text-red-600" />}
-                {item.platform === 'instagram' && <Instagram className="h-4 w-4 text-pink-600" />}
-                {item.platform === 'tiktok' && <Music2 className="h-4 w-4 text-black" />}
-                {item.platform === 'x' && <Twitter className="h-4 w-4 text-black" />}
-                {item.platform === 'coinmarketcap' && <Globe className="h-4 w-4 text-blue-600" />}
+              <div className="absolute top-2 right-2 p-1 rounded-md bg-white/90 backdrop-blur shadow-sm">
+                {item.platform === 'youtube' && <Youtube className="h-3.5 w-3.5 text-red-600" />}
+                {item.platform === 'instagram' && <Instagram className="h-3.5 w-3.5 text-pink-600" />}
+                {item.platform === 'tiktok' && <Music2 className="h-3.5 w-3.5 text-black" />}
+                {item.platform === 'x' && <Twitter className="h-3.5 w-3.5 text-black" />}
+                {item.platform === 'coinmarketcap' && <Globe className="h-3.5 w-3.5 text-blue-600" />}
               </div>
             </div>
 
-            <div className="p-5 flex-1">
-              <div className="flex items-start justify-between gap-4">
+            <div className="flex flex-1 flex-col justify-between h-full w-full min-w-0">
+              <div className="flex justify-between items-start gap-3">
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-medium text-indigo-600 mb-1">
+                  <p className="text-xs font-semibold text-indigo-600 mb-1 tracking-wide uppercase">
                     {campaigns.find(c => c.id === item.campaignId)?.name || 'General'}
                   </p>
                   <a 
                     href={item.url} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="text-base font-semibold text-gray-900 line-clamp-2 hover:text-indigo-600 transition-colors" 
+                    className="text-sm font-bold text-gray-900 line-clamp-2 hover:text-indigo-600 transition-colors" 
                     title={item.title || item.url}
                   >
                     {item.title || item.url}
                   </a>
                 </div>
-                <div className="flex gap-1.5">
-                  <button onClick={() => { setEditingContent(item); setIsUploading(true); }} className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-gray-100 rounded-lg transition-colors" title="Edit">
+                <div className="flex gap-1 shrink-0">
+                  <button onClick={() => { setEditingContent(item); setIsUploading(true); }} className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="Edit">
                     <Edit2 className="h-4 w-4" />
                   </button>
-                  <button onClick={() => setContentToDelete(item.id)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-gray-100 rounded-lg transition-colors" title="Delete">
+                  <button onClick={() => setContentToDelete(item.id)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete">
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
               </div>
-            </div>
-            
-            <div className="bg-gray-50/50 px-5 py-3 border-t border-gray-100">
-              <div className="flex justify-between items-center text-sm">
-                <div className="flex gap-4">
-                  <div className="flex items-center gap-1.5 text-gray-600">
-                    <span className="font-semibold">{item.views?.toLocaleString() || 0}</span>
-                    <span className="text-gray-400 text-xs uppercase tracking-tight font-medium">Views</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-gray-600">
-                    <span className="font-semibold">{item.likes?.toLocaleString() || 0}</span>
-                    <span className="text-gray-400 text-xs uppercase tracking-tight font-medium">Likes</span>
-                  </div>
+              
+              <div className="mt-4 flex items-center gap-3 text-sm">
+                <div className="flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-md border border-gray-100">
+                  <span className="font-bold text-gray-700">{item.views?.toLocaleString() || 0}</span>
+                  <span className="text-[10px] uppercase tracking-wider font-semibold text-gray-500">Views</span>
                 </div>
-                <div className="text-gray-400 bg-white p-1 rounded-md shadow-sm border border-gray-100">
-                  <ExternalLink className="h-3.5 w-3.5" />
+                <div className="flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-md border border-gray-100">
+                  <span className="font-bold text-gray-700">{item.likes?.toLocaleString() || 0}</span>
+                  <span className="text-[10px] uppercase tracking-wider font-semibold text-gray-500">Likes</span>
                 </div>
+                <a href={item.url} target="_blank" rel="noopener noreferrer" className="ml-auto flex items-center gap-1 text-[11px] font-semibold text-indigo-600 hover:text-indigo-500 bg-indigo-50 px-2 py-1 rounded-md transition-colors">
+                  View Link <ExternalLink className="h-3 w-3" />
+                </a>
               </div>
             </div>
           </div>
