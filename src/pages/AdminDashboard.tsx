@@ -281,10 +281,15 @@ export default function AdminDashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const stats = [
-    { name: 'Total Campaigns', value: campaigns.length, icon: List },
-    { name: 'Total Content Pieces', value: content.length, icon: Youtube },
+    { name: 'Total Campaigns', value: campaigns.length, icon: List, onClick: () => setActiveTab('overview') }, // Remains on overview, maybe opens new campaign modal? Just overview for now.
+    { name: 'Total Content Pieces', value: content.length, icon: Youtube, onClick: () => setActiveTab('content') },
+    { 
+      name: 'Total Creators', 
+      value: new Set([...users.filter(u => u.role === 'creator').map(u => u.uid), ...content.map(c => c.creatorId)]).size, 
+      icon: Users, 
+      onClick: () => setActiveTab('creators') 
+    },
     { name: 'Total Views', value: content.reduce((acc, curr) => acc + (curr.views || 0), 0).toLocaleString(), icon: Globe },
-    { name: 'Total Creators', value: users.filter(u => u.role === 'creator').length, icon: Users },
   ];
 
   const navigation = [
@@ -404,7 +409,11 @@ export default function AdminDashboard() {
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {stats.map((stat) => (
-                  <div key={stat.name} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                  <div 
+                    key={stat.name} 
+                    onClick={() => stat.onClick ? stat.onClick() : undefined}
+                    className={`bg-white p-6 rounded-xl shadow-sm border border-gray-100 ${stat.onClick ? 'cursor-pointer hover:border-indigo-300 hover:shadow-md transition-all' : ''}`}
+                  >
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm font-medium text-gray-500">{stat.name}</p>
