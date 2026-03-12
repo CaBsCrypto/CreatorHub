@@ -3,7 +3,8 @@ import { supabase, Campaign, Content, UserProfile } from '../supabase';
 import { useAuth } from '../AuthContext';
 import { Plus, Download, RefreshCw, Sparkles, ExternalLink, LayoutDashboard, List, Users, Youtube, Instagram, Globe, Calendar as CalendarIcon, ChevronLeft, ChevronRight, Trash2, Target } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isToday, addMonths, subMonths, isSameDay } from 'date-fns';
-import { BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { motion, AnimatePresence } from 'framer-motion';
 import Papa from 'papaparse';
 
 // Database types are imported from supabase.ts
@@ -18,7 +19,10 @@ export default function AdminDashboard() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
-  const [newCampaign, setNewCampaign] = useState({ name: '', description: '' });
+  const [newCampaign, setNewCampaign] = useState({ name: '', description: '', target_posts: 3 });
+  const [isAddingUser, setIsAddingUser] = useState(false);
+  const [newUserEmail, setNewUserEmail] = useState('');
+  const [newUserRole, setNewUserRole] = useState<'creator' | 'manager' | 'admin'>('creator');
 
   // Filters for Content Explorer
   const [filterCampaign, setFilterCampaign] = useState<string>('all');
@@ -77,13 +81,14 @@ export default function AdminDashboard() {
         name: newCampaign.name,
         description: newCampaign.description,
         status: 'active',
+        target_posts: newCampaign.target_posts,
         created_by: user.id
       }]);
       
       if (error) throw error;
       
       setIsCreating(false);
-      setNewCampaign({ name: '', description: '' });
+      setNewCampaign({ name: '', description: '', target_posts: 3 });
     } catch (error: any) {
       console.error("🔥 Error saving campaign to Supabase:", error);
       alert("Error saving campaign: " + (error.message || "Unknown error"));
@@ -91,16 +96,59 @@ export default function AdminDashboard() {
   };
 
   const handleRoleChange = async (uid: string, newRole: string) => {
-    if (profile?.role !== 'admin') {
-      alert("Only administrators can change roles.");
+    if (profile?.role !== 'admin' && profile?.role !== 'manager') {
+      alert("Only administrators and managers can change roles.");
       return;
     }
+    
+    // Optimistic update
+    const previousUsers = [...users];
+    setUsers(users.map(u => u.id === uid ? { ...u, role: newRole as any } : u));
+
     try {
       const { error } = await supabase.from('users').update({ role: newRole }).eq('id', uid);
       if (error) throw error;
+      console.log(`Successfully updated role for user ${uid} to ${newRole}`);
     } catch (error: any) {
       console.error("Error updating role:", error);
       alert("Error updating role: " + error.message);
+      // Rollback
+      setUsers(previousUsers);
+    }
+  };
+
+  const handleAddUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (profile?.role !== 'admin' && profile?.role !== 'manager') return;
+    
+    try {
+      const { data, error } = await supabase.from('users').insert([{
+        email: newUserEmail.toLowerCase().trim(),
+        role: newUserRole,
+        display_name: newUserEmail.split('@')[0],
+      }]).select();
+
+      if (error) {
+        if (error.code === '23505') { // Unique violation
+          alert("This user already exists in the system.");
+        } else {
+          throw error;
+        }
+        return;
+      }
+
+      alert(`User ${newUserEmail} added successfully as ${newUserRole}.`);
+      setIsAddingUser(false);
+      setNewUserEmail('');
+      setNewUserRole('creator');
+      
+      // Update local state if not already handled by subscription
+      if (data) {
+        setUsers(prev => [...prev, ...data]);
+      }
+    } catch (error: any) {
+      console.error("Error adding user:", error);
+      alert("Error adding user: " + error.message);
     }
   };
 
@@ -176,12 +224,15 @@ export default function AdminDashboard() {
         body: JSON.stringify({ summaryData })
       });
 
-      if (!response.ok) throw new Error("Backend AI call failed");
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error || "Backend AI call failed");
+      }
       const data = await response.json();
       setAiAnalysis(data.analysis || "No analysis generated.");
-    } catch (error) {
+    } catch (error: any) {
       console.error("AI Analysis failed", error);
-      alert("Failed to generate AI analysis.");
+      alert(error.message || "Failed to generate AI analysis.");
     } finally {
       setIsAnalyzing(false);
     }
@@ -217,12 +268,33 @@ export default function AdminDashboard() {
   };
 
   const platformData = [
-    { name: 'YouTube', views: content.filter(c => c.platform === 'youtube').reduce((acc, curr) => acc + (curr.views || 0), 0) },
-    { name: 'Instagram', views: content.filter(c => c.platform === 'instagram').reduce((acc, curr) => acc + (curr.views || 0), 0) },
-    { name: 'TikTok', views: content.filter(c => c.platform === 'tiktok').reduce((acc, curr) => acc + (curr.views || 0), 0) },
-    { name: 'X', views: content.filter(c => c.platform === 'x').reduce((acc, curr) => acc + (curr.views || 0), 0) },
-    { name: 'CoinMarketCap', views: content.filter(c => c.platform === 'coinmarketcap').reduce((acc, curr) => acc + (curr.views || 0), 0) },
-  ];
+    { name: 'YouTube', value: content.filter(c => c.platform === 'youtube').reduce((acc, curr) => acc + (curr.views || 0), 0) },
+    { name: 'Instagram', value: content.filter(c => c.platform === 'instagram').reduce((acc, curr) => acc + (curr.views || 0), 0) },
+    { name: 'TikTok', value: content.filter(c => c.platform === 'tiktok').reduce((acc, curr) => acc + (curr.views || 0), 0) },
+    { name: 'X', value: content.filter(c => c.platform === 'x').reduce((acc, curr) => acc + (curr.views || 0), 0) },
+    { name: 'CoinMarketCap', value: content.filter(c => c.platform === 'coinmarketcap').reduce((acc, curr) => acc + (curr.views || 0), 0) },
+  ].filter(p => p.value > 0);
+
+  const geoData = useMemo(() => {
+    const counts: Record<string, number> = {};
+    users.forEach(u => {
+      if (u.audience_geo) {
+        Object.keys(u.audience_geo).forEach(country => {
+          counts[country] = (counts[country] || 0) + 1;
+        });
+      }
+    });
+    
+    const sorted = Object.entries(counts)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
+
+    return sorted.length > 0 ? sorted : [
+      { name: 'Sin Datos', value: 1 }
+    ];
+  }, [users]);
+
+  const COLORS = ['#4f46e5', '#ec4899', '#14b8a6', '#f59e0b', '#6366f1', '#f43f5e', '#10b981'];
 
   const filteredAndSortedContent = useMemo(() => {
     let result = [...content];
@@ -249,20 +321,26 @@ export default function AdminDashboard() {
   }, [content, filterCampaign, filterPlatform, filterCreator, sortField, sortOrder]);
 
   const creatorStats = useMemo(() => {
-    const stats: Record<string, { views: number, engagement: number, contentCount: number }> = {};
+    const stats: Record<string, { views: number, engagement: number, contentCount: number, estimatedValue: number }> = {};
+    const CPM = 2.0; // $2.00 per 1000 views
+
     content.forEach(c => {
       if (!stats[c.creator_id]) {
-        stats[c.creator_id] = { views: 0, engagement: 0, contentCount: 0 };
+        stats[c.creator_id] = { views: 0, engagement: 0, contentCount: 0, estimatedValue: 0 };
       }
-      stats[c.creator_id].views += (c.views || 0);
+      const views = (c.views || 0);
+      stats[c.creator_id].views += views;
       stats[c.creator_id].engagement += (c.likes || 0) + (c.comments || 0);
       stats[c.creator_id].contentCount += 1;
+      stats[c.creator_id].estimatedValue += (views / 1000) * CPM;
     });
     return Object.entries(stats).map(([creator_id, data]) => {
       const user = users.find(u => u.id === creator_id);
       return {
         creator_id,
         name: user?.display_name || user?.email || creator_id,
+        paymentMethod: user?.payment_method,
+        paymentId: user?.payment_method === 'binance' ? user.binance_id : user?.wallet_address,
         ...data
       };
     }).sort((a, b) => b.views - a.views);
@@ -290,10 +368,11 @@ export default function AdminDashboard() {
   const stats = [
     { name: 'Total Campaigns', value: campaigns.length, icon: List, onClick: () => setActiveTab('campaigns') },
     { name: 'Total Content Pieces', value: content.length, icon: Youtube, onClick: () => setActiveTab('content') },
+    { name: 'Total Users', value: users.length, icon: Users, onClick: () => setActiveTab('team') },
     { 
       name: 'Total Creators', 
-      value: new Set([...users.filter(u => u.role === 'creator').map(u => u.id), ...content.map(c => c.creator_id)]).size, 
-      icon: Users, 
+      value: users.filter(u => u.role === 'creator').length, 
+      icon: Target, 
       onClick: () => setActiveTab('creators') 
     },
     { name: 'Total Views', value: content.reduce((acc, curr) => acc + (curr.views || 0), 0).toLocaleString(), icon: Globe },
@@ -419,6 +498,14 @@ export default function AdminDashboard() {
                     className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 border"
                   />
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Target Posts per Creator</label>
+                  <input
+                    type="number" min="1" required value={newCampaign.target_posts}
+                    onChange={(e) => setNewCampaign({ ...newCampaign, target_posts: parseInt(e.target.value) })}
+                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 border"
+                  />
+                </div>
                 <div className="flex justify-end gap-3">
                   <button type="submit" className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-all">Save Campaign</button>
                 </div>
@@ -428,10 +515,13 @@ export default function AdminDashboard() {
 
           {activeTab === 'overview' && (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {stats.map((stat) => (
-                  <div 
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                {stats.map((stat, idx) => (
+                  <motion.div 
                     key={stat.name} 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.1 }}
                     onClick={() => stat.onClick ? stat.onClick() : undefined}
                     className={`bg-white p-6 rounded-xl shadow-sm border border-gray-100 ${stat.onClick ? 'cursor-pointer hover:border-indigo-300 hover:shadow-md transition-all' : ''}`}
                   >
@@ -444,22 +534,57 @@ export default function AdminDashboard() {
                         <stat.icon className="h-6 w-6 text-indigo-600" />
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
 
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 mt-6">
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Views by Platform</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Views by Platform (%)</h3>
                   <div className="h-72">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={platformData}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
-                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
-                        <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                        <Bar dataKey="views" fill="#4f46e5" radius={[4, 4, 0, 0]} />
-                      </BarChart>
+                      <PieChart>
+                        <Pie
+                          data={platformData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={60}
+                          outerRadius={80}
+                          paddingAngle={5}
+                          dataKey="value"
+                        >
+                          {platformData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                        <Legend verticalAlign="bottom" height={36}/>
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Audience by Country (%)</h3>
+                  <div className="h-72">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={geoData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={60}
+                          outerRadius={80}
+                          paddingAngle={5}
+                          dataKey="value"
+                        >
+                          {geoData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[(index + 2) % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                        <Legend verticalAlign="bottom" height={36}/>
+                      </PieChart>
                     </ResponsiveContainer>
                   </div>
                 </div>
@@ -488,10 +613,15 @@ export default function AdminDashboard() {
                               </span>
                               <span className="text-sm font-semibold text-gray-900 truncate max-w-[120px]">{stat.name}</span>
                             </div>
-                            <div className="flex items-center gap-3 text-xs font-medium">
-                              <span className="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">{stat.views.toLocaleString()} views</span>
-                              <span className="text-pink-600 bg-pink-50 px-2 py-0.5 rounded-full">{stat.engagement.toLocaleString()} eng</span>
-                            </div>
+                             <div className="flex items-center gap-3 text-xs font-medium">
+                               <span className="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">{stat.views.toLocaleString()} views</span>
+                               <span 
+                                 className="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-bold cursor-help"
+                                 title="Valor estimado basado en un CPM de $2.00 USD por cada 1,000 vistas"
+                               >
+                                 ${stat.estimatedValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ROI
+                               </span>
+                             </div>
                           </div>
                           <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
                             <div 
@@ -512,6 +642,43 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-2">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                    Campaign Progress
+                    <Target className="h-4 w-4 text-indigo-500" />
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto max-h-[300px] pr-2 custom-scrollbar">
+                    {campaigns.map((camp, idx) => {
+                      const totalPosts = content.filter(c => c.campaign_id === camp.id).length;
+                      const target = camp.target_posts || 3;
+                      const progress = Math.min((totalPosts / target) * 100, 100);
+                      return (
+                        <motion.div 
+                          key={camp.id} 
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: idx * 0.05 }}
+                          className="p-4 rounded-xl bg-gray-50 border border-gray-100"
+                        >
+                          <div className="flex justify-between items-start mb-3">
+                            <h4 className="text-sm font-bold text-gray-900 truncate pr-2" title={camp.name}>{camp.name}</h4>
+                            <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">{Math.round(progress)}%</span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+                            <motion.div 
+                              initial={{ width: 0 }}
+                              animate={{ width: `${progress}%` }}
+                              transition={{ duration: 1 }}
+                              className="bg-indigo-600 h-2 rounded-full transition-all"
+                            ></motion.div>
+                          </div>
+                          <p className="text-[10px] font-bold text-gray-500">{totalPosts} / {target} posts</p>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-2">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold text-gray-900">AI Insights</h3>
                     <button
@@ -522,13 +689,23 @@ export default function AdminDashboard() {
                       {isAnalyzing ? 'Analyzing...' : 'Refresh AI'}
                     </button>
                   </div>
-                  <div className="prose prose-sm max-w-none text-gray-600 h-[260px] overflow-auto">
-                    {aiAnalysis ? (
-                      <div className="whitespace-pre-wrap leading-relaxed">{aiAnalysis}</div>
+                  <div className="min-h-[260px] max-h-[400px] flex flex-col items-center justify-center border-2 border-dashed border-gray-100 rounded-xl p-8 text-center bg-gray-50/50 overflow-auto">
+                    {isAnalyzing ? (
+                      <div className="flex flex-col items-center gap-4">
+                        <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                        <p className="text-gray-600 font-medium">Analizando datos con Inteligencia Artificial...</p>
+                        <p className="text-xs text-gray-400">Esto puede tardar unos segundos (Probando {content.length} piezas de contenido)</p>
+                      </div>
+                    ) : aiAnalysis ? (
+                      <div className="w-full text-left">
+                        <div className="prose prose-sm max-w-none text-gray-600 whitespace-pre-wrap leading-relaxed">
+                          {aiAnalysis}
+                        </div>
+                      </div>
                     ) : (
-                      <div className="h-full flex flex-col items-center justify-center text-center space-y-2">
-                        <Sparkles className="h-8 w-8 text-indigo-200" />
-                        <p className="text-gray-400 italic">No analysis yet. Click the button above to generate one.</p>
+                      <div className="flex flex-col items-center">
+                        <Sparkles className="h-10 w-10 text-indigo-200 mb-4" />
+                        <p className="text-gray-500 font-medium italic">No analysis yet. Click the button above to generate one.</p>
                       </div>
                     )}
                   </div>
@@ -748,16 +925,34 @@ export default function AdminDashboard() {
                       <p className="text-xs text-gray-500">{stat.contentCount} posts uploaded</p>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-3 bg-gray-50 rounded-lg">
-                      <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Views</p>
-                      <p className="text-lg font-bold text-gray-900">{stat.views.toLocaleString()}</p>
-                    </div>
-                    <div className="p-3 bg-gray-50 rounded-lg">
-                      <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Engagement</p>
-                      <p className="text-lg font-bold text-gray-900">{stat.engagement.toLocaleString()}</p>
-                    </div>
-                  </div>
+                                   <div className="grid grid-cols-2 gap-4">
+                     <div className="p-3 bg-gray-50 rounded-lg">
+                       <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Views</p>
+                       <p className="text-lg font-bold text-gray-900">{stat.views.toLocaleString()}</p>
+                     </div>
+                     <div 
+                       className="p-3 bg-emerald-50 rounded-lg border border-emerald-100 cursor-help"
+                       title="Cálculo basado en $2.00 USD por cada 1,000 vistas (CPM Estimado)"
+                     >
+                       <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Est. Value ($)</p>
+                       <p className="text-lg font-bold text-emerald-700">
+                         ${stat.estimatedValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                       </p>
+                     </div>
+                   </div>
+
+                   {/* Payment Info */}
+                   <div className="mt-4 pt-4 border-t border-gray-100">
+                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Payment Info</p>
+                     <div className="flex items-center gap-2">
+                       <div className="px-2 py-1 rounded-md bg-indigo-50 text-[10px] font-black text-indigo-700 uppercase">
+                         {stat.paymentMethod || 'Not Set'}
+                       </div>
+                       <div className="text-xs text-gray-600 truncate font-mono bg-gray-50 px-2 py-1 rounded-md flex-1">
+                         {stat.paymentId || '---'}
+                       </div>
+                     </div>
+                   </div>
                 </div>
               ))}
             </div>
@@ -770,7 +965,46 @@ export default function AdminDashboard() {
                   <h3 className="text-lg font-semibold text-gray-900">User Management</h3>
                   <p className="text-sm text-gray-500">Manage access and permissions</p>
                 </div>
+                <button
+                  onClick={() => setIsAddingUser(true)}
+                  className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-all"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Add User</span>
+                </button>
               </div>
+
+              {isAddingUser && (
+                <div className="p-6 bg-indigo-50 border-b border-indigo-100 animate-in fade-in slide-in-from-top-4 duration-200">
+                  <div className="flex justify-between items-center mb-4">
+                    <h4 className="text-sm font-bold text-indigo-900 uppercase tracking-wider">Quick Add User (By Email)</h4>
+                    <button onClick={() => setIsAddingUser(false)} className="text-indigo-400 hover:text-indigo-600"><Plus className="h-4 w-4 transform rotate-45" /></button>
+                  </div>
+                  <form onSubmit={handleAddUser} className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex-1">
+                      <input
+                        type="email" required placeholder="email@example.com"
+                        value={newUserEmail} onChange={(e) => setNewUserEmail(e.target.value)}
+                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 border bg-white"
+                      />
+                    </div>
+                    <div className="w-full sm:w-40">
+                      <select
+                        value={newUserRole} onChange={(e) => setNewUserRole(e.target.value as any)}
+                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 border bg-white"
+                      >
+                        <option value="creator">Creator</option>
+                        <option value="manager">Manager</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                    </div>
+                    <button type="submit" className="rounded-lg bg-indigo-600 px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-all">
+                      Invite
+                    </button>
+                  </form>
+                  <p className="mt-2 text-[10px] text-indigo-600">The user will be recognized by their email the next time they log in with Google.</p>
+                </div>
+              )}
               
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
@@ -807,7 +1041,7 @@ export default function AdminDashboard() {
                           <select
                             value={u.role}
                             onChange={(e) => handleRoleChange(u.id, e.target.value)}
-                            disabled={profile?.role !== 'admin' || u.id === user?.id}
+                            disabled={(profile?.role !== 'admin' && profile?.role !== 'manager') || u.id === user?.id}
                             className="text-xs border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50"
                           >
                             <option value="creator">Creator</option>

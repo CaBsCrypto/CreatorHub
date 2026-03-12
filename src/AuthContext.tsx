@@ -73,12 +73,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchOrCreateProfile = async (currentUser: User) => {
     try {
-      // Check if profile exists
-      const { data, error } = await supabase
+      // 1. Check if profile exists by ID (standard path)
+      let { data, error } = await supabase
         .from('users')
         .select('*')
         .eq('id', currentUser.id)
         .single();
+
+      // 2. If not found by ID, try looking up by email (pre-invited users)
+      if (!data && currentUser.email) {
+        const { data: emailData } = await supabase
+          .from('users')
+          .select('*')
+          .eq('email', currentUser.email)
+          .single();
+
+        if (emailData) {
+          console.log("Found pre-existing profile by email, linking to Auth ID...", emailData);
+          // Link this profile to the current Auth ID and update metadata
+          const { data: linkedData, error: linkError } = await supabase
+            .from('users')
+            .update({
+              id: currentUser.id, // Update the ID to match Auth ID
+              display_name: emailData.display_name || currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || null,
+              photo_url: emailData.photo_url || currentUser.user_metadata?.avatar_url || null
+            })
+            .eq('email', currentUser.email)
+            .select()
+            .single();
+
+          if (!linkError && linkedData) {
+            data = linkedData;
+            console.log("Successfully linked pre-invited user.");
+          } else {
+            console.error("Failed to link user by email:", linkError);
+          }
+        }
+      }
 
       if (data) {
         // Enforce Admin role based on email dynamically as fallback
@@ -98,8 +129,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         
         setProfile(data as UserProfile);
-      } else if (error?.code === 'PGRST116') {
-        // Profile doesn't exist (PGRST116 is no rows returned, which means valid query but 0 results)
+      } else if (error?.code === 'PGRST116' || !data) {
+        // Profile doesn't exist at all, create a new one
         const role = currentUser.email === 'cabscryptocontacto@gmail.com' ? 'admin' : 'creator';
         
         const newProfile = {

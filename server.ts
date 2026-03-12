@@ -197,16 +197,36 @@ app.post("/api/analyze-performance", async (req, res) => {
     if (!apiKey) return res.status(500).json({ error: "AI Key not configured" });
     const { summaryData } = req.body;
     
-    // Correct way for @google/generative-ai
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     
-    const prompt = `Analyze the following social media content performance data for a marketing agency and provide a brief, actionable summary in Spanish (max 3 paragraphs). Highlight which platform is performing best and suggest improvements. Data: ${JSON.stringify(summaryData)}`;
-    const result = await model.generateContent(prompt);
-    res.json({ analysis: result.response.text() });
+    // Fallback logic for models
+    const modelsToTry = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-pro"];
+    let lastError = "";
+
+    for (const modelName of modelsToTry) {
+      try {
+        const model = genAI.getGenerativeModel({ model: modelName });
+        const prompt = `Analiza los siguientes datos de rendimiento de redes sociales para una agencia de marketing y proporciona un resumen breve y accionable en español (máximo 3 párrafos cortos). Usa viñetas para los puntos clave. Identifica qué plataforma funciona mejor y sugiere mejoras inmediatas. Datos: ${JSON.stringify(summaryData)}`;
+        const result = await model.generateContent(prompt);
+        return res.json({ analysis: result.response.text() });
+      } catch (err: any) {
+        lastError = err.message;
+        if (err.message?.includes("404")) {
+          console.log(`Model ${modelName} not found, trying next...`);
+          continue;
+        }
+        if (err.message?.includes("429")) {
+          return res.status(429).json({ error: "Cuota de IA agotada. Inténtalo de nuevo en unos minutos." });
+        }
+        break; // Stop on unknown errors
+      }
+    }
+    
+    console.error("AI Error:", lastError);
+    res.status(500).json({ error: "No se pudo generar el análisis. Verifica tu API Key o inténtalo más tarde." });
   } catch (error: any) {
-    console.error("AI Error:", error.message);
-    res.status(500).json({ error: "AI Analysis failed" });
+    console.error("General AI Error:", error.message);
+    res.status(500).json({ error: "Fallo inesperado en el análisis de IA" });
   }
 });
 

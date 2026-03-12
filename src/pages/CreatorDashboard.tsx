@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { supabase, Campaign, Content } from '../supabase';
 import { useAuth } from '../AuthContext';
-import { Youtube, Instagram, Twitter, Music2, Globe, ExternalLink, Edit2, Trash2, Plus, LogOut, Layout, Users, BarChart3, ChevronRight, X, Sparkles, Wallet } from 'lucide-react';
+import { Youtube, Instagram, Twitter, Music2, Globe, ExternalLink, Edit2, Trash2, Plus, LogOut, Layout, Users, BarChart3, ChevronRight, X, Sparkles, Wallet, CheckCircle2, TrendingUp, Award } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function CreatorDashboard() {
   const { user, profile } = useAuth();
@@ -20,6 +21,8 @@ export default function CreatorDashboard() {
   const [wallet_address, setWalletAddress] = useState('');
   const [wallet_network, setWalletNetwork] = useState('BSC');
   const [isSavingPayment, setIsSavingPayment] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
 
   const openPaymentModal = () => {
     setPaymentMethod(profile?.payment_method || 'binance');
@@ -65,6 +68,10 @@ export default function CreatorDashboard() {
     };
 
     fetchData();
+
+    if (profile?.audience_geo) {
+      setSelectedCountries(Object.keys(profile.audience_geo));
+    }
 
     const campaignsSub = supabase.channel('public:campaigns_creator')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'campaigns', filter: "status=eq.active" }, () => {
@@ -212,6 +219,36 @@ export default function CreatorDashboard() {
     }
   };
 
+  const totalViews = content.reduce((acc, curr) => acc + (curr.views || 0), 0);
+  const totalContent = content.length;
+
+  const creatorStats = campaigns.map(camp => {
+    const campaignContent = content.filter(c => c.campaign_id === camp.id);
+    const target = camp.target_posts || 3;
+    const progress = Math.min((campaignContent.length / target) * 100, 100);
+    return {
+      ...camp,
+      uploaded: campaignContent.length,
+      target,
+      progress
+    };
+  });
+
+  const handleUpdateProfile = async (countries: string[]) => {
+    if (!user) return;
+    try {
+      const geo: Record<string, number> = {};
+      countries.forEach(c => geo[c] = 1); // Simple mapping for now
+      const { error } = await supabase.from('users').update({
+        audience_geo: geo
+      }).eq('id', user.id);
+      if (error) throw error;
+      setSelectedCountries(countries);
+    } catch (e) {
+      console.error("Error updating profile", e);
+    }
+  };
+
   const confirmDelete = async () => {
     if (!contentToDelete) return;
     try {
@@ -225,25 +262,157 @@ export default function CreatorDashboard() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">My Content</h1>
+    <div className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Header & Stats */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="space-y-1"
+        >
+          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
+            Hola, <span className="text-indigo-600">{profile?.display_name || 'Creador'}</span>! 👋
+          </h1>
+          <p className="text-gray-500 font-medium">Aquí tienes el resumen de tu impacto hoy.</p>
+        </motion.div>
+        
         <div className="flex items-center gap-3">
-          <button
-            onClick={openPaymentModal}
-            className="inline-flex items-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-colors"
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setIsProfileOpen(true)}
+            className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-gray-700 shadow-sm ring-1 ring-inset ring-gray-200 hover:bg-gray-50 transition-all"
           >
-            <Wallet className="h-4 w-4 text-gray-500" />
-            <span className="hidden sm:inline">Payment Info</span>
-          </button>
-          <button
+            <Users className="h-4 w-4 text-indigo-500" />
+            <span>Mi Audiencia</span>
+          </motion.button>
+          
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={openPaymentModal}
+            className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-gray-700 shadow-sm ring-1 ring-inset ring-gray-200 hover:bg-gray-50 transition-all"
+          >
+            <Wallet className="h-4 w-4 text-emerald-500" />
+            <span>Pagos</span>
+          </motion.button>
+          
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => { setIsUploading(true); setEditingContent(null); }}
-            className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-colors"
+            className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-200 hover:bg-indigo-500 transition-all"
           >
             <Plus className="h-4 w-4" />
-            Upload
-          </button>
+            Subir Contenido
+          </motion.button>
         </div>
+      </div>
+
+      {/* Quick Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between"
+        >
+          <div>
+            <p className="text-sm font-bold text-gray-500 uppercase tracking-wider">Vistas Totales</p>
+            <h3 className="text-3xl font-black text-gray-900 mt-1">{totalViews.toLocaleString()}</h3>
+          </div>
+          <div className="h-12 w-12 bg-indigo-50 rounded-xl flex items-center justify-center">
+            <TrendingUp className="h-6 w-6 text-indigo-600" />
+          </div>
+        </motion.div>
+
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between"
+        >
+          <div>
+            <p className="text-sm font-bold text-gray-500 uppercase tracking-wider">Videos Subidos</p>
+            <h3 className="text-3xl font-black text-gray-900 mt-1">{totalContent}</h3>
+          </div>
+          <div className="h-12 w-12 bg-rose-50 rounded-xl flex items-center justify-center">
+            <Youtube className="h-6 w-6 text-rose-600" />
+          </div>
+        </motion.div>
+
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-gradient-to-br from-indigo-600 to-violet-700 p-6 rounded-2xl shadow-lg border border-indigo-500 flex items-center justify-between text-white"
+        >
+          <div>
+            <p className="text-sm font-bold text-indigo-100 uppercase tracking-wider">Campañas Activas</p>
+            <h3 className="text-3xl font-black mt-1">{campaigns.length}</h3>
+          </div>
+          <div className="h-12 w-12 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center">
+            <Award className="h-6 w-6 text-white" />
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Gamification Session - Active Campaigns Progress */}
+      <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-xl font-black text-gray-900 flex items-center gap-2">
+            Objetivos de Campaña
+            <Sparkles className="h-5 w-5 text-yellow-500" />
+          </h2>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {creatorStats.map((camp, idx) => (
+            <motion.div 
+              key={camp.id}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.1 * idx }}
+              className="relative p-6 rounded-2xl bg-gray-50 border border-gray-100 hover:border-indigo-200 transition-all"
+            >
+              <div className="flex justify-between items-start mb-4">
+                <h4 className="font-bold text-gray-900 truncate pr-2">{camp.name}</h4>
+                <div className={`px-2 py-1 rounded-md text-[10px] font-black uppercase ${camp.progress === 100 ? 'bg-emerald-100 text-emerald-700' : 'bg-indigo-100 text-indigo-700'}`}>
+                  {camp.progress === 100 ? 'Completado' : 'En Progreso'}
+                </div>
+              </div>
+              
+              <div className="mb-2 flex justify-between text-xs font-bold text-gray-600">
+                <span>{camp.uploaded} / {camp.target} posts</span>
+                <span>{Math.round(camp.progress)}%</span>
+              </div>
+              
+              <div className="w-full bg-gray-200 rounded-full h-3">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${camp.progress}%` }}
+                  transition={{ duration: 1, ease: "easeOut" }}
+                  className={`h-3 rounded-full ${camp.progress === 100 ? 'bg-emerald-500' : 'bg-indigo-600'}`}
+                />
+              </div>
+              
+              {camp.progress === 100 && (
+                <div className="absolute -top-2 -right-2 bg-emerald-500 text-white p-1 rounded-full shadow-lg">
+                  <CheckCircle2 className="h-4 w-4" />
+                </div>
+              )}
+            </motion.div>
+          ))}
+          {campaigns.length === 0 && (
+            <div className="col-span-full py-12 text-center text-gray-400 italic">
+              No hay campañas activas en este momento.
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between pt-4">
+        <h2 className="text-xl font-black text-gray-900">Mi Contenido Reciente</h2>
       </div>
 
       {isPaymentModalOpen && (
@@ -543,6 +712,81 @@ export default function CreatorDashboard() {
           </div>
         )}
       </div>
+
+      {/* Audience Profile Modal */}
+      <AnimatePresence>
+        {isProfileOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" 
+              onClick={() => setIsProfileOpen(false)}
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-lg rounded-3xl bg-white p-8 shadow-2xl"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-indigo-50 rounded-xl">
+                    <Users className="h-6 w-6 text-indigo-600" />
+                  </div>
+                  <h3 className="text-xl font-black text-gray-900">Mi Audiencia</h3>
+                </div>
+                <button onClick={() => setIsProfileOpen(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+              
+              <p className="text-gray-500 text-sm mb-8 leading-relaxed">
+                Selecciona tus **3 países principales** de audiencia. Esto nos ayuda a mostrarte mejores oportunidades de campaña.
+              </p>
+              
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8">
+                {['Chile', 'Argentina', 'México', 'España', 'Colombia', 'Perú', 'USA', 'Brasil', 'Otros'].map(country => {
+                  const isSelected = selectedCountries.includes(country);
+                  return (
+                    <motion.button
+                      key={country}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => {
+                        if (isSelected) {
+                          handleUpdateProfile(selectedCountries.filter(c => c !== country));
+                        } else if (selectedCountries.length < 3) {
+                          handleUpdateProfile([...selectedCountries, country]);
+                        }
+                      }}
+                      className={`py-3 px-4 rounded-2xl text-xs font-bold transition-all border-2 ${
+                        isSelected 
+                          ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100' 
+                          : 'bg-white border-gray-100 text-gray-600 hover:border-indigo-200'
+                      }`}
+                    >
+                      {country}
+                    </motion.button>
+                  );
+                })}
+              </div>
+              
+              <div className="flex justify-center">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setIsProfileOpen(false)}
+                  className="w-full py-4 rounded-2xl bg-gray-900 text-white font-black hover:bg-gray-800 transition-all"
+                >
+                  Confirmar Selección
+                </motion.button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Delete Confirmation Modal */}
       {contentToDelete && (

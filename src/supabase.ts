@@ -23,6 +23,7 @@ export interface UserProfile {
   binance_id: string | null;
   wallet_address: string | null;
   wallet_network: string | null;
+  audience_geo?: Record<string, number>; // Mapping of country codes to audience percentage/count
   created_at: string;
 }
 
@@ -31,6 +32,7 @@ export interface Campaign {
   name: string;
   description: string;
   status: 'active' | 'completed';
+  target_posts?: number; // Target number of posts for gamification
   created_by: string;
   created_at: string;
 }
