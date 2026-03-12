@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { collection, query, onSnapshot, addDoc, updateDoc, doc } from 'firebase/firestore';
+import { collection, query, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from '../firebase';
 import { useAuth } from '../AuthContext';
-import { Plus, Download, RefreshCw, Sparkles, ExternalLink, LayoutDashboard, List, Users, Youtube, Instagram, Globe, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Download, RefreshCw, Sparkles, ExternalLink, LayoutDashboard, List, Users, Youtube, Instagram, Globe, Calendar as CalendarIcon, ChevronLeft, ChevronRight, Trash2, Target } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isToday, addMonths, subMonths, isSameDay } from 'date-fns';
 import { BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import Papa from 'papaparse';
@@ -40,7 +40,7 @@ interface User {
 
 export default function AdminDashboard() {
   const { user, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'overview' | 'content' | 'creators' | 'team' | 'calendar'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'campaigns' | 'content' | 'creators' | 'team' | 'calendar'>('overview');
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [content, setContent] = useState<Content[]>([]);
   const [users, setUsers] = useState<User[]>([]);
@@ -113,6 +113,15 @@ export default function AdminDashboard() {
       await updateDoc(doc(db, 'users', uid), { role: newRole });
     } catch (error) {
       handleFirestoreError(error, OperationType.UPDATE, `users/${uid}`);
+    }
+  };
+
+  const handleDeleteCampaign = async (campaignId: string) => {
+    if (!window.confirm("¿Estás seguro de que deseas eliminar esta campaña? No se puede deshacer.")) return;
+    try {
+      await deleteDoc(doc(db, 'campaigns', campaignId));
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, `campaigns/${campaignId}`);
     }
   };
 
@@ -289,7 +298,7 @@ export default function AdminDashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const stats = [
-    { name: 'Total Campaigns', value: campaigns.length, icon: List, onClick: () => setActiveTab('overview') }, // Remains on overview, maybe opens new campaign modal? Just overview for now.
+    { name: 'Total Campaigns', value: campaigns.length, icon: List, onClick: () => setActiveTab('campaigns') },
     { name: 'Total Content Pieces', value: content.length, icon: Youtube, onClick: () => setActiveTab('content') },
     { 
       name: 'Total Creators', 
@@ -302,6 +311,7 @@ export default function AdminDashboard() {
 
   const navigation = [
     { id: 'overview', name: 'Overview', icon: LayoutDashboard },
+    { id: 'campaigns', name: 'Campaigns', icon: Target },
     { id: 'calendar', name: 'Calendar', icon: CalendarIcon },
     { id: 'content', name: 'Content Explorer', icon: List },
     { id: 'creators', name: 'Creators Analysis', icon: Users },
@@ -385,7 +395,7 @@ export default function AdminDashboard() {
         <div className="max-w-7xl mx-auto space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold text-gray-900 capitalize">{activeTab.replace('-', ' ')}</h2>
-            {activeTab === 'overview' && (
+            {activeTab === 'campaigns' && (
               <button
                 onClick={() => setIsCreating(true)}
                 className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-all"
@@ -448,7 +458,7 @@ export default function AdminDashboard() {
                 ))}
               </div>
 
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 mt-6">
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Views by Platform</h3>
                   <div className="h-72">
@@ -515,6 +525,53 @@ export default function AdminDashboard() {
                     )}
                   </div>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'campaigns' && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              {/* Campaigns List */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-900">Active Campaigns</h3>
+                </div>
+                {campaigns.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Campaign Name</th>
+                          <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Description</th>
+                          <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Created</th>
+                          <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {campaigns.map((camp) => (
+                          <tr key={camp.id} className="hover:bg-gray-50 transition-colors">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{camp.name}</td>
+                            <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{camp.description}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{camp.createdAt ? format(new Date(camp.createdAt), 'MMM d, yyyy') : ''}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                              <button 
+                                onClick={() => handleDeleteCampaign(camp.id)}
+                                className="text-red-500 hover:text-red-700 p-1 rounded-md hover:bg-red-50 transition-colors"
+                                title="Delete Campaign"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="p-6 text-center text-gray-500 text-sm">
+                    No active campaigns. Click "New Campaign" to create one.
+                  </div>
+                )}
               </div>
             </div>
           )}
