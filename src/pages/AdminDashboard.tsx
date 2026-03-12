@@ -282,7 +282,7 @@ export default function AdminDashboard() {
 
   const stats = [
     { name: 'Total Campaigns', value: campaigns.length, icon: List },
-    { name: 'Total Content', value: content.length, icon: Youtube },
+    { name: 'Total Content Pieces', value: content.length, icon: Youtube },
     { name: 'Total Views', value: content.reduce((acc, curr) => acc + (curr.views || 0), 0).toLocaleString(), icon: Globe },
     { name: 'Total Creators', value: users.filter(u => u.role === 'creator').length, icon: Users },
   ];
