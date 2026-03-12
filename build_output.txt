@@ -1,0 +1,6 @@
+
+> react-example@0.0.0 build
+> vite build
+
+"vite" no se reconoce como un comando interno o externo,
+programa o archivo por lotes ejecutable.

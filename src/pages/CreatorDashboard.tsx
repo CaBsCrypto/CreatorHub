@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { collection, query, onSnapshot, addDoc, where, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from '../firebase';
 import { useAuth } from '../AuthContext';
-import { Plus, Youtube, Instagram, Link as LinkIcon, Twitter, Trash2, Edit2, X, ExternalLink } from 'lucide-react';
+import { Youtube, Instagram, Twitter, Music2, Globe, ExternalLink, Edit2, Trash2, Plus, LogOut, Layout, Users, BarChart3, ChevronRight, X, Sparkles } from 'lucide-react';
 
 interface Campaign {
   id: string;
@@ -13,16 +13,18 @@ interface Campaign {
 
 interface Content {
   id: string;
-  campaignId: string;
-  creatorId: string;
-  platform: 'youtube' | 'instagram' | 'tiktok' | 'x';
   url: string;
-  title: string;
+  platform: 'youtube' | 'instagram' | 'tiktok' | 'x' | 'coinmarketcap';
+  title?: string;
+  thumbnail?: string;
   views: number;
   likes: number;
   comments: number;
-  uploadedAt: string;
-  createdAt: string;
+  campaignId: string;
+  creatorId: string;
+  status: 'active' | 'archived';
+  createdAt: any;
+  uploadedAt?: any;
 }
 
 export default function CreatorDashboard() {
@@ -103,6 +105,23 @@ export default function CreatorDashboard() {
         uploadedAt: new Date().toISOString(),
         createdAt: new Date().toISOString()
       });
+
+      // Notify admin of new content
+      fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subject: '📷 Nuevo Contenido Subido',
+          html: `<p>Un creador ha subido nuevo contenido.</p>
+                 <ul>
+                   <li><strong>Creador:</strong> ${user.displayName || user.email}</li>
+                   <li><strong>Plataforma:</strong> ${newContent.platform}</li>
+                   <li><strong>Título:</strong> ${title}</li>
+                   <li><strong>URL:</strong> <a href="${newContent.url}">${newContent.url}</a></li>
+                 </ul>`
+        })
+      }).catch(err => console.error("Notification failed:", err));
+
       setIsUploading(false);
       setNewContent({ campaignId: '', platform: 'youtube', url: '' });
     } catch (error) {
@@ -211,7 +230,7 @@ export default function CreatorDashboard() {
                     : setNewContent({ ...newContent, campaignId: e.target.value })}
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 >
-                  <option value="" disabled>Select a campaign</option>
+                  <option value="" disabled>{campaigns.length > 0 ? "Select a campaign" : "No active campaigns found"}</option>
                   {campaigns.map(c => (
                     <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
@@ -276,67 +295,102 @@ export default function CreatorDashboard() {
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {content.map((item) => (
-          <div key={item.id} className="overflow-hidden rounded-lg bg-white shadow flex flex-col">
-            <div className="p-5 flex-1">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    {item.platform === 'youtube' && <Youtube className="h-6 w-6 text-red-600" />}
-                    {item.platform === 'instagram' && <Instagram className="h-6 w-6 text-pink-600" />}
-                    {item.platform === 'tiktok' && <LinkIcon className="h-6 w-6 text-black" />}
-                    {item.platform === 'x' && <Twitter className="h-6 w-6 text-black" />}
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="truncate text-sm font-medium text-gray-500">
-                        {campaigns.find(c => c.id === item.campaignId)?.name || 'Unknown Campaign'}
-                      </dt>
-                      <dd>
-                        <a 
-                          href={item.url} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-lg font-medium text-gray-900 line-clamp-2 hover:text-indigo-600 transition-colors" 
-                          title={item.title || item.url}
-                        >
-                          {item.title || item.url}
-                        </a>
-                      </dd>
-                    </dl>
+          <div key={item.id} className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 flex flex-col hover:shadow-md transition-shadow duration-300">
+            {/* Thumbnail Header */}
+            <div className="relative aspect-video w-full bg-gray-100 overflow-hidden group">
+              {item.thumbnail ? (
+                <img 
+                  src={item.thumbnail} 
+                  alt={item.title || "Content thumbnail"} 
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-indigo-50 to-white">
+                  <div className="text-indigo-200">
+                    {item.platform === 'youtube' && <Youtube className="h-12 w-12" />}
+                    {item.platform === 'instagram' && <Instagram className="h-12 w-12" />}
+                    {item.platform === 'tiktok' && <Music2 className="h-12 w-12" />}
+                    {item.platform === 'x' && <Twitter className="h-12 w-12" />}
+                    {item.platform === 'coinmarketcap' && <Globe className="h-12 w-12" />}
                   </div>
                 </div>
-                <div className="flex gap-2 ml-4">
+              )}
+              {/* Platform Badge overlay */}
+              <div className="absolute top-2 right-2 p-1.5 rounded-lg bg-white/90 backdrop-blur shadow-sm">
+                {item.platform === 'youtube' && <Youtube className="h-4 w-4 text-red-600" />}
+                {item.platform === 'instagram' && <Instagram className="h-4 w-4 text-pink-600" />}
+                {item.platform === 'tiktok' && <Music2 className="h-4 w-4 text-black" />}
+                {item.platform === 'x' && <Twitter className="h-4 w-4 text-black" />}
+                {item.platform === 'coinmarketcap' && <Globe className="h-4 w-4 text-blue-600" />}
+              </div>
+            </div>
+
+            <div className="p-5 flex-1">
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-medium text-indigo-600 mb-1">
+                    {campaigns.find(c => c.id === item.campaignId)?.name || 'General'}
+                  </p>
                   <a 
                     href={item.url} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="text-gray-400 hover:text-indigo-600"
-                    title="Open original post"
+                    className="text-base font-semibold text-gray-900 line-clamp-2 hover:text-indigo-600 transition-colors" 
+                    title={item.title || item.url}
                   >
-                    <ExternalLink className="h-4 w-4" />
+                    {item.title || item.url}
                   </a>
-                  <button onClick={() => { setEditingContent(item); setIsUploading(false); }} className="text-gray-400 hover:text-indigo-600" title="Edit">
+                </div>
+                <div className="flex gap-1.5">
+                  <button onClick={() => { setEditingContent(item); setIsUploading(true); }} className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-gray-100 rounded-lg transition-colors" title="Edit">
                     <Edit2 className="h-4 w-4" />
                   </button>
-                  <button onClick={() => setContentToDelete(item.id)} className="text-gray-400 hover:text-red-600" title="Delete">
+                  <button onClick={() => setContentToDelete(item.id)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-gray-100 rounded-lg transition-colors" title="Delete">
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
               </div>
             </div>
-            <div className="bg-gray-50 px-5 py-3 mt-auto">
-              <div className="text-sm">
-                <div className="flex justify-between text-gray-500">
-                  <span>Views: {item.views?.toLocaleString() || 0}</span>
-                  <span>Likes: {item.likes?.toLocaleString() || 0}</span>
+            
+            <div className="bg-gray-50/50 px-5 py-3 border-t border-gray-100">
+              <div className="flex justify-between items-center text-sm">
+                <div className="flex gap-4">
+                  <div className="flex items-center gap-1.5 text-gray-600">
+                    <span className="font-semibold">{item.views?.toLocaleString() || 0}</span>
+                    <span className="text-gray-400 text-xs uppercase tracking-tight font-medium">Views</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-gray-600">
+                    <span className="font-semibold">{item.likes?.toLocaleString() || 0}</span>
+                    <span className="text-gray-400 text-xs uppercase tracking-tight font-medium">Likes</span>
+                  </div>
+                </div>
+                <div className="text-gray-400 bg-white p-1 rounded-md shadow-sm border border-gray-100">
+                  <ExternalLink className="h-3.5 w-3.5" />
                 </div>
               </div>
             </div>
           </div>
         ))}
         {content.length === 0 && !isUploading && !editingContent && (
-          <div className="col-span-full text-center py-12">
-            <p className="text-sm text-gray-500">No content uploaded yet. Click "Upload Content" to get started.</p>
+          <div className="col-span-full py-16 px-4">
+            <div className="max-w-md mx-auto text-center space-y-6 animate-in fade-in zoom-in duration-500">
+              <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-indigo-50 text-indigo-600 shadow-sm ring-4 ring-indigo-50/50">
+                <Sparkles className="h-10 w-10 animate-pulse" />
+              </div>
+              <div className="space-y-4">
+                <h2 className="text-2xl font-bold text-gray-900">¡Bienvenido a CreatorHub!</h2>
+                <p className="text-gray-500 text-lg leading-relaxed">
+                  Aún no has subido contenido. Comienza compartiendo tu primer trabajo para empezar a trackear tus métricas y ver tu impacto.
+                </p>
+              </div>
+              <button
+                onClick={() => setIsUploading(true)}
+                className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-8 py-4 text-lg font-bold text-white shadow-lg hover:bg-indigo-500 hover:scale-105 transition-all duration-300 active:scale-95"
+              >
+                <Plus className="h-6 w-6" />
+                Subir mi primer contenido
+              </button>
+            </div>
           </div>
         )}
       </div>

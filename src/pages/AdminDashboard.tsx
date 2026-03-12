@@ -2,11 +2,10 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { collection, query, onSnapshot, addDoc, updateDoc, doc } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from '../firebase';
 import { useAuth } from '../AuthContext';
-import { Plus, Download, RefreshCw, Sparkles, ExternalLink, LayoutDashboard, List, Users } from 'lucide-react';
+import { Plus, Download, RefreshCw, Sparkles, ExternalLink, LayoutDashboard, List, Users, Youtube, Instagram, Globe } from 'lucide-react';
 import { format } from 'date-fns';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import Papa from 'papaparse';
-import { GoogleGenAI } from '@google/genai';
 
 interface Campaign {
   id: string;
@@ -24,6 +23,7 @@ interface Content {
   platform: 'youtube' | 'instagram' | 'tiktok' | 'x' | 'coinmarketcap';
   url: string;
   title: string;
+  thumbnail?: string;
   views: number;
   likes: number;
   comments: number;
@@ -164,8 +164,6 @@ export default function AdminDashboard() {
     
     setIsAnalyzing(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-      
       const summaryData = content.map(c => ({
         platform: c.platform,
         views: c.views || 0,
@@ -173,14 +171,15 @@ export default function AdminDashboard() {
         comments: c.comments || 0
       }));
 
-      const prompt = `Analyze the following social media content performance data for a marketing agency and provide a brief, actionable summary (max 3 paragraphs). Highlight which platform is performing best and suggest improvements. Data: ${JSON.stringify(summaryData)}`;
-
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: prompt,
+      const response = await fetch('/api/analyze-performance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ summaryData })
       });
 
-      setAiAnalysis(response.text || "No analysis generated.");
+      if (!response.ok) throw new Error("Backend AI call failed");
+      const data = await response.json();
+      setAiAnalysis(data.analysis || "No analysis generated.");
     } catch (error) {
       console.error("AI Analysis failed", error);
       alert("Failed to generate AI analysis.");
@@ -279,429 +278,373 @@ export default function AdminDashboard() {
     }
   };
 
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const stats = [
+    { name: 'Total Campaigns', value: campaigns.length, icon: List },
+    { name: 'Total Content', value: content.length, icon: Youtube },
+    { name: 'Total Views', value: content.reduce((acc, curr) => acc + (curr.views || 0), 0).toLocaleString(), icon: Globe },
+    { name: 'Total Creators', value: users.filter(u => u.role === 'creator').length, icon: Users },
+  ];
+
+  const navigation = [
+    { id: 'overview', name: 'Overview', icon: LayoutDashboard },
+    { id: 'content', name: 'Content Explorer', icon: List },
+    { id: 'creators', name: 'Creators Analysis', icon: Users },
+    { id: 'team', name: 'Team Management', icon: Users },
+  ];
+
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={handleRefreshStats}
-            disabled={isRefreshing}
-            className="inline-flex items-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-50"
-          >
-            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-            Refresh Stats
-          </button>
-          <button
-            onClick={exportToCSV}
-            className="inline-flex items-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-          >
-            <Download className="h-4 w-4" />
-            Export Data
-          </button>
-          <button
-            onClick={() => setIsCreating(true)}
-            className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          >
-            <Plus className="h-4 w-4" />
-            New Campaign
-          </button>
-        </div>
+    <div className="flex flex-col lg:flex-row min-h-[calc(100vh-4rem)] bg-gray-50 -m-4 sm:-m-6 lg:-m-8">
+      {/* Mobile Sidebar Toggle */}
+      <div className="lg:hidden flex items-center justify-between p-4 bg-white border-b border-gray-200">
+        <h1 className="text-xl font-bold text-gray-900">Admin Panel</h1>
+        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 text-gray-500 hover:text-gray-600">
+          <List className="h-6 w-6" />
+        </button>
       </div>
 
-      {/* Tabs */}
-      <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8" aria-label="Tabs">
-          <button
-            onClick={() => setActiveTab('overview')}
-            className={`${
-              activeTab === 'overview'
-                ? 'border-indigo-500 text-indigo-600'
-                : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
-            } whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium flex items-center gap-2`}
-          >
-            <LayoutDashboard className="h-4 w-4" />
-            Overview
-          </button>
-          <button
-            onClick={() => setActiveTab('content')}
-            className={`${
-              activeTab === 'content'
-                ? 'border-indigo-500 text-indigo-600'
-                : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
-            } whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium flex items-center gap-2`}
-          >
-            <List className="h-4 w-4" />
-            Content Explorer
-          </button>
-          <button
-            onClick={() => setActiveTab('creators')}
-            className={`${
-              activeTab === 'creators'
-                ? 'border-indigo-500 text-indigo-600'
-                : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
-            } whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium flex items-center gap-2`}
-          >
-            <Users className="h-4 w-4" />
-            Creators Analysis
-          </button>
-          <button
-            onClick={() => setActiveTab('team')}
-            className={`${
-              activeTab === 'team'
-                ? 'border-indigo-500 text-indigo-600'
-                : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
-            } whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium flex items-center gap-2`}
-          >
-            <Users className="h-4 w-4" />
-            Team Management
-          </button>
-        </nav>
-      </div>
-
-      {isCreating && (
-        <div className="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-900/5">
-          <h2 className="text-lg font-semibold text-gray-900">Create New Campaign</h2>
-          <form onSubmit={handleCreateCampaign} className="mt-4 space-y-4">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium leading-6 text-gray-900">Campaign Name</label>
-              <div className="mt-2">
-                <input
-                  type="text"
-                  id="name"
-                  required
-                  value={newCampaign.name}
-                  onChange={(e) => setNewCampaign({ ...newCampaign, name: e.target.value })}
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
-            <div>
-              <label htmlFor="description" className="block text-sm font-medium leading-6 text-gray-900">Description</label>
-              <div className="mt-2">
-                <textarea
-                  id="description"
-                  rows={3}
-                  value={newCampaign.description}
-                  onChange={(e) => setNewCampaign({ ...newCampaign, description: e.target.value })}
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
-            <div className="flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setIsCreating(false)}
-                className="text-sm font-semibold leading-6 text-gray-900"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              >
-                Save
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {activeTab === 'overview' && (
-        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
-              <dt className="truncate text-sm font-medium text-gray-500">Total Campaigns</dt>
-              <dd className="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{campaigns.length}</dd>
-            </div>
-            <div className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
-              <dt className="truncate text-sm font-medium text-gray-500">Total Content Pieces</dt>
-              <dd className="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{content.length}</dd>
-            </div>
-            <div className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
-              <dt className="truncate text-sm font-medium text-gray-500">Total Views</dt>
-              <dd className="mt-1 text-3xl font-semibold tracking-tight text-gray-900">
-                {content.reduce((acc, curr) => acc + (curr.views || 0), 0).toLocaleString()}
-              </dd>
-            </div>
-            <div className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
-              <dt className="truncate text-sm font-medium text-gray-500">Total Engagement</dt>
-              <dd className="mt-1 text-3xl font-semibold tracking-tight text-gray-900">
-                {content.reduce((acc, curr) => acc + (curr.likes || 0) + (curr.comments || 0), 0).toLocaleString()}
-              </dd>
-            </div>
+      {/* Sidebar / Drawer */}
+      <aside className={`
+        fixed inset-0 z-50 lg:relative lg:z-0
+        transition-transform duration-300 transform
+        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        w-64 bg-white border-r border-gray-200 flex-shrink-0
+      `}>
+        <div className="flex flex-col h-full">
+          <div className="p-6 hidden lg:block">
+            <h1 className="text-xl font-bold text-gray-900">Admin Panel</h1>
           </div>
-
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <div className="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-900/5">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Views by Platform</h2>
-              <div className="h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={platformData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="views" fill="#4f46e5" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            <div className="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-900/5">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">AI Performance Analysis</h2>
-                <button
-                  onClick={generateAiAnalysis}
-                  disabled={isAnalyzing || content.length === 0}
-                  className="inline-flex items-center gap-2 rounded-md bg-indigo-50 px-3 py-1.5 text-sm font-semibold text-indigo-600 shadow-sm hover:bg-indigo-100 disabled:opacity-50"
-                >
-                  <Sparkles className={`h-4 w-4 ${isAnalyzing ? 'animate-pulse' : ''}`} />
-                  {isAnalyzing ? 'Analyzing...' : 'Generate Analysis'}
-                </button>
-              </div>
-              <div className="prose prose-sm max-w-none text-gray-600">
-                {aiAnalysis ? (
-                  <div className="whitespace-pre-wrap">{aiAnalysis}</div>
-                ) : (
-                  <p className="italic text-gray-400">Click the button above to generate an AI-powered analysis of your content performance across all platforms.</p>
-                )}
-              </div>
-            </div>
+          <nav className="flex-1 px-4 space-y-1 mt-4">
+            {navigation.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => { setActiveTab(item.id as any); setIsSidebarOpen(false); }}
+                className={`
+                  w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors
+                  ${activeTab === item.id 
+                    ? 'bg-indigo-50 text-indigo-700' 
+                    : 'text-gray-600 hover:bg-gray-100'}
+                `}
+              >
+                <item.icon className={`h-5 w-5 ${activeTab === item.id ? 'text-indigo-600' : 'text-gray-400'}`} />
+                {item.name}
+              </button>
+            ))}
+          </nav>
+          
+          <div className="p-4 border-t border-gray-100 space-y-2">
+            <button onClick={handleRefreshStats} disabled={isRefreshing} className="flex items-center gap-2 w-full px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50 rounded-lg">
+              <RefreshCw className={`h-3 w-3 ${isRefreshing ? 'animate-spin' : ''}`} />
+              {isRefreshing ? 'Refreshing...' : 'Refresh Stats'}
+            </button>
+            <button onClick={exportToCSV} className="flex items-center gap-2 w-full px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50 rounded-lg">
+              <Download className="h-3 w-3" />
+              Export CSV
+            </button>
           </div>
         </div>
+      </aside>
+
+      {/* Backdrop for mobile */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-gray-600 bg-opacity-50 lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
       )}
 
-      {activeTab === 'content' && (
-        <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="flex flex-wrap gap-4 bg-white p-4 rounded-lg shadow-sm ring-1 ring-gray-900/5">
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Campaign</label>
-              <select
-                value={filterCampaign}
-                onChange={(e) => setFilterCampaign(e.target.value)}
-                className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
+      {/* Main Content Area */}
+      <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto">
+        <div className="max-w-7xl mx-auto space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-gray-900 capitalize">{activeTab.replace('-', ' ')}</h2>
+            {activeTab === 'overview' && (
+              <button
+                onClick={() => setIsCreating(true)}
+                className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-all"
               >
-                <option value="all">All Campaigns</option>
-                {campaigns.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
+                <Plus className="h-4 w-4" />
+                <span className="hidden sm:inline">New Campaign</span>
+              </button>
+            )}
+          </div>
+
+          {isCreating && (
+            <div className="rounded-xl bg-white p-6 shadow-sm border border-gray-100 animate-in fade-in zoom-in duration-200">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Create New Campaign</h3>
+                <button onClick={() => setIsCreating(false)} className="text-gray-400 hover:text-gray-600"><Plus className="h-5 w-5 transform rotate-45" /></button>
+              </div>
+              <form onSubmit={handleCreateCampaign} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Campaign Name</label>
+                  <input
+                    type="text" required value={newCampaign.name}
+                    onChange={(e) => setNewCampaign({ ...newCampaign, name: e.target.value })}
+                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 border"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Description</label>
+                  <textarea
+                    rows={3} value={newCampaign.description}
+                    onChange={(e) => setNewCampaign({ ...newCampaign, description: e.target.value })}
+                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 border"
+                  />
+                </div>
+                <div className="flex justify-end gap-3">
+                  <button type="submit" className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-all">Save Campaign</button>
+                </div>
+              </form>
             </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Platform</label>
-              <select
-                value={filterPlatform}
-                onChange={(e) => setFilterPlatform(e.target.value)}
-                className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
-              >
-                <option value="all">All Platforms</option>
-                <option value="youtube">YouTube</option>
-                <option value="instagram">Instagram</option>
-                <option value="tiktok">TikTok</option>
-                <option value="x">X (Twitter)</option>
-                <option value="coinmarketcap">CoinMarketCap</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Creator</label>
-              <select
-                value={filterCreator}
-                onChange={(e) => setFilterCreator(e.target.value)}
-                className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
-              >
-                <option value="all">All Creators</option>
-                {users.filter(u => u.role === 'creator').map(u => (
-                  <option key={u.uid} value={u.uid}>{u.displayName || u.email}</option>
+          )}
+
+          {activeTab === 'overview' && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {stats.map((stat) => (
+                  <div key={stat.name} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-500">{stat.name}</p>
+                        <p className="mt-1 text-2xl font-bold text-gray-900">{stat.value}</p>
+                      </div>
+                      <div className="p-3 bg-indigo-50 rounded-lg">
+                        <stat.icon className="h-6 w-6 text-indigo-600" />
+                      </div>
+                    </div>
+                  </div>
                 ))}
-              </select>
-            </div>
-          </div>
+              </div>
 
-          <div className="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-300">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Content</th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Creator</th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Campaign</th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 cursor-pointer hover:text-indigo-600" onClick={() => handleSort('views')}>
-                      Views {sortField === 'views' && (sortOrder === 'asc' ? '↑' : '↓')}
-                    </th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 cursor-pointer hover:text-indigo-600" onClick={() => handleSort('likes')}>
-                      Likes {sortField === 'likes' && (sortOrder === 'asc' ? '↑' : '↓')}
-                    </th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 cursor-pointer hover:text-indigo-600" onClick={() => handleSort('comments')}>
-                      Comments {sortField === 'comments' && (sortOrder === 'asc' ? '↑' : '↓')}
-                    </th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 cursor-pointer hover:text-indigo-600" onClick={() => handleSort('createdAt')}>
-                      Date {sortField === 'createdAt' && (sortOrder === 'asc' ? '↑' : '↓')}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 bg-white">
-                  {filteredAndSortedContent.map((item) => {
-                    const campaign = campaigns.find(c => c.id === item.campaignId);
-                    const creator = users.find(u => u.uid === item.creatorId);
-                    return (
-                      <tr key={item.id} className="hover:bg-gray-50">
-                        <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
-                          <div className="flex items-center">
-                            <div className="font-medium text-gray-900 truncate max-w-[200px]" title={item.title || item.url}>
-                              <a href={item.url} target="_blank" rel="noopener noreferrer" className="hover:text-indigo-600 flex items-center gap-1">
-                                {item.title || item.url}
-                                <ExternalLink className="h-3 w-3 text-gray-400" />
-                              </a>
-                            </div>
-                          </div>
-                          <div className="text-gray-500 text-xs mt-1 capitalize">{item.platform}</div>
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          {creator?.displayName || creator?.email || 'Unknown'}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          {campaign?.name || 'Unknown'}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900 font-medium">
-                          {item.views?.toLocaleString() || 0}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          {item.likes?.toLocaleString() || 0}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          {item.comments?.toLocaleString() || 0}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          {item.uploadedAt ? format(new Date(item.uploadedAt), 'MMM d, yyyy') : format(new Date(item.createdAt), 'MMM d, yyyy')}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                  {filteredAndSortedContent.length === 0 && (
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Views by Platform</h3>
+                  <div className="h-72">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={platformData}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                        <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                        <Bar dataKey="views" fill="#4f46e5" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900">AI Insights</h3>
+                    <button
+                      onClick={generateAiAnalysis} disabled={isAnalyzing || content.length === 0}
+                      className="inline-flex items-center gap-2 rounded-lg bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 disabled:opacity-50"
+                    >
+                      <Sparkles className={`h-3 w-3 ${isAnalyzing ? 'animate-pulse' : ''}`} />
+                      {isAnalyzing ? 'Analyzing...' : 'Refresh AI'}
+                    </button>
+                  </div>
+                  <div className="prose prose-sm max-w-none text-gray-600 h-[260px] overflow-auto">
+                    {aiAnalysis ? (
+                      <div className="whitespace-pre-wrap leading-relaxed">{aiAnalysis}</div>
+                    ) : (
+                      <div className="h-full flex flex-col items-center justify-center text-center space-y-2">
+                        <Sparkles className="h-8 w-8 text-indigo-200" />
+                        <p className="text-gray-400 italic">No analysis yet. Click the button above to generate one.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'content' && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              {/* Filters Area */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Campaign</label>
+                  <select value={filterCampaign} onChange={(e) => setFilterCampaign(e.target.value)} className="w-full bg-gray-50 border-none rounded-lg text-sm py-2 px-3 focus:ring-2 focus:ring-indigo-500">
+                    <option value="all">All Campaigns</option>
+                    {campaigns.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Platform</label>
+                  <select value={filterPlatform} onChange={(e) => setFilterPlatform(e.target.value)} className="w-full bg-gray-50 border-none rounded-lg text-sm py-2 px-3 focus:ring-2 focus:ring-indigo-500">
+                    <option value="all">All Platforms</option>
+                    {['youtube', 'instagram', 'tiktok', 'x', 'coinmarketcap'].map(p => <option key={p} value={p} className="capitalize">{p}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Creator</label>
+                  <select value={filterCreator} onChange={(e) => setFilterCreator(e.target.value)} className="w-full bg-gray-50 border-none rounded-lg text-sm py-2 px-3 focus:ring-2 focus:ring-indigo-500">
+                    <option value="all">All Creators</option>
+                    {users.filter(u => u.role === 'creator').map(u => <option key={u.uid} value={u.uid}>{u.displayName || u.email}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              {/* Desktop View Table */}
+              <div className="hidden lg:block bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
                     <tr>
-                      <td colSpan={7} className="py-8 text-center text-sm text-gray-500">
-                        No content found matching the selected filters.
-                      </td>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Content</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Creator</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider cursor-pointer hover:text-indigo-600" onClick={() => handleSort('views')}>Views {sortField === 'views' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Metrics</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
                     </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {filteredAndSortedContent.map((item) => {
+                      const creator = users.find(u => u.uid === item.creatorId);
+                      return (
+                        <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center gap-3">
+                              <div className="h-10 w-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200">
+                                {item.thumbnail ? <img src={item.thumbnail} className="h-full w-full object-cover" /> : <div className="h-full w-full flex items-center justify-center"><Globe className="h-4 w-4 text-gray-300" /></div>}
+                              </div>
+                              <div className="max-w-[240px]">
+                                <a href={item.url} target="_blank" className="text-sm font-medium text-gray-900 group flex items-center gap-1">
+                                  <span className="truncate">{item.title || item.url}</span>
+                                  <ExternalLink className="h-3 w-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </a>
+                                <p className="text-xs text-gray-500 capitalize">{item.platform}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-600">{creator?.displayName || creator?.email}</td>
+                          <td className="px-6 py-4 text-sm font-bold text-gray-900">{item.views?.toLocaleString()}</td>
+                          <td className="px-6 py-4 text-xs text-gray-500">
+                            L: {item.likes || 0} / C: {item.comments || 0}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-500">{item.uploadedAt ? format(new Date(item.uploadedAt), 'MMM d, yyyy') : 'N/A'}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
 
-      {activeTab === 'creators' && (
-        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {creatorStats.map(stat => (
-              <div key={stat.creatorId} className="bg-white overflow-hidden shadow-sm ring-1 ring-gray-900/5 rounded-xl">
-                <div className="p-6">
+              {/* Mobile View Cards */}
+              <div className="lg:hidden space-y-4">
+                {filteredAndSortedContent.map((item) => {
+                  const creator = users.find(u => u.uid === item.creatorId);
+                  return (
+                    <div key={item.id} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex gap-4">
+                      <div className="w-24 h-24 bg-gray-50 rounded-lg flex-shrink-0 border border-gray-100 overflow-hidden">
+                        {item.thumbnail ? <img src={item.thumbnail} className="h-full w-full object-cover" /> : <div className="h-full w-full flex items-center justify-center"><Globe className="h-6 w-6 text-gray-200" /></div>}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-gray-900 truncate text-sm">{item.title || item.url}</h4>
+                        <p className="text-xs text-gray-500 mb-2">{creator?.displayName || creator?.email}</p>
+                        <div className="grid grid-cols-2 gap-2 mt-2">
+                          <div className="bg-gray-50 px-2 py-1 rounded text-[10px] font-bold text-gray-700">Views: {item.views?.toLocaleString()}</div>
+                          <div className="bg-gray-50 px-2 py-1 rounded text-[10px] text-gray-600">Likes: {item.likes || 0}</div>
+                        </div>
+                        <a href={item.url} target="_blank" className="mt-2 text-[10px] text-indigo-600 font-medium flex items-center gap-1">Link <ExternalLink className="h-2 w-2" /></a>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'creators' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              {creatorStats.map(stat => (
+                <div key={stat.creatorId} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 group hover:border-indigo-200 transition-all">
                   <div className="flex items-center gap-4 mb-4">
-                    <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-lg">
+                    <div className="h-12 w-12 rounded-full bg-indigo-50 text-indigo-700 flex items-center justify-center font-bold text-lg border border-indigo-100">
                       {stat.name.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 truncate">{stat.name}</h3>
-                      <p className="text-sm text-gray-500">{stat.contentCount} posts</p>
+                      <h3 className="font-bold text-gray-900 truncate">{stat.name}</h3>
+                      <p className="text-xs text-gray-500">{stat.contentCount} posts uploaded</p>
                     </div>
                   </div>
-                  <dl className="grid grid-cols-2 gap-4">
-                    <div className="bg-gray-50 px-4 py-3 rounded-lg">
-                      <dt className="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Views</dt>
-                      <dd className="mt-1 text-xl font-semibold text-gray-900">{stat.views.toLocaleString()}</dd>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-3 bg-gray-50 rounded-lg">
+                      <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Views</p>
+                      <p className="text-lg font-bold text-gray-900">{stat.views.toLocaleString()}</p>
                     </div>
-                    <div className="bg-gray-50 px-4 py-3 rounded-lg">
-                      <dt className="text-xs font-medium text-gray-500 uppercase tracking-wider">Engagement</dt>
-                      <dd className="mt-1 text-xl font-semibold text-gray-900">{stat.engagement.toLocaleString()}</dd>
+                    <div className="p-3 bg-gray-50 rounded-lg">
+                      <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Engagement</p>
+                      <p className="text-lg font-bold text-gray-900">{stat.engagement.toLocaleString()}</p>
                     </div>
-                  </dl>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {activeTab === 'team' && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="p-6 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">User Management</h3>
+                  <p className="text-sm text-gray-500">Manage access and permissions</p>
                 </div>
               </div>
-            ))}
-            {creatorStats.length === 0 && (
-              <div className="col-span-full py-12 text-center text-gray-500 bg-white rounded-xl ring-1 ring-gray-900/5">
-                No creator data available yet.
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'team' && (
-        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg overflow-hidden">
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">Team Management</h2>
-              <p className="mt-1 text-sm text-gray-500">
-                Manage your team members and their roles. 
-                <br/>- <strong>Creators</strong> can upload content.
-                <br/>- <strong>Managers</strong> can view all stats, campaigns, and content, but cannot change roles.
-                <br/>- <strong>Admins</strong> have full access.
-              </p>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-300">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">User</th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Email</th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Role</th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 bg-white">
-                  {users.map((u) => (
-                    <tr key={u.uid} className="hover:bg-gray-50">
-                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
-                        <div className="flex items-center">
-                          <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold mr-3">
-                            {(u.displayName || u.email).charAt(0).toUpperCase()}
-                          </div>
-                          <div className="font-medium text-gray-900">
-                            {u.displayName || 'No Name'}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                        {u.email}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm">
-                        <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${
-                          u.role === 'admin' ? 'bg-purple-50 text-purple-700 ring-purple-700/10' :
-                          u.role === 'manager' ? 'bg-blue-50 text-blue-700 ring-blue-700/10' :
-                          'bg-green-50 text-green-700 ring-green-600/20'
-                        }`}>
-                          {u.role.charAt(0).toUpperCase() + u.role.slice(1)}
-                        </span>
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                        <select
-                          value={u.role}
-                          onChange={(e) => handleRoleChange(u.uid, e.target.value)}
-                          disabled={profile?.role !== 'admin' || u.uid === user?.uid}
-                          className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6 disabled:opacity-50 disabled:bg-gray-100"
-                        >
-                          <option value="creator">Creator</option>
-                          <option value="manager">Manager</option>
-                          <option value="admin">Admin</option>
-                        </select>
-                      </td>
-                    </tr>
-                  ))}
-                  {users.length === 0 && (
+              
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
                     <tr>
-                      <td colSpan={4} className="py-8 text-center text-sm text-gray-500">
-                        No users found.
-                      </td>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">User</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Role</th>
+                      <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {users.map((u) => (
+                      <tr key={u.uid} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center gap-3">
+                            <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center font-bold text-gray-600 text-xs border border-gray-200">
+                              {(u.displayName || u.email).charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">{u.displayName || 'No name'}</p>
+                              <p className="text-xs text-gray-400">{u.email}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${
+                            u.role === 'admin' ? 'bg-purple-50 text-purple-700' :
+                            u.role === 'manager' ? 'bg-blue-50 text-blue-700' : 'bg-green-50 text-green-700'
+                          }`}>
+                            {u.role}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right">
+                          <select
+                            value={u.role}
+                            onChange={(e) => handleRoleChange(u.uid, e.target.value)}
+                            disabled={profile?.role !== 'admin' || u.uid === user?.uid}
+                            className="text-xs border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50"
+                          >
+                            <option value="creator">Creator</option>
+                            <option value="manager">Manager</option>
+                            <option value="admin">Admin</option>
+                          </select>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
+          )}
         </div>
-      )}
+      </main>
     </div>
   );
 }

@@ -70,6 +70,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               if (currentUser.photoURL) userData.photoURL = currentUser.photoURL;
               
               await setDoc(docRef, userData);
+              
+              // Notify admin of new creator
+              if (role === 'creator') {
+                fetch('/api/send-email', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    subject: '🚀 Nuevo Creador en CreatorHub',
+                    html: `<p>¡Hola! Un nuevo creador se ha unido a la plataforma.</p>
+                           <ul>
+                             <li><strong>Email:</strong> ${currentUser.email}</li>
+                             <li><strong>Nombre:</strong> ${currentUser.displayName || 'N/A'}</li>
+                           </ul>`
+                  })
+                }).catch(err => console.error("Notification failed:", err));
+              }
               // The snapshot will fire again with the new data
             } catch (error) {
               console.error("Error creating missing user profile:", error);
