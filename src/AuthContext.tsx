@@ -10,6 +10,10 @@ interface UserProfile {
   photoURL: string;
   role: 'creator' | 'manager' | 'admin';
   createdAt: string;
+  paymentMethod?: 'binance' | 'wallet';
+  binanceId?: string;
+  walletAddress?: string;
+  walletNetwork?: string;
 }
 
 interface AuthContextType {

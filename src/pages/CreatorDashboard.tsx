@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { collection, query, onSnapshot, addDoc, where, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from '../firebase';
 import { useAuth } from '../AuthContext';
-import { Youtube, Instagram, Twitter, Music2, Globe, ExternalLink, Edit2, Trash2, Plus, LogOut, Layout, Users, BarChart3, ChevronRight, X, Sparkles } from 'lucide-react';
+import { Youtube, Instagram, Twitter, Music2, Globe, ExternalLink, Edit2, Trash2, Plus, LogOut, Layout, Users, BarChart3, ChevronRight, X, Sparkles, Wallet } from 'lucide-react';
 
 interface Campaign {
   id: string;
@@ -28,7 +28,7 @@ interface Content {
 }
 
 export default function CreatorDashboard() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [content, setContent] = useState<Content[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -36,6 +36,41 @@ export default function CreatorDashboard() {
   const [newContent, setNewContent] = useState({ campaignId: '', platform: 'youtube', url: '' });
   const [editingContent, setEditingContent] = useState<Content | null>(null);
   const [contentToDelete, setContentToDelete] = useState<string | null>(null);
+
+  // Payment Settings State
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'binance' | 'wallet'>('binance');
+  const [binanceId, setBinanceId] = useState('');
+  const [walletAddress, setWalletAddress] = useState('');
+  const [walletNetwork, setWalletNetwork] = useState('BSC');
+  const [isSavingPayment, setIsSavingPayment] = useState(false);
+
+  const openPaymentModal = () => {
+    setPaymentMethod(profile?.paymentMethod || 'binance');
+    setBinanceId(profile?.binanceId || '');
+    setWalletAddress(profile?.walletAddress || '');
+    setWalletNetwork(profile?.walletNetwork || 'BSC');
+    setIsPaymentModalOpen(true);
+  };
+
+  const handleSavePayment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    setIsSavingPayment(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        paymentMethod,
+        binanceId: paymentMethod === 'binance' ? binanceId : null,
+        walletAddress: paymentMethod === 'wallet' ? walletAddress : null,
+        walletNetwork: paymentMethod === 'wallet' ? walletNetwork : null,
+      });
+      setIsPaymentModalOpen(false);
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, 'users');
+    } finally {
+      setIsSavingPayment(false);
+    }
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -198,14 +233,137 @@ export default function CreatorDashboard() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">My Content</h1>
-        <button
-          onClick={() => { setIsUploading(true); setEditingContent(null); }}
-          className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-        >
-          <Plus className="h-4 w-4" />
-          Upload Content
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={openPaymentModal}
+            className="inline-flex items-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-colors"
+          >
+            <Wallet className="h-4 w-4 text-gray-500" />
+            <span className="hidden sm:inline">Payment Info</span>
+          </button>
+          <button
+            onClick={() => { setIsUploading(true); setEditingContent(null); }}
+            className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+            Upload
+          </button>
+        </div>
       </div>
+
+      {isPaymentModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0">
+          <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity" onClick={() => setIsPaymentModalOpen(false)}></div>
+          <div className="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg animate-in zoom-in-95 duration-200">
+            <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+              <div className="sm:flex sm:items-start">
+                <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-indigo-100 sm:mx-0 sm:h-10 sm:w-10">
+                  <Wallet className="h-6 w-6 text-indigo-600" aria-hidden="true" />
+                </div>
+                <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left w-full">
+                  <h3 className="text-lg font-semibold leading-6 text-gray-900" id="modal-title">Payment Information</h3>
+                  <div className="mt-2 text-sm text-gray-500 mb-4">
+                    How would you like to receive your payments? Choose Binance Pay or a direct Crypto Wallet.
+                  </div>
+                  <form onSubmit={handleSavePayment} className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium leading-6 text-gray-900">Payment Method</label>
+                      <div className="mt-2 grid grid-cols-2 gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setPaymentMethod('binance')}
+                          className={`flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold ring-1 ring-inset transition-colors ${
+                            paymentMethod === 'binance' ? 'bg-indigo-50 text-indigo-700 ring-indigo-600/20' : 'bg-white text-gray-700 ring-gray-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          Binance Pay
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setPaymentMethod('wallet')}
+                          className={`flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold ring-1 ring-inset transition-colors ${
+                            paymentMethod === 'wallet' ? 'bg-indigo-50 text-indigo-700 ring-indigo-600/20' : 'bg-white text-gray-700 ring-gray-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          Crypto Wallet
+                        </button>
+                      </div>
+                    </div>
+
+                    {paymentMethod === 'binance' ? (
+                      <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                        <label htmlFor="binanceId" className="block text-sm font-medium leading-6 text-gray-900">Binance Pay ID</label>
+                        <div className="mt-2">
+                          <input
+                            type="text"
+                            id="binanceId"
+                            required
+                            value={binanceId}
+                            onChange={(e) => setBinanceId(e.target.value)}
+                            placeholder="Enter your Binance Pay ID"
+                            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="animate-in fade-in slide-in-from-top-2 duration-300 space-y-4">
+                        <div>
+                          <label htmlFor="walletNetwork" className="block text-sm font-medium leading-6 text-gray-900">Network</label>
+                          <div className="mt-2">
+                            <select
+                              id="walletNetwork"
+                              value={walletNetwork}
+                              onChange={(e) => setWalletNetwork(e.target.value)}
+                              className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                            >
+                              <option value="BSC">BNB Smart Chain (BEP20)</option>
+                              <option value="Polygon">Polygon (MATIC)</option>
+                              <option value="Ethereum">Ethereum (ERC20)</option>
+                              <option value="Solana">Solana (SOL)</option>
+                              <option value="Arbitrum">Arbitrum One</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div>
+                          <label htmlFor="walletAddress" className="block text-sm font-medium leading-6 text-gray-900">Wallet Address</label>
+                          <div className="mt-2">
+                            <input
+                              type="text"
+                              id="walletAddress"
+                              required
+                              value={walletAddress}
+                              onChange={(e) => setWalletAddress(e.target.value)}
+                              placeholder="0x..."
+                              className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
+                      <button
+                        type="submit"
+                        disabled={isSavingPayment}
+                        className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:col-start-2 disabled:opacity-50"
+                      >
+                        {isSavingPayment ? 'Saving...' : 'Save Settings'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsPaymentModalOpen(false)}
+                        className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {(isUploading || editingContent) && (
         <div className="mb-8 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 max-w-3xl mx-auto overflow-hidden animate-in fade-in slide-in-from-top-4 duration-300">
