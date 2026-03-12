@@ -223,7 +223,7 @@ app.post("/api/send-email", async (req, res) => {
 
   try {
     const { data, error } = await resend.emails.send({
-      from: 'CreatorHub <notifications@resend.dev>',
+      from: 'Umbra Creator Hub <notifications@resend.dev>',
       to: ['cabscryptocontacto@gmail.com'],
       subject,
       html,

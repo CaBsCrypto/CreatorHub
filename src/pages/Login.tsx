@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loginWithGoogle } from '../firebase';
-import { useAuth } from '../AuthContext';
+import { useAuth, loginWithGoogle } from '../AuthContext';
 import { LogIn } from 'lucide-react';
 
 export default function Login() {

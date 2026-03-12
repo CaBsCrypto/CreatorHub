@@ -1,31 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { collection, query, onSnapshot, addDoc, where, doc, deleteDoc, updateDoc } from 'firebase/firestore';
-import { db, handleFirestoreError, OperationType } from '../firebase';
+import { supabase, Campaign, Content } from '../supabase';
 import { useAuth } from '../AuthContext';
 import { Youtube, Instagram, Twitter, Music2, Globe, ExternalLink, Edit2, Trash2, Plus, LogOut, Layout, Users, BarChart3, ChevronRight, X, Sparkles, Wallet } from 'lucide-react';
-
-interface Campaign {
-  id: string;
-  name: string;
-  description: string;
-  status: 'active' | 'completed';
-}
-
-interface Content {
-  id: string;
-  url: string;
-  platform: 'youtube' | 'instagram' | 'tiktok' | 'x' | 'coinmarketcap';
-  title?: string;
-  thumbnail?: string;
-  views: number;
-  likes: number;
-  comments: number;
-  campaignId: string;
-  creatorId: string;
-  status: 'active' | 'archived';
-  createdAt: any;
-  uploadedAt?: any;
-}
 
 export default function CreatorDashboard() {
   const { user, profile } = useAuth();
@@ -33,23 +9,23 @@ export default function CreatorDashboard() {
   const [content, setContent] = useState<Content[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isFetchingMetadata, setIsFetchingMetadata] = useState(false);
-  const [newContent, setNewContent] = useState({ campaignId: '', platform: 'youtube', url: '' });
+  const [newContent, setNewContent] = useState({ campaign_id: '', platform: 'youtube', url: '' });
   const [editingContent, setEditingContent] = useState<Content | null>(null);
   const [contentToDelete, setContentToDelete] = useState<string | null>(null);
 
   // Payment Settings State
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'binance' | 'wallet'>('binance');
-  const [binanceId, setBinanceId] = useState('');
-  const [walletAddress, setWalletAddress] = useState('');
-  const [walletNetwork, setWalletNetwork] = useState('BSC');
+  const [payment_method, setPaymentMethod] = useState<'binance' | 'wallet'>('binance');
+  const [binance_id, setBinanceId] = useState('');
+  const [wallet_address, setWalletAddress] = useState('');
+  const [wallet_network, setWalletNetwork] = useState('BSC');
   const [isSavingPayment, setIsSavingPayment] = useState(false);
 
   const openPaymentModal = () => {
-    setPaymentMethod(profile?.paymentMethod || 'binance');
-    setBinanceId(profile?.binanceId || '');
-    setWalletAddress(profile?.walletAddress || '');
-    setWalletNetwork(profile?.walletNetwork || 'BSC');
+    setPaymentMethod(profile?.payment_method || 'binance');
+    setBinanceId(profile?.binance_id || '');
+    setWalletAddress(profile?.wallet_address || '');
+    setWalletNetwork(profile?.wallet_network || 'BSC');
     setIsPaymentModalOpen(true);
   };
 
@@ -58,15 +34,19 @@ export default function CreatorDashboard() {
     if (!user) return;
     setIsSavingPayment(true);
     try {
-      await updateDoc(doc(db, 'users', user.uid), {
-        paymentMethod,
-        binanceId: paymentMethod === 'binance' ? binanceId : null,
-        walletAddress: paymentMethod === 'wallet' ? walletAddress : null,
-        walletNetwork: paymentMethod === 'wallet' ? walletNetwork : null,
-      });
+      const { error } = await supabase.from('users').update({
+        payment_method,
+        binance_id: payment_method === 'binance' ? binance_id : null,
+        wallet_address: payment_method === 'wallet' ? wallet_address : null,
+        wallet_network: payment_method === 'wallet' ? wallet_network : null,
+      }).eq('id', user.id);
+      
+      if (error) throw error;
+      
       setIsPaymentModalOpen(false);
-    } catch (error) {
-      handleFirestoreError(error, OperationType.UPDATE, 'users');
+    } catch (error: any) {
+      console.error("Error saving payment config:", error);
+      alert("Error saving payment info: " + error.message);
     } finally {
       setIsSavingPayment(false);
     }
@@ -75,21 +55,30 @@ export default function CreatorDashboard() {
   useEffect(() => {
     if (!user) return;
 
-    const qCampaigns = query(collection(db, 'campaigns'), where('status', '==', 'active'));
-    const unsubscribeCampaigns = onSnapshot(qCampaigns, (snapshot) => {
-      const camps = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Campaign));
-      setCampaigns(camps);
-    }, (error) => handleFirestoreError(error, OperationType.LIST, 'campaigns'));
+    const fetchData = async () => {
+      const [camps, conts] = await Promise.all([
+        supabase.from('campaigns').select('*').eq('status', 'active').order('created_at', { ascending: false }),
+        supabase.from('content').select('*').eq('creator_id', user.id).order('created_at', { ascending: false })
+      ]);
+      if (camps.data) setCampaigns(camps.data as Campaign[]);
+      if (conts.data) setContent(conts.data as Content[]);
+    };
 
-    const qContent = query(collection(db, 'content'), where('creatorId', '==', user.uid));
-    const unsubscribeContent = onSnapshot(qContent, (snapshot) => {
-      const conts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Content));
-      setContent(conts);
-    }, (error) => handleFirestoreError(error, OperationType.LIST, 'content'));
+    fetchData();
+
+    const campaignsSub = supabase.channel('public:campaigns_creator')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'campaigns', filter: "status=eq.active" }, () => {
+        supabase.from('campaigns').select('*').eq('status', 'active').order('created_at', { ascending: false }).then(({ data }) => setCampaigns((data as Campaign[]) || []));
+      }).subscribe();
+
+    const contentSub = supabase.channel('public:content_creator')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'content', filter: `creator_id=eq.${user.id}` }, () => {
+        supabase.from('content').select('*').eq('creator_id', user.id).order('created_at', { ascending: false }).then(({ data }) => setContent((data as Content[]) || []));
+      }).subscribe();
 
     return () => {
-      unsubscribeCampaigns();
-      unsubscribeContent();
+      supabase.removeChannel(campaignsSub);
+      supabase.removeChannel(contentSub);
     };
   }, [user]);
 
@@ -128,18 +117,18 @@ export default function CreatorDashboard() {
       }
 
       // 2. Save to Firestore
-      await addDoc(collection(db, 'content'), {
-        campaignId: newContent.campaignId,
-        creatorId: user.uid,
+      const { error } = await supabase.from('content').insert([{
+        campaign_id: newContent.campaign_id,
+        creator_id: user.id,
         platform: newContent.platform,
         url: newContent.url,
         title: title,
         views: views,
         likes: likes,
-        comments: comments,
-        uploadedAt: new Date().toISOString(),
-        createdAt: new Date().toISOString()
-      });
+        comments: comments
+      }]);
+      
+      if (error) throw error;
 
       // Notify admin of new content
       fetch('/api/send-email', {
@@ -149,7 +138,7 @@ export default function CreatorDashboard() {
           subject: '📷 Nuevo Contenido Subido',
           html: `<p>Un creador ha subido nuevo contenido.</p>
                  <ul>
-                   <li><strong>Creador:</strong> ${user.displayName || user.email}</li>
+                   <li><strong>Creador:</strong> ${profile?.display_name || user.email}</li>
                    <li><strong>Plataforma:</strong> ${newContent.platform}</li>
                    <li><strong>Título:</strong> ${title}</li>
                    <li><strong>URL:</strong> <a href="${newContent.url}">${newContent.url}</a></li>
@@ -158,9 +147,10 @@ export default function CreatorDashboard() {
       }).catch(err => console.error("Notification failed:", err));
 
       setIsUploading(false);
-      setNewContent({ campaignId: '', platform: 'youtube', url: '' });
-    } catch (error) {
-      handleFirestoreError(error, OperationType.CREATE, 'content');
+      setNewContent({ campaign_id: '', platform: 'youtube', url: '' });
+    } catch (error: any) {
+      console.error("Error creating content:", error);
+      alert("Error adding content: " + error.message);
     } finally {
       setIsFetchingMetadata(false);
     }
@@ -202,18 +192,21 @@ export default function CreatorDashboard() {
         }
       }
 
-      await updateDoc(doc(db, 'content', editingContent.id), {
-        campaignId: editingContent.campaignId,
+      const { error } = await supabase.from('content').update({
+        campaign_id: editingContent.campaign_id,
         platform: editingContent.platform,
         url: editingContent.url,
         title: title,
         views: views,
         likes: likes,
         comments: comments,
-      });
+      }).eq('id', editingContent.id);
+      
+      if (error) throw error;
       setEditingContent(null);
-    } catch (error) {
-      handleFirestoreError(error, OperationType.UPDATE, 'content');
+    } catch (error: any) {
+      console.error("Error updating content:", error);
+      alert("Error updating content: " + error.message);
     } finally {
       setIsFetchingMetadata(false);
     }
@@ -222,10 +215,12 @@ export default function CreatorDashboard() {
   const confirmDelete = async () => {
     if (!contentToDelete) return;
     try {
-      await deleteDoc(doc(db, 'content', contentToDelete));
+      const { error } = await supabase.from('content').delete().eq('id', contentToDelete);
+      if (error) throw error;
       setContentToDelete(null);
-    } catch (error) {
-      handleFirestoreError(error, OperationType.DELETE, 'content');
+    } catch (error: any) {
+      console.error("Error deleting content:", error);
+      alert("Error deleting content: " + error.message);
     }
   };
 
@@ -273,7 +268,7 @@ export default function CreatorDashboard() {
                           type="button"
                           onClick={() => setPaymentMethod('binance')}
                           className={`flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold ring-1 ring-inset transition-colors ${
-                            paymentMethod === 'binance' ? 'bg-indigo-50 text-indigo-700 ring-indigo-600/20' : 'bg-white text-gray-700 ring-gray-300 hover:bg-gray-50'
+                            payment_method === 'binance' ? 'bg-indigo-50 text-indigo-700 ring-indigo-600/20' : 'bg-white text-gray-700 ring-gray-300 hover:bg-gray-50'
                           }`}
                         >
                           Binance Pay
@@ -282,7 +277,7 @@ export default function CreatorDashboard() {
                           type="button"
                           onClick={() => setPaymentMethod('wallet')}
                           className={`flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold ring-1 ring-inset transition-colors ${
-                            paymentMethod === 'wallet' ? 'bg-indigo-50 text-indigo-700 ring-indigo-600/20' : 'bg-white text-gray-700 ring-gray-300 hover:bg-gray-50'
+                            payment_method === 'wallet' ? 'bg-indigo-50 text-indigo-700 ring-indigo-600/20' : 'bg-white text-gray-700 ring-gray-300 hover:bg-gray-50'
                           }`}
                         >
                           Crypto Wallet
@@ -290,15 +285,15 @@ export default function CreatorDashboard() {
                       </div>
                     </div>
 
-                    {paymentMethod === 'binance' ? (
+                    {payment_method === 'binance' ? (
                       <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-                        <label htmlFor="binanceId" className="block text-sm font-medium leading-6 text-gray-900">Binance Pay ID</label>
+                        <label htmlFor="binance_id" className="block text-sm font-medium leading-6 text-gray-900">Binance Pay ID</label>
                         <div className="mt-2">
                           <input
                             type="text"
-                            id="binanceId"
+                            id="binance_id"
                             required
-                            value={binanceId}
+                            value={binance_id}
                             onChange={(e) => setBinanceId(e.target.value)}
                             placeholder="Enter your Binance Pay ID"
                             className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -308,11 +303,11 @@ export default function CreatorDashboard() {
                     ) : (
                       <div className="animate-in fade-in slide-in-from-top-2 duration-300 space-y-4">
                         <div>
-                          <label htmlFor="walletNetwork" className="block text-sm font-medium leading-6 text-gray-900">Network</label>
+                          <label htmlFor="wallet_network" className="block text-sm font-medium leading-6 text-gray-900">Network</label>
                           <div className="mt-2">
                             <select
-                              id="walletNetwork"
-                              value={walletNetwork}
+                              id="wallet_network"
+                              value={wallet_network}
                               onChange={(e) => setWalletNetwork(e.target.value)}
                               className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                             >
@@ -325,13 +320,13 @@ export default function CreatorDashboard() {
                           </div>
                         </div>
                         <div>
-                          <label htmlFor="walletAddress" className="block text-sm font-medium leading-6 text-gray-900">Wallet Address</label>
+                          <label htmlFor="wallet_address" className="block text-sm font-medium leading-6 text-gray-900">Wallet Address</label>
                           <div className="mt-2">
                             <input
                               type="text"
-                              id="walletAddress"
+                              id="wallet_address"
                               required
-                              value={walletAddress}
+                              value={wallet_address}
                               onChange={(e) => setWalletAddress(e.target.value)}
                               placeholder="0x..."
                               className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -382,10 +377,10 @@ export default function CreatorDashboard() {
                 <select
                   id="campaign"
                   required
-                  value={editingContent ? editingContent.campaignId : newContent.campaignId}
+                  value={editingContent ? editingContent.campaign_id : newContent.campaign_id}
                   onChange={(e) => editingContent 
-                    ? setEditingContent({ ...editingContent, campaignId: e.target.value })
-                    : setNewContent({ ...newContent, campaignId: e.target.value })}
+                    ? setEditingContent({ ...editingContent, campaign_id: e.target.value })
+                    : setNewContent({ ...newContent, campaign_id: e.target.value })}
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 >
                   <option value="" disabled>{campaigns.length > 0 ? "Select a campaign" : "No active campaigns found"}</option>
@@ -487,7 +482,7 @@ export default function CreatorDashboard() {
               <div className="flex justify-between items-start gap-3">
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-semibold text-indigo-600 mb-1 tracking-wide uppercase">
-                    {campaigns.find(c => c.id === item.campaignId)?.name || 'General'}
+                    {campaigns.find(c => c.id === item.campaign_id)?.name || 'General'}
                   </p>
                   <a 
                     href={item.url} 
@@ -532,7 +527,7 @@ export default function CreatorDashboard() {
                 <Sparkles className="h-10 w-10 animate-pulse" />
               </div>
               <div className="space-y-4">
-                <h2 className="text-2xl font-bold text-gray-900">¡Bienvenido a CreatorHub!</h2>
+                <h2 className="text-2xl font-bold text-gray-900">¡Bienvenido a Umbra Creator Hub!</h2>
                 <p className="text-gray-500 text-lg leading-relaxed">
                   Aún no has subido contenido. Comienza compartiendo tu primer trabajo para empezar a trackear tus métricas y ver tu impacto.
                 </p>

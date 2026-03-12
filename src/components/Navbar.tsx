@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
-import { logout } from '../firebase';
+import { logout } from '../AuthContext';
 import { LogOut, User as UserIcon, Menu, X, LayoutDashboard, UserCircle } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -37,8 +37,8 @@ export default function Navbar() {
         <div className="flex h-16 justify-between items-center">
           <div className="flex items-center">
             <Link to={isAdmin ? '/admin' : '/creator'} className="text-xl font-bold text-indigo-600 flex items-center gap-2">
-              <span className="hidden sm:inline">CreatorHub</span>
-              <span className="sm:hidden text-2xl">CH</span>
+              <span className="hidden sm:inline">Umbra Creator Hub</span>
+              <span className="sm:hidden text-2xl">UCH</span>
             </Link>
             
             {/* Desktop Links */}
@@ -64,12 +64,12 @@ export default function Navbar() {
             {/* User Info (Desktop) */}
             <div className="hidden sm:flex items-center gap-3 pr-4 border-r border-gray-200">
               <div className="text-right">
-                <div className="text-sm font-medium text-gray-900">{profile?.displayName || user.email}</div>
+                <div className="text-sm font-medium text-gray-900">{profile?.display_name || user.email}</div>
                 <div className="text-xs text-gray-500 capitalize">{profile?.role}</div>
               </div>
               <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center overflow-hidden">
-                {profile?.photoURL ? (
-                  <img src={profile.photoURL} alt="" referrerPolicy="no-referrer" />
+                {profile?.photo_url ? (
+                  <img src={profile.photo_url} alt="" referrerPolicy="no-referrer" />
                 ) : (
                   <UserIcon className="h-4 w-4 text-indigo-600" />
                 )}
@@ -119,14 +119,14 @@ export default function Navbar() {
             <div className="pt-4 mt-4 border-t border-gray-100">
               <div className="px-3 py-2 flex items-center gap-3">
                 <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center overflow-hidden">
-                  {profile?.photoURL ? (
-                    <img src={profile.photoURL} alt="" />
+                  {profile?.photo_url ? (
+                    <img src={profile.photo_url} alt="" />
                   ) : (
                     <UserIcon className="h-6 w-6 text-indigo-600" />
                   )}
                 </div>
                 <div>
-                  <div className="text-base font-medium text-gray-800">{profile?.displayName || user.email?.split('@')[0]}</div>
+                  <div className="text-base font-medium text-gray-800">{profile?.display_name || user.email?.split('@')[0]}</div>
                   <div className="text-sm text-gray-500 capitalize">{profile?.role}</div>
                 </div>
               </div>

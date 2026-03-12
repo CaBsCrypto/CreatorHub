@@ -7,15 +7,18 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './AuthContext';
 import Login from './pages/Login';
-import AdminDashboard from './pages/AdminDashboard';
-import CreatorDashboard from './pages/CreatorDashboard';
 import Navbar from './components/Navbar';
+import LoadingSpinner from './components/LoadingSpinner';
+
+// Lazy load the heavy dashboards to speed up initial JS bundle size and login page rendering
+const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
+const CreatorDashboard = React.lazy(() => import('./pages/CreatorDashboard'));
 
 const ProtectedRoute = ({ children, role }: { children: React.ReactNode, role?: 'admin' | 'creator' }) => {
   const { user, profile, loading } = useAuth();
 
   if (loading) {
-    return <div className="flex h-screen items-center justify-center">Loading...</div>;
+    return <LoadingSpinner message="Verificando sesión..." />;
   }
 
   if (!user) {
@@ -36,7 +39,7 @@ const ProtectedRoute = ({ children, role }: { children: React.ReactNode, role?: 
 const HomeRedirect = () => {
   const { profile, loading } = useAuth();
   
-  if (loading) return <div className="flex h-screen items-center justify-center">Loading...</div>;
+  if (loading) return <LoadingSpinner message="Iniciando..." />;
   
   if (profile?.role === 'admin' || profile?.role === 'manager') {
     return <Navigate to="/admin" replace />;
@@ -54,26 +57,28 @@ export default function App() {
         <div className="min-h-screen bg-gray-50">
           <Navbar />
           <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/" element={<HomeRedirect />} />
-              <Route 
-                path="/admin/*" 
-                element={
-                  <ProtectedRoute role="admin">
-                    <AdminDashboard />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/creator/*" 
-                element={
-                  <ProtectedRoute role="creator">
-                    <CreatorDashboard />
-                  </ProtectedRoute>
-                } 
-              />
-            </Routes>
+            <React.Suspense fallback={<LoadingSpinner message="Cargando panel..." />}>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/" element={<HomeRedirect />} />
+                <Route 
+                  path="/admin/*" 
+                  element={
+                    <ProtectedRoute role="admin">
+                      <AdminDashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/creator/*" 
+                  element={
+                    <ProtectedRoute role="creator">
+                      <CreatorDashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+              </Routes>
+            </React.Suspense>
           </main>
         </div>
       </Router>
