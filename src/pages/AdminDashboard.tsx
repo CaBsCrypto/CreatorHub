@@ -99,7 +99,9 @@ export default function AdminDashboard() {
       });
       setIsCreating(false);
       setNewCampaign({ name: '', description: '' });
-    } catch (error) {
+    } catch (error: any) {
+      console.error("🔥 Error saving campaign to Firebase:", error);
+      alert("Error saving campaign: " + (error.message || "Unknown error"));
       handleFirestoreError(error, OperationType.CREATE, 'campaigns');
     }
   };
