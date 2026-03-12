@@ -4,7 +4,7 @@ import { db, handleFirestoreError, OperationType } from '../firebase';
 import { useAuth } from '../AuthContext';
 import { Plus, Download, RefreshCw, Sparkles, ExternalLink, LayoutDashboard, List, Users, Youtube, Instagram, Globe } from 'lucide-react';
 import { format } from 'date-fns';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import Papa from 'papaparse';
 
 interface Campaign {
@@ -269,6 +269,14 @@ export default function AdminDashboard() {
     }).sort((a, b) => b.views - a.views);
   }, [content, users]);
 
+  const creatorChartData = useMemo(() => {
+    return creatorStats.map(stat => ({
+      name: stat.name.split(' ')[0] || stat.name, // Use first name for compactness
+      views: stat.views,
+      engagement: stat.engagement
+    })).slice(0, 7); // Top 7 creators for the chart
+  }, [creatorStats]);
+
   const handleSort = (field: keyof Content) => {
     if (sortField === field) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -444,6 +452,35 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Creators: Views vs Engagement</h3>
+                  <div className="h-72">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={creatorChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/>
+                          </linearGradient>
+                          <linearGradient id="colorEngagement" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#ec4899" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="#ec4899" stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6b7280' }} dy={10} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6b7280' }} />
+                        <Tooltip 
+                          contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontWeight: 600 }} 
+                          itemStyle={{ fontSize: '13px' }}
+                        />
+                        <Area type="monotone" dataKey="views" stroke="#4f46e5" strokeWidth={3} fillOpacity={1} fill="url(#colorViews)" />
+                        <Area type="monotone" dataKey="engagement" stroke="#ec4899" strokeWidth={3} fillOpacity={1} fill="url(#colorEngagement)" />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-2">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold text-gray-900">AI Insights</h3>
                     <button
