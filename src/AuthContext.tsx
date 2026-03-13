@@ -44,19 +44,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     // 1. Fetch current session immediately
     const initializeAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      handleSession(session);
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) throw error;
+        handleSession(session);
+      } catch (err) {
+        console.error("Auth initialization failed:", err);
+        setLoading(false); // Stop the spinner even on failure
+      }
     };
 
     initializeAuth();
 
     // 2. Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      handleSession(session);
-    });
+    let subscription: any;
+    try {
+      const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+        handleSession(session);
+      });
+      subscription = data.subscription;
+    } catch (err) {
+      console.error("Auth listener failed:", err);
+    }
 
     return () => {
-      subscription.unsubscribe();
+      if (subscription) subscription.unsubscribe();
     };
   }, []);
 

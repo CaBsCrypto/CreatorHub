@@ -185,19 +185,24 @@ app.use(express.json());
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 
 app.post("/api/fetch-metadata", async (req, res) => {
-  const { url, platform } = req.body;
-  if (!url) return res.status(400).json({ error: "URL is required" });
-  
-  let data;
-  switch(platform) {
-    case 'tiktok': data = await fetchTikTokData(url); break;
-    case 'youtube': data = await fetchYouTubeData(url); break;
-    case 'instagram': data = await fetchInstagramData(url); break;
-    case 'x': data = await fetchXData(url); break;
-    case 'coinmarketcap': data = await fetchCMCData(url); break;
-    default: data = { title: "New Upload", views: 0, likes: 0, comments: 0 };
+  try {
+    const { url, platform } = req.body;
+    if (!url) return res.status(400).json({ error: "URL is required" });
+    
+    let data;
+    switch(platform) {
+      case 'tiktok': data = await fetchTikTokData(url); break;
+      case 'youtube': data = await fetchYouTubeData(url); break;
+      case 'instagram': data = await fetchInstagramData(url); break;
+      case 'x': data = await fetchXData(url); break;
+      case 'coinmarketcap': data = await fetchCMCData(url); break;
+      default: data = { title: "New Upload", views: 0, likes: 0, comments: 0, thumbnail: "" };
+    }
+    res.json(data);
+  } catch (error: any) {
+    console.error("Metadata fetch error:", error);
+    res.status(500).json({ error: error.message });
   }
-  res.json(data);
 });
 
 app.post("/api/refresh-metrics", async (req, res) => {
