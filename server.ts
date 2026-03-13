@@ -110,28 +110,36 @@ async function fetchInstagramData(url: string) {
     const postRes = await axios.get('https://instagram-looter2.p.rapidapi.com/post', {
       params: { url },
       headers: { 'X-RapidAPI-Key': apiKey, 'X-RapidAPI-Host': 'instagram-looter2.p.rapidapi.com' },
-      timeout: 4000
+      timeout: 5000
     });
+    
     const postData = postRes.data.data || postRes.data.items?.[0] || postRes.data;
     if (postData) {
       ownerId = postData.owner?.id || postData.user?.pk || "";
       shortcode = postData.shortcode || postData.code || "";
       title = postData.caption?.text || postData.text || title;
-      likes = postData.like_count ?? postData.likes ?? 0;
-      comments = postData.comment_count ?? postData.comments ?? 0;
-      views = postData.view_count ?? postData.play_count ?? 0;
+      likes = postData.like_count ?? postData.likes ?? (postData.edge_media_preview_like?.count ?? 0);
+      comments = postData.comment_count ?? postData.comments ?? (postData.edge_media_to_comment?.count ?? 0);
+      
+      // Extensive view count check
+      views = postData.view_count ?? postData.play_count ?? postData.video_view_count ?? postData.video_play_count ?? 0;
+      
       if (!thumbnail) thumbnail = postData.display_url || postData.thumbnail_url || "";
     }
-    if (views === 0 && url.includes('/reel/') && ownerId && shortcode) {
+
+    // If still 0 and looks like a video/reel, try the reels endpoint
+    const isVideo = url.includes('/reel/') || postData?.is_video === true || !!postData?.video_url;
+    
+    if (views === 0 && isVideo && ownerId && shortcode) {
       try {
         const reelsRes = await axios.get('https://instagram-looter2.p.rapidapi.com/reels', {
           params: { id: ownerId },
           headers: { 'X-RapidAPI-Key': apiKey, 'X-RapidAPI-Host': 'instagram-looter2.p.rapidapi.com' },
-          timeout: 3000
+          timeout: 4000
         });
         const reel = reelsRes.data.items?.find((i: any) => i.media?.code === shortcode);
         if (reel?.media) {
-          views = reel.media.play_count ?? reel.media.view_count ?? views;
+          views = reel.media.play_count ?? reel.media.view_count ?? reel.media.video_view_count ?? views;
           likes = reel.media.like_count ?? likes;
           comments = reel.media.comment_count ?? comments;
         }
@@ -139,6 +147,7 @@ async function fetchInstagramData(url: string) {
     }
     return { title: title.substring(0, 100), views, likes, comments, thumbnail };
   } catch (error) {
+    console.error("Instagram Fetch Error:", error);
     return { title: "Instagram Post", views: 0, likes: 0, comments: 0, thumbnail: "" };
   }
 }
@@ -189,6 +198,26 @@ app.post("/api/fetch-metadata", async (req, res) => {
     default: data = { title: "New Upload", views: 0, likes: 0, comments: 0 };
   }
   res.json(data);
+});
+
+app.post("/api/refresh-metrics", async (req, res) => {
+  const { items } = req.body; // Array of { id, url, platform }
+  if (!items || !Array.isArray(items)) return res.status(400).json({ error: "Items array is required" });
+
+  const results = [];
+  for (const item of items) {
+    let data;
+    switch(item.platform) {
+      case 'tiktok': data = await fetchTikTokData(item.url); break;
+      case 'youtube': data = await fetchYouTubeData(item.url); break;
+      case 'instagram': data = await fetchInstagramData(item.url); break;
+      case 'x': data = await fetchXData(item.url); break;
+      case 'coinmarketcap': data = await fetchCMCData(item.url); break;
+      default: continue;
+    }
+    results.push({ id: item.id, ...data });
+  }
+  res.json({ success: true, results });
 });
 
 app.post("/api/analyze-performance", async (req, res) => {

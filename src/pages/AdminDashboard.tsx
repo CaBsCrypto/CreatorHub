@@ -264,38 +264,58 @@ export default function AdminDashboard() {
     if (profile?.role !== 'admin') return;
     setIsRefreshing(true);
     try {
-      let updatedCount = 0;
-      for (const item of content) {
-        if (item.url && item.platform) {
-          try {
-            const response = await fetch('/api/fetch-metadata', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                url: item.url,
-                platform: item.platform
-              })
-            });
-
-            if (response.ok) {
-              const data = await response.json();
-              await supabase.from('content').update({
-                views: data.views ?? item.views,
-                likes: data.likes ?? item.likes,
-                comments: data.comments ?? item.comments,
-                title: data.title ?? item.title
-              }).eq('id', item.id);
-              updatedCount++;
-            }
-          } catch (apiError) {
-            console.error(`Failed to refresh stats for ${item.url}:`, apiError);
-          }
-        }
+      // Filter out items without URLs or platforms
+      const refreshableItems = content.filter(item => item.url && item.platform);
+      if (refreshableItems.length === 0) {
+        alert("No hay contenido válido para actualizar.");
+        return;
       }
-      alert(`Successfully refreshed stats for ${updatedCount} items.`);
-    } catch (error) {
+
+      // Use the new bulk endpoint
+      const response = await fetch('/api/refresh-metrics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: refreshableItems.map(item => ({
+            id: item.id,
+            url: item.url,
+            platform: item.platform
+          }))
+        })
+      });
+
+      if (!response.ok) throw new Error("API Refresh failed");
+      
+      const { results } = await response.json();
+      let updatedCount = 0;
+
+      // Update Supabase and local state
+      const updates = results.map(async (res: any) => {
+        const { error } = await supabase.from('content').update({
+          views: res.views,
+          likes: res.likes,
+          comments: res.comments,
+          title: res.title,
+          thumbnail: res.thumbnail
+        }).eq('id', res.id);
+        
+        if (!error) updatedCount++;
+      });
+
+      await Promise.all(updates);
+
+      // Refresh local content state to show new numbers
+      const { data: newData } = await supabase
+        .from('content')
+        .select('*')
+        .order('uploaded_at', { ascending: false });
+      
+      if (newData) setContent(newData as Content[]);
+
+      alert(`Se han actualizado las métricas de ${updatedCount} elementos.`);
+    } catch (error: any) {
       console.error("Failed to refresh stats", error);
-      alert("Failed to trigger stats refresh.");
+      alert("Error al actualizar estadísticas: " + error.message);
     } finally {
       setIsRefreshing(false);
     }
@@ -891,13 +911,23 @@ export default function AdminDashboard() {
                   </div>
                 </div>
                 {profile?.role === 'admin' && (
-                  <button
-                    onClick={() => setIsUploadingContent(true)}
-                    className="whitespace-nowrap inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-all h-[38px]"
-                  >
-                    <Plus className="h-4 w-4" />
-                    <span>Add Content</span>
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setIsUploadingContent(true)}
+                      className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add Content
+                    </button>
+                    <button
+                      onClick={handleRefreshStats}
+                      disabled={isRefreshing}
+                      className="flex items-center gap-2 px-4 py-2 border border-slate-700 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                    >
+                      <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                      Refresh All
+                    </button>
+                  </div>
                 )}
               </div>
 
