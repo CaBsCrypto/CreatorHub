@@ -23,6 +23,16 @@ export default function AdminDashboard() {
   const [isAddingUser, setIsAddingUser] = useState(false);
   const [newUserEmail, setNewUserEmail] = useState('');
   const [newUserRole, setNewUserRole] = useState<'creator' | 'manager' | 'admin'>('creator');
+  
+  // Manual Content Assignment State
+  const [isUploadingContent, setIsUploadingContent] = useState(false);
+  const [isFetchingContentMetadata, setIsFetchingContentMetadata] = useState(false);
+  const [manualContent, setManualContent] = useState({ 
+    campaign_id: '', 
+    creator_id: '', 
+    platform: 'youtube', 
+    url: '' 
+  });
 
   // Filters for Content Explorer
   const [filterCampaign, setFilterCampaign] = useState<string>('all');
@@ -74,7 +84,7 @@ export default function AdminDashboard() {
 
   const handleCreateCampaign = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (profile?.role !== 'admin') return;
 
     try {
       const { error } = await supabase.from('campaigns').insert([{
@@ -96,8 +106,8 @@ export default function AdminDashboard() {
   };
 
   const handleRoleChange = async (uid: string, newRole: string) => {
-    if (profile?.role !== 'admin' && profile?.role !== 'manager') {
-      alert("Only administrators and managers can change roles.");
+    if (profile?.role !== 'admin') {
+      alert("Only administrators can change roles.");
       return;
     }
     
@@ -119,7 +129,7 @@ export default function AdminDashboard() {
 
   const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (profile?.role !== 'admin' && profile?.role !== 'manager') return;
+    if (profile?.role !== 'admin') return;
     
     try {
       const { data, error } = await supabase.from('users').insert([{
@@ -152,7 +162,78 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleManualContentUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (profile?.role !== 'admin') return;
+    if (!manualContent.campaign_id || !manualContent.creator_id || !manualContent.url) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    setIsFetchingContentMetadata(true);
+    try {
+      let title = 'New Manual Upload';
+      let views = 0;
+      let likes = 0;
+      let comments = 0;
+      let thumbnail = '';
+
+      try {
+        const response = await fetch('/api/fetch-metadata', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            url: manualContent.url,
+            platform: manualContent.platform
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.title) title = data.title;
+          if (data.views) views = data.views;
+          if (data.likes) likes = data.likes;
+          if (data.comments) comments = data.comments;
+          if (data.thumbnail) thumbnail = data.thumbnail;
+        }
+      } catch (apiError) {
+        console.error("Failed to fetch metadata from API:", apiError);
+      }
+
+      const { data, error } = await supabase.from('content').insert([{
+        campaign_id: manualContent.campaign_id,
+        creator_id: manualContent.creator_id,
+        platform: manualContent.platform,
+        url: manualContent.url,
+        title: title,
+        views: views,
+        likes: likes,
+        comments: comments,
+        thumbnail: thumbnail,
+        uploaded_at: new Date().toISOString()
+      }]).select().single();
+      
+      if (error) throw error;
+
+      alert(`Content "${title}" successfully assigned.`);
+      setIsUploadingContent(false);
+      setManualContent({ campaign_id: '', creator_id: '', platform: 'youtube', url: '' });
+      
+      if (data) {
+        setContent(prev => [data as Content, ...prev]);
+      }
+    } catch (error: any) {
+      console.error("Error manually assigning content:", error);
+      alert("Error adding content: " + error.message);
+    } finally {
+      setIsFetchingContentMetadata(false);
+    }
+  };
   const handleDeleteCampaign = async (campaign_id: string) => {
+    if (profile?.role !== 'admin') {
+      alert("Only administrators can delete campaigns.");
+      return;
+    }
     if (!window.confirm("¿Estás seguro de que deseas eliminar esta campaña? No se puede deshacer.")) return;
     try {
       const { error } = await supabase.from('campaigns').delete().eq('id', campaign_id);
@@ -163,7 +244,24 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleDeleteContent = async (content_id: string) => {
+    if (profile?.role !== 'admin') return;
+    if (!window.confirm("¿Estás seguro de que deseas eliminar este contenido?")) return;
+    
+    try {
+      const { error } = await supabase.from('content').delete().eq('id', content_id);
+      if (error) throw error;
+      
+      // Update local state if needed
+      setContent(prev => prev.filter(c => c.id !== content_id));
+    } catch (error: any) {
+      console.error("Error deleting content:", error);
+      alert("Error eliminando contenido: " + error.message);
+    }
+  };
+
   const handleRefreshStats = async () => {
+    if (profile?.role !== 'admin') return;
     setIsRefreshing(true);
     try {
       let updatedCount = 0;
@@ -439,10 +537,12 @@ export default function AdminDashboard() {
           </nav>
           
           <div className="p-4 border-t border-gray-100 space-y-2">
-            <button onClick={handleRefreshStats} disabled={isRefreshing} className="flex items-center gap-2 w-full px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50 rounded-lg">
-              <RefreshCw className={`h-3 w-3 ${isRefreshing ? 'animate-spin' : ''}`} />
-              {isRefreshing ? 'Refreshing...' : 'Refresh Stats'}
-            </button>
+            {profile?.role === 'admin' && (
+              <button onClick={handleRefreshStats} disabled={isRefreshing} className="flex items-center gap-2 w-full px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50 rounded-lg">
+                <RefreshCw className={`h-3 w-3 ${isRefreshing ? 'animate-spin' : ''}`} />
+                {isRefreshing ? 'Refreshing...' : 'Refresh Stats'}
+              </button>
+            )}
             <button onClick={exportToCSV} className="flex items-center gap-2 w-full px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50 rounded-lg">
               <Download className="h-3 w-3" />
               Export CSV
@@ -464,7 +564,7 @@ export default function AdminDashboard() {
         <div className="max-w-7xl mx-auto space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold text-gray-900 capitalize">{activeTab.replace('-', ' ')}</h2>
-            {activeTab === 'campaigns' && (
+            {activeTab === 'campaigns' && profile?.role === 'admin' && (
               <button
                 onClick={() => setIsCreating(true)}
                 className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-all"
@@ -739,13 +839,15 @@ export default function AdminDashboard() {
                             <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{camp.description}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{camp.created_at ? format(new Date(camp.created_at), 'MMM d, yyyy') : ''}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                              <button 
-                                onClick={() => handleDeleteCampaign(camp.id)}
-                                className="text-red-500 hover:text-red-700 p-1 rounded-md hover:bg-red-50 transition-colors"
-                                title="Delete Campaign"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </button>
+                              {profile?.role === 'admin' && (
+                                <button 
+                                  onClick={() => handleDeleteCampaign(camp.id)}
+                                  className="text-red-500 hover:text-red-700 p-1 rounded-md hover:bg-red-50 transition-colors"
+                                  title="Delete Campaign"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              )}
                             </td>
                           </tr>
                         ))}
@@ -764,29 +866,113 @@ export default function AdminDashboard() {
           {activeTab === 'content' && (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
               {/* Filters Area */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-                <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Campaign</label>
-                  <select value={filterCampaign} onChange={(e) => setFilterCampaign(e.target.value)} className="w-full bg-gray-50 border-none rounded-lg text-sm py-2 px-3 focus:ring-2 focus:ring-indigo-500">
-                    <option value="all">All Campaigns</option>
-                    {campaigns.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                  </select>
+              <div className="flex flex-col sm:flex-row gap-4 items-end bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Campaign</label>
+                    <select value={filterCampaign} onChange={(e) => setFilterCampaign(e.target.value)} className="w-full bg-gray-50 border-none rounded-lg text-sm py-2 px-3 focus:ring-2 focus:ring-indigo-500">
+                      <option value="all">All Campaigns</option>
+                      {campaigns.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Platform</label>
+                    <select value={filterPlatform} onChange={(e) => setFilterPlatform(e.target.value)} className="w-full bg-gray-50 border-none rounded-lg text-sm py-2 px-3 focus:ring-2 focus:ring-indigo-500">
+                      <option value="all">All Platforms</option>
+                      {['youtube', 'instagram', 'tiktok', 'x', 'coinmarketcap'].map(p => <option key={p} value={p} className="capitalize">{p}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Creator</label>
+                    <select value={filterCreator} onChange={(e) => setFilterCreator(e.target.value)} className="w-full bg-gray-50 border-none rounded-lg text-sm py-2 px-3 focus:ring-2 focus:ring-indigo-500">
+                      <option value="all">All Creators</option>
+                      {users.filter(u => u.role === 'creator').map(u => <option key={u.id} value={u.id}>{u.display_name || u.email}</option>)}
+                    </select>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Platform</label>
-                  <select value={filterPlatform} onChange={(e) => setFilterPlatform(e.target.value)} className="w-full bg-gray-50 border-none rounded-lg text-sm py-2 px-3 focus:ring-2 focus:ring-indigo-500">
-                    <option value="all">All Platforms</option>
-                    {['youtube', 'instagram', 'tiktok', 'x', 'coinmarketcap'].map(p => <option key={p} value={p} className="capitalize">{p}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Creator</label>
-                  <select value={filterCreator} onChange={(e) => setFilterCreator(e.target.value)} className="w-full bg-gray-50 border-none rounded-lg text-sm py-2 px-3 focus:ring-2 focus:ring-indigo-500">
-                    <option value="all">All Creators</option>
-                    {users.filter(u => u.role === 'creator').map(u => <option key={u.id} value={u.id}>{u.display_name || u.email}</option>)}
-                  </select>
-                </div>
+                {profile?.role === 'admin' && (
+                  <button
+                    onClick={() => setIsUploadingContent(true)}
+                    className="whitespace-nowrap inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-all h-[38px]"
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span>Add Content</span>
+                  </button>
+                )}
               </div>
+
+              {isUploadingContent && (
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-indigo-100 animate-in fade-in slide-in-from-top-4 duration-200">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-sm font-bold text-indigo-900 uppercase tracking-wider">Anexar Contenido Manualmente</h3>
+                    <button onClick={() => setIsUploadingContent(false)} className="text-gray-400 hover:text-gray-600"><Plus className="h-4 w-4 transform rotate-45" /></button>
+                  </div>
+                  <form onSubmit={handleManualContentUpload} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Creador</label>
+                      <select 
+                        required value={manualContent.creator_id} 
+                        onChange={(e) => setManualContent({...manualContent, creator_id: e.target.value})}
+                        className="w-full rounded-lg border-gray-200 text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                      >
+                        <option value="">Seleccionar Creador</option>
+                        {users.filter(u => u.role === 'creator').map(u => (
+                          <option key={u.id} value={u.id}>{u.display_name || u.email}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Campaña</label>
+                      <select 
+                        required value={manualContent.campaign_id} 
+                        onChange={(e) => setManualContent({...manualContent, campaign_id: e.target.value})}
+                        className="w-full rounded-lg border-gray-200 text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                      >
+                        <option value="">Seleccionar Campaña</option>
+                        {campaigns.map(c => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Plataforma</label>
+                      <select 
+                        required value={manualContent.platform} 
+                        onChange={(e) => setManualContent({...manualContent, platform: e.target.value as any})}
+                        className="w-full rounded-lg border-gray-200 text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                      >
+                        <option value="youtube">YouTube</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="tiktok">TikTok</option>
+                        <option value="x">X (Twitter)</option>
+                        <option value="coinmarketcap">CoinMarketCap</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">URL del Contenido</label>
+                      <input 
+                        type="url" required placeholder="https://..."
+                        value={manualContent.url} onChange={(e) => setManualContent({...manualContent, url: e.target.value})}
+                        className="w-full rounded-lg border-gray-200 text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                      />
+                    </div>
+                    <div className="sm:col-span-2 lg:col-span-4 flex justify-end gap-3 mt-2">
+                       <button 
+                        type="button" onClick={() => setIsUploadingContent(false)}
+                        className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                      >
+                        Cancelar
+                      </button>
+                      <button 
+                        type="submit" disabled={isFetchingContentMetadata}
+                        className="bg-indigo-600 text-white px-6 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-indigo-500 transition-all disabled:opacity-50"
+                      >
+                        {isFetchingContentMetadata ? 'Obteniendo Datos...' : 'Anexar Contenido'}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
 
               {/* Desktop View Table */}
               <div className="hidden lg:block bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -798,37 +984,50 @@ export default function AdminDashboard() {
                       <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider cursor-pointer hover:text-indigo-600" onClick={() => handleSort('views')}>Views {sortField === 'views' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
                       <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Metrics</th>
                       <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {filteredAndSortedContent.map((item) => {
-                      const creator = users.find(u => u.id === item.creator_id);
-                      return (
-                        <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center gap-3">
-                              <div className="h-10 w-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200">
-                                {item.thumbnail ? <img src={item.thumbnail} className="h-full w-full object-cover" /> : <div className="h-full w-full flex items-center justify-center"><Globe className="h-4 w-4 text-gray-300" /></div>}
-                              </div>
-                              <div className="max-w-[240px]">
-                                <a href={item.url} target="_blank" className="text-sm font-medium text-gray-900 group flex items-center gap-1">
-                                  <span className="truncate">{item.title || item.url}</span>
-                                  <ExternalLink className="h-3 w-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                </a>
-                                <p className="text-xs text-gray-500 capitalize">{item.platform}</p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 text-sm text-gray-600">{creator?.display_name || creator?.email}</td>
-                          <td className="px-6 py-4 text-sm font-bold text-gray-900">{item.views?.toLocaleString()}</td>
-                          <td className="px-6 py-4 text-xs text-gray-500">
-                            L: {item.likes || 0} / C: {item.comments || 0}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-gray-500">{item.uploaded_at ? format(new Date(item.uploaded_at), 'MMM d, yyyy') : 'N/A'}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
+                       {profile?.role === 'admin' && (
+                         <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                       )}
+                     </tr>
+                   </thead>
+                   <tbody className="divide-y divide-gray-200">
+                     {filteredAndSortedContent.map((item) => {
+                       const creator = users.find(u => u.id === item.creator_id);
+                       return (
+                         <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                           <td className="px-6 py-4 whitespace-nowrap">
+                             <div className="flex items-center gap-3">
+                               <div className="h-10 w-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200">
+                                 {item.thumbnail ? <img src={item.thumbnail} className="h-full w-full object-cover" /> : <div className="h-full w-full flex items-center justify-center"><Globe className="h-4 w-4 text-gray-300" /></div>}
+                               </div>
+                               <div className="max-w-[240px]">
+                                 <a href={item.url} target="_blank" className="text-sm font-medium text-gray-900 group flex items-center gap-1">
+                                   <span className="truncate">{item.title || item.url}</span>
+                                   <ExternalLink className="h-3 w-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                 </a>
+                                 <p className="text-xs text-gray-500 capitalize">{item.platform}</p>
+                               </div>
+                             </div>
+                           </td>
+                           <td className="px-6 py-4 text-sm text-gray-600">{creator?.display_name || creator?.email}</td>
+                           <td className="px-6 py-4 text-sm font-bold text-gray-900">{item.views?.toLocaleString()}</td>
+                           <td className="px-6 py-4 text-xs text-gray-500">
+                             L: {item.likes || 0} / C: {item.comments || 0}
+                           </td>
+                           <td className="px-6 py-4 text-sm text-gray-500">{item.uploaded_at ? format(new Date(item.uploaded_at), 'MMM d, yyyy') : 'N/A'}</td>
+                           {profile?.role === 'admin' && (
+                             <td className="px-6 py-4 whitespace-nowrap text-right">
+                               <button 
+                                 onClick={() => handleDeleteContent(item.id)}
+                                 className="text-red-400 hover:text-red-600 p-1.5 hover:bg-red-50 rounded-lg transition-colors"
+                               >
+                                 <Trash2 className="h-4 w-4" />
+                               </button>
+                             </td>
+                           )}
+                         </tr>
+                       );
+                     })}
+                   </tbody>
                 </table>
               </div>
 
@@ -965,13 +1164,15 @@ export default function AdminDashboard() {
                   <h3 className="text-lg font-semibold text-gray-900">User Management</h3>
                   <p className="text-sm text-gray-500">Manage access and permissions</p>
                 </div>
-                <button
-                  onClick={() => setIsAddingUser(true)}
-                  className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-all"
-                >
-                  <Plus className="h-4 w-4" />
-                  <span>Add User</span>
-                </button>
+                {profile?.role === 'admin' && (
+                  <button
+                    onClick={() => setIsAddingUser(true)}
+                    className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-all"
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span>Add User</span>
+                  </button>
+                )}
               </div>
 
               {isAddingUser && (
@@ -1041,7 +1242,7 @@ export default function AdminDashboard() {
                           <select
                             value={u.role}
                             onChange={(e) => handleRoleChange(u.id, e.target.value)}
-                            disabled={(profile?.role !== 'admin' && profile?.role !== 'manager') || u.id === user?.id}
+                            disabled={profile?.role !== 'admin' || u.id === user?.id}
                             className="text-xs border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50"
                           >
                             <option value="creator">Creator</option>
