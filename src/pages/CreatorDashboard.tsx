@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase, Campaign, Content } from '../supabase';
 import { useAuth } from '../AuthContext';
-import { Youtube, Instagram, Twitter, Music2, Globe, ExternalLink, Edit2, Trash2, Plus, LogOut, Layout, Users, BarChart3, ChevronRight, X, Sparkles, Wallet, CheckCircle2, TrendingUp, Award } from 'lucide-react';
+import { Youtube, Instagram, Twitter, Music2, Globe, ExternalLink, Edit2, Trash2, Plus, LogOut, Layout, Users, BarChart3, ChevronRight, X, Sparkles, Wallet, CheckCircle2, TrendingUp, Award, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function CreatorDashboard() {
@@ -21,8 +21,6 @@ export default function CreatorDashboard() {
   const [wallet_address, setWalletAddress] = useState('');
   const [wallet_network, setWalletNetwork] = useState('BSC');
   const [isSavingPayment, setIsSavingPayment] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
 
   const openPaymentModal = () => {
     setPaymentMethod(profile?.payment_method || 'binance');
@@ -69,10 +67,6 @@ export default function CreatorDashboard() {
 
     fetchData();
 
-    if (profile?.audience_geo) {
-      setSelectedCountries(Object.keys(profile.audience_geo));
-    }
-
     const campaignsSub = supabase.channel('public:campaigns_creator')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'campaigns', filter: "status=eq.active" }, () => {
         supabase.from('campaigns').select('*').eq('status', 'active').order('created_at', { ascending: false }).then(({ data }) => setCampaigns((data as Campaign[]) || []));
@@ -100,6 +94,7 @@ export default function CreatorDashboard() {
       let views = 0;
       let likes = 0;
       let comments = 0;
+      let thumbnail = '';
 
       try {
         const response = await fetch('/api/fetch-metadata', {
@@ -113,10 +108,11 @@ export default function CreatorDashboard() {
 
         if (response.ok) {
           const data = await response.json();
-          if (data.title) title = data.title;
-          if (data.views) views = data.views;
-          if (data.likes) likes = data.likes;
-          if (data.comments) comments = data.comments;
+          if (data.title && data.title !== "") title = data.title;
+          if (typeof data.views === 'number') views = data.views;
+          if (typeof data.likes === 'number') likes = data.likes;
+          if (typeof data.comments === 'number') comments = data.comments;
+          if (data.thumbnail && data.thumbnail !== "") thumbnail = data.thumbnail;
         }
       } catch (apiError) {
         console.error("Failed to fetch metadata from API:", apiError);
@@ -132,7 +128,8 @@ export default function CreatorDashboard() {
         title: title,
         views: views,
         likes: likes,
-        comments: comments
+        comments: comments,
+        thumbnail: thumbnail
       }]);
       
       if (error) throw error;
@@ -173,6 +170,7 @@ export default function CreatorDashboard() {
       let views = editingContent.views;
       let likes = editingContent.likes;
       let comments = editingContent.comments;
+      let thumbnail = editingContent.thumbnail || '';
 
       // If URL or platform changed, fetch new metadata
       const originalContent = content.find(c => c.id === editingContent.id);
@@ -190,9 +188,10 @@ export default function CreatorDashboard() {
           if (response.ok) {
             const data = await response.json();
             if (data.title) title = data.title;
-            if (data.views) views = data.views;
-            if (data.likes) likes = data.likes;
-            if (data.comments) comments = data.comments;
+            if (typeof data.views === 'number') views = data.views;
+            if (typeof data.likes === 'number') likes = data.likes;
+            if (typeof data.comments === 'number') comments = data.comments;
+            if (data.thumbnail) thumbnail = data.thumbnail;
           }
         } catch (apiError) {
           console.error("Failed to fetch metadata from API:", apiError);
@@ -207,6 +206,7 @@ export default function CreatorDashboard() {
         views: views,
         likes: likes,
         comments: comments,
+        thumbnail: thumbnail
       }).eq('id', editingContent.id);
       
       if (error) throw error;
@@ -233,21 +233,6 @@ export default function CreatorDashboard() {
       progress
     };
   });
-
-  const handleUpdateProfile = async (countries: string[]) => {
-    if (!user) return;
-    try {
-      const geo: Record<string, number> = {};
-      countries.forEach(c => geo[c] = 1); // Simple mapping for now
-      const { error } = await supabase.from('users').update({
-        audience_geo: geo
-      }).eq('id', user.id);
-      if (error) throw error;
-      setSelectedCountries(countries);
-    } catch (e) {
-      console.error("Error updating profile", e);
-    }
-  };
 
   const confirmDelete = async () => {
     if (!contentToDelete) return;
@@ -277,16 +262,6 @@ export default function CreatorDashboard() {
         </motion.div>
         
         <div className="flex items-center gap-3">
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => setIsProfileOpen(true)}
-            className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-gray-700 shadow-sm ring-1 ring-inset ring-gray-200 hover:bg-gray-50 transition-all"
-          >
-            <Users className="h-4 w-4 text-indigo-500" />
-            <span>Mi Audiencia</span>
-          </motion.button>
-          
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -530,88 +505,122 @@ export default function CreatorDashboard() {
       )}
 
       {(isUploading || editingContent) && (
-        <div className="mb-8 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 max-w-3xl mx-auto overflow-hidden animate-in fade-in slide-in-from-top-4 duration-300">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">
-              {editingContent ? 'Edit Content' : 'Upload New Content'}
-            </h2>
-            <button onClick={() => { setIsUploading(false); setEditingContent(null); }} className="text-gray-400 hover:text-gray-500">
-              <X className="h-5 w-5" />
-            </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+          {/* Backdrop Blur */}
+          <div 
+            className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm animate-in fade-in duration-300"
+            onClick={() => { setIsUploading(false); setEditingContent(null); }}
+          ></div>
+          
+          {/* Modal Content */}
+          <div className="relative w-full max-w-lg rounded-3xl bg-white p-8 shadow-2xl ring-1 ring-gray-900/10 animate-in zoom-in-95 slide-in-from-bottom-8 duration-300 overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500"></div>
+            
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  {editingContent ? 'Editar Contenido' : 'Nuevo Contenido'}
+                </h2>
+                <p className="text-sm text-gray-500 mt-1">Ingresa el enlace de tu publicación</p>
+              </div>
+              <button 
+                onClick={() => { setIsUploading(false); setEditingContent(null); }} 
+                className="p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                title="Cerrar"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            
+            <form onSubmit={editingContent ? handleUpdateContent : handleUploadContent} className="space-y-6">
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="campaign" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Campaña Activa</label>
+                  <select
+                    id="campaign"
+                    required
+                    value={editingContent ? editingContent.campaign_id : newContent.campaign_id}
+                    onChange={(e) => editingContent 
+                      ? setEditingContent({ ...editingContent, campaign_id: e.target.value })
+                      : setNewContent({ ...newContent, campaign_id: e.target.value })}
+                    className="block w-full rounded-xl border-gray-200 bg-gray-50/50 py-3 text-sm focus:ring-2 focus:ring-indigo-500 transition-all"
+                  >
+                    <option value="" disabled>{campaigns.length > 0 ? "Seleccionar campaña" : "No hay campañas activas"}</option>
+                    {campaigns.map(c => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div>
+                  <label htmlFor="platform" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Plataforma</label>
+                  <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                    {[
+                      { id: 'youtube', icon: Youtube, color: 'text-red-600', bg: 'bg-red-50' },
+                      { id: 'instagram', icon: Instagram, color: 'text-pink-600', bg: 'bg-pink-50' },
+                      { id: 'tiktok', icon: Music2, color: 'text-black', bg: 'bg-gray-100' },
+                      { id: 'x', icon: Twitter, color: 'text-blue-400', bg: 'bg-blue-50' },
+                      { id: 'coinmarketcap', icon: Globe, color: 'text-indigo-600', bg: 'bg-indigo-50' }
+                    ].map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => editingContent
+                          ? setEditingContent({ ...editingContent, platform: p.id as any })
+                          : setNewContent({ ...newContent, platform: p.id as any })}
+                        className={`flex flex-col items-center justify-center p-2 rounded-xl border-2 transition-all ${
+                          (editingContent ? editingContent.platform : newContent.platform) === p.id
+                            ? 'border-indigo-600 bg-indigo-50/50'
+                            : 'border-transparent bg-gray-50 hover:bg-gray-100'
+                        }`}
+                      >
+                        <p.icon className={`h-5 w-5 ${p.color}`} />
+                        <span className="text-[10px] mt-1 font-medium capitalize">{p.id === 'coinmarketcap' ? 'CMC' : p.id}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <label htmlFor="url" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">URL del Contenido</label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <ExternalLink className="h-4 w-4 text-gray-400" />
+                    </div>
+                    <input
+                      type="url"
+                      id="url"
+                      required
+                      value={editingContent ? editingContent.url : newContent.url}
+                      onChange={(e) => editingContent
+                        ? setEditingContent({ ...editingContent, url: e.target.value })
+                        : setNewContent({ ...newContent, url: e.target.value })}
+                      placeholder="https://www.instagram.com/reel/..."
+                      className="block w-full pl-10 rounded-xl border-gray-200 bg-gray-50/50 py-3 text-sm focus:ring-2 focus:ring-indigo-500 transition-all placeholder:text-gray-400"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => { setIsUploading(false); setEditingContent(null); }}
+                  className="flex-1 px-4 py-3 rounded-xl border border-gray-200 text-sm font-bold text-gray-600 hover:bg-gray-50 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={isFetchingMetadata}
+                  className="flex-[2] px-4 py-3 rounded-xl bg-indigo-600 text-sm font-bold text-white shadow-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                >
+                  {isFetchingMetadata && <RefreshCw className="h-4 w-4 animate-spin" />}
+                  {isFetchingMetadata ? 'Buscando Datos...' : (editingContent ? 'Guardar Cambios' : 'Anexar Link')}
+                </button>
+              </div>
+            </form>
           </div>
-          <form onSubmit={editingContent ? handleUpdateContent : handleUploadContent} className="space-y-4">
-            <div>
-              <label htmlFor="campaign" className="block text-sm font-medium leading-6 text-gray-900">Campaign</label>
-              <div className="mt-2">
-                <select
-                  id="campaign"
-                  required
-                  value={editingContent ? editingContent.campaign_id : newContent.campaign_id}
-                  onChange={(e) => editingContent 
-                    ? setEditingContent({ ...editingContent, campaign_id: e.target.value })
-                    : setNewContent({ ...newContent, campaign_id: e.target.value })}
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                >
-                  <option value="" disabled>{campaigns.length > 0 ? "Select a campaign" : "No active campaigns found"}</option>
-                  {campaigns.map(c => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            <div>
-              <label htmlFor="platform" className="block text-sm font-medium leading-6 text-gray-900">Platform</label>
-              <div className="mt-2">
-                <select
-                  id="platform"
-                  required
-                  value={editingContent ? editingContent.platform : newContent.platform}
-                  onChange={(e) => editingContent
-                    ? setEditingContent({ ...editingContent, platform: e.target.value as any })
-                    : setNewContent({ ...newContent, platform: e.target.value as any })}
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                >
-                  <option value="youtube">YouTube</option>
-                  <option value="instagram">Instagram</option>
-                  <option value="tiktok">TikTok</option>
-                  <option value="x">X (Twitter)</option>
-                  <option value="coinmarketcap">CoinMarketCap</option>
-                </select>
-              </div>
-            </div>
-            <div>
-              <label htmlFor="url" className="block text-sm font-medium leading-6 text-gray-900">Content URL</label>
-              <div className="mt-2">
-                <input
-                  type="url"
-                  id="url"
-                  required
-                  value={editingContent ? editingContent.url : newContent.url}
-                  onChange={(e) => editingContent
-                    ? setEditingContent({ ...editingContent, url: e.target.value })
-                    : setNewContent({ ...newContent, url: e.target.value })}
-                  placeholder="https://..."
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
-            <div className="flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => { setIsUploading(false); setEditingContent(null); }}
-                className="text-sm font-semibold leading-6 text-gray-900"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isFetchingMetadata}
-                className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isFetchingMetadata ? 'Fetching Data...' : (editingContent ? 'Update' : 'Upload')}
-              </button>
-            </div>
-          </form>
         </div>
       )}
 
@@ -713,80 +722,6 @@ export default function CreatorDashboard() {
         )}
       </div>
 
-      {/* Audience Profile Modal */}
-      <AnimatePresence>
-        {isProfileOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" 
-              onClick={() => setIsProfileOpen(false)}
-            />
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-lg rounded-3xl bg-white p-8 shadow-2xl"
-            >
-              <div className="flex justify-between items-center mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-indigo-50 rounded-xl">
-                    <Users className="h-6 w-6 text-indigo-600" />
-                  </div>
-                  <h3 className="text-xl font-black text-gray-900">Mi Audiencia</h3>
-                </div>
-                <button onClick={() => setIsProfileOpen(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
-                  <X className="h-6 w-6" />
-                </button>
-              </div>
-              
-              <p className="text-gray-500 text-sm mb-8 leading-relaxed">
-                Selecciona tus **3 países principales** de audiencia. Esto nos ayuda a mostrarte mejores oportunidades de campaña.
-              </p>
-              
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8">
-                {['Chile', 'Argentina', 'México', 'España', 'Colombia', 'Perú', 'USA', 'Brasil', 'Otros'].map(country => {
-                  const isSelected = selectedCountries.includes(country);
-                  return (
-                    <motion.button
-                      key={country}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => {
-                        if (isSelected) {
-                          handleUpdateProfile(selectedCountries.filter(c => c !== country));
-                        } else if (selectedCountries.length < 3) {
-                          handleUpdateProfile([...selectedCountries, country]);
-                        }
-                      }}
-                      className={`py-3 px-4 rounded-2xl text-xs font-bold transition-all border-2 ${
-                        isSelected 
-                          ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100' 
-                          : 'bg-white border-gray-100 text-gray-600 hover:border-indigo-200'
-                      }`}
-                    >
-                      {country}
-                    </motion.button>
-                  );
-                })}
-              </div>
-              
-              <div className="flex justify-center">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setIsProfileOpen(false)}
-                  className="w-full py-4 rounded-2xl bg-gray-900 text-white font-black hover:bg-gray-800 transition-all"
-                >
-                  Confirmar Selección
-                </motion.button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
 
       {/* Delete Confirmation Modal */}
       {contentToDelete && (

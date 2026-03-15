@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { supabase, Campaign, Content, UserProfile } from '../supabase';
 import { useAuth } from '../AuthContext';
-import { Plus, Download, RefreshCw, Sparkles, ExternalLink, LayoutDashboard, List, Users, Youtube, Instagram, Globe, Calendar as CalendarIcon, ChevronLeft, ChevronRight, Trash2, Target } from 'lucide-react';
+import { Plus, X, Download, RefreshCw, Sparkles, ExternalLink, LayoutDashboard, List, Users, Youtube, Instagram, Globe, Calendar as CalendarIcon, ChevronLeft, ChevronRight, Trash2, Target } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isToday, addMonths, subMonths, isSameDay } from 'date-fns';
 import { BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -40,6 +40,7 @@ export default function AdminDashboard() {
   const [filterCreator, setFilterCreator] = useState<string>('all');
   const [sortField, setSortField] = useState<keyof Content>('created_at');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [editingAudienceUser, setEditingAudienceUser] = useState<UserProfile | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -229,6 +230,22 @@ export default function AdminDashboard() {
       setIsFetchingContentMetadata(false);
     }
   };
+
+  const handleSaveAudience = async (userId: string, geo: Record<string, number>) => {
+    try {
+      const { error } = await supabase.from('users').update({
+        audience_geo: geo
+      }).eq('id', userId);
+      
+      if (error) throw error;
+      
+      setEditingAudienceUser(null);
+      // Local state is updated via subscription
+    } catch (error: any) {
+      console.error("Error saving audience geo:", error);
+      alert("Error saving audience: " + error.message);
+    }
+  };
   const handleDeleteCampaign = async (campaign_id: string) => {
     if (profile?.role !== 'admin') {
       alert("Only administrators can delete campaigns.");
@@ -260,37 +277,23 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleRefreshStats = async () => {
+  const handleSyncSingle = async (item: Content) => {
     if (profile?.role !== 'admin') return;
     setIsRefreshing(true);
     try {
-      // Filter out items without URLs or platforms
-      const refreshableItems = content.filter(item => item.url && item.platform);
-      if (refreshableItems.length === 0) {
-        alert("No hay contenido válido para actualizar.");
-        return;
-      }
-
-      // Use the new bulk endpoint
       const response = await fetch('/api/refresh-metrics', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          items: refreshableItems.map(item => ({
-            id: item.id,
-            url: item.url,
-            platform: item.platform
-          }))
+          items: [{ id: item.id, url: item.url, platform: item.platform }]
         })
       });
 
       if (!response.ok) throw new Error("API Refresh failed");
       
       const { results } = await response.json();
-      let updatedCount = 0;
-
-      // Update Supabase and local state
-      const updates = results.map(async (res: any) => {
+      if (results && results.length > 0) {
+        const res = results[0];
         const { error } = await supabase.from('content').update({
           views: res.views,
           likes: res.likes,
@@ -299,23 +302,77 @@ export default function AdminDashboard() {
           thumbnail: res.thumbnail
         }).eq('id', res.id);
         
-        if (!error) updatedCount++;
-      });
+        if (error) throw error;
 
-      await Promise.all(updates);
+        // Update local state
+        setContent(prev => prev.map(c => c.id === item.id ? {
+          ...c,
+          views: res.views,
+          likes: res.likes,
+          comments: res.comments,
+          title: res.title,
+          thumbnail: res.thumbnail
+        } : c));
+      }
+    } catch (error: any) {
+      console.error("Failed to sync item", error);
+      alert("Error al sincronizar: " + error.message);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
-      // Refresh local content state to show new numbers
+  const handleRefreshStats = async () => {
+    if (profile?.role !== 'admin') return;
+    setIsRefreshing(true);
+    try {
+      const refreshableItems = content.filter(item => item.url && item.platform);
+      if (refreshableItems.length === 0) {
+        alert("No hay contenido válido para actualizar.");
+        return;
+      }
+
+      let updatedCount = 0;
+      // Use sequential loop to avoid Vercel timeout (10s) on bulk jobs
+      for (const item of refreshableItems) {
+        try {
+          const response = await fetch('/api/refresh-metrics', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              items: [{ id: item.id, url: item.url, platform: item.platform }]
+            })
+          });
+
+          if (response.ok) {
+            const { results } = await response.json();
+            if (results && results.length > 0) {
+              const res = results[0];
+              const { error } = await supabase.from('content').update({
+                views: res.views,
+                likes: res.likes,
+                comments: res.comments,
+                title: res.title,
+                thumbnail: res.thumbnail
+              }).eq('id', res.id);
+              if (!error) updatedCount++;
+            }
+          }
+        } catch (e) {
+          console.error(`Error refreshing item ${item.id}:`, e);
+        }
+      }
+
       const { data: newData } = await supabase
         .from('content')
         .select('*')
         .order('uploaded_at', { ascending: false });
       
       if (newData) setContent(newData as Content[]);
-
-      alert(`Se han actualizado las métricas de ${updatedCount} elementos.`);
-    } catch (error: any) {
-      console.error("Failed to refresh stats", error);
-      alert("Error al actualizar estadísticas: " + error.message);
+      alert(`Actualización finalizada: ${updatedCount} de ${refreshableItems.length} publicaciones actualizadas.`);
+    } catch (err: any) {
+      console.error("Critical refresh error:", err);
+      alert("Error crítico al actualizar: " + err.message);
     } finally {
       setIsRefreshing(false);
     }
@@ -394,20 +451,27 @@ export default function AdminDashboard() {
   ].filter(p => p.value > 0);
 
   const geoData = useMemo(() => {
-    const counts: Record<string, number> = {};
+    const totals: Record<string, number> = {};
+    let activeCreators = 0;
+
     users.forEach(u => {
-      if (u.audience_geo) {
-        Object.keys(u.audience_geo).forEach(country => {
-          counts[country] = (counts[country] || 0) + 1;
+      if (u.role === 'creator' && u.audience_geo && Object.keys(u.audience_geo).length > 0) {
+        activeCreators++;
+        Object.entries(u.audience_geo).forEach(([country, percentage]) => {
+          totals[country] = (totals[country] || 0) + (percentage || 0);
         });
       }
     });
     
-    const sorted = Object.entries(counts)
-      .map(([name, value]) => ({ name, value }))
+    // Calculate global average percentage for each country across all creators
+    const averaged = Object.entries(totals)
+      .map(([name, value]) => ({ 
+        name, 
+        value: activeCreators > 0 ? Math.round(value / activeCreators) : value 
+      }))
       .sort((a, b) => b.value - a.value);
 
-    return sorted.length > 0 ? sorted : [
+    return averaged.length > 0 ? averaged : [
       { name: 'Sin Datos', value: 1 }
     ];
   }, [users]);
@@ -560,7 +624,7 @@ export default function AdminDashboard() {
             {profile?.role === 'admin' && (
               <button onClick={handleRefreshStats} disabled={isRefreshing} className="flex items-center gap-2 w-full px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50 rounded-lg">
                 <RefreshCw className={`h-3 w-3 ${isRefreshing ? 'animate-spin' : ''}`} />
-                {isRefreshing ? 'Refreshing...' : 'Refresh Stats'}
+                {isRefreshing ? 'Refreshing...' : 'Actualizar Global'}
               </button>
             )}
             <button onClick={exportToCSV} className="flex items-center gap-2 w-full px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50 rounded-lg">
@@ -661,7 +725,7 @@ export default function AdminDashboard() {
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 mt-6">
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Views by Platform (%)</h3>
-                  <div className="h-72">
+                  <div className="w-full h-[350px] relative">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
@@ -686,7 +750,7 @@ export default function AdminDashboard() {
 
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Audience by Country (%)</h3>
-                  <div className="h-72">
+                  <div className="w-full h-[350px] relative">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
@@ -925,7 +989,7 @@ export default function AdminDashboard() {
                       className="flex items-center gap-2 px-4 py-2 border border-slate-700 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors disabled:opacity-50"
                     >
                       <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                      Refresh All
+                      Actualizar Todo
                     </button>
                   </div>
                 )}
@@ -1045,14 +1109,22 @@ export default function AdminDashboard() {
                            </td>
                            <td className="px-6 py-4 text-sm text-gray-500">{item.uploaded_at ? format(new Date(item.uploaded_at), 'MMM d, yyyy') : 'N/A'}</td>
                            {profile?.role === 'admin' && (
-                             <td className="px-6 py-4 whitespace-nowrap text-right">
-                               <button 
-                                 onClick={() => handleDeleteContent(item.id)}
-                                 className="text-red-400 hover:text-red-600 p-1.5 hover:bg-red-50 rounded-lg transition-colors"
-                               >
-                                 <Trash2 className="h-4 w-4" />
-                               </button>
-                             </td>
+                               <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
+                                <button 
+                                  onClick={() => handleSyncSingle(item)}
+                                  disabled={isRefreshing}
+                                  title="Sincronizar métricas"
+                                  className="text-indigo-400 hover:text-indigo-600 p-1.5 hover:bg-indigo-50 rounded-lg transition-colors disabled:opacity-50"
+                                >
+                                  <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                                </button>
+                                <button 
+                                  onClick={() => handleDeleteContent(item.id)}
+                                  className="text-red-400 hover:text-red-600 p-1.5 hover:bg-red-50 rounded-lg transition-colors"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              </td>
                            )}
                          </tr>
                        );
@@ -1268,7 +1340,16 @@ export default function AdminDashboard() {
                             {u.role}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <td className="px-6 py-4 whitespace-nowrap text-right flex items-center justify-end gap-2">
+                          {u.role === 'creator' && (
+                            <button
+                              onClick={() => setEditingAudienceUser(u)}
+                              className="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors border border-indigo-100"
+                              title="Set Audience"
+                            >
+                              <Globe className="h-4 w-4" />
+                            </button>
+                          )}
                           <select
                             value={u.role}
                             onChange={(e) => handleRoleChange(u.id, e.target.value)}
@@ -1288,6 +1369,104 @@ export default function AdminDashboard() {
             </div>
           )}
         </div>
+
+        {/* Audience Management Modal - Admin Side */}
+        <AnimatePresence>
+          {editingAudienceUser && (
+            <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" 
+                onClick={() => setEditingAudienceUser(null)}
+              />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="relative w-full max-w-lg rounded-3xl bg-white p-8 shadow-2xl"
+              >
+                <div className="flex justify-between items-center mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-indigo-50 rounded-xl">
+                      <Globe className="h-6 w-6 text-indigo-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-black text-gray-900">Audience Profile</h3>
+                      <p className="text-xs text-gray-500">Set percentages for **{editingAudienceUser.display_name || editingAudienceUser.email}**</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setEditingAudienceUser(null)} className="text-gray-400 hover:text-gray-600">
+                    <X className="h-6 w-6" />
+                  </button>
+                </div>
+                
+                <div className="space-y-6">
+                  <div className="grid grid-cols-3 gap-2">
+                    {['Chile', 'Argentina', 'México', 'España', 'Colombia', 'Perú', 'USA', 'Brasil', 'Otros'].map(country => {
+                      const geo = editingAudienceUser.audience_geo || {};
+                      const isSelected = !!geo[country];
+                      return (
+                        <button
+                          key={country}
+                          onClick={() => {
+                            const newGeo = { ...geo };
+                            if (isSelected) {
+                              delete newGeo[country];
+                            } else if (Object.keys(newGeo).length < 3) {
+                              newGeo[country] = 33;
+                            }
+                            setEditingAudienceUser({ ...editingAudienceUser, audience_geo: newGeo });
+                          }}
+                          className={`py-2 px-3 rounded-xl text-[10px] font-bold transition-all border ${
+                            isSelected 
+                              ? 'bg-indigo-600 border-indigo-600 text-white shadow-md' 
+                              : 'bg-white border-gray-100 text-gray-600 hover:border-indigo-200'
+                          }`}
+                        >
+                          {country}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {Object.keys(editingAudienceUser.audience_geo || {}).length > 0 && (
+                    <div className="space-y-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                      {Object.entries(editingAudienceUser.audience_geo || {}).map(([country, percentage]) => (
+                        <div key={country} className="flex items-center gap-4">
+                          <span className="text-sm font-bold text-gray-700 w-24 truncate">{country}</span>
+                          <div className="flex-1 flex items-center gap-2">
+                            <input 
+                              type="range" min="1" max="100" value={percentage}
+                              onChange={(e) => {
+                                const newGeo = { ...(editingAudienceUser.audience_geo || {}) };
+                                newGeo[country] = parseInt(e.target.value);
+                                setEditingAudienceUser({ ...editingAudienceUser, audience_geo: newGeo });
+                              }}
+                              className="flex-1 h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                            />
+                            <div className="w-12 text-right text-sm font-black text-indigo-600">{percentage}%</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex justify-end gap-3 pt-4">
+                    <button onClick={() => setEditingAudienceUser(null)} className="px-6 py-3 rounded-2xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-all text-sm">Cancel</button>
+                    <button 
+                      onClick={() => handleSaveAudience(editingAudienceUser.id, editingAudienceUser.audience_geo || {})}
+                      className="px-8 py-3 rounded-2xl bg-indigo-600 text-white font-black hover:bg-indigo-500 shadow-lg shadow-indigo-100 transition-all text-sm"
+                    >
+                      Save Profile
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </main>
     </div>
   );

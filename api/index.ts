@@ -108,7 +108,6 @@ async function fetchInstagramData(url: string) {
   let title = "Instagram Post", views = 0, likes = 0, comments = 0, ownerId = "", shortcode = "", thumbnail = "";
   const apiKey = process.env.RAPIDAPI_KEY || '1e492088c3msh36ba0d59dedf5a7p1b7467jsnc6a3c896dd38';
   try {
-    // Attempt to scrape thumbnail first (FAST)
     try {
       const pageRes = await axios.get(url, { headers: { "User-Agent": "Mozilla/5.0" }, timeout: 3000 });
       const thumbMatch = pageRes.data.match(/<meta property="og:image" content="([^"]+)"/);
@@ -120,10 +119,6 @@ async function fetchInstagramData(url: string) {
       headers: { 'X-RapidAPI-Key': apiKey, 'X-RapidAPI-Host': 'instagram-looter2.p.rapidapi.com' },
       timeout: 5000
     });
-    
-    console.log("Instagram raw response status:", postRes.status);
-    // Log keys of the data to see the structure without dumping everything
-    console.log("Instagram response keys:", postRes.data ? Object.keys(postRes.data) : "null or empty");
     
     const postData = postRes.data?.data || postRes.data?.items?.[0] || postRes.data;
     if (postData) {
@@ -137,25 +132,18 @@ async function fetchInstagramData(url: string) {
       likes = postData.like_count ?? postData.likes ?? (postData.edge_media_preview_like?.count ?? 0);
       comments = postData.comment_count ?? postData.comments ?? (postData.edge_media_to_comment?.count ?? 0);
       
-      // Improved view count extraction: take the max of all possible fields
       views = Math.max(
         postData.view_count || 0,
         postData.play_count || 0,
         postData.video_view_count || 0,
         postData.video_play_count || 0,
-        likes // Views are usually at least the number of likes
+        likes
       );
       
       if (!thumbnail) thumbnail = postData.display_url || postData.thumbnail_url || "";
-      
-      console.log(`Extracted metadata: v=${views}, l=${likes}, c=${comments}`);
-    } else {
-      console.warn("No postData found in Instagram response");
     }
 
-    // If still 0 and looks like a video/reel, try the reels endpoint
     const isVideo = url.includes('/reel/') || postData?.is_video === true || !!postData?.video_url;
-    
     if (views === 0 && isVideo && ownerId && shortcode) {
       try {
         const reelsRes = await axios.get('https://instagram-looter2.p.rapidapi.com/reels', {
@@ -173,11 +161,9 @@ async function fetchInstagramData(url: string) {
           if (reelViews > views) views = reelViews;
           if (reel.media.like_count > likes) likes = reel.media.like_count;
           if (reel.media.comment_count > comments) comments = reel.media.comment_count;
-          console.log(`Reels fallback found: ${views} views`);
         }
       } catch (e) {}
     }
-    console.log(`Instagram Final Stats: ${views} views, ${likes} likes`);
     return { title: title.substring(0, 100), views, likes, comments, thumbnail };
   } catch (error: any) {
     console.error("Instagram Fetch Error:", error.message);
@@ -208,12 +194,8 @@ async function fetchCMCData(url: string) {
   }
 }
 
-// --- SERVER SETUP ---
-
 const app = express();
 app.use(express.json());
-
-// --- ROUTES ---
 
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 
@@ -223,7 +205,7 @@ app.get("/api/debug-env", (req, res) => {
     gemini_key_set: !!process.env.GEMINI_API_KEY,
     youtube_key_set: !!process.env.YOUTUBE_API_KEY,
     node_env: process.env.NODE_ENV,
-    vercel: process.env.VERCEL
+    vercel: !!process.env.VERCEL
   });
 });
 
@@ -250,24 +232,16 @@ app.post("/api/fetch-metadata", async (req, res) => {
 
 app.post("/api/refresh-metrics", async (req, res) => {
   try {
-    const { items } = req.body; 
-    console.log("REFRESH_API_REQUEST_BODY:", JSON.stringify(req.body));
-    
+    const { items } = req.body;
     if (!items || !Array.isArray(items)) {
-      console.warn("Invalid items array in refresh request");
       return res.status(400).json({ error: "Items array is required" });
     }
 
-    console.log(`Refreshing ${items.length} items...`);
     const results = [];
     for (const item of items) {
-      if (!item.id || !item.url || !item.platform) {
-        console.warn("Skipping invalid item:", item);
-        continue;
-      }
+      if (!item.id || !item.url || !item.platform) continue;
       try {
         let data;
-        console.log(`Syncing ${item.platform}: ${item.url}`);
         switch(item.platform) {
           case 'tiktok': data = await fetchTikTokData(item.url); break;
           case 'youtube': data = await fetchYouTubeData(item.url); break;
@@ -283,11 +257,8 @@ app.post("/api/refresh-metrics", async (req, res) => {
     }
     res.json({ success: true, results });
   } catch (globalError: any) {
-    console.error("SERVER_CRASH_DEBUG - Global refresh error:", globalError);
-    res.status(500).json({ 
-      error: "INTERNAL_SERVER_CRASH: " + globalError.message, 
-      id: "REFRESH_DEBUG_" + Date.now()
-    });
+    console.error("Refresh error:", globalError);
+    res.status(500).json({ error: globalError.message });
   }
 });
 
@@ -296,51 +267,34 @@ app.post("/api/analyze-performance", async (req, res) => {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return res.status(500).json({ error: "AI Key not configured" });
     const { summaryData } = req.body;
-    
     const genAI = new GoogleGenerativeAI(apiKey);
-    
-    // Fallback logic for models
     const modelsToTry = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-pro"];
     let lastError = "";
 
     for (const modelName of modelsToTry) {
       try {
         const model = genAI.getGenerativeModel({ model: modelName });
-        const prompt = `Analiza los siguientes datos de rendimiento de redes sociales para una agencia de marketing y proporciona un resumen breve y accionable en español (máximo 3 párrafos cortos). Usa viñetas para los puntos clave. Identifica qué plataforma funciona mejor y sugiere mejoras inmediatas. Datos: ${JSON.stringify(summaryData)}`;
+        const prompt = `Analiza los siguientes datos de rendimiento de redes sociales para una agencia de marketing y proporciona un resumen breve y accionable en español (máximo 3 párrafos cortos). Datos: ${JSON.stringify(summaryData)}`;
         const result = await model.generateContent(prompt);
         return res.json({ analysis: result.response.text() });
       } catch (err: any) {
         lastError = err.message;
-        if (err.message?.includes("404")) {
-          console.log(`Model ${modelName} not found, trying next...`);
-          continue;
-        }
-        if (err.message?.includes("429")) {
-          return res.status(429).json({ error: "Cuota de IA agotada. Inténtalo de nuevo en unos minutos." });
-        }
-        break; // Stop on unknown errors
+        if (err.message?.includes("404")) continue;
+        break;
       }
     }
-    
-    console.error("AI Error:", lastError);
-    res.status(500).json({ error: "No se pudo generar el análisis. Verifica tu API Key o inténtalo más tarde." });
+    res.status(500).json({ error: lastError });
   } catch (error: any) {
-    console.error("General AI Error:", error.message);
-    res.status(500).json({ error: "Fallo inesperado en el análisis de IA" });
+    res.status(500).json({ error: error.message });
   }
 });
 
 app.post("/api/send-email", async (req, res) => {
   const { Resend } = await import('resend');
   const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    console.warn("RESEND_API_KEY not configured, skipping email.");
-    return res.json({ skip: true, message: "Resend not configured" });
-  }
-
+  if (!apiKey) return res.json({ skip: true });
   const resend = new Resend(apiKey);
   const { subject, html } = req.body;
-
   try {
     const { data, error } = await resend.emails.send({
       from: 'Umbra Creator Hub <notifications@resend.dev>',
@@ -348,51 +302,16 @@ app.post("/api/send-email", async (req, res) => {
       subject,
       html,
     });
-
-    if (error) {
-      console.error("Resend Error:", error);
-      return res.status(400).json({ error });
-    }
-
+    if (error) return res.status(400).json({ error });
     res.json({ success: true, data });
   } catch (err: any) {
-    console.error("Notification failed:", err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
-// --- VITE / STATIC SERVING ---
-
-async function setupVite() {
-  if (process.env.NODE_ENV !== "production") {
-    const { createServer: createViteServer } = await import("vite");
-    const vite = await createViteServer({ server: { middlewareMode: true }, appType: "spa" });
-    app.use(vite.middlewares);
-    
-    const PORT = 3000;
-    app.listen(PORT, "0.0.0.0", () => {
-      console.log(`Development server running on http://localhost:${PORT}`);
-    });
-  } else {
-    // In production (Vercel), Express doesn't need to serve static files 
-    // because Vercel handles the dist directory via rewrites.
-    // However, if running as a standalone node app:
-    app.use(express.static("dist"));
-  }
-}
-
-// Global error handler
 app.use((err: any, req: any, res: any, next: any) => {
-  console.error("GLOBAL_CATCH_ALL_ERROR:", err);
-  res.status(500).json({ 
-    error: "GLOBAL_CATCH_ALL_ERROR", 
-    message: err.message,
-    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
-  });
+  console.error("CRITICAL_ERROR:", err);
+  res.status(500).json({ error: "SERVER_ERROR", message: err.message });
 });
-
-if (!process.env.VERCEL) {
-  setupVite();
-}
 
 export default app;
