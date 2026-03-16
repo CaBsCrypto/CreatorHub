@@ -41,13 +41,15 @@ export interface Content {
   id: string;
   campaign_id: string;
   creator_id: string;
-  platform: 'youtube' | 'instagram' | 'tiktok' | 'x' | 'coinmarketcap';
+  platform: 'youtube' | 'instagram' | 'tiktok' | 'x' | 'coinmarketcap' | 'twitch';
   url: string;
   title: string | null;
   thumbnail: string | null;
   views: number;
   likes: number;
   comments: number;
+  peek_viewers?: number; // Twitch specific
+  duration_minutes?: number; // Twitch specific
   uploaded_at: string | null;
   created_at: string;
 }

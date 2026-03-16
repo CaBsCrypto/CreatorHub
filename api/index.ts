@@ -262,6 +262,48 @@ app.post("/api/refresh-metrics", async (req, res) => {
   }
 });
 
+app.post("/api/analyze-twitch", async (req, res) => {
+  try {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) return res.status(500).json({ error: "AI Key not configured" });
+    
+    const { image } = req.body; // Base64 encoded image
+    if (!image) return res.status(400).json({ error: "Image data is required" });
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    const prompt = "Analiza esta captura de pantalla de las estadísticas de un stream de Twitch. Extrae los siguientes datos en formato JSON: { 'views': número, 'peek_viewers': número, 'duration_minutes': número, 'title': cadena, 'stream_date': cadena ISO }. Si no encuentras alguno, pon 0 o null.";
+    
+    const result = await model.generateContent([
+      prompt,
+      {
+        inlineData: {
+          data: image.split(',')[1] || image,
+          mimeType: "image/png"
+        }
+      }
+    ]);
+
+    const response = await result.response;
+    let text = response.text();
+    
+    // Clean up markdown if AI returned it
+    text = text.replace(/```json|```/g, "").trim();
+    
+    try {
+      const stats = JSON.parse(text);
+      res.json(stats);
+    } catch (e) {
+      console.error("Failed to parse AI response:", text);
+      res.status(500).json({ error: "Failed to parse stats from image", raw: text });
+    }
+  } catch (error: any) {
+    console.error("Twitch analysis error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.post("/api/analyze-performance", async (req, res) => {
   try {
     const apiKey = process.env.GEMINI_API_KEY;

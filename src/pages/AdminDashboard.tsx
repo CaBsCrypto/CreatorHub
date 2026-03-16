@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { supabase, Campaign, Content, UserProfile } from '../supabase';
 import { useAuth } from '../AuthContext';
-import { Plus, X, Download, RefreshCw, Sparkles, ExternalLink, LayoutDashboard, List, Users, Youtube, Instagram, Globe, Calendar as CalendarIcon, ChevronLeft, ChevronRight, Trash2, Target } from 'lucide-react';
+import { Plus, X, Download, RefreshCw, Sparkles, ExternalLink, LayoutDashboard, List, Users, Youtube, Instagram, Globe, Calendar as CalendarIcon, ChevronLeft, ChevronRight, Trash2, Target, Music2, TrendingUp, BarChart3, Award, Wallet } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isToday, addMonths, subMonths, isSameDay } from 'date-fns';
 import { BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -41,6 +41,11 @@ export default function AdminDashboard() {
   const [sortField, setSortField] = useState<keyof Content>('created_at');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [editingAudienceUser, setEditingAudienceUser] = useState<UserProfile | null>(null);
+
+  // Twitch OCR State
+  const [isAnalyzingTwitch, setIsAnalyzingTwitch] = useState(false);
+  const [twitchStats, setTwitchStats] = useState<any>(null);
+  const [isTwitchModalOpen, setIsTwitchModalOpen] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -224,10 +229,83 @@ export default function AdminDashboard() {
         setContent(prev => [data as Content, ...prev]);
       }
     } catch (error: any) {
-      console.error("Error manually assigning content:", error);
-      alert("Error adding content: " + error.message);
+      console.error("Error creating manual content:", error);
+      alert("Error adding manual content: " + error.message);
     } finally {
       setIsFetchingContentMetadata(false);
+    }
+  };
+
+  const handleTwitchUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsAnalyzingTwitch(true);
+    setTwitchStats(null);
+    setIsTwitchModalOpen(true);
+
+    try {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64 = reader.result as string;
+        try {
+          const response = await fetch('/api/analyze-twitch', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: base64 })
+          });
+
+          if (!response.ok) throw new Error("Failed to analyze image");
+          const data = await response.json();
+          setTwitchStats(data);
+        } catch (err: any) {
+          console.error("Twitch analysis error:", err);
+          alert("Error analizando la imagen: " + err.message);
+        } finally {
+          setIsAnalyzingTwitch(false);
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      console.error("File reading error:", err);
+      setIsAnalyzingTwitch(false);
+    }
+  };
+
+  const saveTwitchStats = async () => {
+    if (!twitchStats || !user) return;
+    
+    // In a real scenario, the admin would select a creator and a campaign first.
+    // For now, let's ask for them or use placeholders if not selected.
+    const creatorId = filterCreator !== 'all' ? filterCreator : null;
+    const campaignId = filterCampaign !== 'all' ? filterCampaign : campaigns[0]?.id;
+
+    if (!creatorId) {
+      alert("Por favor selecciona un creador en el filtro superior antes de guardar.");
+      return;
+    }
+
+    try {
+      const { error } = await supabase.from('content').insert([{
+        campaign_id: campaignId,
+        creator_id: creatorId,
+        platform: 'twitch',
+        url: 'https://twitch.tv/' + (twitchStats.title || 'stream'),
+        title: twitchStats.title || 'Stream de Twitch',
+        views: twitchStats.views || 0,
+        peek_viewers: twitchStats.peek_viewers || 0,
+        duration_minutes: twitchStats.duration_minutes || 0,
+        uploaded_at: twitchStats.stream_date || new Date().toISOString()
+      }]);
+
+      if (error) throw error;
+      
+      alert("Estadísticas de Twitch guardadas con éxito!");
+      setIsTwitchModalOpen(false);
+      setTwitchStats(null);
+    } catch (err: any) {
+      console.error("Error saving twitch stats:", err);
+      alert("Error guardando estadísticas: " + err.message);
     }
   };
 
@@ -455,15 +533,26 @@ export default function AdminDashboard() {
     let activeCreators = 0;
 
     users.forEach(u => {
-      if (u.role === 'creator' && u.audience_geo && Object.keys(u.audience_geo).length > 0) {
-        activeCreators++;
-        Object.entries(u.audience_geo).forEach(([country, percentage]) => {
-          totals[country] = (totals[country] || 0) + (percentage || 0);
-        });
+      if (u.role === 'creator') {
+        let geo = u.audience_geo;
+        
+        // Safety: handle cases where it might come back as a string from some drivers
+        if (typeof geo === 'string') {
+          try { geo = JSON.parse(geo); } catch (e) { geo = {}; }
+        }
+        
+        if (geo && Object.keys(geo).length > 0) {
+          activeCreators++;
+          Object.entries(geo).forEach(([country, percentage]) => {
+            const val = typeof percentage === 'number' ? percentage : parseInt(percentage as any) || 0;
+            totals[country] = (totals[country] || 0) + val;
+          });
+        }
       }
     });
     
-    // Calculate global average percentage for each country across all creators
+    console.log(`[GEO_DEBUG] Active Creators: ${activeCreators}, Totals:`, totals);
+
     const averaged = Object.entries(totals)
       .map(([name, value]) => ({ 
         name, 
@@ -471,10 +560,46 @@ export default function AdminDashboard() {
       }))
       .sort((a, b) => b.value - a.value);
 
-    return averaged.length > 0 ? averaged : [
-      { name: 'Sin Datos', value: 1 }
-    ];
+    return averaged;
   }, [users]);
+
+  const growthData = useMemo(() => {
+    const months: Record<string, number> = {};
+    content.forEach(c => {
+      if (!c.created_at) return;
+      const date = new Date(c.created_at);
+      const monthKey = format(date, 'MMM yyyy');
+      months[monthKey] = (months[monthKey] || 0) + (c.views || 0);
+    });
+    return Object.entries(months)
+      .map(([name, views]) => ({ name, views }))
+      .sort((a, b) => new Date(a.name).getTime() - new Date(b.name).getTime());
+  }, [content]);
+
+  const heatmapData = useMemo(() => {
+    // 7 days x 24 hours
+    const days = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+    const matrix: any[] = [];
+    
+    // Initialize matrix
+    for (let i = 0; i < 7; i++) {
+      for (let j = 0; j < 24; j++) {
+        matrix.push({ day: days[i], hour: j, count: 0, dayIdx: (i + 1) % 7 }); // (i+1)%7 maps 0 (Lun) to 1, ..., 6 (Dom) to 0
+      }
+    }
+
+    content.forEach(c => {
+      if (!c.created_at) return;
+      const date = new Date(c.created_at);
+      const dayIdx = date.getDay(); // 0 is Sunday, 1 is Monday
+      const hour = date.getHours();
+      
+      const cell = matrix.find(m => m.dayIdx === dayIdx && m.hour === hour);
+      if (cell) cell.count += 1;
+    });
+
+    return matrix;
+  }, [content]);
 
   const COLORS = ['#4f46e5', '#ec4899', '#14b8a6', '#f59e0b', '#6366f1', '#f43f5e', '#10b981'];
 
@@ -749,26 +874,24 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Audience by Country (%)</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Crecimiento Mensual (Vistas)</h3>
                   <div className="w-full h-[350px] relative">
                     <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={geoData}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={60}
-                          outerRadius={80}
-                          paddingAngle={5}
-                          dataKey="value"
-                        >
-                          {geoData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[(index + 2) % COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <Tooltip />
-                        <Legend verticalAlign="bottom" height={36}/>
-                      </PieChart>
+                      <AreaChart data={growthData}>
+                        <defs>
+                          <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.1}/>
+                            <stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#6b7280'}} />
+                        <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#6b7280'}} tickFormatter={(value) => value >= 1000 ? `${(value/1000).toFixed(1)}k` : value} />
+                        <Tooltip 
+                          contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                        />
+                        <Area type="monotone" dataKey="views" stroke="#4f46e5" strokeWidth={3} fillOpacity={1} fill="url(#colorViews)" />
+                      </AreaChart>
                     </ResponsiveContainer>
                   </div>
                 </div>
@@ -827,38 +950,65 @@ export default function AdminDashboard() {
 
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-2">
                   <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
-                    Campaign Progress
-                    <Target className="h-4 w-4 text-indigo-500" />
+                    Pulso de Actividad (Heatmap)
+                    <CalendarIcon className="h-4 w-4 text-orange-500" />
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto max-h-[300px] pr-2 custom-scrollbar">
-                    {campaigns.map((camp, idx) => {
-                      const totalPosts = content.filter(c => c.campaign_id === camp.id).length;
-                      const target = camp.target_posts || 3;
-                      const progress = Math.min((totalPosts / target) * 100, 100);
-                      return (
-                        <motion.div 
-                          key={camp.id} 
-                          initial={{ opacity: 0, scale: 0.95 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: idx * 0.05 }}
-                          className="p-4 rounded-xl bg-gray-50 border border-gray-100"
-                        >
-                          <div className="flex justify-between items-start mb-3">
-                            <h4 className="text-sm font-bold text-gray-900 truncate pr-2" title={camp.name}>{camp.name}</h4>
-                            <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">{Math.round(progress)}%</span>
+                  <div className="overflow-x-auto pb-4 custom-scrollbar">
+                    <div className="min-w-[800px]">
+                      <div className="grid gap-1" style={{ gridTemplateColumns: '48px repeat(24, minmax(0, 1fr))' }}>
+                        <div className="h-8 w-12 text-[10px] font-bold text-gray-400 flex items-center">Día</div>
+                        {Array.from({ length: 24 }).map((_, i) => (
+                          <div key={i} className="h-8 w-full text-[10px] font-bold text-gray-400 flex items-center justify-center">
+                            {i}h
                           </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-                            <motion.div 
-                              initial={{ width: 0 }}
-                              animate={{ width: `${progress}%` }}
-                              transition={{ duration: 1 }}
-                              className="bg-indigo-600 h-2 rounded-full transition-all"
-                            ></motion.div>
-                          </div>
-                          <p className="text-[10px] font-bold text-gray-500">{totalPosts} / {target} posts</p>
-                        </motion.div>
-                      );
-                    })}
+                        ))}
+                        
+                        {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((day, dIdx) => (
+                          <React.Fragment key={day}>
+                            <div className="h-8 w-12 text-[11px] font-bold text-gray-600 flex items-center">{day}</div>
+                            {Array.from({ length: 24 }).map((_, h) => {
+                              const cell = heatmapData.find(m => m.day === day && m.hour === h) || { count: 0 };
+                              const opacity = Math.min(cell.count / 5, 1); // Intensity based on count
+                              return (
+                                <div 
+                                  key={h}
+                                  className="h-8 w-full rounded-sm transition-all hover:ring-2 hover:ring-indigo-300 cursor-help"
+                                  title={`${day} ${h}:00 - ${cell.count} posts`}
+                                  style={{ 
+                                    backgroundColor: cell.count > 0 ? `rgba(79, 70, 229, ${0.1 + opacity * 0.9})` : '#f3f4f6' 
+                                  }}
+                                ></div>
+                              );
+                            })}
+                          </React.Fragment>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-4 flex items-center gap-4 text-xs text-gray-500">
+                    <div className="flex items-center gap-1"><div className="w-3 h-3 bg-gray-100 rounded-sm"></div> Sin actividad</div>
+                    <div className="flex items-center gap-1"><div className="w-3 h-3 bg-indigo-200 rounded-sm"></div> Baja</div>
+                    <div className="flex items-center gap-1"><div className="w-3 h-3 bg-indigo-600 rounded-sm"></div> Alta frecuencia</div>
+                  </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-2">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900">Twitch Stats Assistant (Beta)</h3>
+                    <div className="flex gap-2">
+                      <label className="inline-flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 cursor-pointer">
+                        <Download className="h-3 w-3" />
+                        Subir Captura
+                        <input type="file" className="hidden" accept="image/*" onChange={handleTwitchUpload} />
+                      </label>
+                    </div>
+                  </div>
+                  <div className="p-8 border-2 border-dashed border-gray-100 rounded-xl bg-gray-50/50 flex flex-col items-center justify-center text-center">
+                    <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mb-4">
+                      <Music2 className="h-6 w-6 text-indigo-400" />
+                    </div>
+                    <p className="text-sm font-medium text-gray-600 mb-1">Analiza tus streams con IA Vision</p>
+                    <p className="text-xs text-gray-400 max-w-xs">Sube una imagen de tu panel de Twitch y deja que Gemini procese las estadísticas por ti.</p>
                   </div>
                 </div>
 
@@ -1214,47 +1364,89 @@ export default function AdminDashboard() {
           )}
 
           {activeTab === 'creators' && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              {creatorStats.map(stat => (
-                <div key={stat.creator_id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 group hover:border-indigo-200 transition-all">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="h-12 w-12 rounded-full bg-indigo-50 text-indigo-700 flex items-center justify-center font-bold text-lg border border-indigo-100">
-                      {stat.name.charAt(0).toUpperCase()}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-6 duration-700">
+              {creatorStats.map((stat, idx) => (
+                <motion.div 
+                  key={stat.creator_id}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.1 * idx }}
+                  className="relative overflow-hidden bg-white rounded-[32px] p-8 shadow-sm hover:shadow-2xl border border-gray-100 group transition-all duration-500"
+                >
+                  {/* Decorative Background */}
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50/50 rounded-bl-[64px] -z-0 transition-transform group-hover:scale-110 duration-500" />
+                  
+                  <div className="relative z-10">
+                    <div className="flex items-center gap-5 mb-8">
+                      <div className="relative flex-shrink-0">
+                        <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center text-white text-3xl font-black shadow-lg shadow-indigo-100 ring-4 ring-white">
+                          {stat.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="absolute -bottom-2 -right-2 h-8 w-8 rounded-xl bg-white shadow-md flex items-center justify-center border border-gray-50">
+                          <Award className="h-4 w-4 text-yellow-500" />
+                        </div>
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="text-2xl font-black text-gray-900 truncate leading-tight">{stat.name}</h3>
+                        <p className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 text-[10px] font-black text-slate-600 uppercase tracking-widest mt-2 border border-slate-200">
+                          <Users className="h-3 w-3" />
+                          Top Influencer
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-bold text-gray-900 truncate">{stat.name}</h3>
-                      <p className="text-xs text-gray-500">{stat.contentCount} posts uploaded</p>
+
+                    <div className="grid grid-cols-2 gap-4 mb-8">
+                      <div className="p-5 bg-gray-50/50 rounded-2xl border border-gray-100 hover:border-indigo-100 transition-colors">
+                        <div className="flex items-center gap-1.5 mb-1.5">
+                          <BarChart3 className="h-3 w-3 text-indigo-500" />
+                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Views Totales</p>
+                        </div>
+                        <p className="text-2xl font-black text-gray-900 truncate tracking-tight">{stat.views.toLocaleString()}</p>
+                      </div>
+                      
+                      <div className="p-5 bg-emerald-50/50 rounded-2xl border border-emerald-50 hover:border-emerald-100 transition-colors">
+                        <div className="flex items-center gap-1.5 mb-1.5">
+                          <Wallet className="h-3 w-3 text-emerald-500" />
+                          <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Est. Revenue</p>
+                        </div>
+                        <p className="text-2xl font-black text-emerald-700 tracking-tight">
+                          ${stat.estimatedValue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      {/* Stats Progress Bars or KPIs */}
+                      <div>
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Posteo Regular</span>
+                          <span className="text-xs font-bold text-gray-900">{stat.contentCount} posts</span>
+                        </div>
+                        <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                          <motion.div 
+                            initial={{ width: 0 }}
+                            animate={{ width: `${Math.min((stat.contentCount / 20) * 100, 100)}%` }}
+                            className="h-full bg-indigo-600 rounded-full"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Payment Badge Footer */}
+                      <div className="pt-6 border-t border-gray-50 flex items-center justify-between">
+                        <div className="flex flex-col">
+                          <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Pago Preferido</span>
+                          <div className="mt-1 flex items-center gap-1.5">
+                            <div className={`h-2 w-2 rounded-full ${stat.paymentMethod ? 'bg-emerald-500' : 'bg-gray-300'}`} />
+                            <span className="text-xs font-bold text-gray-700 uppercase">{stat.paymentMethod || 'Pendiente'}</span>
+                          </div>
+                        </div>
+                        <button className="h-10 px-4 rounded-xl bg-gray-900 text-white text-xs font-bold hover:bg-gray-800 transition-colors">
+                          Ver Perfil
+                        </button>
+                      </div>
                     </div>
                   </div>
-                                   <div className="grid grid-cols-2 gap-4">
-                     <div className="p-3 bg-gray-50 rounded-lg">
-                       <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Views</p>
-                       <p className="text-lg font-bold text-gray-900">{stat.views.toLocaleString()}</p>
-                     </div>
-                     <div 
-                       className="p-3 bg-emerald-50 rounded-lg border border-emerald-100 cursor-help"
-                       title="Cálculo basado en $2.00 USD por cada 1,000 vistas (CPM Estimado)"
-                     >
-                       <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Est. Value ($)</p>
-                       <p className="text-lg font-bold text-emerald-700">
-                         ${stat.estimatedValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                       </p>
-                     </div>
-                   </div>
-
-                   {/* Payment Info */}
-                   <div className="mt-4 pt-4 border-t border-gray-100">
-                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Payment Info</p>
-                     <div className="flex items-center gap-2">
-                       <div className="px-2 py-1 rounded-md bg-indigo-50 text-[10px] font-black text-indigo-700 uppercase">
-                         {stat.paymentMethod || 'Not Set'}
-                       </div>
-                       <div className="text-xs text-gray-600 truncate font-mono bg-gray-50 px-2 py-1 rounded-md flex-1">
-                         {stat.paymentId || '---'}
-                       </div>
-                     </div>
-                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           )}
@@ -1301,44 +1493,48 @@ export default function AdminDashboard() {
                         <option value="admin">Admin</option>
                       </select>
                     </div>
-                    <button type="submit" className="rounded-lg bg-indigo-600 px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-all">
-                      Invite
+                    <button
+                      type="submit"
+                      className="bg-indigo-600 text-white px-6 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-indigo-500 transition-all"
+                    >
+                      Invite User
                     </button>
                   </form>
-                  <p className="mt-2 text-[10px] text-indigo-600">The user will be recognized by their email the next time they log in with Google.</p>
                 </div>
               )}
-              
+
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">User</th>
                       <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Role</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Created</th>
                       <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="bg-white divide-y divide-gray-200">
                     {users.map((u) => (
                       <tr key={u.id} className="hover:bg-gray-50 transition-colors">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center gap-3">
-                            <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center font-bold text-gray-600 text-xs border border-gray-200">
-                              {(u.display_name || u.email).charAt(0).toUpperCase()}
+                            <div className="h-8 w-8 rounded-full bg-indigo-50 text-indigo-700 flex items-center justify-center font-bold text-xs ring-1 ring-indigo-100">
+                              {u.email.charAt(0).toUpperCase()}
                             </div>
-                            <div>
-                              <p className="text-sm font-medium text-gray-900">{u.display_name || 'No name'}</p>
-                              <p className="text-xs text-gray-400">{u.email}</p>
-                            </div>
+                            <div className="text-sm font-medium text-gray-900">{u.display_name || u.email}</div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${
-                            u.role === 'admin' ? 'bg-purple-50 text-purple-700' :
-                            u.role === 'manager' ? 'bg-blue-50 text-blue-700' : 'bg-green-50 text-green-700'
+                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${
+                            u.role === 'admin' ? 'bg-purple-50 text-purple-700 ring-purple-700/10' :
+                            u.role === 'manager' ? 'bg-blue-50 text-blue-700 ring-blue-700/10' :
+                            'bg-green-50 text-green-700 ring-green-700/10'
                           }`}>
                             {u.role}
                           </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {/* Placeholder for 'Created' date if available, or empty */}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right flex items-center justify-end gap-2">
                           {u.role === 'creator' && (
@@ -1468,7 +1664,93 @@ export default function AdminDashboard() {
           )}
         </AnimatePresence>
       </main>
+      {/* Twitch OCR Modal */}
+      {isTwitchModalOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setIsTwitchModalOpen(false)}></div>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="relative w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl ring-1 ring-gray-900/10 overflow-hidden"
+          >
+            <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-purple-500 via-indigo-500 to-purple-500"></div>
+            
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <Music2 className="text-purple-600 h-6 w-6" />
+                Estadísticas de Twitch
+              </h2>
+              <button 
+                onClick={() => setIsTwitchModalOpen(false)} 
+                className="p-2 rounded-full hover:bg-gray-100 text-gray-400"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+
+            {isAnalyzingTwitch ? (
+              <div className="py-12 flex flex-col items-center gap-4">
+                <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                <p className="text-gray-600 font-bold">Gemini está leyendo la captura...</p>
+                <p className="text-xs text-gray-400 animate-pulse">Analizando píxeles, textos y números</p>
+              </div>
+            ) : twitchStats ? (
+              <div className="space-y-6">
+                <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-4">
+                  <div className="flex justify-between items-center pb-2 border-b border-gray-200/50">
+                    <span className="text-xs font-bold text-gray-500 uppercase">Título</span>
+                    <span className="text-sm font-semibold text-gray-900 text-right max-w-[200px] truncate">{twitchStats.title || 'N/A'}</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-bold text-gray-400 uppercase">Vistas</span>
+                      <p className="text-xl font-black text-indigo-600">{twitchStats.views?.toLocaleString() || 0}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-bold text-gray-400 uppercase">Pico Viewers</span>
+                      <p className="text-xl font-black text-purple-600">{twitchStats.peek_viewers?.toLocaleString() || 0}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-bold text-gray-400 uppercase">Duración</span>
+                      <p className="text-sm font-bold text-gray-700">{twitchStats.duration_minutes || 0} min</p>
+                    </div>
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-bold text-gray-400 uppercase">Fecha</span>
+                      <p className="text-sm font-bold text-gray-700">{twitchStats.stream_date ? format(new Date(twitchStats.stream_date), 'dd/MM/yyyy') : 'Hoy'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-indigo-50/50 rounded-xl border border-indigo-100 flex gap-3 items-start">
+                  <Sparkles className="h-5 w-5 text-indigo-500 shrink-0 mt-0.5" />
+                  <p className="text-xs text-indigo-700 leading-relaxed">
+                    Asegúrate de haber seleccionado al <b>Creador</b> y la <b>Campaña</b> en los filtros del Dashboard antes de guardar.
+                  </p>
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    onClick={() => setIsTwitchModalOpen(false)}
+                    className="flex-1 px-4 py-3 rounded-xl border border-gray-200 text-sm font-bold text-gray-600 hover:bg-gray-50"
+                  >
+                    Borrar
+                  </button>
+                  <button
+                    onClick={saveTwitchStats}
+                    className="flex-2 px-6 py-3 rounded-xl bg-indigo-600 text-sm font-bold text-white shadow-lg hover:bg-indigo-700 active:scale-[0.98] transition-all"
+                  >
+                    Confirmar y Guardar
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="py-8 text-center text-gray-500">
+                Algo salió mal. Por favor intenta subir la imagen de nuevo.
+              </div>
+            )}
+           </motion.div>
+        </div>
+      )}
     </div>
   );
 }
-

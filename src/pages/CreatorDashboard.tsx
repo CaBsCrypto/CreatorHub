@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { supabase, Campaign, Content } from '../supabase';
 import { useAuth } from '../AuthContext';
-import { Youtube, Instagram, Twitter, Music2, Globe, ExternalLink, Edit2, Trash2, Plus, LogOut, Layout, Users, BarChart3, ChevronRight, X, Sparkles, Wallet, CheckCircle2, TrendingUp, Award, RefreshCw } from 'lucide-react';
+import { Youtube, Instagram, Twitter, Music2, Globe, ExternalLink, Edit2, Trash2, Plus, LogOut, Layout, Users, BarChart3, ChevronRight, X, Sparkles, Wallet, CheckCircle2, TrendingUp, Award, RefreshCw, Calendar as CalendarIcon } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function CreatorDashboard() {
@@ -222,6 +224,38 @@ export default function CreatorDashboard() {
   const totalViews = content.reduce((acc, curr) => acc + (curr.views || 0), 0);
   const totalContent = content.length;
 
+  const growthData = useMemo(() => {
+    const months: Record<string, number> = {};
+    content.forEach(c => {
+      if (!c.created_at) return;
+      const date = new Date(c.created_at);
+      const monthKey = format(date, 'MMM yyyy');
+      months[monthKey] = (months[monthKey] || 0) + (c.views || 0);
+    });
+    return Object.entries(months)
+      .map(([name, views]) => ({ name, views }))
+      .sort((a, b) => new Date(a.name).getTime() - new Date(b.name).getTime());
+  }, [content]);
+
+  const heatmapData = useMemo(() => {
+    const days = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+    const matrix: any[] = [];
+    for (let i = 0; i < 7; i++) {
+      for (let j = 0; j < 24; j++) {
+        matrix.push({ day: days[i], hour: j, count: 0, dayIdx: (i + 1) % 7 });
+      }
+    }
+    content.forEach(c => {
+      if (!c.created_at) return;
+      const date = new Date(c.created_at);
+      const dayIdx = date.getDay();
+      const hour = date.getHours();
+      const cell = matrix.find(m => m.dayIdx === dayIdx && m.hour === hour);
+      if (cell) cell.count += 1;
+    });
+    return matrix;
+  }, [content]);
+
   const creatorStats = campaigns.map(camp => {
     const campaignContent = content.filter(c => c.campaign_id === camp.id);
     const target = camp.target_posts || 3;
@@ -283,111 +317,127 @@ export default function CreatorDashboard() {
           </motion.button>
         </div>
       </div>
-
       {/* Quick Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
-          className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between"
+          className="relative overflow-hidden bg-white p-6 rounded-3xl shadow-sm border border-gray-100 group hover:shadow-xl hover:border-indigo-100 transition-all duration-300"
         >
-          <div>
-            <p className="text-sm font-bold text-gray-500 uppercase tracking-wider">Vistas Totales</p>
-            <h3 className="text-3xl font-black text-gray-900 mt-1">{totalViews.toLocaleString()}</h3>
+          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+            <TrendingUp className="h-24 w-24 text-indigo-600" />
           </div>
-          <div className="h-12 w-12 bg-indigo-50 rounded-xl flex items-center justify-center">
-            <TrendingUp className="h-6 w-6 text-indigo-600" />
+          <div className="relative z-10">
+            <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">Impacto Total</p>
+            <h3 className="text-4xl font-black text-gray-900 mt-2">{totalViews.toLocaleString()}</h3>
+            <p className="text-xs font-bold text-indigo-500 mt-2 flex items-center gap-1">
+              <Sparkles className="h-3 w-3" />
+              Vistas acumuladas
+            </p>
           </div>
         </motion.div>
 
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
-          className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between"
+          className="relative overflow-hidden bg-white p-6 rounded-3xl shadow-sm border border-gray-100 group hover:shadow-xl hover:border-rose-100 transition-all duration-300"
         >
-          <div>
-            <p className="text-sm font-bold text-gray-500 uppercase tracking-wider">Videos Subidos</p>
-            <h3 className="text-3xl font-black text-gray-900 mt-1">{totalContent}</h3>
+          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+            <Youtube className="h-24 w-24 text-rose-600" />
           </div>
-          <div className="h-12 w-12 bg-rose-50 rounded-xl flex items-center justify-center">
-            <Youtube className="h-6 w-6 text-rose-600" />
+          <div className="relative z-10">
+            <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">Portfolio</p>
+            <h3 className="text-4xl font-black text-gray-900 mt-2">{totalContent}</h3>
+            <p className="text-xs font-bold text-rose-500 mt-2 flex items-center gap-1">
+              <CheckCircle2 className="h-3 w-3" />
+              Videos publicados
+            </p>
           </div>
         </motion.div>
 
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3 }}
-          className="bg-gradient-to-br from-indigo-600 to-violet-700 p-6 rounded-2xl shadow-lg border border-indigo-500 flex items-center justify-between text-white"
+          className="relative overflow-hidden bg-indigo-600 p-6 rounded-3xl shadow-lg border border-indigo-500 group hover:shadow-2xl hover:shadow-indigo-200 transition-all duration-300"
         >
-          <div>
-            <p className="text-sm font-bold text-indigo-100 uppercase tracking-wider">Campañas Activas</p>
-            <h3 className="text-3xl font-black mt-1">{campaigns.length}</h3>
+          <div className="absolute top-0 right-0 p-4 opacity-10">
+            <Award className="h-24 w-24 text-white" />
           </div>
-          <div className="h-12 w-12 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center">
-            <Award className="h-6 w-6 text-white" />
+          <div className="relative z-10">
+            <p className="text-sm font-bold text-indigo-200 uppercase tracking-widest">Nivel Agencia</p>
+            <h3 className="text-4xl font-black text-white mt-2">VIP</h3>
+            <p className="text-xs font-bold text-indigo-100 mt-2 flex items-center gap-1">
+              <Globe className="h-3 w-3" />
+              {campaigns.length} campañas activas
+            </p>
           </div>
         </motion.div>
       </div>
 
-      {/* Gamification Session - Active Campaigns Progress */}
-      <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-xl font-black text-gray-900 flex items-center gap-2">
-            Objetivos de Campaña
-            <Sparkles className="h-5 w-5 text-yellow-500" />
+      {/* Analytics Session - Personal Growth & Heatmap */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+          <h2 className="text-xl font-black text-gray-900 mb-6 flex items-center gap-2">
+            Tu Crecimiento
+            <TrendingUp className="h-5 w-5 text-indigo-500" />
           </h2>
+          <div className="w-full h-[280px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={growthData}>
+                <defs>
+                  <linearGradient id="colorViewsCreator" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.1}/>
+                    <stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#9ca3af'}} />
+                <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#9ca3af'}} tickFormatter={(v) => v >= 1000 ? `${(v/1000).toFixed(1)}k` : v} />
+                <Tooltip contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
+                <Area type="monotone" dataKey="views" stroke="#4f46e5" strokeWidth={4} fillOpacity={1} fill="url(#colorViewsCreator)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {creatorStats.map((camp, idx) => (
-            <motion.div 
-              key={camp.id}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.1 * idx }}
-              className="relative p-6 rounded-2xl bg-gray-50 border border-gray-100 hover:border-indigo-200 transition-all"
-            >
-              <div className="flex justify-between items-start mb-4">
-                <h4 className="font-bold text-gray-900 truncate pr-2">{camp.name}</h4>
-                <div className={`px-2 py-1 rounded-md text-[10px] font-black uppercase ${camp.progress === 100 ? 'bg-emerald-100 text-emerald-700' : 'bg-indigo-100 text-indigo-700'}`}>
-                  {camp.progress === 100 ? 'Completado' : 'En Progreso'}
-                </div>
-              </div>
-              
-              <div className="mb-2 flex justify-between text-xs font-bold text-gray-600">
-                <span>{camp.uploaded} / {camp.target} posts</span>
-                <span>{Math.round(camp.progress)}%</span>
-              </div>
-              
-              <div className="w-full bg-gray-200 rounded-full h-3">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  animate={{ width: `${camp.progress}%` }}
-                  transition={{ duration: 1, ease: "easeOut" }}
-                  className={`h-3 rounded-full ${camp.progress === 100 ? 'bg-emerald-500' : 'bg-indigo-600'}`}
-                />
-              </div>
-              
-              {camp.progress === 100 && (
-                <div className="absolute -top-2 -right-2 bg-emerald-500 text-white p-1 rounded-full shadow-lg">
-                  <CheckCircle2 className="h-4 w-4" />
-                </div>
-              )}
-            </motion.div>
-          ))}
-          {campaigns.length === 0 && (
-            <div className="col-span-full py-12 text-center text-gray-400 italic">
-              No hay campañas activas en este momento.
-            </div>
-          )}
-        </div>
-      </div>
 
-      <div className="flex items-center justify-between pt-4">
-        <h2 className="text-xl font-black text-gray-900">Mi Contenido Reciente</h2>
+        <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+          <h2 className="text-xl font-black text-gray-900 mb-6 flex items-center gap-2">
+            Tu Ritmo (Heatmap)
+            <CalendarIcon className="h-5 w-5 text-orange-500" />
+          </h2>
+          <div className="overflow-x-auto pb-2 custom-scrollbar">
+            <div className="grid gap-1" style={{ gridTemplateColumns: '40px repeat(24, minmax(0, 1fr))' }}>
+              <div className="h-6 w-10 text-[9px] font-bold text-gray-400">Día</div>
+              {Array.from({ length: 24 }).map((_, i) => (
+                <div key={i} className="h-6 w-full text-[9px] font-bold text-gray-400 flex items-center justify-center">{i}h</div>
+              ))}
+              {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((day) => (
+                <React.Fragment key={day}>
+                  <div className="h-6 w-10 text-[10px] font-bold text-gray-600 flex items-center">{day}</div>
+                  {Array.from({ length: 24 }).map((_, h) => {
+                    const cell = heatmapData.find(m => m.day === day && m.hour === h) || { count: 0 };
+                    const opacity = Math.min(cell.count / 3, 1);
+                    return (
+                      <div 
+                        key={h}
+                        className="h-6 w-full rounded-sm transition-all hover:ring-2 hover:ring-indigo-300 cursor-help"
+                        title={`${day} ${h}:00 - ${cell.count} posts`}
+                        style={{ backgroundColor: cell.count > 0 ? `rgba(79, 70, 229, ${0.1 + opacity * 0.9})` : '#f8fafc' }}
+                      />
+                    );
+                  })}
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
+          <div className="mt-4 flex items-center gap-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+            <div className="flex items-center gap-1"><div className="w-2 h-2 bg-slate-100 rounded-sm"></div> Inactivo</div>
+            <div className="flex items-center gap-1"><div className="w-2 h-2 bg-indigo-500 rounded-sm"></div> Activo</div>
+          </div>
+        </div>
       </div>
 
       {isPaymentModalOpen && (
@@ -624,79 +674,97 @@ export default function CreatorDashboard() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        {content.map((item) => (
-          <div key={item.id} className="group relative flex flex-col sm:flex-row items-center sm:items-start gap-4 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-gray-900/5 hover:shadow-md hover:ring-indigo-100 transition-all duration-300">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {content.map((item, idx) => (
+          <motion.div 
+            key={item.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 * idx }}
+            className="group relative flex flex-col rounded-3xl bg-white overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-1 ring-1 ring-gray-100 hover:ring-indigo-100 transition-all duration-500"
+          >
             {/* Thumbnail Header */}
-            <div className="relative aspect-video w-full sm:w-40 sm:h-24 sm:aspect-auto shrink-0 overflow-hidden rounded-xl bg-gray-100">
+            <div className="relative aspect-video w-full overflow-hidden bg-gray-100">
               {item.thumbnail ? (
                 <img 
                   src={item.thumbnail} 
                   alt={item.title || "Content thumbnail"} 
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-indigo-50 to-white">
                   <div className="text-indigo-200">
-                    {item.platform === 'youtube' && <Youtube className="h-8 w-8" />}
-                    {item.platform === 'instagram' && <Instagram className="h-8 w-8" />}
-                    {item.platform === 'tiktok' && <Music2 className="h-8 w-8" />}
-                    {item.platform === 'x' && <Twitter className="h-8 w-8" />}
-                    {item.platform === 'coinmarketcap' && <Globe className="h-8 w-8" />}
+                    {item.platform === 'youtube' && <Youtube className="h-12 w-12" />}
+                    {item.platform === 'instagram' && <Instagram className="h-12 w-12" />}
+                    {item.platform === 'tiktok' && <Music2 className="h-12 w-12" />}
+                    {item.platform === 'x' && <Twitter className="h-12 w-12" />}
+                    {item.platform === 'twitch' && <Globe className="h-12 w-12 opacity-50" />}
                   </div>
                 </div>
               )}
-              {/* Platform Badge overlay */}
-              <div className="absolute top-2 right-2 p-1 rounded-md bg-white/90 backdrop-blur shadow-sm">
-                {item.platform === 'youtube' && <Youtube className="h-3.5 w-3.5 text-red-600" />}
-                {item.platform === 'instagram' && <Instagram className="h-3.5 w-3.5 text-pink-600" />}
-                {item.platform === 'tiktok' && <Music2 className="h-3.5 w-3.5 text-black" />}
-                {item.platform === 'x' && <Twitter className="h-3.5 w-3.5 text-black" />}
-                {item.platform === 'coinmarketcap' && <Globe className="h-3.5 w-3.5 text-blue-600" />}
+              
+              {/* Overlay Glass Badge */}
+              <div className="absolute top-4 left-4">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur-md shadow-sm border border-white/20">
+                  {item.platform === 'youtube' && <Youtube className="h-3.5 w-3.5 text-red-600" />}
+                  {item.platform === 'instagram' && <Instagram className="h-3.5 w-3.5 text-pink-600" />}
+                  {item.platform === 'tiktok' && <Music2 className="h-3.5 w-3.5 text-black" />}
+                  {item.platform === 'x' && <Twitter className="h-3.5 w-3.5 text-black" />}
+                  {item.platform === 'twitch' && <Globe className="h-3.5 w-3.5 text-indigo-600" />}
+                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-700">{item.platform}</span>
+                </div>
+              </div>
+
+              {/* Action Buttons overlay */}
+              <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300">
+                <button onClick={() => { setEditingContent(item); setIsUploading(true); }} className="p-2 rounded-full bg-white/90 backdrop-blur-md shadow-lg text-gray-600 hover:text-indigo-600 transition-colors">
+                  <Edit2 className="h-4 w-4" />
+                </button>
+                <button onClick={() => setContentToDelete(item.id)} className="p-2 rounded-full bg-white/90 backdrop-blur-md shadow-lg text-gray-600 hover:text-red-600 transition-colors">
+                  <Trash2 className="h-4 w-4" />
+                </button>
               </div>
             </div>
 
-            <div className="flex flex-1 flex-col justify-between h-full w-full min-w-0">
-              <div className="flex justify-between items-start gap-3">
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-semibold text-indigo-600 mb-1 tracking-wide uppercase">
-                    {campaigns.find(c => c.id === item.campaign_id)?.name || 'General'}
-                  </p>
-                  <a 
-                    href={item.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-sm font-bold text-gray-900 line-clamp-2 hover:text-indigo-600 transition-colors" 
-                    title={item.title || item.url}
-                  >
-                    {item.title || item.url}
-                  </a>
-                </div>
-                <div className="flex gap-1 shrink-0">
-                  <button onClick={() => { setEditingContent(item); setIsUploading(true); }} className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="Edit">
-                    <Edit2 className="h-4 w-4" />
-                  </button>
-                  <button onClick={() => setContentToDelete(item.id)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete">
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
+            <div className="p-6 flex flex-col flex-1">
+              <div className="flex-1">
+                <p className="text-[10px] font-black text-indigo-600 mb-2 tracking-[0.2em] uppercase">
+                  {campaigns.find(c => c.id === item.campaign_id)?.name || 'General'}
+                </p>
+                <a 
+                  href={item.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-lg font-bold text-gray-900 leading-snug line-clamp-2 hover:text-indigo-600 transition-colors"
+                >
+                  {item.title || item.url}
+                </a>
               </div>
               
-              <div className="mt-4 flex items-center gap-3 text-sm">
-                <div className="flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-md border border-gray-100">
-                  <span className="font-bold text-gray-700">{item.views?.toLocaleString() || 0}</span>
-                  <span className="text-[10px] uppercase tracking-wider font-semibold text-gray-500">Views</span>
+              <div className="mt-6 flex items-center justify-between border-t border-gray-50 pt-4">
+                <div className="flex items-center gap-4">
+                  <div className="flex flex-col">
+                    <span className="text-xl font-black text-gray-900 leading-none">{item.views?.toLocaleString() || 0}</span>
+                    <span className="text-[9px] font-bold text-gray-400 uppercase mt-1 tracking-wider">Views</span>
+                  </div>
+                  <div className="w-[1px] h-6 bg-gray-100" />
+                  <div className="flex flex-col">
+                    <span className="text-xl font-black text-gray-900 leading-none">{item.likes?.toLocaleString() || 0}</span>
+                    <span className="text-[9px] font-bold text-gray-400 uppercase mt-1 tracking-wider">Likes</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-md border border-gray-100">
-                  <span className="font-bold text-gray-700">{item.likes?.toLocaleString() || 0}</span>
-                  <span className="text-[10px] uppercase tracking-wider font-semibold text-gray-500">Likes</span>
-                </div>
-                <a href={item.url} target="_blank" rel="noopener noreferrer" className="ml-auto flex items-center gap-1 text-[11px] font-semibold text-indigo-600 hover:text-indigo-500 bg-indigo-50 px-2 py-1 rounded-md transition-colors">
-                  View Link <ExternalLink className="h-3 w-3" />
+                
+                <a 
+                  href={item.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="h-10 w-10 flex items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all duration-300"
+                >
+                  <ExternalLink className="h-4 w-4" />
                 </a>
               </div>
             </div>
-          </div>
+          </motion.div>
         ))}
         {content.length === 0 && !isUploading && !editingContent && (
           <div className="col-span-full py-16 px-4">
@@ -721,33 +789,6 @@ export default function CreatorDashboard() {
           </div>
         )}
       </div>
-
-
-      {/* Delete Confirmation Modal */}
-      {contentToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-sm rounded-lg bg-white p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Delete Content</h3>
-            <p className="text-sm text-gray-500 mb-6">
-              Are you sure you want to delete this content? This action cannot be undone.
-            </p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setContentToDelete(null)}
-                className="rounded-md px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmDelete}
-                className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
