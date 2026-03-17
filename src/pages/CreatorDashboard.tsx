@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { supabase, Campaign, Content } from '../supabase';
 import { useAuth } from '../AuthContext';
-import { Youtube, Instagram, Twitter, Music2, Globe, ExternalLink, Edit2, Trash2, Plus, LogOut, Layout, Users, BarChart3, ChevronRight, X, Sparkles, Wallet, CheckCircle2, TrendingUp, Award, RefreshCw, Zap, Target, Layers, Clock, Flame, ShieldCheck, Trophy, Heart, Calendar as CalendarIcon } from 'lucide-react';
+import { Youtube, Instagram, Twitter, Music2, Globe, ExternalLink, Edit2, Trash2, Plus, LogOut, Layout, Users, BarChart3, ChevronRight, ChevronLeft, Lock, X, Sparkles, Wallet, CheckCircle2, TrendingUp, Award, RefreshCw, Zap, Target, Layers, Clock, Flame, ShieldCheck, Trophy, Heart, Calendar as CalendarIcon } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 export default function CreatorDashboard() {
   const { user, profile } = useAuth();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const carouselRef = React.useRef<HTMLDivElement>(null);
   const [content, setContent] = useState<Content[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isFetchingMetadata, setIsFetchingMetadata] = useState(false);
@@ -676,58 +677,85 @@ export default function CreatorDashboard() {
         </div>
         
         <div className="relative group/carousel">
-          <div className="flex gap-8 overflow-x-auto pb-8 custom-scrollbar snap-x snap-mandatory px-4 -mx-4">
+          {/* Navigation Arrows */}
+          <button 
+            onClick={() => carouselRef.current?.scrollBy({ left: -320, behavior: 'smooth' })}
+            className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 p-3 bg-white rounded-full shadow-xl border border-gray-100 text-gray-400 hover:text-indigo-600 hover:scale-110 active:scale-90 transition-all opacity-0 group-hover/carousel:opacity-100 hidden md:flex items-center justify-center cursor-pointer"
+          >
+            <ChevronLeft className="h-6 w-6" />
+          </button>
+          
+          <button 
+            onClick={() => carouselRef.current?.scrollBy({ left: 320, behavior: 'smooth' })}
+            className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 p-3 bg-white rounded-full shadow-xl border border-gray-100 text-gray-400 hover:text-indigo-600 hover:scale-110 active:scale-90 transition-all opacity-0 group-hover/carousel:opacity-100 hidden md:flex items-center justify-center cursor-pointer"
+          >
+            <ChevronRight className="h-6 w-6" />
+          </button>
+
+          <div 
+            ref={carouselRef}
+            className="flex gap-10 overflow-x-auto pb-8 snap-x snap-mandatory scroll-smooth hide-scrollbar px-4 -mx-4"
+          >
+            <style>{`
+              .hide-scrollbar::-webkit-scrollbar {
+                display: none;
+              }
+              .hide-scrollbar {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+              }
+            `}</style>
+            
             {badges.map((badge, idx) => {
               const Icon = badge.icon;
               return (
                 <motion.div
                   key={badge.id}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.1 }}
-                  whileHover={{ y: -5 }}
-                  className="relative flex flex-col items-center text-center shrink-0 w-32 snap-center group"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: idx * 0.05 }}
+                  className="relative flex flex-col items-center text-center shrink-0 w-36 snap-center group"
                 >
                   <div className={`
                     relative h-24 w-24 rounded-full flex items-center justify-center transition-all duration-500
                     ${badge.unlocked 
                       ? `bg-gradient-to-br ${badge.color} shadow-lg shadow-indigo-100 ring-4 ring-white` 
-                      : 'bg-gray-50 border-2 border-dashed border-gray-200'}
+                      : 'bg-white border-2 border-dashed border-gray-100 shadow-sm'}
                   `}>
-                    <Icon className={`h-10 w-10 transition-transform duration-500 group-hover:scale-110 ${badge.unlocked ? 'text-white' : 'text-gray-300'}`} />
+                    <Icon className={`h-10 w-10 transition-transform duration-500 group-hover:scale-110 ${badge.unlocked ? 'text-white' : 'text-gray-200'}`} />
                     {!badge.unlocked && (
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div className="bg-gray-800 text-white text-[8px] px-2 py-1 rounded-md font-bold uppercase tracking-widest translate-y-8 shadow-xl">Bloqueado</div>
+                      <div className="absolute inset-0 bg-white/20 backdrop-blur-[1px] rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Lock className="h-5 w-5 text-gray-400" />
                       </div>
                     )}
                     {badge.unlocked && (
                       <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        className="absolute -top-1 -right-1 bg-white p-1 rounded-full shadow-md"
+                        className="absolute -top-1 -right-1 bg-white p-1 rounded-full shadow-md border border-gray-50"
                       >
-                        <CheckCircle2 className="h-3 w-3 text-indigo-500" />
+                        <CheckCircle2 className="h-4 w-4 text-indigo-500" />
                       </motion.div>
                     )}
                   </div>
-                  <div className="mt-4 px-2">
-                    <p className={`text-sm font-black whitespace-nowrap ${badge.unlocked ? 'text-gray-900' : 'text-gray-400'}`}>{badge.name}</p>
-                    <p className="text-[10px] text-gray-400 font-medium mt-1 leading-tight line-clamp-2 h-8">{badge.description}</p>
+                  <div className="mt-5 px-2">
+                    <p className={`text-sm font-black whitespace-nowrap transition-colors ${badge.unlocked ? 'text-gray-900' : 'text-gray-400'}`}>{badge.name}</p>
+                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter mt-1 opacity-60">
+                      {badge.unlocked ? 'Desbloqueado' : 'Bloqueado'}
+                    </p>
                   </div>
                 </motion.div>
               );
             })}
           </div>
           
-          <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex gap-1 items-center opacity-0 group-hover/carousel:opacity-100 transition-opacity">
-             <div className="h-1 w-8 bg-gray-100 rounded-full overflow-hidden">
-                <motion.div 
-                  className="h-full bg-indigo-500"
-                  animate={{ x: [-32, 32] }}
-                  transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
-                />
-             </div>
-             <span className="text-[8px] font-black uppercase text-gray-400 tracking-tighter">Desliza para ver más</span>
+          <div className="flex justify-center gap-1.5 mt-4">
+            {badges.map((_, i) => (
+              <div 
+                key={i} 
+                className={`h-1 rounded-full transition-all duration-300 ${i < badges.filter(b => b.unlocked).length ? 'w-4 bg-indigo-500' : 'w-2 bg-gray-100'}`} 
+              />
+            ))}
           </div>
         </div>
       </div>
