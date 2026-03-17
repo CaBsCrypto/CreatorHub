@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { supabase, Campaign, Content } from '../supabase';
 import { useAuth } from '../AuthContext';
-import { Youtube, Instagram, Twitter, Music2, Globe, ExternalLink, Edit2, Trash2, Plus, LogOut, Layout, Users, BarChart3, ChevronRight, X, Sparkles, Wallet, CheckCircle2, TrendingUp, Award, RefreshCw, Calendar as CalendarIcon } from 'lucide-react';
+import { Youtube, Instagram, Twitter, Music2, Globe, ExternalLink, Edit2, Trash2, Plus, LogOut, Layout, Users, BarChart3, ChevronRight, X, Sparkles, Wallet, CheckCircle2, TrendingUp, Award, RefreshCw, Zap, Target, Layers, Calendar as CalendarIcon } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -406,6 +406,55 @@ export default function CreatorDashboard() {
   const agencyRank = getAgencyRank(statsMetrics.totalPosts, statsMetrics.totalViews);
   const RankIcon = agencyRank.icon;
 
+  const badges = useMemo(() => {
+    const totalPosts = content.length;
+    const totalViews = content.reduce((acc, curr) => acc + (curr.views || 0), 0);
+    const platforms = new Set(content.map(c => c.platform));
+    
+    return [
+      {
+        id: 'pionero',
+        name: 'Pionero',
+        description: 'Tu primer aporte a la agencia',
+        icon: Sparkles,
+        unlocked: totalPosts >= 1,
+        color: 'from-emerald-400 to-teal-500'
+      },
+      {
+        id: 'viral',
+        name: 'Viral Master',
+        description: 'Superaste las 10,000 vistas',
+        icon: Zap,
+        unlocked: totalViews >= 10000,
+        color: 'from-orange-400 to-rose-500'
+      },
+      {
+        id: 'constante',
+        name: 'Constante',
+        description: '5+ contenidos publicados',
+        icon: Target,
+        unlocked: totalPosts >= 5,
+        color: 'from-blue-400 to-indigo-500'
+      },
+      {
+        id: 'multitasker',
+        name: 'Multitasker',
+        description: 'Publicas en 2+ plataformas',
+        icon: Layers,
+        unlocked: platforms.size >= 2,
+        color: 'from-indigo-400 to-purple-500'
+      },
+      {
+        id: 'streamer',
+        name: 'T-Streamer',
+        description: 'Estadísticas de Twitch añadidas',
+        icon: Globe,
+        unlocked: platforms.has('twitch'),
+        color: 'from-purple-400 to-indigo-600'
+      }
+    ];
+  }, [content]);
+
   const isWalletMissing = !profile?.payment_method || (profile.payment_method === 'binance' && !profile.binance_id) || (profile.payment_method === 'wallet' && !profile.wallet_address);
 
   return (
@@ -558,6 +607,54 @@ export default function CreatorDashboard() {
           </div>
         </motion.div>
 
+      </div>
+
+      {/* Badges Section */}
+      <div className="bg-white/50 backdrop-blur-xl border border-gray-100 rounded-[2.5rem] p-8">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="text-xl font-black text-gray-900">Mis Logros</h2>
+            <p className="text-sm text-gray-500 font-medium">Desbloquea insignias por tu actividad y rendimiento.</p>
+          </div>
+          <div className="px-4 py-1.5 bg-indigo-50 rounded-full">
+            <span className="text-xs font-bold text-indigo-600">
+              {badges.filter(b => b.unlocked).length} / {badges.length} desbloqueados
+            </span>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
+          {badges.map((badge) => {
+            const Icon = badge.icon;
+            return (
+              <motion.div
+                key={badge.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                whileHover={{ y: -5 }}
+                className={`relative flex flex-col items-center text-center group`}
+              >
+                <div className={`
+                  relative h-20 w-20 rounded-full flex items-center justify-center transition-all duration-500
+                  ${badge.unlocked 
+                    ? `bg-gradient-to-br ${badge.color} shadow-lg shadow-indigo-100 ring-4 ring-white` 
+                    : 'bg-gray-50 border-2 border-dashed border-gray-200'}
+                `}>
+                  <Icon className={`h-8 w-8 transition-transform duration-500 group-hover:scale-110 ${badge.unlocked ? 'text-white' : 'text-gray-300'}`} />
+                  {!badge.unlocked && (
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="bg-gray-800 text-white text-[8px] px-2 py-1 rounded-md font-bold uppercase tracking-widest translate-y-8">Bloqueado</div>
+                    </div>
+                  )}
+                </div>
+                <div className="mt-4">
+                  <p className={`text-sm font-black ${badge.unlocked ? 'text-gray-900' : 'text-gray-400'}`}>{badge.name}</p>
+                  <p className="text-[10px] text-gray-400 font-medium mt-0.5 leading-tight">{badge.description}</p>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
       </div>
 
       {/* Analytics Session - Personal Growth & Heatmap */}
