@@ -362,17 +362,48 @@ export default function CreatorDashboard() {
     }
   };
 
-  const getAgencyRank = (createdAt: string) => {
-    const start = new Date(createdAt);
-    const now = new Date();
-    const diffMonths = (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth());
-    
-    if (diffMonths >= 12) return { name: 'Elite Partner', color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-100', icon: Award };
-    if (diffMonths >= 6) return { name: 'Pro Creator', color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-100', icon: TrendingUp };
-    return { name: 'Rookie Agent', color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100', icon: Sparkles };
+  const statsMetrics = useMemo(() => {
+    const totalPosts = content.length;
+    const totalViews = content.reduce((acc, curr) => acc + (curr.views || 0), 0);
+    return { totalPosts, totalViews };
+  }, [content]);
+
+  const getAgencyRank = (posts: number, views: number) => {
+    if (posts >= 15 || views >= 100000) return { 
+      name: 'Elite Partner', 
+      level: 4,
+      next: null,
+      color: 'from-purple-600 to-pink-600', 
+      icon: Award,
+      requirement: 0
+    };
+    if (posts >= 5 || views >= 10000) return { 
+      name: 'Pro Creator', 
+      level: 3,
+      next: { posts: 15, views: 100000, name: 'Elite Partner' },
+      color: 'from-indigo-600 to-purple-700', 
+      icon: TrendingUp,
+      requirement: 15
+    };
+    if (posts >= 1) return { 
+      name: 'Rising Star', 
+      level: 2,
+      next: { posts: 5, views: 10000, name: 'Pro Creator' },
+      color: 'from-teal-500 to-indigo-600', 
+      icon: Sparkles,
+      requirement: 5
+    };
+    return { 
+      name: 'Rookie Agent', 
+      level: 1,
+      next: { posts: 1, views: 0, name: 'Rising Star' },
+      color: 'from-gray-600 to-slate-700', 
+      icon: Globe,
+      requirement: 1
+    };
   };
 
-  const agencyRank = profile?.created_at ? getAgencyRank(profile.created_at) : getAgencyRank(new Date().toISOString());
+  const agencyRank = getAgencyRank(statsMetrics.totalPosts, statsMetrics.totalViews);
   const RankIcon = agencyRank.icon;
 
   const isWalletMissing = !profile?.payment_method || (profile.payment_method === 'binance' && !profile.binance_id) || (profile.payment_method === 'wallet' && !profile.wallet_address);
@@ -448,25 +479,42 @@ export default function CreatorDashboard() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.05 }}
-          className="relative overflow-hidden bg-gradient-to-br from-indigo-600 to-purple-700 p-6 rounded-3xl shadow-lg border border-indigo-400/20 group hover:shadow-xl transition-all duration-300"
+          className={`relative overflow-hidden bg-gradient-to-br ${agencyRank.color} p-6 rounded-3xl shadow-lg border border-white/10 group hover:shadow-xl transition-all duration-300`}
         >
           <div className="absolute top-0 right-0 p-4 opacity-10">
             <Globe className="h-20 w-20 text-white" />
           </div>
-          <div className="relative z-10 space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 bg-white/20 rounded-lg backdrop-blur-md">
-                <RankIcon className="h-4 w-4 text-white" />
-              </div>
-              <span className="text-[10px] font-black text-white/80 uppercase tracking-widest">Umbra Agency Passport</span>
-            </div>
-            <div>
-              <p className="text-2xl font-black text-white">{agencyRank.name}</p>
-              <div className="mt-1 flex items-center gap-2">
-                <div className="h-1 w-12 bg-white/30 rounded-full overflow-hidden">
-                  <div className="h-full bg-white rounded-full w-2/3"></div>
+          <div className="relative z-10 h-full flex flex-col justify-between">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 bg-white/20 rounded-lg backdrop-blur-md">
+                  <RankIcon className="h-4 w-4 text-white" />
                 </div>
-                <p className="text-[10px] text-white/60 font-medium">Miembro desde {profile?.created_at ? format(new Date(profile.created_at), 'MMM yyyy') : 'Reciente'}</p>
+                <span className="text-[10px] font-black text-white/80 uppercase tracking-widest">Pasaporte Umbra</span>
+              </div>
+              <div>
+                <p className="text-2xl font-black text-white leading-none">{agencyRank.name}</p>
+                <p className="text-[10px] text-white/60 font-bold uppercase tracking-wider mt-1">Level {agencyRank.level}</p>
+              </div>
+            </div>
+
+            <div className="mt-6 space-y-2">
+              <div className="flex justify-between items-end">
+                <span className="text-[10px] font-bold text-white/80 uppercase tracking-tighter">Progreso</span>
+                {agencyRank.next && (
+                  <span className="text-[9px] font-bold text-white/60">Hacia {agencyRank.next.name}</span>
+                )}
+              </div>
+              <div className="h-1.5 w-full bg-black/20 rounded-full overflow-hidden">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${agencyRank.next ? Math.min((statsMetrics.totalPosts / agencyRank.requirement) * 100, 100) : 100}%` }}
+                  className="h-full bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.5)]"
+                />
+              </div>
+              <div className="flex justify-between text-[9px] font-medium text-white/40">
+                <span>{statsMetrics.totalPosts} posts</span>
+                {agencyRank.next && <span>{agencyRank.next.posts} posts meta</span>}
               </div>
             </div>
           </div>
