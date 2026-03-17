@@ -384,29 +384,65 @@ export default function CreatorDashboard() {
     { 
       name: 'Rising Star', 
       level: 2,
-      minPosts: 1,
+      minPosts: 2,
       minViews: 5000,
-      color: 'from-teal-500 to-indigo-600', 
+      color: 'from-teal-500 to-emerald-600', 
       icon: Sparkles,
-      benefits: ['Soporte Directo', 'Campañas Premium']
+      benefits: ['Soporte Directo', 'Campañas Silver']
     },
     { 
-      name: 'Pro Creator', 
+      name: 'Active Creator', 
       level: 3,
       minPosts: 5,
-      minViews: 25000,
-      color: 'from-indigo-600 to-purple-700', 
+      minViews: 15000,
+      color: 'from-emerald-500 to-teal-600', 
+      icon: CheckCircle2,
+      benefits: ['Pagos 48h', 'Campañas Gold']
+    },
+    { 
+      name: 'Pro Artist', 
+      level: 4,
+      minPosts: 10,
+      minViews: 30000,
+      color: 'from-blue-500 to-indigo-600', 
       icon: TrendingUp,
-      benefits: ['Pagos Prioritarios', 'Bonos por Impacto']
+      benefits: ['Manager Personal', 'Bonos por Impacto']
     },
     { 
       name: 'Elite Partner', 
-      level: 4,
-      minPosts: 15,
-      minViews: 100000,
-      color: 'from-purple-600 to-pink-600', 
+      level: 5,
+      minPosts: 25,
+      minViews: 75000,
+      color: 'from-indigo-600 to-purple-700', 
       icon: Award,
-      benefits: ['Revenue Share VIP', 'Eventos Exclusivos']
+      benefits: ['Revenue Share +5%', 'Eventos VIP']
+    },
+    { 
+      name: 'Viral Master', 
+      level: 6,
+      minPosts: 50,
+      minViews: 200000,
+      color: 'from-fuchsia-600 to-purple-700', 
+      icon: Zap,
+      benefits: ['Campañas Exclusivas', 'Menciones en Redes']
+    },
+    { 
+      name: 'Iconic Legend', 
+      level: 7,
+      minPosts: 100,
+      minViews: 500000,
+      color: 'from-rose-600 to-orange-600', 
+      icon: Trophy,
+      benefits: ['Viajes de Equipo', 'Regalos de Marca']
+    },
+    { 
+      name: 'Umbra Titan', 
+      level: 8,
+      minPosts: 250,
+      minViews: 1000000,
+      color: 'from-amber-500 to-orange-600', 
+      icon: Flame,
+      benefits: ['Socio de Agencia', 'Acceso a Fundadores']
     }
   ];
 
