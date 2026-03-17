@@ -473,7 +473,7 @@ export default function CreatorDashboard() {
         </div>
       </div>
       {/* Quick Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Seniority Passport Card */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
@@ -558,24 +558,6 @@ export default function CreatorDashboard() {
           </div>
         </motion.div>
 
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.3 }}
-          className="relative overflow-hidden bg-indigo-600 p-6 rounded-3xl shadow-lg border border-indigo-500 group hover:shadow-2xl hover:shadow-indigo-200 transition-all duration-300"
-        >
-          <div className="absolute top-0 right-0 p-4 opacity-10">
-            <Award className="h-24 w-24 text-white" />
-          </div>
-          <div className="relative z-10">
-            <p className="text-sm font-bold text-indigo-200 uppercase tracking-widest">Nivel Agencia</p>
-            <h3 className="text-4xl font-black text-white mt-2">VIP</h3>
-            <p className="text-xs font-bold text-indigo-100 mt-2 flex items-center gap-1">
-              <Globe className="h-3 w-3" />
-              {campaigns.length} campañas activas
-            </p>
-          </div>
-        </motion.div>
       </div>
 
       {/* Analytics Session - Personal Growth & Heatmap */}
