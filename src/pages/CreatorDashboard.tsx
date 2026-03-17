@@ -11,6 +11,7 @@ export default function CreatorDashboard() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const carouselRef = React.useRef<HTMLDivElement>(null);
   const [selectedBadge, setSelectedBadge] = useState<any>(null);
+  const [previewRankIndex, setPreviewRankIndex] = useState<number | null>(null);
   const [content, setContent] = useState<Content[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isFetchingMetadata, setIsFetchingMetadata] = useState(false);
@@ -370,38 +371,63 @@ export default function CreatorDashboard() {
     return { totalPosts, totalViews };
   }, [content]);
 
-  const getAgencyRank = (posts: number, views: number) => {
-    if (posts >= 15 || views >= 100000) return { 
-      name: 'Elite Partner', 
-      level: 4,
-      next: null,
-      color: 'from-purple-600 to-pink-600', 
-      icon: Award,
-      requirement: 0
-    };
-    if (posts >= 5 || views >= 10000) return { 
-      name: 'Pro Creator', 
-      level: 3,
-      next: { posts: 15, views: 100000, name: 'Elite Partner' },
-      color: 'from-indigo-600 to-purple-700', 
-      icon: TrendingUp,
-      requirement: 15
-    };
-    if (posts >= 1) return { 
-      name: 'Rising Star', 
-      level: 2,
-      next: { posts: 5, views: 10000, name: 'Pro Creator' },
-      color: 'from-teal-500 to-indigo-600', 
-      icon: Sparkles,
-      requirement: 5
-    };
-    return { 
+  const AGENCY_TIERS = [
+    { 
       name: 'Rookie Agent', 
       level: 1,
-      next: { posts: 1, views: 0, name: 'Rising Star' },
-      color: 'from-gray-600 to-slate-700', 
+      minPosts: 0,
+      minViews: 0,
+      color: 'from-slate-600 to-slate-800', 
       icon: Globe,
-      requirement: 1
+      benefits: ['Acceso a Dashboard', 'Registro de Contenido']
+    },
+    { 
+      name: 'Rising Star', 
+      level: 2,
+      minPosts: 1,
+      minViews: 5000,
+      color: 'from-teal-500 to-indigo-600', 
+      icon: Sparkles,
+      benefits: ['Soporte Directo', 'Campañas Premium']
+    },
+    { 
+      name: 'Pro Creator', 
+      level: 3,
+      minPosts: 5,
+      minViews: 25000,
+      color: 'from-indigo-600 to-purple-700', 
+      icon: TrendingUp,
+      benefits: ['Pagos Prioritarios', 'Bonos por Impacto']
+    },
+    { 
+      name: 'Elite Partner', 
+      level: 4,
+      minPosts: 15,
+      minViews: 100000,
+      color: 'from-purple-600 to-pink-600', 
+      icon: Award,
+      benefits: ['Revenue Share VIP', 'Eventos Exclusivos']
+    }
+  ];
+
+  const getAgencyRank = (posts: number, views: number) => {
+    // Current rank is the highest tier where user meets BOTH or EITHER? 
+    // Usually it's progressive. Let's find the current one.
+    let currentTierIndex = 0;
+    for (let i = AGENCY_TIERS.length - 1; i >= 0; i--) {
+      if (posts >= AGENCY_TIERS[i].minPosts || views >= AGENCY_TIERS[i].minViews) {
+        currentTierIndex = i;
+        break;
+      }
+    }
+    
+    const currentTier = AGENCY_TIERS[currentTierIndex];
+    const nextTier = currentTierIndex < AGENCY_TIERS.length - 1 ? AGENCY_TIERS[currentTierIndex + 1] : null;
+
+    return {
+      ...currentTier,
+      index: currentTierIndex,
+      next: nextTier ? { ...nextTier, index: currentTierIndex + 1 } : null
     };
   };
 
@@ -592,42 +618,119 @@ export default function CreatorDashboard() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.05 }}
-          className={`relative overflow-hidden bg-gradient-to-br ${agencyRank.color} p-6 rounded-3xl shadow-lg border border-white/10 group hover:shadow-xl transition-all duration-300`}
+          className={`relative overflow-hidden bg-gradient-to-br transition-all duration-700 ${
+            previewRankIndex !== null 
+              ? AGENCY_TIERS[previewRankIndex].color 
+              : agencyRank.color
+          } p-6 rounded-3xl shadow-lg border border-white/10 group hover:shadow-xl`}
         >
           <div className="absolute top-0 right-0 p-4 opacity-10">
-            <Globe className="h-20 w-20 text-white" />
+            <Globe className="h-24 w-24 text-white" />
           </div>
+          
           <div className="relative z-10 h-full flex flex-col justify-between">
             <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 bg-white/20 rounded-lg backdrop-blur-md">
-                  <RankIcon className="h-4 w-4 text-white" />
+              <div className="flex justify-between items-start">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-black text-white/60 uppercase tracking-widest px-2 py-0.5 bg-black/10 rounded-full border border-white/10">
+                      Pasaporte Umbra
+                    </span>
+                    {previewRankIndex !== null && previewRankIndex !== agencyRank.index && (
+                      <span className="text-[10px] font-black text-yellow-300 uppercase tracking-widest px-2 py-0.5 bg-black/20 rounded-full animate-pulse">
+                        Vista Previa
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="text-2xl font-black text-white mt-1">
+                    {previewRankIndex !== null ? AGENCY_TIERS[previewRankIndex].name : agencyRank.name}
+                  </h3>
                 </div>
-                <span className="text-[10px] font-black text-white/80 uppercase tracking-widest">Pasaporte Umbra</span>
+                {React.createElement(previewRankIndex !== null ? AGENCY_TIERS[previewRankIndex].icon : agencyRank.icon, {
+                  className: "h-8 w-8 text-white animate-bounce-slow"
+                })}
               </div>
-              <div>
-                <p className="text-2xl font-black text-white leading-none">{agencyRank.name}</p>
-                <p className="text-[10px] text-white/60 font-bold uppercase tracking-wider mt-1">Level {agencyRank.level}</p>
+
+              {/* Benefits Highlight */}
+              <div className="flex flex-wrap gap-2">
+                {(previewRankIndex !== null ? AGENCY_TIERS[previewRankIndex].benefits : agencyRank.benefits).map((benefit, i) => (
+                  <div key={i} className="flex items-center gap-1.5 px-2.5 py-1 bg-white/10 backdrop-blur-md rounded-lg border border-white/5">
+                    <CheckCircle2 className="h-3 w-3 text-white" />
+                    <span className="text-[9px] font-bold text-white uppercase tracking-tighter">{benefit}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex justify-between text-[10px] font-black text-white/80 uppercase tracking-widest">
+                  <span>Progreso al Siguiente Nivel</span>
+                  {agencyRank.next && (
+                    <span>Meta: {agencyRank.next.minPosts} Posts / {agencyRank.next.minViews.toLocaleString()} Vistas</span>
+                  )}
+                </div>
+                <div className="h-4 bg-black/20 rounded-full p-1 border border-white/10 shadow-inner">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ 
+                      width: `${Math.min(100, Math.max(10, 
+                        agencyRank.next 
+                          ? ((statsMetrics.totalPosts / agencyRank.next.minPosts) * 100)
+                          : 100
+                      ))}%` 
+                    }}
+                    className="h-full bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.5)]"
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="mt-6 space-y-2">
-              <div className="flex justify-between items-end">
-                <span className="text-[10px] font-bold text-white/80 uppercase tracking-tighter">Progreso</span>
-                {agencyRank.next && (
-                  <span className="text-[9px] font-bold text-white/60">Hacia {agencyRank.next.name}</span>
+            {/* Navigation Controls */}
+            <div className="mt-6 flex flex-col gap-4">
+              <div className="flex items-center justify-between">
+                <div className="flex gap-1.5">
+                  {AGENCY_TIERS.map((tier, idx) => {
+                    const isCurrent = agencyRank.index === idx;
+                    const isPreview = previewRankIndex === idx;
+                    const isLocked = idx > agencyRank.index;
+
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => setPreviewRankIndex(idx)}
+                        className={`h-2 transition-all duration-300 rounded-full ${
+                          isPreview || (previewRankIndex === null && isCurrent)
+                            ? 'w-6 bg-white' 
+                            : 'w-2 bg-white/30 hover:bg-white/50'
+                        } relative overflow-hidden`}
+                      >
+                        {isLocked && (
+                          <div className="absolute inset-0 bg-black/10 flex items-center justify-center">
+                            <Lock className="h-1 w-1 text-white/50" />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+                {previewRankIndex !== null && previewRankIndex !== agencyRank.index && (
+                  <button 
+                    onClick={() => setPreviewRankIndex(null)}
+                    className="text-[9px] font-black text-white/80 uppercase tracking-widest bg-black/10 hover:bg-black/20 px-3 py-1.5 rounded-lg border border-white/10 transition-colors"
+                  >
+                    Volver a mi nivel
+                  </button>
                 )}
               </div>
-              <div className="h-1.5 w-full bg-black/20 rounded-full overflow-hidden">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  animate={{ width: `${agencyRank.next ? Math.min((statsMetrics.totalPosts / agencyRank.requirement) * 100, 100) : 100}%` }}
-                  className="h-full bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.5)]"
-                />
-              </div>
-              <div className="flex justify-between text-[9px] font-medium text-white/40">
-                <span>{statsMetrics.totalPosts} posts</span>
-                {agencyRank.next && <span>{agencyRank.next.posts} posts meta</span>}
+              
+              <div className="flex items-center justify-between text-white/60">
+                <p className="text-[10px] font-medium leading-tight">
+                  {previewRankIndex !== null && previewRankIndex > agencyRank.index 
+                    ? `Te faltan ${Math.max(0, AGENCY_TIERS[previewRankIndex].minPosts - statsMetrics.totalPosts)} posts para este rango.`
+                    : 'Nivel actual alcanzado por tu rendimiento.'}
+                </p>
+                {previewRankIndex !== null && previewRankIndex > agencyRank.index && (
+                  <Lock className="h-4 w-4 opacity-50" />
+                )}
               </div>
             </div>
           </div>
