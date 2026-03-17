@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { supabase, Campaign, Content } from '../supabase';
 import { useAuth } from '../AuthContext';
-import { Youtube, Instagram, Twitter, Music2, Globe, ExternalLink, Edit2, Trash2, Plus, LogOut, Layout, Users, BarChart3, ChevronRight, X, Sparkles, Wallet, CheckCircle2, TrendingUp, Award, RefreshCw, Zap, Target, Layers, Calendar as CalendarIcon } from 'lucide-react';
+import { Youtube, Instagram, Twitter, Music2, Globe, ExternalLink, Edit2, Trash2, Plus, LogOut, Layout, Users, BarChart3, ChevronRight, X, Sparkles, Wallet, CheckCircle2, TrendingUp, Award, RefreshCw, Zap, Target, Layers, Clock, Flame, ShieldCheck, Trophy, Heart, Calendar as CalendarIcon } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -411,11 +411,20 @@ export default function CreatorDashboard() {
     const totalViews = content.reduce((acc, curr) => acc + (curr.views || 0), 0);
     const platforms = new Set(content.map(c => c.platform));
     
+    const now = new Date();
+    const last24h = content.filter(c => {
+      const uploadDate = new Date(c.created_at);
+      return (now.getTime() - uploadDate.getTime()) <= 24 * 60 * 60 * 1000;
+    });
+    
+    const totalLikes = content.reduce((acc, curr) => acc + (curr.likes || 0), 0);
+    const avgLikes = totalPosts > 0 ? totalLikes / totalPosts : 0;
+
     return [
       {
         id: 'pionero',
         name: 'Pionero',
-        description: 'Tu primer aporte a la agencia',
+        description: 'Tu primer aporte',
         icon: Sparkles,
         unlocked: totalPosts >= 1,
         color: 'from-emerald-400 to-teal-500'
@@ -423,7 +432,7 @@ export default function CreatorDashboard() {
       {
         id: 'viral',
         name: 'Viral Master',
-        description: 'Superaste las 10,000 vistas',
+        description: '10,000+ vistas en total',
         icon: Zap,
         unlocked: totalViews >= 10000,
         color: 'from-orange-400 to-rose-500'
@@ -437,17 +446,60 @@ export default function CreatorDashboard() {
         color: 'from-blue-400 to-indigo-500'
       },
       {
+        id: 'maraton',
+        name: 'Maratón',
+        description: '3+ posts en 24 horas',
+        icon: Flame,
+        unlocked: last24h.length >= 3,
+        color: 'from-rose-500 to-orange-600'
+      },
+      {
+        id: 'heroe',
+        name: 'Héroe Local',
+        description: '25,000+ vistas totales',
+        icon: ShieldCheck,
+        unlocked: totalViews >= 25000,
+        color: 'from-cyan-500 to-blue-600'
+      },
+      {
+        id: 'enganchado',
+        name: 'Enganchado',
+        description: 'Promedio 500+ likes',
+        icon: Heart,
+        unlocked: avgLikes >= 500,
+        color: 'from-pink-500 to-rose-600'
+      },
+      {
+        id: 'camaleon',
+        name: 'Camaleón',
+        description: '3+ plataformas activas',
+        icon: Layers,
+        unlocked: platforms.size >= 3,
+        color: 'from-indigo-500 to-violet-600'
+      },
+      {
+        id: 'noctambulo',
+        name: 'Noctámbulo',
+        description: 'Publicando de madrugada',
+        icon: Clock,
+        unlocked: content.some(c => {
+          const hour = new Date(c.created_at).getHours();
+          return hour >= 0 && hour < 6;
+        }),
+        color: 'from-slate-700 to-indigo-950'
+      },
+      {
         id: 'multitasker',
         name: 'Multitasker',
-        description: 'Publicas en 2+ plataformas',
-        icon: Layers,
+        description: '2+ plataformas activas',
+        icon: Trophy,
         unlocked: platforms.size >= 2,
         color: 'from-indigo-400 to-purple-500'
       },
       {
         id: 'streamer',
         name: 'T-Streamer',
-        description: 'Estadísticas de Twitch añadidas',
+        description: 'Métricas de Twitch',
         icon: Globe,
         unlocked: platforms.has('twitch'),
         color: 'from-purple-400 to-indigo-600'
@@ -623,37 +675,60 @@ export default function CreatorDashboard() {
           </div>
         </div>
         
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
-          {badges.map((badge) => {
-            const Icon = badge.icon;
-            return (
-              <motion.div
-                key={badge.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                whileHover={{ y: -5 }}
-                className={`relative flex flex-col items-center text-center group`}
-              >
-                <div className={`
-                  relative h-20 w-20 rounded-full flex items-center justify-center transition-all duration-500
-                  ${badge.unlocked 
-                    ? `bg-gradient-to-br ${badge.color} shadow-lg shadow-indigo-100 ring-4 ring-white` 
-                    : 'bg-gray-50 border-2 border-dashed border-gray-200'}
-                `}>
-                  <Icon className={`h-8 w-8 transition-transform duration-500 group-hover:scale-110 ${badge.unlocked ? 'text-white' : 'text-gray-300'}`} />
-                  {!badge.unlocked && (
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <div className="bg-gray-800 text-white text-[8px] px-2 py-1 rounded-md font-bold uppercase tracking-widest translate-y-8">Bloqueado</div>
-                    </div>
-                  )}
-                </div>
-                <div className="mt-4">
-                  <p className={`text-sm font-black ${badge.unlocked ? 'text-gray-900' : 'text-gray-400'}`}>{badge.name}</p>
-                  <p className="text-[10px] text-gray-400 font-medium mt-0.5 leading-tight">{badge.description}</p>
-                </div>
-              </motion.div>
-            );
-          })}
+        <div className="relative group/carousel">
+          <div className="flex gap-8 overflow-x-auto pb-8 custom-scrollbar snap-x snap-mandatory px-4 -mx-4">
+            {badges.map((badge, idx) => {
+              const Icon = badge.icon;
+              return (
+                <motion.div
+                  key={badge.id}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: idx * 0.1 }}
+                  whileHover={{ y: -5 }}
+                  className="relative flex flex-col items-center text-center shrink-0 w-32 snap-center group"
+                >
+                  <div className={`
+                    relative h-24 w-24 rounded-full flex items-center justify-center transition-all duration-500
+                    ${badge.unlocked 
+                      ? `bg-gradient-to-br ${badge.color} shadow-lg shadow-indigo-100 ring-4 ring-white` 
+                      : 'bg-gray-50 border-2 border-dashed border-gray-200'}
+                  `}>
+                    <Icon className={`h-10 w-10 transition-transform duration-500 group-hover:scale-110 ${badge.unlocked ? 'text-white' : 'text-gray-300'}`} />
+                    {!badge.unlocked && (
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="bg-gray-800 text-white text-[8px] px-2 py-1 rounded-md font-bold uppercase tracking-widest translate-y-8 shadow-xl">Bloqueado</div>
+                      </div>
+                    )}
+                    {badge.unlocked && (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="absolute -top-1 -right-1 bg-white p-1 rounded-full shadow-md"
+                      >
+                        <CheckCircle2 className="h-3 w-3 text-indigo-500" />
+                      </motion.div>
+                    )}
+                  </div>
+                  <div className="mt-4 px-2">
+                    <p className={`text-sm font-black whitespace-nowrap ${badge.unlocked ? 'text-gray-900' : 'text-gray-400'}`}>{badge.name}</p>
+                    <p className="text-[10px] text-gray-400 font-medium mt-1 leading-tight line-clamp-2 h-8">{badge.description}</p>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+          
+          <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex gap-1 items-center opacity-0 group-hover/carousel:opacity-100 transition-opacity">
+             <div className="h-1 w-8 bg-gray-100 rounded-full overflow-hidden">
+                <motion.div 
+                  className="h-full bg-indigo-500"
+                  animate={{ x: [-32, 32] }}
+                  transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+                />
+             </div>
+             <span className="text-[8px] font-black uppercase text-gray-400 tracking-tighter">Desliza para ver más</span>
+          </div>
         </div>
       </div>
 
