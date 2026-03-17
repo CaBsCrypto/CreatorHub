@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { supabase, Campaign, Content, UserProfile } from '../supabase';
 import { useAuth } from '../AuthContext';
-import { Plus, X, Download, RefreshCw, Sparkles, ExternalLink, LayoutDashboard, List, Users, Youtube, Instagram, Globe, Calendar as CalendarIcon, ChevronLeft, ChevronRight, Trash2, Target, Music2, TrendingUp, BarChart3, Award, Wallet } from 'lucide-react';
+import { Plus, X, Download, RefreshCw, Sparkles, ExternalLink, LayoutDashboard, List, Users, Youtube, Instagram, Globe, Calendar as CalendarIcon, ChevronLeft, ChevronRight, Trash2, Target, Music2, TrendingUp, BarChart3, Award, Wallet, CheckCircle2, Zap, Trophy, Flame } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isToday, addMonths, subMonths, isSameDay } from 'date-fns';
 import { BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -652,6 +652,98 @@ export default function AdminDashboard() {
     return result;
   }, [content, filterCampaign, filterPlatform, filterCreator, sortField, sortOrder]);
 
+  const AGENCY_TIERS = [
+    { 
+      name: 'Rookie Agent', 
+      level: 1,
+      minPosts: 0,
+      minViews: 0,
+      color: 'from-slate-600 to-slate-800', 
+      icon: Globe,
+      benefits: ['Acceso a Dashboard', 'Registro de Contenido']
+    },
+    { 
+      name: 'Rising Star', 
+      level: 2,
+      minPosts: 2,
+      minViews: 5000,
+      color: 'from-teal-500 to-emerald-600', 
+      icon: Sparkles,
+      benefits: ['Soporte Directo', 'Campañas Silver']
+    },
+    { 
+      name: 'Active Creator', 
+      level: 3,
+      minPosts: 5,
+      minViews: 15000,
+      color: 'from-emerald-500 to-teal-600', 
+      icon: CheckCircle2,
+      benefits: ['Pagos 48h', 'Campañas Gold']
+    },
+    { 
+      name: 'Pro Artist', 
+      level: 4,
+      minPosts: 10,
+      minViews: 30000,
+      color: 'from-blue-500 to-indigo-600', 
+      icon: TrendingUp,
+      benefits: ['Manager Personal', 'Bonos por Impacto']
+    },
+    { 
+      name: 'Elite Partner', 
+      level: 5,
+      minPosts: 25,
+      minViews: 75000,
+      color: 'from-indigo-600 to-purple-700', 
+      icon: Award,
+      benefits: ['Revenue Share +5%', 'Eventos VIP']
+    },
+    { 
+      name: 'Viral Master', 
+      level: 6,
+      minPosts: 50,
+      minViews: 200000,
+      color: 'from-fuchsia-600 to-purple-700', 
+      icon: Zap,
+      benefits: ['Campañas Exclusivas', 'Menciones en Redes']
+    },
+    { 
+      name: 'Iconic Legend', 
+      level: 7,
+      minPosts: 100,
+      minViews: 500000,
+      color: 'from-rose-600 to-orange-600', 
+      icon: Trophy,
+      benefits: ['Viajes de Equipo', 'Regalos de Marca']
+    },
+    { 
+      name: 'Umbra Titan', 
+      level: 8,
+      minPosts: 250,
+      minViews: 1000000,
+      color: 'from-amber-500 to-orange-600', 
+      icon: Flame,
+      benefits: ['Socio de Agencia', 'Acceso a Fundadores']
+    }
+  ];
+
+  const getAgencyRank = (posts: number, views: number) => {
+    let currentTierIndex = 0;
+    for (let i = AGENCY_TIERS.length - 1; i >= 0; i--) {
+      if (posts >= AGENCY_TIERS[i].minPosts || views >= AGENCY_TIERS[i].minViews) {
+        currentTierIndex = i;
+        break;
+      }
+    }
+    const currentTier = AGENCY_TIERS[currentTierIndex];
+    const nextTier = currentTierIndex < AGENCY_TIERS.length - 1 ? AGENCY_TIERS[currentTierIndex + 1] : null;
+    return {
+      ...currentTier,
+      index: currentTierIndex,
+      next: nextTier ? { ...nextTier, index: currentTierIndex + 1 } : null
+    };
+  };
+
   const creatorStats = useMemo(() => {
     const stats: Record<string, { views: number, engagement: number, contentCount: number, estimatedValue: number }> = {};
     const CPM = 2.0; // $2.00 per 1000 views
@@ -668,11 +760,13 @@ export default function AdminDashboard() {
     });
     return Object.entries(stats).map(([creator_id, data]) => {
       const user = users.find(u => u.id === creator_id);
+      const rank = getAgencyRank(data.contentCount, data.views);
       return {
         creator_id,
         name: user?.display_name || user?.email || creator_id,
         paymentMethod: user?.payment_method,
         paymentId: user?.payment_method === 'binance' ? user.binance_id : user?.wallet_address,
+        rank,
         ...data
       };
     }).sort((a, b) => b.views - a.views);
@@ -923,51 +1017,48 @@ export default function AdminDashboard() {
 
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                   <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
-                    Top Creators Leaderboard
-                    <Sparkles className="h-4 w-4 text-yellow-500" />
+                    Próximos Ascensos
+                    <TrendingUp className="h-4 w-4 text-emerald-500" />
                   </h3>
-                  <div className="space-y-5 h-72 overflow-y-auto pr-2 custom-scrollbar">
-                    {creatorStats.slice(0, 5).map((stat, index) => {
-                      const maxViews = Math.max(...creatorStats.map(s => s.views)) || 1;
-                      const viewPercentage = (stat.views / maxViews) * 100;
-                      
-                      return (
-                        <div key={stat.creator_id} className="relative group">
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-3">
-                              <span className={`w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold ${
-                                index === 0 ? 'bg-yellow-100 text-yellow-700 ring-2 ring-yellow-200' : 
-                                index === 1 ? 'bg-slate-100 text-slate-700 ring-2 ring-slate-200' : 
-                                index === 2 ? 'bg-orange-100 text-orange-700 ring-2 ring-orange-200' : 
-                                'bg-indigo-50 text-indigo-700'
-                              }`}>
-                                #{index + 1}
-                              </span>
-                              <span className="text-sm font-semibold text-gray-900 truncate max-w-[120px]">{stat.name}</span>
+                  <div className="space-y-4 h-72 overflow-y-auto pr-2 custom-scrollbar">
+                    {creatorStats
+                      .filter(s => {
+                        if (!s.rank.next) return false;
+                        const progress = ((s.contentCount / s.rank.next.minPosts) + (s.views / s.rank.next.minViews)) / 2;
+                        return progress >= 0.8;
+                      })
+                      .map((stat) => {
+                        const progress = Math.round(Math.min(100, ((stat.contentCount / stat.rank.next!.minPosts) + (stat.views / stat.rank.next!.minViews)) / 2 * 100));
+                        
+                        return (
+                          <div key={stat.creator_id} className="p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                            <div className="flex justify-between items-center mb-2">
+                              <div className="flex items-center gap-2">
+                                <div className={`w-6 h-6 rounded-lg bg-gradient-to-br ${stat.rank.color} flex items-center justify-center text-white ring-2 ring-white shadow-sm`}>
+                                  {React.createElement(stat.rank.icon, { className: "h-3 w-3" })}
+                                </div>
+                                <span className="text-sm font-bold text-slate-800">{stat.name}</span>
+                              </div>
+                              <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">{progress}%</span>
                             </div>
-                             <div className="flex items-center gap-3 text-xs font-medium">
-                               <span className="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">{stat.views.toLocaleString()} views</span>
-                               <span 
-                                 className="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-bold cursor-help"
-                                 title="Valor estimado basado en un CPM de $2.00 USD por cada 1,000 vistas"
-                               >
-                                 ${stat.estimatedValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ROI
-                               </span>
-                             </div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Rumbo a:</span>
+                              <span className="text-[9px] font-black text-indigo-500 uppercase tracking-widest bg-white px-2 py-0.5 rounded border border-indigo-100">{stat.rank.next?.name}</span>
+                            </div>
+                            <div className="h-1.5 w-full bg-white rounded-full overflow-hidden border border-slate-200">
+                              <motion.div 
+                                initial={{ width: 0 }}
+                                animate={{ width: `${progress}%` }}
+                                className={`h-full bg-gradient-to-r ${stat.rank.next?.color} rounded-full`}
+                              />
+                            </div>
                           </div>
-                          <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
-                            <div 
-                              className="bg-gradient-to-r from-indigo-500 to-indigo-600 h-1.5 rounded-full transition-all duration-1000 ease-out" 
-                              style={{ width: `${viewPercentage}%` }}
-                            ></div>
-                          </div>
-                        </div>
-                      );
+                        );
                     })}
-                    {creatorStats.length === 0 && (
-                      <div className="text-center py-10 flex flex-col items-center justify-center space-y-2">
-                        <Users className="h-8 w-8 text-gray-300" />
-                        <span className="text-sm text-gray-500">No creators with data yet.</span>
+                    {creatorStats.filter(s => s.rank.next && (((s.contentCount / s.rank.next.minPosts) + (s.views / s.rank.next.minViews)) / 2) >= 0.8).length === 0 && (
+                      <div className="text-center py-10 flex flex-col items-center justify-center space-y-2 opacity-40">
+                        <TrendingUp className="h-8 w-8 text-slate-300" />
+                        <span className="text-xs font-bold text-slate-400 uppercase">Sin ascensos inminentes</span>
                       </div>
                     )}
                   </div>
@@ -1349,54 +1440,63 @@ export default function AdminDashboard() {
                   <div className="relative z-10">
                     <div className="flex items-center gap-5 mb-8">
                       <div className="relative flex-shrink-0">
-                        <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center text-white text-3xl font-black shadow-lg shadow-indigo-100 ring-4 ring-white">
-                          {stat.name.charAt(0).toUpperCase()}
+                        <div className={`h-20 w-20 rounded-2xl bg-gradient-to-br ${stat.rank.color} flex items-center justify-center text-white shadow-lg ring-4 ring-white transition-all duration-700`}>
+                          {React.createElement(stat.rank.icon, { className: "h-10 w-10 text-white" })}
                         </div>
                         <div className="absolute -bottom-2 -right-2 h-8 w-8 rounded-xl bg-white shadow-md flex items-center justify-center border border-gray-50">
-                          <Award className="h-4 w-4 text-yellow-500" />
+                          <span className="text-xs font-black text-gray-900">{stat.rank.level}</span>
                         </div>
                       </div>
                       <div className="min-w-0">
                         <h3 className="text-2xl font-black text-gray-900 truncate leading-tight">{stat.name}</h3>
-                        <p className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 text-[10px] font-black text-slate-600 uppercase tracking-widest mt-2 border border-slate-200">
-                          <Users className="h-3 w-3" />
-                          Top Influencer
-                        </p>
+                        <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r ${stat.rank.color} text-[10px] font-black text-white uppercase tracking-widest mt-2 shadow-sm`}>
+                          {stat.rank.name}
+                        </div>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 mb-8">
-                      <div className="p-5 bg-gray-50/50 rounded-2xl border border-gray-100 hover:border-indigo-100 transition-colors">
+                      <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100/50 hover:border-indigo-100 transition-colors">
                         <div className="flex items-center gap-1.5 mb-1.5">
-                          <BarChart3 className="h-3 w-3 text-indigo-500" />
-                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Views Totales</p>
+                          <BarChart3 className="h-3 w-3 text-slate-400" />
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Views</p>
                         </div>
-                        <p className="text-2xl font-black text-gray-900 truncate tracking-tight">{stat.views.toLocaleString()}</p>
+                        <p className="text-2xl font-black text-slate-900 truncate tracking-tight">{stat.views.toLocaleString()}</p>
                       </div>
                       
                       <div className="p-5 bg-emerald-50/50 rounded-2xl border border-emerald-50 hover:border-emerald-100 transition-colors">
                         <div className="flex items-center gap-1.5 mb-1.5">
-                          <Wallet className="h-3 w-3 text-emerald-500" />
-                          <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Est. Revenue</p>
+                          <Plus className="h-3 w-3 text-emerald-500" />
+                          <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Posts</p>
                         </div>
                         <p className="text-2xl font-black text-emerald-700 tracking-tight">
-                          ${stat.estimatedValue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                          {stat.contentCount}
                         </p>
                       </div>
                     </div>
 
                     <div className="space-y-4">
-                      {/* Stats Progress Bars or KPIs */}
+                      {/* Rank Progress */}
                       <div>
                         <div className="flex justify-between items-center mb-2">
-                          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Posteo Regular</span>
-                          <span className="text-xs font-bold text-gray-900">{stat.contentCount} posts</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Progreso de Rango</span>
+                            {stat.rank.next && (
+                              <span className="text-[9px] font-bold text-indigo-400 bg-indigo-50 px-2 py-0.5 rounded-full uppercase">Hacia {stat.rank.next.name}</span>
+                            )}
+                          </div>
+                          <span className="text-xs font-bold text-gray-900">
+                            {stat.rank.next 
+                              ? `${Math.round(Math.min(100, (stat.contentCount / stat.rank.next.minPosts) * 100))}%`
+                              : 'MAX'
+                            }
+                          </span>
                         </div>
-                        <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-2.5 w-full bg-gray-100 rounded-full overflow-hidden p-0.5 border border-gray-50">
                           <motion.div 
                             initial={{ width: 0 }}
-                            animate={{ width: `${Math.min((stat.contentCount / 20) * 100, 100)}%` }}
-                            className="h-full bg-indigo-600 rounded-full"
+                            animate={{ width: `${stat.rank.next ? Math.min((stat.contentCount / stat.rank.next.minPosts) * 100, 100) : 100}%` }}
+                            className={`h-full bg-gradient-to-r ${stat.rank.color} rounded-full`}
                           />
                         </div>
                       </div>
