@@ -46,6 +46,9 @@ export default function AdminDashboard() {
   const [isAnalyzingTwitch, setIsAnalyzingTwitch] = useState(false);
   const [twitchStats, setTwitchStats] = useState<any>(null);
   const [isTwitchModalOpen, setIsTwitchModalOpen] = useState(false);
+  const [twitchFile, setTwitchFile] = useState<File | null>(null);
+  const [twitchPublicUrl, setTwitchPublicUrl] = useState<string | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -242,9 +245,29 @@ export default function AdminDashboard() {
 
     setIsAnalyzingTwitch(true);
     setTwitchStats(null);
+    setTwitchFile(file);
+    setTwitchPublicUrl(null);
     setIsTwitchModalOpen(true);
 
     try {
+      // 1. Upload to Storage
+      const fileExt = file.name.split('.').pop();
+      const fileName = `admin/${Date.now()}.${fileExt}`;
+      const filePath = `twitch_stats/${fileName}`;
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('content-attachments')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('content-attachments')
+        .getPublicUrl(filePath);
+      
+      setTwitchPublicUrl(publicUrl);
+
+      // 2. Prepare for OCR
       const reader = new FileReader();
       reader.onloadend = async () => {
         const base64 = reader.result as string;
@@ -266,8 +289,9 @@ export default function AdminDashboard() {
         }
       };
       reader.readAsDataURL(file);
-    } catch (err) {
-      console.error("File reading error:", err);
+    } catch (err: any) {
+      console.error("Storage upload or file reading error:", err);
+      alert("Error al procesar archivo: " + err.message);
       setIsAnalyzingTwitch(false);
     }
   };
@@ -295,6 +319,7 @@ export default function AdminDashboard() {
         views: twitchStats.views || 0,
         peek_viewers: twitchStats.peek_viewers || 0,
         duration_minutes: twitchStats.duration_minutes || 0,
+        thumbnail: twitchPublicUrl,
         uploaded_at: twitchStats.stream_date || new Date().toISOString()
       }]);
 
@@ -1134,6 +1159,20 @@ export default function AdminDashboard() {
                       Add Content
                     </button>
                     <button
+                      onClick={() => document.getElementById('admin-twitch-upload')?.click()}
+                      className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                    >
+                      <Globe className="w-4 h-4" />
+                      Cargar Stream
+                    </button>
+                    <input
+                      type="file"
+                      id="admin-twitch-upload"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={handleTwitchUpload}
+                    />
+                    <button
                       onClick={handleRefreshStats}
                       disabled={isRefreshing}
                       className="flex items-center gap-2 px-4 py-2 border border-slate-700 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors disabled:opacity-50"
@@ -1221,65 +1260,6 @@ export default function AdminDashboard() {
               {/* Desktop View Table */}
               <div className="hidden lg:block bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Content</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Creator</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider cursor-pointer hover:text-indigo-600" onClick={() => handleSort('views')}>Views {sortField === 'views' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Metrics</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
-                       {profile?.role === 'admin' && (
-                         <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
-                       )}
-                     </tr>
-                   </thead>
-                   <tbody className="divide-y divide-gray-200">
-                     {filteredAndSortedContent.map((item) => {
-                       const creator = users.find(u => u.id === item.creator_id);
-                       return (
-                         <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                           <td className="px-6 py-4 whitespace-nowrap">
-                             <div className="flex items-center gap-3">
-                               <div className="h-10 w-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200">
-                                 {item.thumbnail ? <img src={item.thumbnail} className="h-full w-full object-cover" /> : <div className="h-full w-full flex items-center justify-center"><Globe className="h-4 w-4 text-gray-300" /></div>}
-                               </div>
-                               <div className="max-w-[240px]">
-                                 <a href={item.url} target="_blank" className="text-sm font-medium text-gray-900 group flex items-center gap-1">
-                                   <span className="truncate">{item.title || item.url}</span>
-                                   <ExternalLink className="h-3 w-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                 </a>
-                                 <p className="text-xs text-gray-500 capitalize">{item.platform}</p>
-                               </div>
-                             </div>
-                           </td>
-                           <td className="px-6 py-4 text-sm text-gray-600">{creator?.display_name || creator?.email}</td>
-                           <td className="px-6 py-4 text-sm font-bold text-gray-900">{item.views?.toLocaleString()}</td>
-                           <td className="px-6 py-4 text-xs text-gray-500">
-                             L: {item.likes || 0} / C: {item.comments || 0}
-                           </td>
-                           <td className="px-6 py-4 text-sm text-gray-500">{item.uploaded_at ? format(new Date(item.uploaded_at), 'MMM d, yyyy') : 'N/A'}</td>
-                           {profile?.role === 'admin' && (
-                               <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
-                                <button 
-                                  onClick={() => handleSyncSingle(item)}
-                                  disabled={isRefreshing}
-                                  title="Sincronizar métricas"
-                                  className="text-indigo-400 hover:text-indigo-600 p-1.5 hover:bg-indigo-50 rounded-lg transition-colors disabled:opacity-50"
-                                >
-                                  <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                                </button>
-                                <button 
-                                  onClick={() => handleDeleteContent(item.id)}
-                                  className="text-red-400 hover:text-red-600 p-1.5 hover:bg-red-50 rounded-lg transition-colors"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </button>
-                              </td>
-                           )}
-                         </tr>
-                       );
-                     })}
-                   </tbody>
                 </table>
               </div>
 
@@ -1297,7 +1277,11 @@ export default function AdminDashboard() {
                         <p className="text-xs text-gray-500 mb-2">{creator?.display_name || creator?.email}</p>
                         <div className="grid grid-cols-2 gap-2 mt-2">
                           <div className="bg-gray-50 px-2 py-1 rounded text-[10px] font-bold text-gray-700">Views: {item.views?.toLocaleString()}</div>
-                          <div className="bg-gray-50 px-2 py-1 rounded text-[10px] text-gray-600">Likes: {item.likes || 0}</div>
+                          {item.platform === 'twitch' ? (
+                            <div className="bg-gray-50 px-2 py-1 rounded text-[10px] text-gray-600">Peak: {item.peek_viewers || 0}</div>
+                          ) : (
+                            <div className="bg-gray-50 px-2 py-1 rounded text-[10px] text-gray-600">Likes: {item.likes || 0}</div>
+                          )}
                         </div>
                         <a href={item.url} target="_blank" className="mt-2 text-[10px] text-indigo-600 font-medium flex items-center gap-1">Link <ExternalLink className="h-2 w-2" /></a>
                       </div>
@@ -1749,6 +1733,20 @@ export default function AdminDashboard() {
               </div>
             )}
            </motion.div>
+        </div>
+      )}
+      {previewImage && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-in fade-in duration-300" onClick={() => setPreviewImage(null)}>
+          <div className="relative max-w-5xl w-full h-[80vh] flex flex-col items-center justify-center">
+             <button 
+              onClick={() => setPreviewImage(null)}
+              className="absolute -top-12 right-0 p-2 text-white hover:text-indigo-400 transition-colors"
+            >
+              <X className="h-8 w-8" />
+            </button>
+            <img src={previewImage} className="max-h-full max-w-full object-contain rounded-xl shadow-2xl" />
+            <p className="text-white/60 text-sm mt-4 font-medium">Captura original de estadísticas</p>
+          </div>
         </div>
       )}
     </div>

@@ -15,6 +15,8 @@ export default function CreatorDashboard() {
   const [newContent, setNewContent] = useState({ campaign_id: '', platform: 'youtube', url: '' });
   const [editingContent, setEditingContent] = useState<Content | null>(null);
   const [contentToDelete, setContentToDelete] = useState<string | null>(null);
+  const [twitchFile, setTwitchFile] = useState<File | null>(null);
+  const [twitchPreview, setTwitchPreview] = useState<string | null>(null);
 
   // Payment Settings State
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
@@ -221,6 +223,86 @@ export default function CreatorDashboard() {
     }
   };
 
+  const handleTwitchUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !twitchFile) return;
+
+    setIsFetchingMetadata(true);
+    try {
+      // 1. Upload image to Supabase Storage
+      const fileExt = twitchFile.name.split('.').pop();
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+      const filePath = `twitch_stats/${fileName}`;
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('content-attachments')
+        .upload(filePath, twitchFile);
+
+      if (uploadError) throw uploadError;
+
+      // 2. Get Public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('content-attachments')
+        .getPublicUrl(filePath);
+
+      // 3. Convert file to Base64 for OCR
+      const reader = new FileReader();
+      const base64Promise = new Promise<string>((resolve) => {
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(twitchFile);
+      });
+      const base64 = await base64Promise;
+
+      // 4. Analyze via AI
+      const response = await fetch('/api/analyze-twitch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: base64 })
+      });
+
+      if (!response.ok) throw new Error("Failed to analyze image");
+      const stats = await response.json();
+
+      // 5. Save to database
+      const { error } = await supabase.from('content').insert([{
+        campaign_id: newContent.campaign_id,
+        creator_id: user.id,
+        platform: 'twitch',
+        url: 'https://twitch.tv/' + (stats.title || 'stream'),
+        title: stats.title || 'Twitch Stream Stats',
+        views: stats.views || 0,
+        likes: 0,
+        comments: 0,
+        peek_viewers: stats.peek_viewers || 0,
+        duration_minutes: stats.duration_minutes || 0,
+        thumbnail: publicUrl,
+        uploaded_at: stats.stream_date || new Date().toISOString()
+      }]);
+
+      if (error) throw error;
+
+      setIsUploading(false);
+      setNewContent({ campaign_id: '', platform: 'youtube', url: '' });
+      setTwitchFile(null);
+      setTwitchPreview(null);
+    } catch (error: any) {
+      console.error("Twitch upload error:", error);
+      alert("Error uploading Twitch stats: " + error.message);
+    } finally {
+      setIsFetchingMetadata(false);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setTwitchFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setTwitchPreview(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
   const totalViews = content.reduce((acc, curr) => acc + (curr.views || 0), 0);
   const totalContent = content.length;
 
@@ -295,7 +377,7 @@ export default function CreatorDashboard() {
           <p className="text-gray-500 font-medium">Aquí tienes el resumen de tu impacto hoy.</p>
         </motion.div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -309,11 +391,31 @@ export default function CreatorDashboard() {
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => { setIsUploading(true); setEditingContent(null); }}
+            onClick={() => { 
+              setIsUploading(true); 
+              setEditingContent(null);
+              setNewContent(prev => ({ ...prev, platform: 'youtube' }));
+            }}
+            className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-2.5 text-sm font-bold text-gray-700 shadow-sm ring-1 ring-inset ring-gray-200 hover:bg-gray-50 transition-all"
+          >
+            <Plus className="h-4 w-4 text-indigo-600" />
+            Subir Contenido
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => { 
+              setIsUploading(true); 
+              setEditingContent(null);
+              setNewContent(prev => ({ ...prev, platform: 'twitch' }));
+              setTwitchFile(null);
+              setTwitchPreview(null);
+            }}
             className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-200 hover:bg-indigo-500 transition-all"
           >
-            <Plus className="h-4 w-4" />
-            Subir Contenido
+            <Globe className="h-4 w-4" />
+            Estadísticas Stream
           </motion.button>
         </div>
       </div>
@@ -582,7 +684,7 @@ export default function CreatorDashboard() {
               </button>
             </div>
             
-            <form onSubmit={editingContent ? handleUpdateContent : handleUploadContent} className="space-y-6">
+            <form onSubmit={newContent.platform === 'twitch' ? handleTwitchUpload : (editingContent ? handleUpdateContent : handleUploadContent)} className="space-y-6">
               <div className="space-y-4">
                 <div>
                   <label htmlFor="campaign" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Campaña Activa</label>
@@ -610,7 +712,8 @@ export default function CreatorDashboard() {
                       { id: 'instagram', icon: Instagram, color: 'text-pink-600', bg: 'bg-pink-50' },
                       { id: 'tiktok', icon: Music2, color: 'text-black', bg: 'bg-gray-100' },
                       { id: 'x', icon: Twitter, color: 'text-blue-400', bg: 'bg-blue-50' },
-                      { id: 'coinmarketcap', icon: Globe, color: 'text-indigo-600', bg: 'bg-indigo-50' }
+                      { id: 'coinmarketcap', icon: Globe, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+                      { id: 'twitch', icon: Globe, color: 'text-purple-600', bg: 'bg-indigo-50' }
                     ].map((p) => (
                       <button
                         key={p.id}
@@ -632,23 +735,51 @@ export default function CreatorDashboard() {
                 </div>
                 
                 <div>
-                  <label htmlFor="url" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">URL del Contenido</label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <ExternalLink className="h-4 w-4 text-gray-400" />
+                  <label htmlFor="url" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+                    {newContent.platform === 'twitch' ? 'Captura de Estadísticas' : 'URL del Contenido'}
+                  </label>
+                  {newContent.platform === 'twitch' ? (
+                    <div className="space-y-3">
+                      <div 
+                        className="relative border-2 border-dashed border-gray-300 rounded-xl p-6 flex flex-col items-center justify-center hover:border-indigo-400 transition-colors cursor-pointer"
+                        onClick={() => document.getElementById('twitch-upload')?.click()}
+                      >
+                        {twitchPreview ? (
+                          <img src={twitchPreview} alt="Preview" className="max-h-40 rounded-lg shadow-sm" />
+                        ) : (
+                          <>
+                            <Plus className="h-8 w-8 text-gray-400 mb-2" />
+                            <p className="text-sm text-gray-500">Haz clic para subir captura</p>
+                          </>
+                        )}
+                        <input
+                          type="file"
+                          id="twitch-upload"
+                          className="hidden"
+                          accept="image/*"
+                          onChange={handleFileChange}
+                        />
+                      </div>
+                      {twitchFile && <p className="text-xs text-indigo-600 font-bold">{twitchFile.name}</p>}
                     </div>
-                    <input
-                      type="url"
-                      id="url"
-                      required
-                      value={editingContent ? editingContent.url : newContent.url}
-                      onChange={(e) => editingContent
-                        ? setEditingContent({ ...editingContent, url: e.target.value })
-                        : setNewContent({ ...newContent, url: e.target.value })}
-                      placeholder="https://www.instagram.com/reel/..."
-                      className="block w-full pl-10 rounded-xl border-gray-200 bg-gray-50/50 py-3 text-sm focus:ring-2 focus:ring-indigo-500 transition-all placeholder:text-gray-400"
-                    />
-                  </div>
+                  ) : (
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <ExternalLink className="h-4 w-4 text-gray-400" />
+                      </div>
+                      <input
+                        type="url"
+                        id="url"
+                        required
+                        value={editingContent ? editingContent.url : newContent.url}
+                        onChange={(e) => editingContent
+                          ? setEditingContent({ ...editingContent, url: e.target.value })
+                          : setNewContent({ ...newContent, url: e.target.value })}
+                        placeholder="https://www.instagram.com/reel/..."
+                        className="block w-full pl-10 rounded-xl border-gray-200 bg-gray-50/50 py-3 text-sm focus:ring-2 focus:ring-indigo-500 transition-all placeholder:text-gray-400"
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -674,9 +805,11 @@ export default function CreatorDashboard() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {content.map((item, idx) => (
-          <motion.div 
+      <div className="space-y-6">
+        <h2 className="text-xl font-black text-gray-900 border-l-4 border-indigo-600 pl-4 uppercase tracking-wider">Posts & Videos</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {content.filter(item => item.platform !== 'twitch').map((item, idx) => (
+            <motion.div 
             key={item.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -749,8 +882,12 @@ export default function CreatorDashboard() {
                   </div>
                   <div className="w-[1px] h-6 bg-gray-100" />
                   <div className="flex flex-col">
-                    <span className="text-xl font-black text-gray-900 leading-none">{item.likes?.toLocaleString() || 0}</span>
-                    <span className="text-[9px] font-bold text-gray-400 uppercase mt-1 tracking-wider">Likes</span>
+                    <span className="text-xl font-black text-gray-900 leading-none">
+                      {item.platform === 'twitch' ? (item.peek_viewers || 0).toLocaleString() : (item.likes || 0).toLocaleString()}
+                    </span>
+                    <span className="text-[9px] font-bold text-gray-400 uppercase mt-1 tracking-wider">
+                      {item.platform === 'twitch' ? 'Peak' : 'Likes'}
+                    </span>
                   </div>
                 </div>
                 
@@ -766,29 +903,114 @@ export default function CreatorDashboard() {
             </div>
           </motion.div>
         ))}
-        {content.length === 0 && !isUploading && !editingContent && (
-          <div className="col-span-full py-16 px-4">
-            <div className="max-w-md mx-auto text-center space-y-6 animate-in fade-in zoom-in duration-500">
-              <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-indigo-50 text-indigo-600 shadow-sm ring-4 ring-indigo-50/50">
-                <Sparkles className="h-10 w-10 animate-pulse" />
-              </div>
-              <div className="space-y-4">
-                <h2 className="text-2xl font-bold text-gray-900">¡Bienvenido a Umbra Creator Hub!</h2>
-                <p className="text-gray-500 text-lg leading-relaxed">
-                  Aún no has subido contenido. Comienza compartiendo tu primer trabajo para empezar a trackear tus métricas y ver tu impacto.
-                </p>
-              </div>
-              <button
-                onClick={() => setIsUploading(true)}
-                className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-8 py-4 text-lg font-bold text-white shadow-lg hover:bg-indigo-500 hover:scale-105 transition-all duration-300 active:scale-95"
-              >
-                <Plus className="h-6 w-6" />
-                Subir mi primer contenido
-              </button>
-            </div>
+        {content.filter(item => item.platform !== 'twitch').length === 0 && (
+          <div className="col-span-full py-8 text-center text-gray-400 font-medium bg-gray-50 rounded-2xl border-2 border-dashed border-gray-100">
+            No hay videos subidos aún.
           </div>
         )}
       </div>
+    </div>
+
+      <div className="space-y-6 pt-10">
+        <h2 className="text-xl font-black text-gray-900 border-l-4 border-purple-600 pl-4 uppercase tracking-wider">Streams (Twitch)</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {content.filter(item => item.platform === 'twitch').map((item, idx) => (
+            <motion.div 
+              key={item.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 * idx }}
+              className="group relative flex flex-col rounded-3xl bg-white overflow-hidden shadow-sm hover:shadow-xl ring-1 ring-gray-100 hover:ring-purple-100 transition-all duration-500"
+            >
+              <div className="p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-50 text-purple-600 border border-purple-100">
+                    <Globe className="h-3.5 w-3.5" />
+                    <span className="text-[10px] font-black uppercase tracking-widest leading-none">Twitch</span>
+                  </div>
+                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300">
+                    <button onClick={() => { setEditingContent(item); setIsUploading(true); }} className="p-2 rounded-full bg-gray-50 text-gray-400 hover:text-indigo-600 transition-colors">
+                      <Edit2 className="h-4 w-4" />
+                    </button>
+                    <button onClick={() => setContentToDelete(item.id)} className="p-2 rounded-full bg-gray-50 text-gray-400 hover:text-red-600 transition-colors">
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+                
+                <h4 className="text-lg font-bold text-gray-900 line-clamp-1 mb-6">{item.title || 'Stream sin título'}</h4>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-gray-50 rounded-2xl p-4 flex flex-col items-center">
+                    <span className="text-2xl font-black text-gray-900">{(item.views || 0).toLocaleString()}</span>
+                    <span className="text-[9px] font-bold text-gray-400 uppercase mt-1">Vistas</span>
+                  </div>
+                  <div className="bg-purple-50 rounded-2xl p-4 flex flex-col items-center">
+                    <span className="text-2xl font-black text-purple-600">{(item.peek_viewers || 0).toLocaleString()}</span>
+                    <span className="text-[9px] font-bold text-purple-400 uppercase mt-1">Peak</span>
+                  </div>
+                  <div className="col-span-2 bg-gray-50 rounded-2xl px-4 py-3 flex justify-between items-center">
+                    <span className="text-xs font-bold text-gray-500">Duración:</span>
+                    <span className="text-sm font-black text-gray-900">{item.duration_minutes || 0} min</span>
+                  </div>
+                </div>
+                
+                <div className="mt-6 flex items-center justify-between text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                  <span>{item.uploaded_at ? format(new Date(item.uploaded_at), 'MMM d, yyyy') : 'Sin fecha'}</span>
+                  <a href={item.url} target="_blank" className="text-purple-600 hover:underline">Ver Stream</a>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+          {content.filter(item => item.platform === 'twitch').length === 0 && (
+            <div className="col-span-full py-8 text-center text-gray-400 font-medium bg-gray-50 rounded-2xl border-2 border-dashed border-gray-100">
+              No hay streams registrados aún.
+            </div>
+          )}
+        </div>
+      </div>
+
+      {content.length === 0 && !isUploading && !editingContent && (
+        <div className="py-16 px-4">
+          <div className="max-w-md mx-auto text-center space-y-6 animate-in fade-in zoom-in duration-500">
+            <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-indigo-50 text-indigo-600 shadow-sm ring-4 ring-indigo-50/50">
+              <Sparkles className="h-10 w-10 animate-pulse" />
+            </div>
+            <div className="space-y-4">
+              <h2 className="text-2xl font-bold text-gray-900">¡Bienvenido a Umbra Creator Hub!</h2>
+              <p className="text-gray-500 text-lg leading-relaxed">
+                Aún no has subido contenido. Comienza compartiendo tu primer trabajo para empezar a trackear tus métricas y ver tu impacto.
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <button
+                onClick={() => {
+                  setIsUploading(true);
+                  setEditingContent(null);
+                  setNewContent(prev => ({ ...prev, platform: 'youtube' }));
+                }}
+                className="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-4 text-lg font-bold text-gray-700 shadow-lg ring-1 ring-inset ring-gray-200 hover:bg-gray-50 hover:scale-105 transition-all duration-300 active:scale-95 w-full sm:w-auto"
+              >
+                <Plus className="h-6 w-6 text-indigo-600" />
+                Subir Video/Post
+              </button>
+              <button
+                onClick={() => {
+                  setIsUploading(true);
+                  setEditingContent(null);
+                  setNewContent(prev => ({ ...prev, platform: 'twitch' }));
+                  setTwitchFile(null);
+                  setTwitchPreview(null);
+                }}
+                className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-8 py-4 text-lg font-bold text-white shadow-lg shadow-indigo-200 hover:bg-indigo-500 hover:scale-105 transition-all duration-300 active:scale-95 w-full sm:w-auto"
+              >
+                <Globe className="h-6 w-6" />
+                Estadísticas Stream
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
