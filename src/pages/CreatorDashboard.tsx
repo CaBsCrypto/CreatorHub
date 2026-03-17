@@ -362,8 +362,50 @@ export default function CreatorDashboard() {
     }
   };
 
+  const getAgencyRank = (createdAt: string) => {
+    const start = new Date(createdAt);
+    const now = new Date();
+    const diffMonths = (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth());
+    
+    if (diffMonths >= 12) return { name: 'Elite Partner', color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-100', icon: Award };
+    if (diffMonths >= 6) return { name: 'Pro Creator', color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-100', icon: TrendingUp };
+    return { name: 'Rookie Agent', color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100', icon: Sparkles };
+  };
+
+  const agencyRank = profile?.created_at ? getAgencyRank(profile.created_at) : getAgencyRank(new Date().toISOString());
+  const RankIcon = agencyRank.icon;
+
+  const isWalletMissing = !profile?.payment_method || (profile.payment_method === 'binance' && !profile.binance_id) || (profile.payment_method === 'wallet' && !profile.wallet_address);
+
   return (
     <div className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Wallet Alert */}
+      <AnimatePresence>
+        {isWalletMissing && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center justify-between gap-4 shadow-sm"
+          >
+            <div className="flex items-center gap-3">
+              <div className="bg-amber-100 p-2 rounded-xl">
+                <Wallet className="h-5 w-5 text-amber-600" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-amber-900">Método de pago no configurado</h4>
+                <p className="text-xs text-amber-700">Configura tu wallet o Binance ID para poder recibir tus pagos.</p>
+              </div>
+            </div>
+            <button 
+              onClick={openPaymentModal}
+              className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-lg transition-colors shadow-sm"
+            >
+              Configurar Ahora
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Header & Stats */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <motion.div 
@@ -391,36 +433,45 @@ export default function CreatorDashboard() {
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => { 
-              setIsUploading(true); 
-              setEditingContent(null);
-              setNewContent(prev => ({ ...prev, platform: 'youtube' }));
-            }}
-            className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-2.5 text-sm font-bold text-gray-700 shadow-sm ring-1 ring-inset ring-gray-200 hover:bg-gray-50 transition-all"
-          >
-            <Plus className="h-4 w-4 text-indigo-600" />
-            Subir Contenido
-          </motion.button>
-
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => { 
-              setIsUploading(true); 
-              setEditingContent(null);
-              setNewContent(prev => ({ ...prev, platform: 'twitch' }));
-              setTwitchFile(null);
-              setTwitchPreview(null);
-            }}
+            onClick={() => { setIsUploading(true); setEditingContent(null); }}
             className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-200 hover:bg-indigo-500 transition-all"
           >
-            <Globe className="h-4 w-4" />
-            Estadísticas Stream
+            <Plus className="h-4 w-4" />
+            Subir Contenido
           </motion.button>
         </div>
       </div>
       {/* Quick Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Seniority Passport Card */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.05 }}
+          className="relative overflow-hidden bg-gradient-to-br from-indigo-600 to-purple-700 p-6 rounded-3xl shadow-lg border border-indigo-400/20 group hover:shadow-xl transition-all duration-300"
+        >
+          <div className="absolute top-0 right-0 p-4 opacity-10">
+            <Globe className="h-20 w-20 text-white" />
+          </div>
+          <div className="relative z-10 space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-white/20 rounded-lg backdrop-blur-md">
+                <RankIcon className="h-4 w-4 text-white" />
+              </div>
+              <span className="text-[10px] font-black text-white/80 uppercase tracking-widest">Umbra Agency Passport</span>
+            </div>
+            <div>
+              <p className="text-2xl font-black text-white">{agencyRank.name}</p>
+              <div className="mt-1 flex items-center gap-2">
+                <div className="h-1 w-12 bg-white/30 rounded-full overflow-hidden">
+                  <div className="h-full bg-white rounded-full w-2/3"></div>
+                </div>
+                <p className="text-[10px] text-white/60 font-medium">Miembro desde {profile?.created_at ? format(new Date(profile.created_at), 'MMM yyyy') : 'Reciente'}</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -982,32 +1033,13 @@ export default function CreatorDashboard() {
                 Aún no has subido contenido. Comienza compartiendo tu primer trabajo para empezar a trackear tus métricas y ver tu impacto.
               </p>
             </div>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <button
-                onClick={() => {
-                  setIsUploading(true);
-                  setEditingContent(null);
-                  setNewContent(prev => ({ ...prev, platform: 'youtube' }));
-                }}
-                className="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-4 text-lg font-bold text-gray-700 shadow-lg ring-1 ring-inset ring-gray-200 hover:bg-gray-50 hover:scale-105 transition-all duration-300 active:scale-95 w-full sm:w-auto"
-              >
-                <Plus className="h-6 w-6 text-indigo-600" />
-                Subir Video/Post
-              </button>
-              <button
-                onClick={() => {
-                  setIsUploading(true);
-                  setEditingContent(null);
-                  setNewContent(prev => ({ ...prev, platform: 'twitch' }));
-                  setTwitchFile(null);
-                  setTwitchPreview(null);
-                }}
-                className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-8 py-4 text-lg font-bold text-white shadow-lg shadow-indigo-200 hover:bg-indigo-500 hover:scale-105 transition-all duration-300 active:scale-95 w-full sm:w-auto"
-              >
-                <Globe className="h-6 w-6" />
-                Estadísticas Stream
-              </button>
-            </div>
+            <button
+              onClick={() => setIsUploading(true)}
+              className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-8 py-4 text-lg font-bold text-white shadow-lg hover:bg-indigo-500 hover:scale-105 transition-all duration-300 active:scale-95"
+            >
+              <Plus className="h-6 w-6" />
+              Subir mi primer contenido
+            </button>
           </div>
         </div>
       )}

@@ -1159,20 +1159,6 @@ export default function AdminDashboard() {
                       Add Content
                     </button>
                     <button
-                      onClick={() => document.getElementById('admin-twitch-upload')?.click()}
-                      className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
-                    >
-                      <Globe className="w-4 h-4" />
-                      Cargar Stream
-                    </button>
-                    <input
-                      type="file"
-                      id="admin-twitch-upload"
-                      className="hidden"
-                      accept="image/*"
-                      onChange={handleTwitchUpload}
-                    />
-                    <button
                       onClick={handleRefreshStats}
                       disabled={isRefreshing}
                       className="flex items-center gap-2 px-4 py-2 border border-slate-700 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors disabled:opacity-50"
