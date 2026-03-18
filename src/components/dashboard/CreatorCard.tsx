@@ -21,9 +21,10 @@ interface CreatorCardProps {
   };
   index: number;
   onEditAudience?: () => void;
+  onViewProfile?: () => void;
 }
 
-const CreatorCard: React.FC<CreatorCardProps> = ({ creator, index, onEditAudience }) => {
+const CreatorCard: React.FC<CreatorCardProps> = ({ creator, index, onEditAudience, onViewProfile }) => {
   const RankIcon = creator.rank.icon;
 
   return (
@@ -31,7 +32,8 @@ const CreatorCard: React.FC<CreatorCardProps> = ({ creator, index, onEditAudienc
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.03 }}
-      className="group bg-white rounded-[2.5rem] border border-gray-100 p-6 hover:shadow-2xl hover:border-indigo-100 transition-all duration-500 relative overflow-hidden"
+      onClick={onViewProfile}
+      className="group bg-white rounded-[2.5rem] border border-gray-100 p-6 hover:shadow-2xl hover:border-indigo-100 transition-all duration-500 relative overflow-hidden cursor-pointer hover:scale-[1.01] active:scale-95"
     >
       <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${creator.rank.color} opacity-5 group-hover:opacity-10 rounded-full -mr-8 -mt-8 transition-opacity duration-500`} />
 
@@ -51,7 +53,7 @@ const CreatorCard: React.FC<CreatorCardProps> = ({ creator, index, onEditAudienc
         {/* Info */}
         <div className="flex-1 text-center sm:text-left">
           <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1">
-            <h3 className="text-xl font-black text-gray-900">{creator.name}</h3>
+            <h3 className="text-xl font-black text-gray-900 group-hover:text-indigo-600 transition-colors">{creator.name}</h3>
             <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest bg-gradient-to-r ${creator.rank.color} text-white`}>
               {creator.rank.name}
             </span>
@@ -86,16 +88,8 @@ const CreatorCard: React.FC<CreatorCardProps> = ({ creator, index, onEditAudienc
               {creator.paymentMethod === 'binance' ? 'Binance Pay' : 'Wallet'}
             </span>
           </div>
-          <div className="flex gap-2">
-            <button 
-              onClick={onEditAudience}
-              className="px-4 py-2 rounded-xl bg-gray-50 text-gray-600 text-[10px] font-black uppercase tracking-widest hover:bg-gray-100 transition-colors"
-            >
-              Audiencia
-            </button>
-            <button className="px-4 py-2 rounded-xl bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all">
-              Perfil
-            </button>
+          <div className="flex items-center gap-1.5 text-[10px] font-black text-indigo-600 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+             Ver Perfil <ExternalLink className="h-3.5 w-3.5" />
           </div>
         </div>
       </div>

@@ -138,7 +138,8 @@ export default function AdminDashboard() {
       views: twitchStats.views,
       peek_viewers: twitchStats.peek_viewers,
       thumbnail: twitchPreview,
-      uploaded_at: new Date().toISOString()
+      uploaded_at: new Date().toISOString(),
+      creator_id: user?.id || '' // Assuming the current user is the creator for manual Twitch saves
     }]);
     if (error) {
        toastError("Error al guardar estadísticas de Twitch: " + error.message);
@@ -226,88 +227,51 @@ export default function AdminDashboard() {
                 </div>
               </div>
               <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden relative">
-                <div className="absolute -right-12 -top-12 w-48 h-48 bg-amber-50 rounded-full blur-3xl opacity-50" />
-                <h3 className="text-xl font-black text-gray-900 mb-12 flex items-center gap-2 relative z-10"><Trophy className="h-5 w-5 text-amber-500" /> Líderes de la Agencia</h3>
+                <div className="absolute -right-12 -top-12 w-48 h-48 bg-indigo-50 rounded-full blur-3xl opacity-50" />
+                <h3 className="text-xl font-black text-gray-900 mb-12 flex items-center gap-2 relative z-10"><BarChart3 className="h-5 w-5 text-indigo-500" /> Vistas por Plataforma</h3>
                 
-                {/* Podium Style for Top 3 */}
-                <div className="flex items-end justify-center gap-4 mb-12 relative z-10 px-4">
-                  {/* #2 */}
-                  {creatorStats[1] && (
-                    <div className="flex flex-col items-center flex-1">
-                      <div className="relative mb-3">
-                        <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${creatorStats[1].rank.color} p-0.5 shadow-lg`}>
-                          <div className="w-full h-full bg-white rounded-[0.85rem] flex items-center justify-center overflow-hidden">
-                            <span className="text-lg font-black text-gray-300">2</span>
-                          </div>
-                        </div>
-                        <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-lg bg-slate-400 border-2 border-white flex items-center justify-center">
-                          <span className="text-[8px] font-black text-white">2º</span>
-                        </div>
-                      </div>
-                      <p className="text-[10px] font-black text-gray-900 text-center line-clamp-1">{creatorStats[1].name.split(' ')[0]}</p>
-                      <div className="h-16 w-full mt-2 bg-slate-50 rounded-t-xl border-x border-t border-gray-100 flex flex-col items-center justify-center">
-                        <p className="text-[10px] font-black text-gray-900">{Math.round(creatorStats[1].views/1000)}k</p>
-                        <p className="text-[7px] font-bold text-gray-400 uppercase">Vistas</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* #1 */}
-                  {creatorStats[0] && (
-                    <div className="flex flex-col items-center flex-1 scale-110 -translate-y-2">
-                      <div className="relative mb-4">
-                        <div className={`w-20 h-20 rounded-[2rem] bg-gradient-to-br ${creatorStats[0].rank.color} p-1 shadow-2xl shadow-amber-200`}>
-                          <div className="w-full h-full bg-white rounded-[1.75rem] flex items-center justify-center overflow-hidden">
-                            <Trophy className="h-10 w-10 text-amber-500 animate-pulse" />
-                          </div>
-                        </div>
-                        <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-xl bg-amber-500 border-2 border-white flex items-center justify-center shadow-lg">
-                          <Sparkles className="h-3 w-3 text-white" />
-                        </div>
-                      </div>
-                      <p className="text-xs font-black text-gray-900 text-center line-clamp-1">{creatorStats[0].name.split(' ')[0]}</p>
-                      <div className="h-24 w-full mt-2 bg-gradient-to-b from-amber-50 to-white rounded-t-2xl border-x border-t border-amber-100 flex flex-col items-center justify-center">
-                        <p className="text-xs font-black text-amber-700">{Math.round(creatorStats[0].views/1000)}k</p>
-                        <p className="text-[8px] font-black text-amber-600 uppercase">Vistas</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* #3 */}
-                  {creatorStats[2] && (
-                    <div className="flex flex-col items-center flex-1">
-                      <div className="relative mb-3">
-                        <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${creatorStats[2].rank.color} p-0.5 shadow-lg`}>
-                          <div className="w-full h-full bg-white rounded-[0.85rem] flex items-center justify-center overflow-hidden">
-                            <span className="text-lg font-black text-gray-300">3</span>
-                          </div>
-                        </div>
-                        <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-lg bg-orange-300 border-2 border-white flex items-center justify-center">
-                          <span className="text-[8px] font-black text-white">3º</span>
-                        </div>
-                      </div>
-                      <p className="text-[10px] font-black text-gray-900 text-center line-clamp-1">{creatorStats[2].name.split(' ')[0]}</p>
-                      <div className="h-12 w-full mt-2 bg-slate-50 rounded-t-xl border-x border-t border-gray-100 flex flex-col items-center justify-center">
-                        <p className="text-[10px] font-black text-gray-900">{Math.round(creatorStats[2].views/1000)}k</p>
-                        <p className="text-[7px] font-bold text-gray-400 uppercase">Vistas</p>
-                      </div>
-                    </div>
-                  )}
+                <div className="h-[300px] relative z-10">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie 
+                        data={Object.entries(
+                          content.reduce((acc, curr) => {
+                            acc[curr.platform] = (acc[curr.platform] || 0) + (curr.views || 0);
+                            return acc;
+                          }, {} as Record<string, number>)
+                        ).map(([name, value]) => ({ 
+                          name: name.charAt(0).toUpperCase() + name.slice(1), 
+                          value 
+                        }))} 
+                        innerRadius={80} 
+                        outerRadius={100} 
+                        paddingAngle={5} 
+                        dataKey="value"
+                      >
+                        {COLORS.map((color, i) => <Cell key={i} fill={color} />)}
+                      </Pie>
+                      <Tooltip 
+                        formatter={(value: number) => [value.toLocaleString() + ' vistas', 'Vistas']}
+                        contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                      />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
                 </div>
 
-                <div className="space-y-3 relative z-10">
-                  {creatorStats.slice(3, 6).map((c, i) => (
-                    <div key={c.creator_id} className="flex items-center justify-between p-3 bg-white hover:bg-gray-50 rounded-2xl border border-gray-50 transition-all group/item">
+                <div className="mt-8 space-y-3 relative z-10">
+                  {Object.entries(
+                    content.reduce((acc, curr) => {
+                      acc[curr.platform] = (acc[curr.platform] || 0) + (curr.views || 0);
+                      return acc;
+                    }, {} as Record<string, number>)
+                  ).sort((a, b) => b[1] - a[1]).map(([platform, views], i) => (
+                    <div key={platform} className="flex items-center justify-between p-3 bg-white hover:bg-gray-50 rounded-2xl border border-gray-50 transition-all">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-xl bg-gray-50 flex items-center justify-center text-[10px] font-black text-gray-400 group-hover/item:bg-indigo-50 group-hover/item:text-indigo-600 transition-colors">{i+4}</div>
-                        <div>
-                          <p className="text-xs font-black text-gray-900">{c.name}</p>
-                          <p className="text-[8px] uppercase font-bold text-gray-400">{c.rank.name}</p>
-                        </div>
+                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                        <span className="text-xs font-black text-gray-900 uppercase tracking-widest">{platform}</span>
                       </div>
-                      <div className="text-right">
-                        <p className="text-xs font-black text-gray-900">{(c.views/1000).toFixed(1)}k</p>
-                      </div>
+                      <span className="text-xs font-black text-gray-900">{views.toLocaleString()}</span>
                     </div>
                   ))}
                 </div>
@@ -347,6 +311,7 @@ export default function AdminDashboard() {
                     key={c.creator_id} 
                     creator={c} 
                     index={i} 
+                    onViewProfile={() => setManagingUser(users.find(u => u.id === c.creator_id) || null)}
                     onEditAudience={() => setEditingAudienceUser(users.find(u => u.id === c.creator_id) || null)} 
                   />
                 ))}
@@ -502,6 +467,7 @@ export default function AdminDashboard() {
                           if (!error) refresh();
                         }
                       }}
+                      onClick={() => setManagingUser(users.find(u => u.id === item.creator_id) || null)}
                     />
                   )
                 ))}

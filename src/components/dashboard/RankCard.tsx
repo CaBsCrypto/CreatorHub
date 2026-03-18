@@ -59,6 +59,9 @@ const RankCard: React.FC<RankCardProps> = ({
         <div className="flex justify-between items-start">
           <div className="space-y-1">
             <div className="flex items-center gap-3">
+              <span className="text-[10px] font-black text-white/90 bg-indigo-500/20 backdrop-blur-md px-3 py-1 rounded-lg border border-white/20 tracking-widest uppercase">
+                Pasaporte Umbra
+              </span>
               <span className="text-[9px] font-black text-white px-2.5 py-1 bg-black/20 backdrop-blur-md rounded-lg border border-white/10 tracking-[0.2em] uppercase">
                 UBR-{activeRank.level}-ID
               </span>
@@ -170,6 +173,23 @@ const RankCard: React.FC<RankCardProps> = ({
             </button>
           )}
         </div>
+      </div>
+
+      {/* Under Construction Overlay */}
+      <div className="absolute inset-0 z-50 bg-black/20 backdrop-blur-[6px] flex flex-col items-center justify-center p-8 text-center group/overlay transition-all duration-700 hover:backdrop-blur-[8px]">
+        <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mb-4 border border-white/20 shadow-2xl group-hover/overlay:scale-110 transition-transform duration-500">
+          <Lock className="h-8 w-8 text-white animate-pulse" />
+        </div>
+        <h4 className="text-xl font-black text-white tracking-tight mb-2 drop-shadow-lg">PASAPORTE UMBRA</h4>
+        <div className="px-4 py-1.5 bg-indigo-500 text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-full shadow-xl border border-white/20 mb-4">
+          En Desarrollo
+        </div>
+        <p className="text-white/70 text-[10px] font-bold uppercase tracking-widest max-w-[200px] leading-relaxed">
+          Estamos activando las recompensas y beneficios exclusivos por rango.
+        </p>
+        
+        {/* Premium Glow effect */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-indigo-500/30 rounded-full blur-[80px] pointer-events-none" />
       </div>
     </motion.div>
   );

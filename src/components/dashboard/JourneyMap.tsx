@@ -10,7 +10,7 @@ interface JourneyMapProps {
 
 const JourneyMap: React.FC<JourneyMapProps> = ({ tiers, currentRankIndex }) => {
   return (
-    <div className="bg-white/50 backdrop-blur-xl border border-gray-100 rounded-[2.5rem] p-8">
+    <div className="bg-white/50 backdrop-blur-xl border border-gray-100 rounded-[2.5rem] p-8 relative overflow-hidden group/journey">
       <div className="flex justify-between items-start mb-8">
         <div>
           <h2 className="text-xl font-black text-gray-900 leading-tight">Mi Camino en Umbra</h2>
@@ -108,6 +108,16 @@ const JourneyMap: React.FC<JourneyMapProps> = ({ tiers, currentRankIndex }) => {
             );
           })}
         </div>
+      </div>
+
+      {/* Under Construction Overlay */}
+      <div className="absolute inset-0 z-40 bg-white/40 backdrop-blur-md flex flex-col items-center justify-center text-center p-8 transition-all duration-500 opacity-0 group-hover/journey:opacity-100">
+        <div className="bg-indigo-600 text-white px-6 py-2 rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-xl shadow-indigo-100 flex items-center gap-3">
+           <Sparkles className="h-4 w-4" /> Próximamente
+        </div>
+        <p className="mt-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+          Estamos expandiendo el mapa de ruta.
+        </p>
       </div>
     </div>
   );
