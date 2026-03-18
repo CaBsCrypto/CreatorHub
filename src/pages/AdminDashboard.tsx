@@ -62,7 +62,8 @@ export default function AdminDashboard() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterPlatform, setFilterPlatform] = useState('all');
   const [filterCampaign, setFilterCampaign] = useState('all');
-  const [isCompactView, setIsCompactView] = useState(false);
+  const [filterCreator, setFilterCreator] = useState('all');
+  const [isCompactView, setIsCompactView] = useState(true);
 
   const handleDeleteCampaign = async (id: string) => {
     if (!window.confirm('¿Estás seguro de eliminar esta campaña?')) return;
@@ -355,6 +356,16 @@ export default function AdminDashboard() {
                     <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
                 </select>
+                <select 
+                  value={filterCreator}
+                  onChange={(e) => setFilterCreator(e.target.value)}
+                  className="px-4 py-2 bg-gray-50 border-none rounded-xl text-xs font-black uppercase tracking-widest text-gray-500 focus:ring-2 focus:ring-indigo-500 outline-none"
+                >
+                  <option value="all">Todos los creadores</option>
+                  {users.filter(u => u.role === 'creator').map(u => (
+                    <option key={u.id} value={u.id}>{u.display_name || u.email.split('@')[0]}</option>
+                  ))}
+                </select>
                 
                 <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-xl ml-2">
                   <button 
@@ -405,7 +416,8 @@ export default function AdminDashboard() {
                                       item.platform.toLowerCase().includes(searchTerm.toLowerCase());
                   const matchesPlatform = filterPlatform === 'all' || item.platform === filterPlatform;
                   const matchesCampaign = filterCampaign === 'all' || item.campaign_id === filterCampaign;
-                  return matchesSearch && matchesPlatform && matchesCampaign;
+                  const matchesCreator = filterCreator === 'all' || item.creator_id === filterCreator;
+                  return matchesSearch && matchesPlatform && matchesCampaign && matchesCreator;
                 })
                 .map((item, i) => (
                   isCompactView ? (
@@ -414,41 +426,59 @@ export default function AdminDashboard() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.03 }}
-                      className="bg-white p-4 rounded-2xl border border-gray-100 flex items-center justify-between hover:border-indigo-100 transition-all group"
+                      className="bg-white px-6 py-4 rounded-2xl border border-gray-100 flex items-center hover:border-indigo-100 hover:shadow-lg transition-all group gap-8"
                     >
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-gray-50 rounded-xl overflow-hidden flex items-center justify-center border border-gray-50">
-                          {item.thumbnail ? (
-                            <img src={item.thumbnail} alt="" className="w-full h-full object-cover" />
-                          ) : (
-                            <Youtube className="h-5 w-5 text-gray-300" />
-                          )}
-                        </div>
-                        <div>
-                          <p className="text-sm font-black text-gray-900 line-clamp-1">{item.title || 'Contenido sin título'}</p>
-                          <div className="flex items-center gap-2 mt-0.5">
-                            <span className="text-[9px] font-black text-indigo-600 uppercase tracking-widest px-1.5 py-0.5 bg-indigo-50 rounded-md">
-                              {item.platform}
-                            </span>
-                            <span className="text-[9px] font-medium text-gray-400">
-                              {new Date(item.created_at).toLocaleDateString()}
-                            </span>
-                          </div>
+                      <div className="w-12 h-12 bg-gray-50 rounded-xl overflow-hidden flex items-center justify-center border border-gray-50 shrink-0">
+                        {item.thumbnail ? (
+                          <img src={item.thumbnail} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <Youtube className="h-5 w-5 text-gray-300" />
+                        )}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-black text-gray-900 line-clamp-1">{item.title || 'Contenido sin título'}</p>
+                        <div className="flex items-center gap-3 mt-1">
+                          <span className="text-[9px] font-black text-indigo-600 uppercase tracking-widest px-2 py-0.5 bg-indigo-50 rounded-md">
+                            {item.platform}
+                          </span>
+                          <span className="text-[9px] font-bold text-gray-400 flex items-center gap-1 uppercase tracking-widest">
+                            <Users className="h-2.5 w-2.5" />
+                            {users.find(u => u.id === item.creator_id)?.display_name || 'Desconocido'}
+                          </span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-8">
-                        <div className="text-right flex flex-col items-end">
-                          <p className="text-sm font-black text-gray-900 leading-none">{(item.views || 0).toLocaleString()}</p>
-                          <p className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter mt-1">Vistas</p>
-                        </div>
-                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                          <button 
-                            onClick={() => { setEditingContent(item as any); setIsContentModalOpen(true); }}
-                            className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-colors"
-                          >
-                            <Plus className="h-4 w-4 rotate-45" />
-                          </button>
-                        </div>
+
+                      <div className="hidden md:flex flex-col items-center w-32 shrink-0">
+                        <p className="text-xs font-black text-gray-900">{(item.views || 0).toLocaleString()}</p>
+                        <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Vistas</p>
+                      </div>
+
+                      <div className="hidden lg:flex flex-col items-center w-32 shrink-0">
+                        <p className="text-xs font-black text-emerald-600">${((item.views || 0) / 1000 * 2.5).toFixed(2)}</p>
+                        <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">ROI Est.</p>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button 
+                          onClick={() => { setEditingContent(item as any); setIsContentModalOpen(true); }}
+                          className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-colors"
+                          title="Editar"
+                        >
+                          <RefreshCw className="h-4 w-4" />
+                        </button>
+                        <button 
+                          onClick={async () => {
+                            if (confirm("¿Eliminar este contenido?")) {
+                              const { error } = await supabase.from('content').delete().eq('id', item.id);
+                              if (!error) refresh();
+                            }
+                          }}
+                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                          title="Eliminar"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
                       </div>
                     </motion.div>
                   ) : (
