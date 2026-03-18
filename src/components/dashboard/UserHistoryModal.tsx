@@ -22,10 +22,17 @@ export default function UserHistoryModal({
   onUpdateRole, 
   onRemoveUser 
 }: UserHistoryModalProps) {
-  const [selectedRole, setSelectedRole] = useState<UserRole>(user.role);
+  const [selectedRole, setSelectedRole] = useState<UserRole | undefined>(user?.role);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [deleteConfirmStep, setDeleteConfirmStep] = useState(0);
   const [isUpdating, setIsUpdating] = useState(false);
+
+  // Sync selectedRole when user changes
+  React.useEffect(() => {
+    if (user) {
+      setSelectedRole(user.role);
+    }
+  }, [user]);
 
   if (!user) return null;
 
