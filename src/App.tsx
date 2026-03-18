@@ -9,6 +9,7 @@ import { AuthProvider, useAuth } from './AuthContext';
 import Login from './pages/Login';
 import Navbar from './components/Navbar';
 import LoadingSpinner from './components/LoadingSpinner';
+import { ToastProvider } from './context/ToastContext';
 
 // Lazy load the heavy dashboards to speed up initial JS bundle size and login page rendering
 const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
@@ -52,36 +53,38 @@ const HomeRedirect = () => {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <div className="min-h-screen bg-gray-50">
-          <Navbar />
-          <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-            <React.Suspense fallback={<LoadingSpinner message="Cargando panel..." />}>
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/" element={<HomeRedirect />} />
-                <Route 
-                  path="/admin/*" 
-                  element={
-                    <ProtectedRoute role="admin">
-                      <AdminDashboard />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/creator/*" 
-                  element={
-                    <ProtectedRoute role="creator">
-                      <CreatorDashboard />
-                    </ProtectedRoute>
-                  } 
-                />
-              </Routes>
-            </React.Suspense>
-          </main>
-        </div>
-      </Router>
-    </AuthProvider>
+    <ToastProvider>
+      <AuthProvider>
+        <Router>
+          <div className="min-h-screen bg-gray-50">
+            <Navbar />
+            <main className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 py-6 pb-10">
+              <React.Suspense fallback={<LoadingSpinner message="Cargando panel..." />}>
+                <Routes>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/" element={<HomeRedirect />} />
+                  <Route 
+                    path="/admin/*" 
+                    element={
+                      <ProtectedRoute role="admin">
+                        <AdminDashboard />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/creator/*" 
+                    element={
+                      <ProtectedRoute role="creator">
+                        <CreatorDashboard />
+                      </ProtectedRoute>
+                    } 
+                  />
+                </Routes>
+              </React.Suspense>
+            </main>
+          </div>
+        </Router>
+      </AuthProvider>
+    </ToastProvider>
   );
 }
