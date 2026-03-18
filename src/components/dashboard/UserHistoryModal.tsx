@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   X, Users, Mail, ShieldCheck, Calendar, 
   Trash2, AlertTriangle, CheckCircle2, 
-  ExternalLink, Youtube, Instagram, Zap, Globe
+  ExternalLink, Youtube, Instagram, Zap, Globe, RefreshCw
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UserProfile, Content, supabase, UserRole } from '../../supabase';
@@ -22,6 +22,7 @@ export default function UserHistoryModal({
   onUpdateRole, 
   onRemoveUser 
 }: UserHistoryModalProps) {
+  const [selectedRole, setSelectedRole] = useState<UserRole>(user.role);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [deleteConfirmStep, setDeleteConfirmStep] = useState(0);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -39,10 +40,10 @@ export default function UserHistoryModal({
     onClose();
   };
 
-  const handleRoleChange = async (role: UserRole) => {
-    if (role === user.role) return;
+  const handleSaveRole = async () => {
+    if (selectedRole === user.role) return;
     setIsUpdating(true);
-    await onUpdateRole(role);
+    await onUpdateRole(selectedRole);
     setIsUpdating(false);
   };
 
@@ -161,19 +162,32 @@ export default function UserHistoryModal({
                 {roles.map(r => (
                   <button
                     key={r}
-                    onClick={() => handleRoleChange(r)}
+                    onClick={() => setSelectedRole(r)}
                     disabled={isUpdating}
                     className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
-                      user.role === r 
+                      selectedRole === r 
                         ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' 
                         : 'bg-white text-gray-500 hover:bg-gray-100 border border-gray-100'
                     }`}
                   >
                     <span className="capitalize">{r}</span>
-                    {user.role === r && <CheckCircle2 className="h-4 w-4" />}
+                    {selectedRole === r && <CheckCircle2 className="h-4 w-4" />}
                   </button>
                 ))}
               </div>
+
+              {selectedRole !== user.role && (
+                <motion.button
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  onClick={handleSaveRole}
+                  disabled={isUpdating}
+                  className="w-full mt-4 py-3 bg-emerald-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-100 hover:bg-emerald-600 transition-all active:scale-95 flex items-center justify-center gap-2"
+                >
+                  {isUpdating ? <RefreshCw className="h-3 w-3 animate-spin" /> : <ShieldCheck className="h-3 w-3" />}
+                  Guardar Cambios
+                </motion.button>
+              )}
             </div>
 
             {/* Dangerous Actions */}
