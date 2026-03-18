@@ -80,10 +80,11 @@ export const useDashboardData = (role: 'admin' | 'creator') => {
     };
   }, [user, fetchData]);
 
+  const filteredContent = useMemo(() => {
+    return role === 'creator' ? content.filter(c => c.creator_id === user?.id) : content;
+  }, [content, role, user]);
+
   const metrics = useMemo(() => {
-    // Filter content based on role if needed (though usually admin sees all and creator sees their own but dashboards often show global/personal context differently)
-    const filteredContent = role === 'creator' ? content.filter(c => c.creator_id === user?.id) : content;
-    
     const totalViews = filteredContent.reduce((acc, curr) => acc + (curr.views || 0), 0);
     const totalEngagement = filteredContent.reduce((acc, curr) => acc + (curr.likes || 0) + (curr.comments || 0), 0);
     const totalPosts = filteredContent.length;
@@ -95,11 +96,13 @@ export const useDashboardData = (role: 'admin' | 'creator') => {
       activeCreators: users.filter(u => u.role === 'creator').length,
       roi: (totalViews / 1000) * 2.5 // Estimated $2.5 CPM
     };
-  }, [content, users, user, role]);
+  }, [filteredContent, users]);
 
   const creatorStats = useMemo(() => {
     const stats: Record<string, any> = {};
-    content.forEach(c => {
+    const statsContent = role === 'admin' ? content : filteredContent;
+    
+    statsContent.forEach(c => {
       if (!stats[c.creator_id]) stats[c.creator_id] = { views: 0, engagement: 0, contentCount: 0, estimatedValue: 0 };
       const views = c.views || 0;
       stats[c.creator_id].views += views;
@@ -119,11 +122,11 @@ export const useDashboardData = (role: 'admin' | 'creator') => {
         ...data
       };
     }).sort((a, b) => b.views - a.views);
-  }, [content, users]);
+  }, [content, filteredContent, users, role]);
 
   return {
     campaigns,
-    content,
+    content: filteredContent,
     users,
     loading,
     metrics,
