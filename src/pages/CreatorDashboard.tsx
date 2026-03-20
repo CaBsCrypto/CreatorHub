@@ -5,10 +5,11 @@ import {
   Sparkles, Youtube, Instagram, Globe, 
   ExternalLink, TrendingUp, Zap, Trophy, Flame, CheckCircle2,
   LayoutDashboard, Upload, Wallet, Plus, RefreshCw, BarChart3, List, Award,
-  AlertCircle, CheckCircle
+  AlertCircle, CheckCircle, Rocket
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
+import { normalizeUrl } from '../utils/urlParser';
 
 // Custom Hooks
 import { useDashboardData, getAgencyRank, AGENCY_TIERS } from '../hooks/useDashboardData';
@@ -26,14 +27,16 @@ import ContentModal from '../components/dashboard/ContentModal';
 export default function CreatorDashboard() {
   const { user, profile } = useAuth();
   const { success, error: toastError, info } = useToast();
-  const { content, metrics, refresh } = useDashboardData('creator');
+  const { campaigns, content, metrics, refresh } = useDashboardData('creator');
   
-  const [activeTab, setActiveTab] = useState<'overview' | 'content' | 'journey'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'campaigns' | 'content' | 'journey'>('overview');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isSavingPayment, setIsSavingPayment] = useState(false);
+  const [isProcessingContent, setIsProcessingContent] = useState(false);
   const [previewRankIndex, setPreviewRankIndex] = useState<number | null>(null);
+  const [editingContent, setEditingContent] = useState<any>(null);
 
   // Derived state
   const currentRankIndex = useMemo(() => {
@@ -81,11 +84,26 @@ export default function CreatorDashboard() {
           body: JSON.stringify({ items: data })
         });
         const result = await response.json();
-        if (result.success) {
+        if (result.success && result.results) {
+          let updatedCount = 0;
+          for (const item of result.results) {
+            try {
+              const { error: updateErr } = await supabase.from('content').update({
+                title: item.title,
+                views: item.views,
+                likes: item.likes,
+                comments: item.comments,
+                thumbnail: item.thumbnail
+              }).eq('id', item.id);
+              if (!updateErr) updatedCount++;
+            } catch (e) {
+              console.error(`Error updating item ${item.id}:`, e);
+            }
+          }
           await refresh();
-          success("Métricas actualizadas correctamente");
+          success(`${updatedCount} de ${result.results.length} videos actualizados correctamente`);
         } else {
-          throw new Error(result.error);
+          throw new Error(result.error || "Error en el servidor de métricas");
         }
       } else {
         info("No tienes contenido para sincronizar");
@@ -124,6 +142,7 @@ export default function CreatorDashboard() {
       <div className="flex items-center gap-2 p-1.5 bg-gray-100/50 rounded-2xl w-full lg:w-fit overflow-x-auto no-scrollbar">
         {[
           { id: 'overview', label: 'Resumen', icon: LayoutDashboard },
+          { id: 'campaigns', label: 'Campañas', icon: Rocket },
           { id: 'content', label: 'Mi Contenido', icon: List },
           { id: 'journey', label: 'Mi Camino', icon: Trophy }
         ].map(tab => (
@@ -146,6 +165,43 @@ export default function CreatorDashboard() {
             <StatsCard label="Vistas Totales" value={metrics.totalViews.toLocaleString()} trend="+12% vs mes anterior" icon={TrendingUp} iconColor="text-indigo-600" />
             <StatsCard label="Promedio Vistas" value={Math.round(metrics.totalViews / (metrics.totalPosts || 1)).toLocaleString()} icon={Zap} iconColor="text-rose-600" />
             <StatsCard label="Publicaciones" value={metrics.totalPosts} icon={List} iconColor="text-teal-600" />
+          </div>
+
+          <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden relative group">
+            <div className="absolute -right-12 -top-12 w-48 h-48 bg-indigo-50 rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-opacity" />
+            <div className="relative z-10">
+              <h3 className="text-xl font-black text-gray-900 mb-6 flex items-center gap-2">
+                <Rocket className="h-5 w-5 text-indigo-500" /> Campañas Activas ({campaigns.filter(c => c.status === 'active').length})
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {campaigns.filter(c => c.status === 'active').map((campaign, i) => (
+                  <motion.div 
+                    key={campaign.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                    className="p-4 bg-gray-50 rounded-3xl border border-gray-100 hover:border-indigo-100 transition-all flex items-center justify-between"
+                  >
+                    <div>
+                      <p className="text-sm font-black text-gray-900">{campaign.name}</p>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Meta: {campaign.target_posts} posts</p>
+                    </div>
+                    <button 
+                      onClick={() => setActiveTab('content')}
+                      className="px-4 py-2 bg-white text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm border border-gray-100"
+                    >
+                      Participar
+                    </button>
+                  </motion.div>
+                ))}
+                {campaigns.filter(c => c.status === 'active').length === 0 && (
+                  <div className="col-span-full py-12 text-center text-gray-400 font-medium">
+                    No hay campañas activas en este momento.
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
@@ -219,19 +275,50 @@ export default function CreatorDashboard() {
       {activeTab === 'content' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-in fade-in duration-500">
           {content.map((item, i) => (
-            <ContentCard key={item.id} item={item} index={i} onEdit={() => {}} onDelete={async () => { 
+            <ContentCard key={item.id} item={item as any} index={i} onEdit={() => { setEditingContent(item); setIsContentModalOpen(true); }} onDelete={async () => { 
                 if(confirm("¿Eliminar contenido?")) {
                     await supabase.from('content').delete().eq('id', item.id);
                     success("Contenido eliminado");
                 }
             }} />
           ))}
-          <button onClick={() => setIsContentModalOpen(true)} className="aspect-square rounded-[2rem] border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-4 text-gray-400 hover:border-indigo-300 hover:text-indigo-400 transition-all group">
+          <button onClick={() => { setEditingContent(null); setIsContentModalOpen(true); }} className="aspect-square rounded-[2rem] border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-4 text-gray-400 hover:border-indigo-300 hover:text-indigo-400 transition-all group">
             <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-indigo-50 transition-all">
               <Plus className="h-6 w-6" />
             </div>
             <span className="text-xs font-black uppercase tracking-widest">Añadir Contenido</span>
           </button>
+        </div>
+      )}
+      
+      {activeTab === 'campaigns' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in duration-500">
+          {campaigns.filter(c => c.status === 'active').map((campaign, i) => (
+            <div key={campaign.id} className="relative group bg-white border border-gray-100 rounded-[2.5rem] p-8 hover:shadow-2xl hover:border-indigo-100 transition-all duration-500 overflow-hidden">
+               <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-indigo-50 opacity-0 group-hover:opacity-100 rounded-full transition-opacity" />
+               <div className="relative z-10">
+                 <div className="flex justify-between items-start mb-6">
+                   <div className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-indigo-50 text-indigo-600 border border-indigo-100">
+                     {campaign.status}
+                   </div>
+                   <div className="p-2 bg-gray-50 rounded-xl text-indigo-500 font-black text-[10px]">
+                     +{campaign.target_posts}XP
+                   </div>
+                 </div>
+                 <h3 className="text-xl font-bold text-gray-900 mb-2 leading-tight group-hover:text-indigo-600 transition-colors">{campaign.name}</h3>
+                 <p className="text-sm text-gray-500 line-clamp-2 mb-6 min-h-[40px]">{campaign.description || 'Sin descripción.'}</p>
+                 <div className="pt-6 border-t border-gray-50 flex items-center justify-between">
+                    <button onClick={() => setActiveTab('content')} className="w-full py-3 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all">Ver Posts</button>
+                 </div>
+               </div>
+            </div>
+          ))}
+          {campaigns.filter(c => c.status === 'active').length === 0 && (
+            <div className="col-span-full py-20 text-center">
+              <Rocket className="h-12 w-12 text-gray-200 mx-auto mb-4" />
+              <h3 className="text-xl font-black text-gray-900">No hay campañas activas</h3>
+            </div>
+          )}
         </div>
       )}
 
@@ -243,24 +330,171 @@ export default function CreatorDashboard() {
 
       <ContentModal 
         isOpen={isContentModalOpen} 
-        onClose={() => setIsContentModalOpen(false)} 
-        campaigns={[]} // Creator dashboard might need to fetch available campaigns or just show their own
-        editingContent={null}
-        isProcessing={false}
-        onTwitchUpload={async () => {}}
-        onSubmit={async (data) => {
-          const { error } = await supabase.from('content').insert([{
-            ...data,
-            creator_id: user?.id,
-            status: 'active',
-            uploaded_at: new Date().toISOString()
-          }]);
-          if (error) {
-            toastError("Error al guardar contenido: " + error.message);
-          } else {
-            success("Contenido guardado");
+        onClose={() => { setIsContentModalOpen(false); setEditingContent(null); }} 
+        campaigns={campaigns} 
+        editingContent={editingContent}
+        isProcessing={isProcessingContent}
+        onTwitchUpload={async (file, explicitCreatorId, vCount, pCount) => {
+          console.log("onTwitchUpload triggered with:", { vCount, pCount, explicitCreatorId });
+          setIsProcessingContent(true);
+          try {
+            // Using the current form campaign or first active
+            const currentCampaignId = document.querySelector('select')?.value || campaigns.find(c => c.status === 'active')?.id || '';
+            console.log("Using campaign:", currentCampaignId);
+            const fileName = `${explicitCreatorId || user?.id}/${Date.now()}-${file.name}`;
+            
+            console.log("Starting upload to content-attachments:", fileName);
+            
+            const { data: uploadData, error: uploadError } = await supabase.storage
+              .from('content-attachments')
+              .upload(fileName, file, {
+                cacheControl: '3600',
+                upsert: false
+              });
+
+            if (uploadError) {
+              console.error("Storage Upload Error:", uploadError);
+              throw uploadError;
+            }
+
+            const { data: { publicUrl } } = supabase.storage
+              .from('content-attachments')
+              .getPublicUrl(fileName);
+
+            console.log("Public URL generated:", publicUrl);
+
+            const { error: dbError } = await supabase.from('content').insert([{
+              campaign_id: currentCampaignId,
+              platform: 'twitch',
+              url: 'https://twitch.tv/stats-' + Date.now(),
+              thumbnail: publicUrl,
+              creator_id: explicitCreatorId || user?.id,
+              status: 'active',
+              views: vCount || 0,
+              peek_viewers: pCount || 0,
+              uploaded_at: new Date().toISOString()
+            }]);
+
+            if (dbError) throw dbError;
+
+            success("¡Captura subida con éxito!");
             setIsContentModalOpen(false);
             refresh();
+
+            fetch('/api/send-email', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                subject: '📺 Nueva Captura de Twitch',
+                html: `<p>El creador <strong>${profile?.display_name || user?.email}</strong> ha subido una captura de Twitch.</p>`
+              })
+            }).catch(e => console.warn("Email alert failed:", e));
+
+          } catch (err: any) {
+            console.error("Twitch Upload Process Failed:", err);
+            toastError("Fallo en la subida: " + (err.message || "Error desconocido"));
+          } finally {
+            setIsProcessingContent(false);
+          }
+        }}
+        onSubmit={async (data) => {
+          setIsProcessingContent(true);
+          try {
+            const cleanUrl = normalizeUrl(data.url, data.platform);
+
+            if (editingContent) {
+              if (cleanUrl !== normalizeUrl(editingContent.url, editingContent.platform)) {
+                 const { data: existing } = await supabase.from('content').select('id').eq('campaign_id', data.campaign_id).eq('url', cleanUrl).neq('id', editingContent.id).limit(1);
+                 if (existing && existing.length > 0) {
+                    toastError("¡Ese enlace ya está vinculado a esta campaña!");
+                    setIsProcessingContent(false);
+                    return;
+                 }
+              }
+
+              const { error } = await supabase
+                .from('content')
+                .update({ 
+                  campaign_id: data.campaign_id, 
+                  platform: data.platform, 
+                  url: cleanUrl, 
+                  title: data.title,
+                  views: data.views,
+                  likes: data.likes,
+                  comments: data.comments
+                })
+                .eq('id', editingContent.id)
+                .eq('creator_id', user?.id); // Ensure they only edit their own
+                
+              if (error) throw error;
+              success("Contenido actualizado");
+              setIsContentModalOpen(false);
+              setEditingContent(null);
+              refresh();
+            } else {
+              // 1. Check duplicate for new inserts
+              const { data: existing } = await supabase.from('content').select('id').eq('campaign_id', data.campaign_id).eq('url', cleanUrl).limit(1);
+              if (existing && existing.length > 0) {
+                  toastError("¡Este contenido ya se encuentra registrado en la campaña!");
+                  setIsProcessingContent(false);
+                  return;
+              }
+
+              // 2. INSERT IMMEDIATELY (FAST)
+              const { data: insertedData, error } = await supabase.from('content').insert([{
+                ...data,
+                url: cleanUrl,
+                title: 'Cargando métricas...',
+                thumbnail: '',
+                views: 0,
+                likes: 0,
+                comments: 0,
+                creator_id: user?.id,
+                status: 'active',
+                uploaded_at: new Date().toISOString()
+              }]).select();
+              
+              if (error) throw error;
+
+              success("¡Contenido vinculado! Las métricas aparecerán en breve.");
+              setIsContentModalOpen(false);
+              setEditingContent(null);
+              refresh();
+
+              fetch('/api/send-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  subject: '🔗 Nuevo Contenido Vinculado',
+                  html: `<p>El creador <strong>${profile?.display_name || user?.email || 'Desconocido'}</strong> ha vinculado un nuevo enlace de <strong>${data.platform}</strong> a una campaña activa.</p>
+                         <p>Enlace: <a href="${cleanUrl}">${cleanUrl}</a></p>`
+                })
+              }).catch(e => console.warn("Email notification failed:", e));
+
+              // 3. FETCH METADATA IN BACKGROUND (Don't await)
+              fetch('/api/fetch-metadata', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: cleanUrl, platform: data.platform })
+              }).then(async (res) => {
+                if (res.ok && insertedData?.[0]) {
+                  const metadata = await res.json();
+                  await supabase.from('content').update({
+                    title: metadata.title || 'Nuevo Contenido',
+                    thumbnail: metadata.thumbnail || '',
+                    views: metadata.views || 0,
+                    likes: metadata.likes || 0,
+                    comments: metadata.comments || 0
+                  }).eq('id', insertedData[0].id);
+                  refresh();
+                }
+              }).catch(e => console.warn("Background update failed:", e));
+            }
+
+          } catch (err: any) {
+            toastError("Error al guardar contenido: " + err.message);
+          } finally {
+            setIsProcessingContent(false);
           }
         }}
       />

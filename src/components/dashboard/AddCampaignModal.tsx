@@ -5,8 +5,9 @@ interface AddCampaignModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (e: React.FormEvent) => void;
-  newCampaign: { name: string; description: string; target_posts: number };
+  newCampaign: { name: string; description: string; target_posts: number; client_id?: string | null };
   setNewCampaign: (campaign: any) => void;
+  clients: any[];
 }
 
 const AddCampaignModal: React.FC<AddCampaignModalProps> = ({
@@ -14,7 +15,8 @@ const AddCampaignModal: React.FC<AddCampaignModalProps> = ({
   onClose,
   onSubmit,
   newCampaign,
-  setNewCampaign
+  setNewCampaign,
+  clients
 }) => {
   if (!isOpen) return null;
 
@@ -70,6 +72,23 @@ const AddCampaignModal: React.FC<AddCampaignModalProps> = ({
                 onChange={(e) => setNewCampaign({ ...newCampaign, target_posts: parseInt(e.target.value) })}
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Cliente Responsable (Opcional)</label>
+            <select
+              className="block w-full rounded-2xl border-gray-100 bg-gray-50/50 py-3 px-4 text-sm font-medium focus:ring-2 focus:ring-indigo-500 transition-all outline-none appearance-none"
+              value={newCampaign.client_id || ''}
+              onChange={(e) => setNewCampaign({ ...newCampaign, client_id: e.target.value || null })}
+            >
+              <option value="">Sin cliente asignado</option>
+              {clients.map(c => (
+                <option key={c.id} value={c.id}>
+                  {c.display_name || c.email}
+                </option>
+              ))}
+            </select>
+            <p className="mt-2 text-[10px] text-gray-400">Este usuario podrá ver las métricas de esta campaña desde su portal.</p>
           </div>
 
           <div className="flex gap-4 pt-4">

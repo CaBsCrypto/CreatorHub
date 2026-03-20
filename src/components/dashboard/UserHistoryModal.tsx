@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  X, Users, Mail, ShieldCheck, Calendar, 
+  X, Users, Mail, ShieldCheck, Calendar, Wallet,
   Trash2, AlertTriangle, CheckCircle2, 
   ExternalLink, Youtube, Instagram, Zap, Globe, RefreshCw
 } from 'lucide-react';
@@ -13,6 +13,7 @@ interface UserHistoryModalProps {
   userContent: Content[];
   onUpdateRole: (newRole: UserRole) => Promise<void>;
   onRemoveUser: () => Promise<void>;
+  onUpdateAlias?: (alias: string) => Promise<void>;
 }
 
 export default function UserHistoryModal({ 
@@ -20,17 +21,20 @@ export default function UserHistoryModal({
   onClose, 
   userContent, 
   onUpdateRole, 
-  onRemoveUser 
+  onRemoveUser,
+  onUpdateAlias
 }: UserHistoryModalProps) {
   const [selectedRole, setSelectedRole] = useState<UserRole | undefined>(user?.role);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [deleteConfirmStep, setDeleteConfirmStep] = useState(0);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [adminAlias, setAdminAlias] = useState(user?.admin_alias || '');
 
-  // Sync selectedRole when user changes
+  // Sync values when user changes
   React.useEffect(() => {
     if (user) {
       setSelectedRole(user.role);
+      setAdminAlias(user.admin_alias || '');
     }
   }, [user]);
 
@@ -103,6 +107,30 @@ export default function UserHistoryModal({
                 <span className="flex items-center gap-1.5"><Calendar className="h-4 w-4" /> Miembro desde {new Date(user.created_at).toLocaleDateString()}</span>
               </div>
             </div>
+            
+            {/* Alias Editor */}
+            {onUpdateAlias && (
+              <div className="mt-6 flex items-center gap-3">
+                <input 
+                  type="text" 
+                  placeholder="Añadir Apodo (Solo Admin)"
+                  value={adminAlias}
+                  onChange={(e) => setAdminAlias(e.target.value)}
+                  className="px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none w-64"
+                />
+                <button 
+                  onClick={async () => {
+                    setIsUpdating(true);
+                    await onUpdateAlias(adminAlias);
+                    setIsUpdating(false);
+                  }}
+                  disabled={isUpdating || adminAlias === user.admin_alias}
+                  className="px-4 py-2 bg-indigo-50 text-indigo-600 font-bold rounded-xl text-sm hover:bg-indigo-100 disabled:opacity-50"
+                >
+                  {isUpdating ? 'Guardando...' : 'Guardar'}
+                </button>
+              </div>
+            )}
           </div>
           <button onClick={onClose} className="p-3 rounded-2xl hover:bg-gray-50 text-gray-400 transition-all hover:rotate-90">
             <X className="h-6 w-6" />
@@ -162,6 +190,72 @@ export default function UserHistoryModal({
 
           {/* Sidebar Area: Management */}
           <div className="space-y-8">
+            {/* Payment Information */}
+            <div className="bg-emerald-50/50 p-6 rounded-[2rem] border border-emerald-100/50">
+              <h3 className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <Wallet className="h-3 w-3" /> Información de Pago
+              </h3>
+              
+              {!user.payment_method ? (
+                <div className="text-center py-4">
+                  <p className="text-[10px] font-bold text-amber-600 uppercase tracking-widest">No configurado</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-[8px] font-black text-emerald-600/50 uppercase tracking-[0.2em] mb-1">Método</p>
+                    <p className="text-xs font-black text-emerald-900 uppercase tracking-wider">
+                      {user.payment_method === 'binance' ? 'Binance Pay' : 'Cripto Wallet'}
+                    </p>
+                  </div>
+
+                  {user.payment_method === 'binance' ? (
+                    <div>
+                      <p className="text-[8px] font-black text-emerald-600/50 uppercase tracking-[0.2em] mb-1">Binance ID</p>
+                      <div className="flex items-center justify-between gap-2 p-2 bg-white rounded-lg border border-emerald-100">
+                        <code className="text-[10px] font-bold text-emerald-900 truncate">{user.binance_id}</code>
+                        <button 
+                          onClick={() => {
+                            if (user.binance_id) {
+                              navigator.clipboard.writeText(user.binance_id);
+                              alert("Copiado: " + user.binance_id);
+                            }
+                          }}
+                          className="p-1.5 hover:bg-emerald-50 rounded-md transition-colors text-emerald-600"
+                        >
+                          <RefreshCw className="h-3 w-3" />
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div>
+                        <p className="text-[8px] font-black text-emerald-600/50 uppercase tracking-[0.2em] mb-1">Red</p>
+                        <p className="text-xs font-black text-emerald-900 uppercase tracking-wider">{user.wallet_network || 'No especificada'}</p>
+                      </div>
+                      <div>
+                        <p className="text-[8px] font-black text-emerald-600/50 uppercase tracking-[0.2em] mb-1">Dirección</p>
+                        <div className="flex items-center justify-between gap-2 p-2 bg-white rounded-lg border border-emerald-100">
+                          <code className="text-[10px] font-bold text-emerald-900 truncate">{user.wallet_address}</code>
+                          <button 
+                            onClick={() => {
+                              if (user.wallet_address) {
+                                navigator.clipboard.writeText(user.wallet_address);
+                                alert("Copiado: " + user.wallet_address);
+                              }
+                            }}
+                            className="p-1.5 hover:bg-emerald-50 rounded-md transition-colors text-emerald-600"
+                          >
+                            <RefreshCw className="h-3 w-3" />
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+
             {/* Role Management */}
             <div className="bg-gray-50 p-6 rounded-[2rem] border border-gray-100">
               <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Cambiar Rol</h3>

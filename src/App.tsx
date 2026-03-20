@@ -14,8 +14,9 @@ import { ToastProvider } from './context/ToastContext';
 // Lazy load the heavy dashboards to speed up initial JS bundle size and login page rendering
 const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
 const CreatorDashboard = React.lazy(() => import('./pages/CreatorDashboard'));
+const ClientDashboard = React.lazy(() => import('./pages/ClientDashboard'));
 
-const ProtectedRoute = ({ children, role }: { children: React.ReactNode, role?: 'admin' | 'creator' }) => {
+const ProtectedRoute = ({ children, role }: { children: React.ReactNode, role?: 'admin' | 'creator' | 'client' }) => {
   const { user, profile, loading } = useAuth();
 
   if (loading) {
@@ -34,6 +35,10 @@ const ProtectedRoute = ({ children, role }: { children: React.ReactNode, role?: 
     return <Navigate to="/" replace />;
   }
 
+  if (role === 'client' && profile?.role !== 'client' && profile?.role !== 'admin' && profile?.role !== 'manager') {
+    return <Navigate to="/" replace />;
+  }
+
   return <>{children}</>;
 };
 
@@ -46,6 +51,8 @@ const HomeRedirect = () => {
     return <Navigate to="/admin" replace />;
   } else if (profile?.role === 'creator') {
     return <Navigate to="/creator" replace />;
+  } else if (profile?.role === 'client') {
+    return <Navigate to="/client" replace />;
   } else {
     return <Navigate to="/login" replace />;
   }
@@ -76,6 +83,14 @@ export default function App() {
                     element={
                       <ProtectedRoute role="creator">
                         <CreatorDashboard />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/client/*" 
+                    element={
+                      <ProtectedRoute role="client">
+                        <ClientDashboard />
                       </ProtectedRoute>
                     } 
                   />

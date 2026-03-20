@@ -2,9 +2,10 @@ import express from "express";
 import dotenv from "dotenv";
 
 // Import centralized services
-import * as scraperService from "../src/services/scraperService";
-import * as aiService from "../src/services/aiService";
-import * as emailService from "../src/services/emailService";
+import * as scraperService from "../src/services/scraperService.js";
+import * as aiService from "../src/services/aiService.js";
+import * as emailService from "../src/services/emailService.js";
+import { createClient } from "@supabase/supabase-js";
 
 dotenv.config();
 
@@ -17,19 +18,12 @@ process.on('uncaughtException', (err) => {
 });
 
 const app = express();
-app.use(express.json());
+
+// INCREASE PAYLOAD LIMIT
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
-
-app.get("/api/debug-env", (req, res) => {
-  res.json({
-    rapid_key_set: !!process.env.RAPIDAPI_KEY,
-    gemini_key_set: !!process.env.GEMINI_API_KEY,
-    youtube_key_set: !!process.env.YOUTUBE_API_KEY,
-    node_env: process.env.NODE_ENV,
-    vercel: !!process.env.VERCEL
-  });
-});
 
 app.post("/api/fetch-metadata", async (req, res) => {
   try {
@@ -41,7 +35,8 @@ app.post("/api/fetch-metadata", async (req, res) => {
       case 'tiktok': data = await scraperService.fetchTikTokData(url); break;
       case 'youtube': data = await scraperService.fetchYouTubeData(url); break;
       case 'instagram': data = await scraperService.fetchInstagramData(url); break;
-      case 'x': data = await scraperService.fetchXData(url); break;
+      case 'x': 
+      case 'x_video': data = await scraperService.fetchXData(url); break;
       case 'coinmarketcap': data = await scraperService.fetchCMCData(url); break;
       default: data = { title: "New Upload", views: 0, likes: 0, comments: 0, thumbnail: "" };
     }
@@ -68,7 +63,8 @@ app.post("/api/refresh-metrics", async (req, res) => {
           case 'tiktok': data = await scraperService.fetchTikTokData(item.url); break;
           case 'youtube': data = await scraperService.fetchYouTubeData(item.url); break;
           case 'instagram': data = await scraperService.fetchInstagramData(item.url); break;
-          case 'x': data = await scraperService.fetchXData(item.url); break;
+          case 'x': 
+          case 'x_video': data = await scraperService.fetchXData(item.url); break;
           case 'coinmarketcap': data = await scraperService.fetchCMCData(item.url); break;
           default: continue;
         }
@@ -85,15 +81,32 @@ app.post("/api/refresh-metrics", async (req, res) => {
 });
 
 app.post("/api/analyze-twitch", async (req, res) => {
+  const startTime = Date.now();
   try {
     const { image } = req.body;
+    console.log(`[API] Received Twitch analysis request. Image length: ${image?.length || 0}`);
+    
+    if (!process.env.GEMINI_API_KEY) {
+      console.error("[API] GEMINI_API_KEY is not set!");
+      return res.status(500).json({ error: "Configuración incompleta: Falta la API Key de Gemini en el servidor." });
+    }
+
     if (!image) return res.status(400).json({ error: "Image data is required" });
 
     const stats = await aiService.analyzeTwitchScreenshot(image);
+    const duration = Date.now() - startTime;
+    console.log(`[API] Analysis completed in ${duration}ms`);
+    
     res.json(stats);
   } catch (error: any) {
-    console.error("Twitch analysis error:", error);
-    res.status(500).json({ error: error.message });
+    const duration = Date.now() - startTime;
+    console.error(`[API] Twitch analysis failed after ${duration}ms:`, error);
+    res.status(500).json({ 
+      error: "Error en el análisis de IA", 
+      details: error.message,
+      duration: `${duration}ms`,
+      suggestion: "Si tardó más de 10s, es posible que Vercel haya cortado la conexión (Timeout). Prueba con una imagen más ligera."
+    });
   }
 });
 
@@ -132,8 +145,8 @@ app.post("/api/analyze-creator", async (req, res) => {
 
 app.post("/api/send-email", async (req, res) => {
   try {
-    const { subject, html } = req.body;
-    const result = await emailService.sendNotificationEmail(subject, html);
+    const { subject, html, to } = req.body;
+    const result = await emailService.sendNotificationEmail(subject, html, to);
     if (result.skip) return res.json({ skip: true });
     res.json({ success: true, data: result.data });
   } catch (err: any) {
@@ -141,9 +154,69 @@ app.post("/api/send-email", async (req, res) => {
   }
 });
 
+app.post("/api/invite-user", async (req, res) => {
+  try {
+    const { email, role, display_name } = req.body;
+    
+    const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+
+    if (!supabaseServiceKey) {
+      console.error("Missing SUPABASE_SERVICE_ROLE_KEY in environment");
+      return res.status(500).json({ error: "Configuración del servidor incompleta (Missing Service Key)" });
+    }
+
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, { auth: { autoRefreshToken: false, persistSession: false } });
+
+    // 1. Create the user in Auth
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      email_confirm: true,
+      user_metadata: { role, display_name },
+      // Optional: automatically generate a password or send a recovery email
+    });
+
+    if (authError) throw authError;
+
+    // 2. The Auth trigger might already create the public.users row. We can check or upsert.
+    // For safety, let's explicitly insert/update the public record using admin privileges
+    const { data: userData, error: publicError } = await supabaseAdmin
+      .from('users')
+      .upsert({
+        id: authData.user.id,
+        email,
+        role,
+        display_name
+      })
+      .select()
+      .single();
+
+    if (publicError) {
+      // If we fail here, we might have an orphaned auth user, but usually the trigger handles it.
+      console.error("Public users insert error:", publicError);
+    }
+
+    res.json({ success: true, user: userData || authData.user });
+  } catch (error: any) {
+    console.error("Invite user error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.use((err: any, req: any, res: any, next: any) => {
   console.error("CRITICAL_ERROR:", err);
   res.status(500).json({ error: "SERVER_ERROR", message: err.message });
+});
+
+// FINAL GLOBAL ERROR CATCH-ALL (MUST BE LAST)
+app.use((err: any, req: any, res: any, next: any) => {
+  console.error("CRASH FINAL:", err);
+  res.status(500).json({ 
+    error: "Crash Global", 
+    message: err.message, 
+    stack: err.stack,
+    path: req.path 
+  });
 });
 
 export default app;

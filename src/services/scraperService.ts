@@ -6,7 +6,9 @@ export async function fetchTikTokData(url: string) {
     let title = "TikTok Video", author = "", thumbnail = "";
     try {
       const oembedUrl = `https://www.tiktok.com/oembed?url=${encodeURIComponent(url)}`;
-      const oembedRes = await axios.get(oembedUrl);
+      const oembedRes = await axios.get(oembedUrl, {
+        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36" }
+      });
       if (oembedRes.data.title) title = oembedRes.data.title;
       if (oembedRes.data.author_name) author = oembedRes.data.author_name;
       if (oembedRes.data.thumbnail_url) thumbnail = oembedRes.data.thumbnail_url;

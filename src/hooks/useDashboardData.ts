@@ -115,7 +115,7 @@ export const useDashboardData = (role: 'admin' | 'creator') => {
       const u = users.find(usr => usr.id === id);
       return {
         creator_id: id,
-        name: u?.display_name || u?.email || 'Unknown',
+        name: (role === 'admin' && u?.admin_alias) ? u.admin_alias : (u?.display_name || u?.email || 'Unknown'),
         paymentMethod: u?.payment_method,
         paymentId: u?.payment_method === 'binance' ? u.binance_id : u?.wallet_address,
         rank: getAgencyRank(data.contentCount, data.views),

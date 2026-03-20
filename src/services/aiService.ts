@@ -5,7 +5,7 @@ export async function analyzePerformance(summaryData: any) {
   if (!apiKey) throw new Error("AI Key not configured");
 
   const genAI = new GoogleGenerativeAI(apiKey);
-  const modelsToTry = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-pro"];
+  const modelsToTry = ["gemini-2.0-flash", "gemini-flash-latest"];
   let lastError = "";
 
   for (const modelName of modelsToTry) {
@@ -34,32 +34,39 @@ export async function analyzeTwitchScreenshot(image: string) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("AI Key not configured");
 
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
   const prompt = "Analiza esta captura de pantalla de las estadísticas de un stream de Twitch. Extrae los siguientes datos en formato JSON: { 'views': número, 'peek_viewers': número, 'duration_minutes': número, 'title': cadena, 'stream_date': cadena ISO }. Si no encuentras alguno, pon 0 o null. No incluyas markdown, solo el objeto JSON puro.";
+  const base64Data = image.split(',')[1] || image;
   
-  const result = await model.generateContent([
-    prompt,
-    {
-      inlineData: {
-        data: image.split(',')[1] || image,
-        mimeType: "image/png"
-      }
-    }
-  ]);
-
-  const response = await result.response;
-  let text = response.text();
-  
-  // Clean up markdown if AI returned it
-  text = text.replace(/```json|```/g, "").trim();
+  // Use gemini-2.0-flash as confirmed by list-models diagnostic
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
   
   try {
-    return JSON.parse(text);
-  } catch (e) {
-    console.error("Failed to parse AI response:", text);
-    throw new Error("No se pudieron extraer las estadísticas de la imagen.");
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{
+          parts: [
+            { text: prompt },
+            { inline_data: { mime_type: "image/png", data: base64Data } }
+          ]
+        }]
+      })
+    });
+
+    const data = await response.json();
+    
+    if (!response.ok) {
+      console.error("Gemini REST Error:", data);
+      throw new Error(data.error?.message || "Error en la API de Google");
+    }
+
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    const cleanText = text.replace(/```json|```/g, "").trim();
+    return JSON.parse(cleanText);
+  } catch (err: any) {
+    console.error("REST AI Analysis failed:", err.message);
+    throw new Error("Fallo en el análisis de imagen (REST): " + err.message);
   }
 }
 

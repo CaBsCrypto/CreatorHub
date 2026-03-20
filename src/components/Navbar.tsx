@@ -20,6 +20,7 @@ export default function Navbar() {
 
   const isAdmin = profile?.role === 'admin' || profile?.role === 'manager';
   const isCreator = profile?.role === 'creator';
+  const isClient = profile?.role === 'client';
 
   const navLinks = [
     ...(isAdmin ? [
@@ -29,6 +30,9 @@ export default function Navbar() {
     ...(isCreator ? [
       { name: 'My Content', href: '/creator', icon: UserCircle },
     ] : []),
+    ...(isClient ? [
+      { name: 'My Campaigns', href: '/client', icon: LayoutDashboard },
+    ] : []),
   ];
 
   return (
@@ -36,7 +40,7 @@ export default function Navbar() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 justify-between items-center">
           <div className="flex items-center">
-            <Link to={isAdmin ? '/admin' : '/creator'} className="text-xl font-bold text-indigo-600 flex items-center gap-2">
+            <Link to={isAdmin ? '/admin' : isClient ? '/client' : '/creator'} className="text-xl font-bold text-indigo-600 flex items-center gap-2">
               <span className="hidden sm:inline">Umbra Creator Hub</span>
               <span className="sm:hidden text-2xl">UCH</span>
             </Link>

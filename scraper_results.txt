@@ -1,0 +1,28 @@
+[dotenv@17.3.1] injecting env (5) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+--- Testing YouTube ---
+YouTube Result: {
+  title: 'Rick Astley - Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster)',
+  views: 1752323699,
+  likes: 18857245,
+  comments: 2423896,
+  thumbnail: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg'
+}
+
+--- Testing TikTok ---
+TikTok oEmbed error: Request failed with status code 400
+TikTok Result: {
+  title: 'TikTok Video',
+  views: 0,
+  likes: 0,
+  comments: 0,
+  thumbnail: ''
+}
+
+--- Testing Instagram ---
+Instagram Result: {
+  title: 'Instagram Post',
+  views: 0,
+  likes: 0,
+  comments: 0,
+  thumbnail: ''
+}

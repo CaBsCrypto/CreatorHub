@@ -11,7 +11,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '');
 
 // Helper types matching our database schema
-export type UserRole = 'creator' | 'manager' | 'admin';
+export type UserRole = 'creator' | 'manager' | 'admin' | 'client';
 
 export interface UserProfile {
   id: string; // UUID from Supabase Auth mapping
@@ -23,6 +23,7 @@ export interface UserProfile {
   binance_id: string | null;
   wallet_address: string | null;
   wallet_network: string | null;
+  admin_alias?: string | null; // Nickname visible only to admins
   audience_geo?: Record<string, number>; // Mapping of country codes to audience percentage/count
   created_at: string;
 }
@@ -33,6 +34,7 @@ export interface Campaign {
   description: string;
   status: 'active' | 'completed';
   target_posts?: number; // Target number of posts for gamification
+  client_id?: string | null; // Associated client for restricted view
   created_by: string;
   created_at: string;
 }
@@ -50,6 +52,7 @@ export interface Content {
   comments: number;
   peek_viewers?: number; // Twitch specific
   duration_minutes?: number; // Twitch specific
+  status: 'active' | 'archived' | 'pending';
   uploaded_at: string | null;
   created_at: string;
 }

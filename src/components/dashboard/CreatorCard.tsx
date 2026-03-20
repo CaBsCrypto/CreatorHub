@@ -84,9 +84,18 @@ const CreatorCard: React.FC<CreatorCardProps> = ({ creator, index, onEditAudienc
         <div className="flex flex-col items-center sm:items-end gap-3 shrink-0">
           <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border ${creator.paymentId ? 'bg-emerald-50 border-emerald-100' : 'bg-amber-50 border-amber-100'} transition-colors`}>
             <Wallet className={`h-3.5 w-3.5 ${creator.paymentId ? 'text-emerald-500' : 'text-amber-500'}`} />
-            <span className={`text-[10px] font-black uppercase tracking-widest ${creator.paymentId ? 'text-emerald-700' : 'text-amber-700'}`}>
-              {creator.paymentMethod === 'binance' ? 'Binance Pay' : 'Wallet'}
-            </span>
+            <div className="flex flex-col">
+              <span className={`text-[8px] font-black uppercase tracking-widest leading-none ${creator.paymentId ? 'text-emerald-700' : 'text-amber-700'}`}>
+                {creator.paymentMethod === 'binance' ? 'Binance Pay' : 'Wallet'}
+              </span>
+              {creator.paymentId && (
+                <span className="text-[7px] font-bold text-emerald-600/80 mt-0.5 font-mono">
+                  {creator.paymentId.length > 10 
+                    ? `${creator.paymentId.slice(0, 6)}...${creator.paymentId.slice(-4)}` 
+                    : creator.paymentId}
+                </span>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-1.5 text-[10px] font-black text-indigo-600 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
              Ver Perfil <ExternalLink className="h-3.5 w-3.5" />

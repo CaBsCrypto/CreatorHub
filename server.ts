@@ -129,8 +129,8 @@ app.post("/api/analyze-creator", async (req, res) => {
 
 app.post("/api/send-email", async (req, res) => {
   try {
-    const { subject, html } = req.body;
-    const result = await sendNotificationEmail(subject, html);
+    const { subject, html, to } = req.body;
+    const result = await sendNotificationEmail(subject, html, to);
     res.json(result);
   } catch (error: any) {
     res.status(500).json({ error: error.message });

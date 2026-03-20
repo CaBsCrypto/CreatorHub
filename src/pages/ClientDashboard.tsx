@@ -1,0 +1,183 @@
+import React, { useState, useEffect } from 'react';
+import { Rocket, List, BarChart3, LogOut, Zap, LayoutDashboard } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { supabase, Campaign, Content, UserProfile } from '../supabase';
+import { useAuth, logout } from '../AuthContext';
+import { useToast } from '../hooks/useToast';
+import CampaignReportModal from '../components/dashboard/CampaignReportModal';
+import LoadingSpinner from '../components/LoadingSpinner';
+
+export default function ClientDashboard() {
+  const { user, profile } = useAuth();
+  const { error: toastError } = useToast();
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [content, setContent] = useState<Content[]>([]);
+  const [users, setUsers] = useState<UserProfile[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedCampaignReport, setSelectedCampaignReport] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      fetchData();
+    }
+  }, [user]);
+
+  async function fetchData() {
+    try {
+      setLoading(true);
+      
+      // 1. Fetch campaigns assigned to this client
+      const { data: campaignsData, error: campaignsError } = await supabase
+        .from('campaigns')
+        .select('*')
+        .eq('client_id', user?.id)
+        .order('created_at', { ascending: false });
+
+      if (campaignsError) throw campaignsError;
+      setCampaigns(campaignsData || []);
+
+      if (campaignsData && campaignsData.length > 0) {
+        const campaignIds = campaignsData.map(c => c.id);
+        
+        // 2. Fetch content for these campaigns
+        const { data: contentData, error: contentError } = await supabase
+          .from('content')
+          .select('*')
+          .in('campaign_id', campaignIds);
+        
+        if (contentError) throw contentError;
+        setContent(contentData || []);
+
+        // 3. Fetch all users to show in reports
+        const { data: usersData, error: usersError } = await supabase
+          .from('users')
+          .select('*');
+        
+        if (usersError) throw usersError;
+        setUsers(usersData || []);
+      }
+    } catch (err: any) {
+      console.error("Fetch Data Error:", err);
+      toastError("Error al cargar datos: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (loading) return <LoadingSpinner message="Cargando tu panel de cliente..." />;
+
+  return (
+    <div className="min-h-screen pb-20">
+      {/* Header */}
+      <header className="mb-12">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <h1 className="text-4xl font-black text-gray-900 tracking-tight mb-2 flex items-center gap-3">
+              <span className="p-3 bg-indigo-600 text-white rounded-2xl shadow-xl shadow-indigo-100">
+                <BarChart3 className="h-8 w-8" />
+              </span>
+              ¡Hola, {profile?.display_name || 'Cliente'}!
+            </h1>
+            <p className="text-gray-500 font-medium">Gracias por colaborar con <strong>Umbra</strong>. Aquí puedes ver los resultados detallados de nuestra campaña.</p>
+          </div>
+          
+          <button 
+            onClick={() => logout()}
+            className="flex items-center gap-2 px-6 py-3 bg-white border border-gray-100 rounded-2xl text-sm font-bold text-gray-400 hover:text-rose-500 hover:border-rose-100 transition-all shadow-sm"
+          >
+            <LogOut className="h-4 w-4" /> Cerrar Sesión
+          </button>
+        </div>
+      </header>
+
+      {/* Stats Summary */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm relative overflow-hidden group">
+          <div className="absolute -right-4 -top-4 w-24 h-24 bg-indigo-50 rounded-full blur-2xl opacity-50 group-hover:scale-150 transition-transform duration-700" />
+          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Campañas Activas</p>
+          <div className="flex items-end gap-2">
+            <span className="text-4xl font-black text-gray-900 leading-none">{campaigns.filter(c => c.status === 'active').length}</span>
+            <span className="text-sm font-bold text-indigo-500 mb-1">TOTAL</span>
+          </div>
+        </div>
+
+        <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm relative overflow-hidden group">
+          <div className="absolute -right-4 -top-4 w-24 h-24 bg-emerald-50 rounded-full blur-2xl opacity-50 group-hover:scale-150 transition-transform duration-700" />
+          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Posts Publicados</p>
+          <div className="flex items-end gap-2">
+            <span className="text-4xl font-black text-gray-900 leading-none">{content.length}</span>
+            <span className="text-sm font-bold text-emerald-500 mb-1">CONTENIDOS</span>
+          </div>
+        </div>
+
+        <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm relative overflow-hidden group">
+          <div className="absolute -right-4 -top-4 w-24 h-24 bg-amber-50 rounded-full blur-2xl opacity-50 group-hover:scale-150 transition-transform duration-700" />
+          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Vistas Totales</p>
+          <div className="flex items-end gap-2">
+            <span className="text-4xl font-black text-gray-900 leading-none">
+              {content.reduce((sum, item) => sum + (item.views || 0), 0).toLocaleString()}
+            </span>
+            <Zap className="h-5 w-5 text-amber-500 mb-1 animate-pulse" />
+          </div>
+        </div>
+      </div>
+
+      {/* Campaigns List */}
+      <h2 className="text-xl font-black text-gray-900 uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
+        <Rocket className="h-5 w-5 text-indigo-500 shadow-sm" /> Mis Campañas
+      </h2>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {campaigns.map((campaign) => (
+          <motion.div 
+            key={campaign.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white border border-gray-100 rounded-[2.5rem] p-8 hover:shadow-2xl hover:border-indigo-100 transition-all duration-500 relative overflow-hidden group"
+          >
+            <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-indigo-50 opacity-0 group-hover:opacity-100 rounded-full transition-opacity" />
+            <div className="relative z-10">
+              <div className="flex justify-between items-start mb-6">
+                <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                  campaign.status === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-gray-50 text-gray-400 border-gray-100'
+                }`}>
+                  {campaign.status}
+                </div>
+                <BarChart3 className="h-5 w-5 text-gray-200 group-hover:text-indigo-200 transition-colors" />
+              </div>
+              
+              <h3 className="text-xl font-bold text-gray-900 mb-2 leading-tight group-hover:text-indigo-600 transition-colors">{campaign.name}</h3>
+              <p className="text-sm text-gray-500 line-clamp-2 mb-8 min-h-[40px]">{campaign.description || 'Sin descripción.'}</p>
+              
+              <button 
+                onClick={() => setSelectedCampaignReport(campaign.id)}
+                className="w-full py-4 bg-gray-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:bg-black hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
+              >
+                <LayoutDashboard className="h-4 w-4" /> Ver Reporte Detallado
+              </button>
+            </div>
+          </motion.div>
+        ))}
+
+        {campaigns.length === 0 && (
+          <div className="col-span-full py-32 text-center bg-white rounded-[3rem] border border-gray-100 border-dashed">
+             <Rocket className="h-16 w-16 text-gray-100 mx-auto mb-6" />
+             <h3 className="text-2xl font-black text-gray-300">No tienes campañas asignadas todavía.</h3>
+             <p className="text-gray-400 mt-2">Contacta con tu administrador para vincular tus proyectos.</p>
+          </div>
+        )}
+      </div>
+
+      {selectedCampaignReport && (
+        <CampaignReportModal
+          isOpen={!!selectedCampaignReport}
+          onClose={() => setSelectedCampaignReport(null)}
+          campaign={campaigns.find(c => c.id === selectedCampaignReport) || null}
+          content={content}
+          users={users}
+          // Clients don't have the deep-linking filter functionality as they don't see the content list
+        />
+      )}
+    </div>
+  );
+}

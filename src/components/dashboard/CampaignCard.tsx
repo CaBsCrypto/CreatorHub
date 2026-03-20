@@ -9,9 +9,10 @@ interface CampaignCardProps {
   onDelete: (id: string) => void;
   onClick: (id: string) => void;
   index: number;
+  onViewReport?: (id: string, e: React.MouseEvent) => void;
 }
 
-const CampaignCard: React.FC<CampaignCardProps> = ({ campaign, onDelete, onClick, index }) => {
+const CampaignCard: React.FC<CampaignCardProps> = ({ campaign, onDelete, onClick, index, onViewReport }) => {
   const isCompleted = campaign.status === 'completed';
 
   return (
@@ -69,9 +70,21 @@ const CampaignCard: React.FC<CampaignCardProps> = ({ campaign, onDelete, onClick
               <Calendar className="h-3.5 w-3.5" />
               {campaign.created_at ? format(new Date(campaign.created_at), 'MMM d, yyyy') : 'N/A'}
             </div>
-            <button className="text-[10px] font-black text-indigo-600 hover:underline uppercase tracking-widest">
-              Ver Detalles
-            </button>
+            <div className="flex items-center gap-3">
+              {onViewReport && (
+                <button 
+                  onClick={(e) => {
+                    onViewReport(campaign.id, e);
+                  }}
+                  className="text-[10px] font-black text-rose-500 hover:text-white hover:bg-rose-500 px-3 py-1.5 rounded-lg uppercase tracking-widest border border-rose-100 hover:border-transparent transition-all"
+                >
+                  Reporte CSV
+                </button>
+              )}
+              <button className="text-[10px] font-black text-indigo-600 hover:underline uppercase tracking-widest">
+                Ver Detalles
+              </button>
+            </div>
           </div>
         </div>
       </div>

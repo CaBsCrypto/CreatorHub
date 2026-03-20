@@ -7,8 +7,11 @@ interface AddUserModalProps {
   onSubmit: (e: React.FormEvent) => void;
   email: string;
   setEmail: (email: string) => void;
-  role: 'creator' | 'manager' | 'admin';
+  role: 'creator' | 'manager' | 'admin' | 'client';
   setRole: (role: any) => void;
+  campaigns: any[];
+  linkedCampaignId?: string;
+  setLinkedCampaignId: (id: string) => void;
 }
 
 const AddUserModal: React.FC<AddUserModalProps> = ({
@@ -18,7 +21,10 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
   email,
   setEmail,
   role,
-  setRole
+  setRole,
+  campaigns,
+  linkedCampaignId,
+  setLinkedCampaignId
 }) => {
   if (!isOpen) return null;
 
@@ -56,7 +62,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
           <div>
             <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Rol del Usuario</label>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {(['creator', 'manager', 'admin'] as const).map((r) => (
+              {(['creator', 'manager', 'admin', 'client'] as const).map((r) => (
                 <button
                   key={r}
                   type="button"
@@ -76,8 +82,26 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
               {role === 'creator' && 'Acceso al dashboard de creadores para subir contenido.'}
               {role === 'manager' && 'Acceso a gestión de campañas y revisión de contenido.'}
               {role === 'admin' && 'Acceso total a la plataforma y configuración de usuarios.'}
+              {role === 'client' && 'Acceso restringido para ver métricas de sus campañas asignadas.'}
             </p>
           </div>
+
+          {role === 'client' && (
+            <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Vincular a Campaña Actual (Opcional)</label>
+              <select
+                className="block w-full rounded-2xl border-gray-100 bg-gray-50/50 py-3 px-4 text-sm font-medium focus:ring-2 focus:ring-indigo-500 transition-all outline-none appearance-none"
+                value={linkedCampaignId || ''}
+                onChange={(e) => setLinkedCampaignId(e.target.value)}
+              >
+                <option value="">No vincular todavía</option>
+                {campaigns.map(c => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+              <p className="mt-2 text-[10px] text-gray-400 italic font-medium">El cliente podrá ver los resultados de esta campaña inmediatamente al entrar.</p>
+            </div>
+          )}
 
           <div className="flex gap-4 pt-4">
             <button

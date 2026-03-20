@@ -50,30 +50,52 @@ const ContentCard: React.FC<ContentCardProps> = ({ item, campaignName, onEdit, o
     >
       {/* Generic Premium Header */}
       <div className={`relative h-32 w-full bg-gradient-to-br ${platformBg} flex items-center justify-center overflow-hidden`}>
-        <div className={`absolute inset-0 flex items-center justify-center opacity-[0.03] group-hover:opacity-[0.07] transition-opacity duration-500`}>
-          <PlatformIcon className="h-48 w-48 -rotate-12" />
-        </div>
+        {item.thumbnail ? (
+          <>
+            <img 
+              src={item.thumbnail} 
+              alt={item.title || 'Thumbnail'} 
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            />
+            <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px] group-hover:backdrop-blur-0 transition-all duration-500" />
+          </>
+        ) : (
+          <div className={`absolute inset-0 flex items-center justify-center opacity-[0.03] group-hover:opacity-[0.07] transition-opacity duration-500`}>
+            <PlatformIcon className="h-48 w-48 -rotate-12" />
+          </div>
+        )}
         
         <div className="relative z-10 flex flex-col items-center">
-          <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center mb-2">
+          <div className="w-12 h-12 rounded-2xl bg-white shadow-xl flex items-center justify-center mb-2 ring-1 ring-gray-100">
             <PlatformIcon className={`h-6 w-6 ${platformColor}`} />
           </div>
-          <span className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">
+          <span className={`text-[9px] font-black uppercase tracking-[0.2em] ${item.thumbnail ? 'text-white' : 'text-gray-400'}`}>
             {item.platform}
           </span>
         </div>
 
         {/* Action Buttons overlay */}
-        <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300">
+        <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300 z-[9999]">
           <button 
-            onClick={(e) => { e.stopPropagation(); onEdit(item); }} 
-            className="p-2.5 rounded-xl bg-white/90 backdrop-blur-md shadow-lg text-gray-600 hover:text-indigo-600 transition-colors"
+            type="button"
+            onClick={(e) => { 
+              e.preventDefault(); 
+              e.stopPropagation(); 
+              console.log("Edit clicked for:", item.id);
+              onEdit(item); 
+            }} 
+            className="p-2.5 rounded-xl bg-white shadow-xl text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-all pointer-events-auto cursor-pointer ring-1 ring-gray-100"
           >
             <Edit2 className="h-4 w-4" />
           </button>
           <button 
-            onClick={(e) => { e.stopPropagation(); onDelete(item.id); }} 
-            className="p-2.5 rounded-xl bg-white/90 backdrop-blur-md shadow-lg text-gray-600 hover:text-red-600 transition-colors"
+            type="button"
+            onClick={(e) => { 
+              e.preventDefault(); 
+              e.stopPropagation(); 
+              onDelete(item.id); 
+            }} 
+            className="p-2.5 rounded-xl bg-white shadow-xl text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all pointer-events-auto cursor-pointer ring-1 ring-gray-100"
           >
             <Trash2 className="h-4 w-4" />
           </button>
