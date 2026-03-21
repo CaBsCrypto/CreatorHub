@@ -9,10 +9,12 @@ interface CampaignCardProps {
   onDelete: (id: string) => void;
   onClick: (id: string) => void;
   index: number;
+  totalViews?: number;
+  totalPosts?: number;
   onViewReport?: (id: string, e: React.MouseEvent) => void;
 }
 
-const CampaignCard: React.FC<CampaignCardProps> = ({ campaign, onDelete, onClick, index, onViewReport }) => {
+const CampaignCard: React.FC<CampaignCardProps> = ({ campaign, onDelete, onClick, index, totalViews = 0, totalPosts = 0, onViewReport }) => {
   const isCompleted = campaign.status === 'completed';
 
   return (
@@ -52,20 +54,18 @@ const CampaignCard: React.FC<CampaignCardProps> = ({ campaign, onDelete, onClick
         </p>
 
         <div className="space-y-4">
-          <div className="flex items-center justify-between text-[10px] font-black text-gray-400 uppercase tracking-widest">
-            <span className="flex items-center gap-1.5"><Target className="h-3.5 w-3.5" /> Meta de Posts</span>
-            <span className="text-gray-900">{campaign.target_posts} posts</span>
-          </div>
-          
-          <div className="h-2 bg-gray-50 rounded-full overflow-hidden border border-gray-100">
-            <motion.div 
-              initial={{ width: 0 }}
-              animate={{ width: '65%' }} // This would eventually be calculated
-              className={`h-full bg-gradient-to-r ${isCompleted ? 'from-emerald-500 to-teal-500' : 'from-indigo-500 to-purple-500'}`}
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-gray-50/50 p-4 rounded-2xl border border-gray-100 flex flex-col items-center justify-center">
+              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 text-center">Vistas Totales</span>
+              <span className="text-xl font-black text-indigo-600">{totalViews.toLocaleString()}</span>
+            </div>
+            <div className="bg-gray-50/50 p-4 rounded-2xl border border-gray-100 flex flex-col items-center justify-center">
+              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 text-center">Contenidos</span>
+              <span className="text-xl font-black text-emerald-600">{totalPosts}</span>
+            </div>
           </div>
 
-          <div className="pt-4 mt-4 border-t border-gray-50 flex items-center justify-between">
+          <div className="pt-4 mt-6 border-t border-gray-50 flex items-center justify-between">
             <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400">
               <Calendar className="h-3.5 w-3.5" />
               {campaign.created_at ? format(new Date(campaign.created_at), 'MMM d, yyyy') : 'N/A'}
@@ -86,7 +86,7 @@ const CampaignCard: React.FC<CampaignCardProps> = ({ campaign, onDelete, onClick
               </button>
             </div>
           </div>
-        </div>
+        </div> {/* Closing div for space-y-4 */}
       </div>
     </motion.div>
   );

@@ -591,22 +591,27 @@ export default function AdminDashboard() {
 
         {activeTab === 'campaigns' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  {campaigns.map((campaign, i) => (
-                    <CampaignCard 
-                      key={campaign.id} 
-                      campaign={campaign} 
-                      index={i} 
-                      onDelete={handleDeleteCampaign}
-                      onClick={(id) => {
-                        setFilterCampaign(id);
-                        setActiveTab('content');
-                      }}
-                      onViewReport={(id, e) => {
-                        e.stopPropagation();
-                        setSelectedCampaignReport(id);
-                      }}
-                    />
-                  ))}
+                  {campaigns.map((campaign, i) => {
+                    const campaignContent = content.filter(c => c.campaign_id === campaign.id);
+                    return (
+                      <CampaignCard 
+                        key={campaign.id} 
+                        campaign={campaign} 
+                        index={i} 
+                        totalViews={campaignContent.reduce((sum, c) => sum + (c.views || 0), 0)}
+                        totalPosts={campaignContent.length}
+                        onDelete={handleDeleteCampaign}
+                        onClick={(id) => {
+                          setFilterCampaign(id);
+                          setActiveTab('content');
+                        }}
+                        onViewReport={(id, e) => {
+                          e.stopPropagation();
+                          setSelectedCampaignReport(id);
+                        }}
+                      />
+                    );
+                  })}
           </div>
         )}
 
