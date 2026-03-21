@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  X, Users, Mail, ShieldCheck, Calendar, Wallet,
+  X, Users, Mail, ShieldCheck, Calendar, Wallet, DollarSign,
   Trash2, AlertTriangle, CheckCircle2, 
   ExternalLink, Youtube, Instagram, Zap, Globe, RefreshCw
 } from 'lucide-react';
@@ -14,6 +14,7 @@ interface UserHistoryModalProps {
   onUpdateRole: (newRole: UserRole) => Promise<void>;
   onRemoveUser: () => Promise<void>;
   onUpdateAlias?: (alias: string) => Promise<void>;
+  onRegisterPayment?: (creatorId: string) => void;
 }
 
 export default function UserHistoryModal({ 
@@ -22,7 +23,8 @@ export default function UserHistoryModal({
   userContent, 
   onUpdateRole, 
   onRemoveUser,
-  onUpdateAlias
+  onUpdateAlias,
+  onRegisterPayment
 }: UserHistoryModalProps) {
   const [selectedRole, setSelectedRole] = useState<UserRole | undefined>(user?.role);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
@@ -255,6 +257,16 @@ export default function UserHistoryModal({
                 </div>
               )}
             </div>
+
+            {/* Quick Register Payment */}
+            {onRegisterPayment && user.role === 'creator' && (
+              <button
+                onClick={() => onRegisterPayment(user.id)}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-indigo-600 text-white rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all active:scale-95 shadow-lg shadow-indigo-100"
+              >
+                <DollarSign className="h-4 w-4" /> Registrar Pago
+              </button>
+            )}
 
             {/* Role Management */}
             <div className="bg-gray-50 p-6 rounded-[2rem] border border-gray-100">

@@ -1026,7 +1026,7 @@ export default function AdminDashboard() {
                           <option key={u.id} value={u.id}>{u.admin_alias || u.display_name || u.email}</option>
                         ))}
                       </select>
-                      <input required type="number" step="0.01" min="0.01" placeholder="Monto *" value={newPayment.amount} onChange={e => setNewPayment({...newPayment, amount: e.target.value})} className="px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500" />
+                      <input required type="text" inputMode="decimal" placeholder="Monto *" value={newPayment.amount} onChange={e => { const v = e.target.value; if (v === '' || /^[0-9]*\.?[0-9]*$/.test(v)) setNewPayment({...newPayment, amount: v}); }} className="px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500" />
                       <select value={newPayment.currency} onChange={e => setNewPayment({...newPayment, currency: e.target.value})} className="px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500">
                         <option value="USDT">USDT</option>
                         <option value="BNB">BNB</option>
@@ -1133,6 +1133,12 @@ export default function AdminDashboard() {
             } catch (err: any) {
               toastError("Error al guardar apodo: " + err.message);
             }
+          }}
+          onRegisterPayment={(creatorId) => {
+            setManagingUser(null);
+            setNewPayment(prev => ({ ...prev, creator_id: creatorId }));
+            setIsAddingPayment(true);
+            setActiveTab('payments');
           }}
         />
         <AddCampaignModal 
