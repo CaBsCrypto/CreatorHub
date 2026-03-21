@@ -1122,6 +1122,7 @@ export default function AdminDashboard() {
           user={managingUser}
           onClose={() => setManagingUser(null)}
           userContent={content.filter(c => c.creator_id === managingUser?.id)}
+          userPayments={payments.filter(p => p.creator_id === managingUser?.id)}
           onUpdateRole={handleUpdateUserRole}
           onRemoveUser={handleRemoveUser}
           onUpdateAlias={async (alias) => {

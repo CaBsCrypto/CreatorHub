@@ -5,12 +5,13 @@ import {
   ExternalLink, Youtube, Instagram, Zap, Globe, RefreshCw
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { UserProfile, Content, supabase, UserRole } from '../../supabase';
+import { UserProfile, Content, supabase, UserRole, Payment } from '../../supabase';
 
 interface UserHistoryModalProps {
   user: UserProfile | null;
   onClose: () => void;
   userContent: Content[];
+  userPayments?: Payment[];
   onUpdateRole: (newRole: UserRole) => Promise<void>;
   onRemoveUser: () => Promise<void>;
   onUpdateAlias?: (alias: string) => Promise<void>;
@@ -21,6 +22,7 @@ export default function UserHistoryModal({
   user, 
   onClose, 
   userContent, 
+  userPayments,
   onUpdateRole, 
   onRemoveUser,
   onUpdateAlias,
@@ -188,6 +190,40 @@ export default function UserHistoryModal({
                 )}
               </div>
             </div>
+
+            {userPayments !== undefined && (
+              <div className="pt-6 border-t border-gray-100">
+                <h3 className="text-sm font-black text-gray-900 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                  <DollarSign className="h-4 w-4 text-emerald-500" /> Historial de Pagos
+                </h3>
+                <div className="space-y-3">
+                  {userPayments.length > 0 ? (
+                    userPayments.map((p, i) => (
+                      <motion.div 
+                        key={p.id}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.05 }}
+                        className="p-4 bg-emerald-50/30 rounded-[1.5rem] border border-emerald-100/50 flex flex-col gap-2"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-lg font-black text-emerald-600">${p.amount} {p.currency}</span>
+                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest bg-white px-2 py-1 rounded-full border border-gray-100">
+                            {new Date(p.paid_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                        {p.concept && <p className="text-xs font-medium text-gray-600">{p.concept}</p>}
+                      </motion.div>
+                    ))
+                  ) : (
+                    <div className="py-8 text-center bg-gray-50 rounded-[2rem] border border-dashed border-gray-200">
+                      <Wallet className="h-6 w-6 text-gray-200 mx-auto mb-2" />
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Sin pagos registrados</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Sidebar Area: Management */}
