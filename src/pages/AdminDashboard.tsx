@@ -625,7 +625,8 @@ export default function AdminDashboard() {
                   <CreatorCard 
                     key={c.creator_id} 
                     creator={c} 
-                    index={i} 
+                    index={i}
+                    userRole={users.find(u => u.id === c.creator_id)?.role}
                     onViewProfile={() => setManagingUser(users.find(u => u.id === c.creator_id) || null)}
                     onEditAudience={() => setEditingAudienceUser(users.find(u => u.id === c.creator_id) || null)} 
                   />

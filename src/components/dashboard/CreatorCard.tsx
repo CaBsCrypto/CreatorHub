@@ -21,12 +21,14 @@ interface CreatorCardProps {
     };
   };
   index: number;
+  userRole?: string;
   onEditAudience?: () => void;
   onViewProfile?: () => void;
 }
 
-const CreatorCard: React.FC<CreatorCardProps> = ({ creator, index, onEditAudience, onViewProfile }) => {
+const CreatorCard: React.FC<CreatorCardProps> = ({ creator, index, userRole, onEditAudience, onViewProfile }) => {
   const RankIcon = creator.rank.icon;
+  const borderClass = userRole === 'admin' ? 'border-rose-300 ring-1 ring-rose-100' : userRole === 'manager' ? 'border-purple-300 ring-1 ring-purple-100' : 'border-gray-100';
 
   return (
     <motion.div
@@ -34,7 +36,7 @@ const CreatorCard: React.FC<CreatorCardProps> = ({ creator, index, onEditAudienc
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.03 }}
       onClick={onViewProfile}
-      className="group bg-white rounded-[2.5rem] border border-gray-100 p-6 hover:shadow-2xl hover:border-indigo-100 transition-all duration-500 relative overflow-hidden cursor-pointer hover:scale-[1.01] active:scale-95"
+      className={`group bg-white rounded-[2.5rem] border ${borderClass} p-6 hover:shadow-2xl hover:border-indigo-100 transition-all duration-500 relative overflow-hidden cursor-pointer hover:scale-[1.01] active:scale-95`}
     >
       <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${creator.rank.color} opacity-5 group-hover:opacity-10 rounded-full -mr-8 -mt-8 transition-opacity duration-500`} />
 
