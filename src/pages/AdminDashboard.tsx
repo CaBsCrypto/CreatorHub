@@ -1022,8 +1022,8 @@ export default function AdminDashboard() {
                     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-4">
                       <select required value={newPayment.creator_id} onChange={e => setNewPayment({...newPayment, creator_id: e.target.value})} className="px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500">
                         <option value="">Creador *</option>
-                        {users.filter(u => u.role === 'creator').map(u => (
-                          <option key={u.id} value={u.id}>{u.admin_alias || u.display_name || u.email}</option>
+                        {users.map(u => (
+                          <option key={u.id} value={u.id}>{u.admin_alias || u.display_name || u.email} ({u.role})</option>
                         ))}
                       </select>
                       <input required type="text" inputMode="decimal" placeholder="Monto *" value={newPayment.amount} onChange={e => { const v = e.target.value; if (v === '' || /^[0-9]*\.?[0-9]*$/.test(v)) setNewPayment({...newPayment, amount: v}); }} className="px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500" />

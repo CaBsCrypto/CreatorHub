@@ -259,7 +259,7 @@ export default function UserHistoryModal({
             </div>
 
             {/* Quick Register Payment */}
-            {onRegisterPayment && user.role === 'creator' && (
+            {onRegisterPayment && (
               <button
                 onClick={() => onRegisterPayment(user.id)}
                 className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-indigo-600 text-white rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all active:scale-95 shadow-lg shadow-indigo-100"
