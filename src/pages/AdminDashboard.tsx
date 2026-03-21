@@ -5,7 +5,7 @@ import {
   Plus, Download, RefreshCw, Sparkles, LayoutDashboard, 
   List, Users, Youtube, TrendingUp, 
   BarChart3, Award, Zap, Trophy, Search, Filter, Trash2, ShieldCheck,
-  LayoutGrid, List as ListIcon, Briefcase, Wallet, DollarSign, Calendar
+  LayoutGrid, List as ListIcon, Briefcase, Wallet, DollarSign, Calendar, Calculator
 } from 'lucide-react';
 import { BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -57,6 +57,7 @@ export default function AdminDashboard() {
   const [isAnalyzingCreator, setIsAnalyzingCreator] = useState(false);
   const [managingUser, setManagingUser] = useState<UserProfile | null>(null);
   const [selectedCampaignReport, setSelectedCampaignReport] = useState<string | null>(null);
+  const [calculatorAmount, setCalculatorAmount] = useState<string>('');
   
   // Processing states
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -985,6 +986,39 @@ export default function AdminDashboard() {
               <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Creadores Pagados</p>
                 <span className="text-3xl font-black text-gray-900">{new Set(payments.map(p => p.creator_id)).size}</span>
+              </div>
+            </div>
+
+            {/* Calculadora Founders */}
+            <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-8 rounded-[2.5rem] shadow-xl text-white relative overflow-hidden">
+              <div className="absolute -right-12 -top-12 w-48 h-48 bg-white/10 rounded-full blur-3xl mix-blend-overlay pointer-events-none" />
+              <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
+                <div className="flex-1 w-full">
+                  <h3 className="text-xl font-black mb-2 flex items-center gap-2"><Calculator className="h-5 w-5 opacity-80" /> Calculadora de Founders</h3>
+                  <p className="text-sm text-indigo-100 mb-6">Ingresá el monto total que vas a registrar para ver cuánto le corresponde a cada founder (división en 3 partes iguales).</p>
+                  
+                  <div className="relative max-w-sm">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 font-black text-indigo-200 text-xl">$</span>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      placeholder="0.00"
+                      value={calculatorAmount}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        if (v === '' || /^[0-9]*\.?[0-9]*$/.test(v)) setCalculatorAmount(v);
+                      }}
+                      className="w-full bg-white/10 border border-white/20 rounded-2xl pl-10 pr-4 py-3 outline-none focus:bg-white/20 focus:border-white/40 transition-all font-black text-2xl text-white placeholder-indigo-200/50"
+                    />
+                  </div>
+                </div>
+                
+                <div className="w-full md:w-auto bg-white/10 p-6 rounded-[2rem] border border-white/20 min-w-[250px] text-center backdrop-blur-md">
+                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-200 mb-2">Por Founder (÷3)</p>
+                   <span className="text-4xl font-black text-white drop-shadow-lg">
+                     ${calculatorAmount ? (Number(calculatorAmount) / 3).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
+                   </span>
+                </div>
               </div>
             </div>
 
