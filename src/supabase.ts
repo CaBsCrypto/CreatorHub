@@ -59,7 +59,8 @@ export interface Content {
 
 export interface Payment {
   id: string;
-  creator_id: string;
+  creator_id: string | null;
+  guest_name?: string | null;
   amount: number;
   currency: string;
   concept: string | null;

@@ -81,7 +81,7 @@ export default function AdminDashboard() {
   
   // Payments form
   const [isAddingPayment, setIsAddingPayment] = useState(false);
-  const [newPayment, setNewPayment] = useState({ creator_id: '', amount: '', currency: 'USDT', concept: '', campaign_id: '', paid_at: new Date().toISOString().split('T')[0] });
+  const [newPayment, setNewPayment] = useState({ creator_id: '', guest_name: '', amount: '', currency: 'USDT', concept: '', campaign_id: '', paid_at: new Date().toISOString().split('T')[0] });
 
   const filteredUsers = useMemo(() => {
     return users.filter(u => !deletedUserIds.includes(u.id));
@@ -1013,8 +1013,14 @@ export default function AdminDashboard() {
                     className="overflow-hidden"
                     onSubmit={async (e) => {
                       e.preventDefault();
+                      const isGuest = newPayment.creator_id === 'guest';
+                      if (isGuest && !newPayment.guest_name.trim()) {
+                        toastError('Debes ingresar el nombre del o la invitada');
+                        return;
+                      }
                       const { error } = await supabase.from('payments').insert([{
-                        creator_id: newPayment.creator_id,
+                        creator_id: isGuest ? null : newPayment.creator_id,
+                        guest_name: isGuest ? newPayment.guest_name.trim() : null,
                         amount: parseFloat(newPayment.amount),
                         currency: newPayment.currency,
                         concept: newPayment.concept || null,
@@ -1026,7 +1032,7 @@ export default function AdminDashboard() {
                       } else {
                         success('Pago registrado');
                         setIsAddingPayment(false);
-                        setNewPayment({ creator_id: '', amount: '', currency: 'USDT', concept: '', campaign_id: '', paid_at: new Date().toISOString().split('T')[0] });
+                        setNewPayment({ creator_id: '', guest_name: '', amount: '', currency: 'USDT', concept: '', campaign_id: '', paid_at: new Date().toISOString().split('T')[0] });
                         refresh();
                       }
                     }}
@@ -1037,7 +1043,11 @@ export default function AdminDashboard() {
                         {users.map(u => (
                           <option key={u.id} value={u.id}>{u.admin_alias || u.display_name || u.email} ({u.role})</option>
                         ))}
+                        <option value="guest">Externo / Invitado</option>
                       </select>
+                      {newPayment.creator_id === 'guest' && (
+                        <input required type="text" placeholder="Nombre Invitado *" value={newPayment.guest_name} onChange={e => setNewPayment({...newPayment, guest_name: e.target.value})} className="px-4 py-3 bg-indigo-50/50 border border-indigo-100 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500" />
+                      )}
                       <input required type="text" inputMode="decimal" placeholder="Monto *" value={newPayment.amount} onChange={e => { const v = e.target.value; if (v === '' || /^[0-9]*\.?[0-9]*$/.test(v)) setNewPayment({...newPayment, amount: v}); }} className="px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500" />
                       <select value={newPayment.currency} onChange={e => setNewPayment({...newPayment, currency: e.target.value})} className="px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500">
                         <option value="USDT">USDT</option>
@@ -1084,10 +1094,16 @@ export default function AdminDashboard() {
                         <tr key={p.id} className="hover:bg-gray-50/50 transition-colors">
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center text-indigo-600 font-bold text-xs overflow-hidden">
-                                {creator?.photo_url ? <img src={creator.photo_url} alt="" className="w-full h-full object-cover" /> : (creator?.display_name?.charAt(0) || '?')}
+                              <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs overflow-hidden ${!p.creator_id ? 'bg-amber-50 text-amber-600' : 'bg-indigo-50 text-indigo-600'}`}>
+                                {creator?.photo_url ? <img src={creator.photo_url} alt="" className="w-full h-full object-cover" /> : (!p.creator_id ? (p.guest_name?.charAt(0) || '?') : (creator?.display_name?.charAt(0) || '?'))}
                               </div>
-                              <span className="text-sm font-bold text-gray-900">{creator?.admin_alias || creator?.display_name || creator?.email || 'Desconocido'}</span>
+                              <span className="text-sm font-bold text-gray-900">
+                                {!p.creator_id ? (
+                                  <>{p.guest_name} <span className="ml-2 text-[9px] font-black text-amber-500 uppercase tracking-widest bg-amber-50 px-2 py-0.5 rounded-md border border-amber-100">Externo</span></>
+                                ) : (
+                                  creator?.admin_alias || creator?.display_name || creator?.email || 'Desconocido'
+                                )}
+                              </span>
                             </div>
                           </td>
                           <td className="px-6 py-4 text-sm font-black text-emerald-600">${Number(p.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
