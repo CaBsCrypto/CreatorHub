@@ -56,23 +56,6 @@ const AddCampaignModal: React.FC<AddCampaignModalProps> = ({
               onChange={(e) => setNewCampaign({ ...newCampaign, description: e.target.value })}
             />
           </div>
-          
-          <div>
-            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Meta de Posts por Creador</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Target className="h-4 w-4 text-gray-400" />
-              </div>
-              <input
-                type="number"
-                required
-                min="1"
-                className="block w-full pl-10 rounded-2xl border-gray-100 bg-gray-50/50 py-3 text-sm font-medium focus:ring-2 focus:ring-indigo-500 transition-all"
-                value={newCampaign.target_posts}
-                onChange={(e) => setNewCampaign({ ...newCampaign, target_posts: parseInt(e.target.value) })}
-              />
-            </div>
-          </div>
 
           <div>
             <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Cliente Responsable (Opcional)</label>
