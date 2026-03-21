@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { 
-  X, Search, Youtube, Instagram, Twitter, 
+import {
+  X, Search, Youtube, Instagram, Twitter,
   Globe, Zap, Users, ShieldCheck, Sparkles,
-  ExternalLink, ArrowRight, RefreshCw, AlertCircle, TrendingUp
+  ExternalLink, ArrowRight, RefreshCw, AlertCircle, TrendingUp, Target, Calendar
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '../../supabase';
 
 interface CreatorSearchModalProps {
   isOpen: boolean;
@@ -34,12 +35,16 @@ export default function CreatorSearchModal({ isOpen, onClose }: CreatorSearchMod
     setResult(null);
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
       const response = await fetch('/api/analyze-creator', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`
+        },
         body: JSON.stringify({ username, platform: selectedPlatform })
       });
-      
+
       const data = await response.json();
       if (data.error) throw new Error(data.error);
       setResult(data);

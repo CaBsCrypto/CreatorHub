@@ -1,5 +1,16 @@
 import express from "express";
+import cors from "cors";
 import dotenv from "dotenv";
+import helmet from "helmet";
+import { authenticate, authorize, isSuperadmin } from "../src/middleware/auth.js";
+import { 
+  validate, 
+  FetchMetadataSchema, 
+  RefreshMetricsSchema, 
+  AnalyzeCreatorSchema, 
+  SendEmailSchema,
+  InviteUserSchema
+} from "../src/middleware/validation.js";
 
 // Import centralized services
 import * as scraperService from "../src/services/scraperService.js";
@@ -19,13 +30,33 @@ process.on('uncaughtException', (err) => {
 
 const app = express();
 
+app.use(helmet()); 
+
+// CORS Hardening
+const allowedOrigins = [
+  'https://creator-hub-three-lake.vercel.app',
+  'https://creator-hub-three-lake-cabs-projects.vercel.app',
+  'http://localhost:5173',
+  'http://localhost:3000'
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+}));
+
 // INCREASE PAYLOAD LIMIT
-app.use(express.json({ limit: "50mb" }));
+app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 
-app.post("/api/fetch-metadata", async (req, res) => {
+app.post("/api/fetch-metadata", authenticate, validate(FetchMetadataSchema), async (req, res) => {
   try {
     const { url, platform } = req.body;
     if (!url) return res.status(400).json({ error: "URL is required" });
@@ -47,7 +78,7 @@ app.post("/api/fetch-metadata", async (req, res) => {
   }
 });
 
-app.post("/api/refresh-metrics", async (req, res) => {
+app.post("/api/refresh-metrics", authenticate, authorize(['admin']), validate(RefreshMetricsSchema), async (req, res) => {
   try {
     const { items } = req.body;
     if (!items || !Array.isArray(items)) {
@@ -80,7 +111,7 @@ app.post("/api/refresh-metrics", async (req, res) => {
   }
 });
 
-app.post("/api/analyze-twitch", async (req, res) => {
+app.post("/api/analyze-twitch", authenticate, async (req, res) => {
   const startTime = Date.now();
   try {
     const { image } = req.body;
@@ -110,7 +141,7 @@ app.post("/api/analyze-twitch", async (req, res) => {
   }
 });
 
-app.post("/api/analyze-performance", async (req, res) => {
+app.post("/api/analyze-performance", authenticate, async (req, res) => {
   try {
     const { summaryData } = req.body;
     const analysis = await aiService.analyzePerformance(summaryData);
@@ -120,7 +151,7 @@ app.post("/api/analyze-performance", async (req, res) => {
   }
 });
 
-app.post("/api/analyze-creator", async (req, res) => {
+app.post("/api/analyze-creator", authenticate, validate(AnalyzeCreatorSchema), async (req, res) => {
   try {
     const { username, platform } = req.body;
     if (!username || !platform) {
@@ -143,7 +174,7 @@ app.post("/api/analyze-creator", async (req, res) => {
   }
 });
 
-app.post("/api/send-email", async (req, res) => {
+app.post("/api/send-email", authenticate, authorize(['admin']), validate(SendEmailSchema), async (req, res) => {
   try {
     const { subject, html, to } = req.body;
     const result = await emailService.sendNotificationEmail(subject, html, to);
@@ -154,9 +185,17 @@ app.post("/api/send-email", async (req, res) => {
   }
 });
 
-app.post("/api/invite-user", async (req, res) => {
+app.post("/api/invite-user", authenticate, authorize(['admin']), validate(InviteUserSchema), async (req, res) => {
   try {
     const { email, role, display_name } = req.body;
+    
+    // HIERARCHICAL SECURITY: Only Superadmin can create other Admins
+    if (role === 'admin') {
+      const profile = (req as any).userProfile;
+      if (profile?.email !== 'cabscryptocontacto@gmail.com') {
+        return res.status(403).json({ error: 'Solo el Superadmin puede invitar a otros Administradores.' });
+      }
+    }
     
     const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';

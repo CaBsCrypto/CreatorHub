@@ -173,9 +173,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           
           // Notify admin of new creator
           if (role === 'creator') {
+            const { data: { session } } = await supabase.auth.getSession();
             fetch('/api/send-email', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session?.access_token}`
+              },
               body: JSON.stringify({
                 subject: '🚀 Nuevo Creador en Umbra Creator Hub',
                 html: `<p>¡Hola! Un nuevo creador se ha unido a la plataforma.</p>

@@ -56,3 +56,14 @@ export interface Content {
   uploaded_at: string | null;
   created_at: string;
 }
+
+export interface Payment {
+  id: string;
+  creator_id: string;
+  amount: number;
+  currency: string;
+  concept: string | null;
+  campaign_id: string | null;
+  paid_at: string;
+  created_at: string;
+}

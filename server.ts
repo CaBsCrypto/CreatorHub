@@ -1,10 +1,13 @@
 import express from "express";
+import cors from "cors";
 import dotenv from "dotenv";
-import { 
-  fetchTikTokData, 
-  fetchYouTubeData, 
-  fetchInstagramData, 
-  fetchXData, 
+import helmet from "helmet";
+import { rateLimit } from "express-rate-limit";
+import {
+  fetchTikTokData,
+  fetchYouTubeData,
+  fetchInstagramData,
+  fetchXData,
   fetchCMCData,
   fetchTwitchProfile,
   fetchInstagramProfile,
@@ -12,6 +15,14 @@ import {
 } from "./src/services/scraperService.js";
 import { analyzePerformance, summarizeCreatorProfile } from "./src/services/aiService.js";
 import { sendNotificationEmail } from "./src/services/emailService.js";
+import { authenticate, authorize } from "./src/middleware/auth.js";
+import { 
+  validate, 
+  FetchMetadataSchema, 
+  RefreshMetricsSchema, 
+  AnalyzeCreatorSchema, 
+  SendEmailSchema 
+} from "./src/middleware/validation.js";
 
 dotenv.config();
 
@@ -24,27 +35,62 @@ process.on('uncaughtException', (err) => {
 });
 
 const app = express();
-app.use(express.json());
+app.use(helmet()); 
+
+// CORS Hardening
+const allowedOrigins = [
+  'https://creator-hub-three-lake.vercel.app',
+  'https://creator-hub-three-lake-cabs-projects.vercel.app',
+  'http://localhost:5173',
+  'http://localhost:3000'
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+}));
+
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Rate limiting for API to prevent abuse
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Demasiadas peticiones. Por favor, intenta de nuevo más tarde." }
+});
+
+// Stricter limiter for AI and Email (expensive/sensitive)
+const strictLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 20, // Limit each IP to 20 requests per hour
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Has excedido el límite de análisis/correos por hora." }
+});
+
+app.use("/api/", apiLimiter);
+app.use("/api/send-email", strictLimiter);
+app.use("/api/analyze-", strictLimiter);
 
 // --- ROUTES ---
 
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 
-app.get("/api/debug-env", (req, res) => {
-  res.json({
-    rapid_key_set: !!process.env.RAPIDAPI_KEY,
-    gemini_key_set: !!process.env.GEMINI_API_KEY,
-    youtube_key_set: !!process.env.YOUTUBE_API_KEY,
-    node_env: process.env.NODE_ENV,
-    vercel: process.env.VERCEL
-  });
-});
+// Removed /api/debug-env for security
 
-app.post("/api/fetch-metadata", async (req, res) => {
+app.post("/api/fetch-metadata", authenticate, validate(FetchMetadataSchema), async (req, res) => {
   try {
     const { url, platform } = req.body;
     if (!url) return res.status(400).json({ error: "URL is required" });
-    
+
     let data;
     switch(platform) {
       case 'tiktok': data = await fetchTikTokData(url); break;
@@ -61,7 +107,7 @@ app.post("/api/fetch-metadata", async (req, res) => {
   }
 });
 
-app.post("/api/refresh-metrics", async (req, res) => {
+app.post("/api/refresh-metrics", authenticate, authorize(['admin']), validate(RefreshMetricsSchema), async (req, res) => {
   try {
     const { items } = req.body; 
     if (!items || !Array.isArray(items)) {
@@ -93,7 +139,7 @@ app.post("/api/refresh-metrics", async (req, res) => {
   }
 });
 
-app.post("/api/analyze-performance", async (req, res) => {
+app.post("/api/analyze-performance", authenticate, async (req, res) => {
   try {
     const { summaryData } = req.body;
     const analysis = await analyzePerformance(summaryData);
@@ -104,7 +150,7 @@ app.post("/api/analyze-performance", async (req, res) => {
   }
 });
 
-app.post("/api/analyze-creator", async (req, res) => {
+app.post("/api/analyze-creator", authenticate, validate(AnalyzeCreatorSchema), async (req, res) => {
   try {
     const { username, platform } = req.body;
     if (!username || !platform) {
@@ -127,7 +173,7 @@ app.post("/api/analyze-creator", async (req, res) => {
   }
 });
 
-app.post("/api/send-email", async (req, res) => {
+app.post("/api/send-email", authenticate, authorize(['admin']), validate(SendEmailSchema), async (req, res) => {
   try {
     const { subject, html, to } = req.body;
     const result = await sendNotificationEmail(subject, html, to);

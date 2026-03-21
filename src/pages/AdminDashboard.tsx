@@ -5,7 +5,7 @@ import {
   Plus, Download, RefreshCw, Sparkles, LayoutDashboard, 
   List, Users, Youtube, TrendingUp, 
   BarChart3, Award, Zap, Trophy, Search, Filter, Trash2, ShieldCheck,
-  LayoutGrid, List as ListIcon, Briefcase
+  LayoutGrid, List as ListIcon, Briefcase, Wallet, DollarSign, Calendar
 } from 'lucide-react';
 import { BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -43,9 +43,9 @@ const PLATFORM_COLORS: Record<string, string> = {
 export default function AdminDashboard() {
   const { user } = useAuth();
   const { success, error: toastError, info } = useToast();
-  const { campaigns, content, users, metrics, creatorStats, refresh } = useDashboardData('admin');
+  const { campaigns, content, users, payments, metrics, creatorStats, refresh } = useDashboardData('admin');
   
-  const [activeTab, setActiveTab] = useState<'overview' | 'campaigns' | 'clients' | 'content' | 'creators' | 'team'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'campaigns' | 'clients' | 'content' | 'creators' | 'payments' | 'team'>('overview');
   
   // Modals state
   const [isCreatingCampaign, setIsCreatingCampaign] = useState(false);
@@ -76,6 +76,10 @@ export default function AdminDashboard() {
   const [filterCreator, setFilterCreator] = useState('all');
   const [isCompactView, setIsCompactView] = useState(true);
   const [deletedUserIds, setDeletedUserIds] = useState<string[]>([]);
+  
+  // Payments form
+  const [isAddingPayment, setIsAddingPayment] = useState(false);
+  const [newPayment, setNewPayment] = useState({ creator_id: '', amount: '', currency: 'USDT', concept: '', campaign_id: '', paid_at: new Date().toISOString().split('T')[0] });
 
   const filteredUsers = useMemo(() => {
     return users.filter(u => !deletedUserIds.includes(u.id));
@@ -114,9 +118,13 @@ export default function AdminDashboard() {
     e.preventDefault();
     
     try {
+      const { data: { session } } = await supabase.auth.getSession();
       const response = await fetch('/api/invite-user', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`
+        },
         body: JSON.stringify({
           email: newUser.email,
           role: newUser.role,
@@ -142,9 +150,13 @@ export default function AdminDashboard() {
       // Enviar invitación si es un cliente
       if (newUser.role === 'client') {
         try {
+          const { data: { session } } = await supabase.auth.getSession();
           const emailRes = await fetch('/api/send-email', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session?.access_token}`
+            },
             body: JSON.stringify({
               to: [newUser.email, 'cabscryptocontacto@gmail.com'],
               subject: '🎁 Invitación a Umbra Creator Hub',
@@ -284,6 +296,7 @@ export default function AdminDashboard() {
     { id: 'clients', label: 'Clientes', icon: Briefcase },
     { id: 'content', label: 'Contenido', icon: Youtube },
     { id: 'creators', label: 'Creadores', icon: Users },
+    { id: 'payments', label: 'Pagos', icon: Wallet },
     { id: 'team', label: 'Equipo', icon: ShieldCheck }
   ] as const;
 
@@ -710,9 +723,13 @@ export default function AdminDashboard() {
                       info("Sincronizando todas las métricas...");
                       try {
                         const data = content.map(c => ({ id: c.id, url: c.url, platform: c.platform }));
+                        const { data: { session } } = await supabase.auth.getSession();
                         const response = await fetch('/api/refresh-metrics', {
                           method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
+                          headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${session?.access_token}`
+                          },
                           body: JSON.stringify({ items: data })
                         });
                         const result = await response.json();
@@ -944,6 +961,153 @@ export default function AdminDashboard() {
                   </div>
                 </motion.div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'payments' && (
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Payment Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Total Pagado</p>
+                <span className="text-3xl font-black text-gray-900">${payments.reduce((s, p) => s + Number(p.amount), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+              </div>
+              <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Pagos Registrados</p>
+                <span className="text-3xl font-black text-gray-900">{payments.length}</span>
+              </div>
+              <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Creadores Pagados</p>
+                <span className="text-3xl font-black text-gray-900">{new Set(payments.map(p => p.creator_id)).size}</span>
+              </div>
+            </div>
+
+            {/* Add Payment */}
+            <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-8">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-black text-gray-900 flex items-center gap-2"><DollarSign className="h-5 w-5 text-emerald-500" /> Registrar Pago</h3>
+                <button onClick={() => setIsAddingPayment(!isAddingPayment)} className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all active:scale-95">
+                  <Plus className="h-4 w-4" /> Nuevo Pago
+                </button>
+              </div>
+
+              <AnimatePresence>
+                {isAddingPayment && (
+                  <motion.form
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                    onSubmit={async (e) => {
+                      e.preventDefault();
+                      const { error } = await supabase.from('payments').insert([{
+                        creator_id: newPayment.creator_id,
+                        amount: parseFloat(newPayment.amount),
+                        currency: newPayment.currency,
+                        concept: newPayment.concept || null,
+                        campaign_id: newPayment.campaign_id || null,
+                        paid_at: newPayment.paid_at
+                      }]);
+                      if (error) {
+                        toastError('Error al registrar pago: ' + error.message);
+                      } else {
+                        success('Pago registrado');
+                        setIsAddingPayment(false);
+                        setNewPayment({ creator_id: '', amount: '', currency: 'USDT', concept: '', campaign_id: '', paid_at: new Date().toISOString().split('T')[0] });
+                        refresh();
+                      }
+                    }}
+                  >
+                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 pb-6 border-b border-gray-50 mb-6">
+                      <select required value={newPayment.creator_id} onChange={e => setNewPayment({...newPayment, creator_id: e.target.value})} className="px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="">Creador *</option>
+                        {users.filter(u => u.role === 'creator').map(u => (
+                          <option key={u.id} value={u.id}>{u.admin_alias || u.display_name || u.email}</option>
+                        ))}
+                      </select>
+                      <input required type="number" step="0.01" min="0.01" placeholder="Monto *" value={newPayment.amount} onChange={e => setNewPayment({...newPayment, amount: e.target.value})} className="px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500" />
+                      <select value={newPayment.currency} onChange={e => setNewPayment({...newPayment, currency: e.target.value})} className="px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="USDT">USDT</option>
+                        <option value="BNB">BNB</option>
+                        <option value="USD">USD</option>
+                        <option value="ETH">ETH</option>
+                        <option value="SOL">SOL</option>
+                      </select>
+                      <input type="text" placeholder="Concepto" value={newPayment.concept} onChange={e => setNewPayment({...newPayment, concept: e.target.value})} className="px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500" />
+                      <select value={newPayment.campaign_id} onChange={e => setNewPayment({...newPayment, campaign_id: e.target.value})} className="px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="">Campaña (opcional)</option>
+                        {campaigns.map(c => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                      </select>
+                      <div className="flex gap-2">
+                        <input required type="date" value={newPayment.paid_at} onChange={e => setNewPayment({...newPayment, paid_at: e.target.value})} className="flex-1 px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500" />
+                        <button type="submit" className="px-5 py-3 bg-emerald-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all active:scale-95 whitespace-nowrap">Guardar</button>
+                      </div>
+                    </div>
+                  </motion.form>
+                )}
+              </AnimatePresence>
+
+              {/* Payments Table */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-left min-w-[700px]">
+                  <thead>
+                    <tr className="bg-gray-50/50">
+                      <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Creador</th>
+                      <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Monto</th>
+                      <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Moneda</th>
+                      <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Concepto</th>
+                      <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Campaña</th>
+                      <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Fecha</th>
+                      <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {payments.map(p => {
+                      const creator = users.find(u => u.id === p.creator_id);
+                      const camp = campaigns.find(c => c.id === p.campaign_id);
+                      return (
+                        <tr key={p.id} className="hover:bg-gray-50/50 transition-colors">
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center text-indigo-600 font-bold text-xs overflow-hidden">
+                                {creator?.photo_url ? <img src={creator.photo_url} alt="" className="w-full h-full object-cover" /> : (creator?.display_name?.charAt(0) || '?')}
+                              </div>
+                              <span className="text-sm font-bold text-gray-900">{creator?.admin_alias || creator?.display_name || creator?.email || 'Desconocido'}</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-sm font-black text-emerald-600">${Number(p.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                          <td className="px-6 py-4"><span className="px-2 py-1 bg-gray-100 rounded-lg text-[10px] font-black text-gray-600 uppercase">{p.currency}</span></td>
+                          <td className="px-6 py-4 text-sm text-gray-500">{p.concept || '—'}</td>
+                          <td className="px-6 py-4">{camp ? <span className="px-2 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-[10px] font-black uppercase">{camp.name}</span> : '—'}</td>
+                          <td className="px-6 py-4 text-sm text-gray-500">{new Date(p.paid_at).toLocaleDateString()}</td>
+                          <td className="px-6 py-4">
+                            <button onClick={async () => {
+                              if (!window.confirm('¿Eliminar este pago?')) return;
+                              const { error } = await supabase.from('payments').delete().eq('id', p.id);
+                              if (error) toastError('Error: ' + error.message);
+                              else { success('Pago eliminado'); refresh(); }
+                            }} className="p-2 text-gray-300 hover:text-rose-500 rounded-xl transition-colors"><Trash2 className="h-4 w-4" /></button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {payments.length === 0 && (
+                      <tr>
+                        <td colSpan={7} className="py-20 text-center">
+                          <div className="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center mx-auto mb-4">
+                            <Wallet className="h-8 w-8 text-gray-200" />
+                          </div>
+                          <h3 className="text-lg font-black text-gray-900">No hay pagos registrados</h3>
+                          <p className="text-sm text-gray-400">Registra un pago con el botón de arriba.</p>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}

@@ -12,6 +12,7 @@ interface CreatorCardProps {
     engagement: number;
     contentCount: number;
     estimatedValue: number;
+    totalPaid?: number;
     rank: {
       name: string;
       level: number;
@@ -77,6 +78,15 @@ const CreatorCard: React.FC<CreatorCardProps> = ({ creator, index, onEditAudienc
               <span className="text-sm font-black text-emerald-600 leading-none">${creator.estimatedValue.toFixed(2)}</span>
               <span className="text-[9px] font-bold text-gray-400 uppercase mt-1 tracking-wider">ROI Est.</span>
             </div>
+            {creator.totalPaid !== undefined && creator.totalPaid > 0 && (
+              <>
+                <div className="w-[1px] h-8 bg-gray-100" />
+                <div className="flex flex-col">
+                  <span className="text-sm font-black text-indigo-600 leading-none">${creator.totalPaid.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                  <span className="text-[9px] font-bold text-gray-400 uppercase mt-1 tracking-wider">Pagado</span>
+                </div>
+              </>
+            )}
           </div>
         </div>
 

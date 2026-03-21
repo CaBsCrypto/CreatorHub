@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { supabase, Campaign, Content, UserProfile } from '../supabase';
+import { supabase, Campaign, Content, UserProfile, Payment } from '../supabase';
 import { useAuth } from '../AuthContext';
 import { useToast } from './useToast';
 import { 
@@ -42,6 +42,7 @@ export const useDashboardData = (role: 'admin' | 'creator') => {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [content, setContent] = useState<Content[]>([]);
   const [users, setUsers] = useState<UserProfile[]>([]);
+  const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
@@ -59,6 +60,15 @@ export const useDashboardData = (role: 'admin' | 'creator') => {
       setCampaigns(camps.data as Campaign[]);
       setContent(conts.data as Content[]);
       setUsers(usrs.data as UserProfile[]);
+
+      // Fetch payments (admin-only, silently skip for non-admins)
+      if (role === 'admin') {
+        const { data: paymentsData } = await supabase
+          .from('payments')
+          .select('*')
+          .order('paid_at', { ascending: false });
+        setPayments((paymentsData as Payment[]) || []);
+      }
     } catch (err: any) {
       console.error("Dashboard data fetch error:", err);
       toastError("Error al cargar los datos del dashboard");
@@ -113,21 +123,24 @@ export const useDashboardData = (role: 'admin' | 'creator') => {
 
     return Object.entries(stats).map(([id, data]) => {
       const u = users.find(usr => usr.id === id);
+      const totalPaid = payments.filter(p => p.creator_id === id).reduce((s, p) => s + Number(p.amount), 0);
       return {
         creator_id: id,
         name: (role === 'admin' && u?.admin_alias) ? u.admin_alias : (u?.display_name || u?.email || 'Unknown'),
         paymentMethod: u?.payment_method,
         paymentId: u?.payment_method === 'binance' ? u.binance_id : u?.wallet_address,
         rank: getAgencyRank(data.contentCount, data.views),
+        totalPaid,
         ...data
       };
     }).sort((a, b) => b.views - a.views);
-  }, [content, filteredContent, users, role]);
+  }, [content, filteredContent, users, payments, role]);
 
   return {
     campaigns,
     content: filteredContent,
     users,
+    payments,
     loading,
     metrics,
     creatorStats,

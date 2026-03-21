@@ -1,6 +1,6 @@
 import React from 'react';
 import { X, Youtube, Instagram, Music2, Twitter, Globe, ExternalLink, RefreshCw, Plus } from 'lucide-react';
-import { Campaign, Content, UserProfile } from '../../supabase';
+import { Campaign, Content, UserProfile, supabase } from '../../supabase';
 import { useToast } from '../../hooks/useToast';
 import { resizeImage } from '../../utils/imageUtils';
 
@@ -214,9 +214,13 @@ const ContentModal: React.FC<ContentModalProps> = ({
                           const compressedImage = await resizeImage(twitchPreview, 1024, 1024);
                           console.log(`Original size: ${twitchPreview.length}, Compressed size: ${compressedImage.length}`);
                           
+                          const { data: { session } } = await supabase.auth.getSession();
                           const res = await fetch('/api/analyze-twitch', {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
+                            headers: { 
+                              'Content-Type': 'application/json',
+                              'Authorization': `Bearer ${session?.access_token}`
+                            },
                             body: JSON.stringify({ image: compressedImage })
                           });
                           
