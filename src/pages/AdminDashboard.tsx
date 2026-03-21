@@ -64,7 +64,7 @@ export default function AdminDashboard() {
   const [isProcessingContent, setIsProcessingContent] = useState(false);
   
   // Form states
-  const [newCampaign, setNewCampaign] = useState({ name: '', description: '', target_posts: 3, client_id: '' });
+  const [newCampaign, setNewCampaign] = useState({ name: '', description: '', client_id: '' });
   const [newUser, setNewUser] = useState<{ email: string; role: UserRole; linked_campaign_id?: string }>({ email: '', role: 'creator' });
   const [twitchStats, setTwitchStats] = useState<any>(null);
   const [twitchPreview, setTwitchPreview] = useState<string | null>(null);
@@ -101,7 +101,6 @@ export default function AdminDashboard() {
     const { error } = await supabase.from('campaigns').insert([{ 
       name: newCampaign.name,
       description: newCampaign.description,
-      target_posts: newCampaign.target_posts,
       client_id: newCampaign.client_id || null,
       status: 'active', 
       created_by: user?.id 

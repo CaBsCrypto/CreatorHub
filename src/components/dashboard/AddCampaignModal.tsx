@@ -5,7 +5,7 @@ interface AddCampaignModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (e: React.FormEvent) => void;
-  newCampaign: { name: string; description: string; target_posts: number; client_id?: string | null };
+  newCampaign: { name: string; description: string; client_id?: string | null };
   setNewCampaign: (campaign: any) => void;
   clients: any[];
 }
