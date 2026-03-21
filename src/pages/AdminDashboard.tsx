@@ -1019,7 +1019,7 @@ export default function AdminDashboard() {
                       }
                     }}
                   >
-                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 pb-6 border-b border-gray-50 mb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-4">
                       <select required value={newPayment.creator_id} onChange={e => setNewPayment({...newPayment, creator_id: e.target.value})} className="px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500">
                         <option value="">Creador *</option>
                         {users.filter(u => u.role === 'creator').map(u => (
@@ -1041,10 +1041,10 @@ export default function AdminDashboard() {
                           <option key={c.id} value={c.id}>{c.name}</option>
                         ))}
                       </select>
-                      <div className="flex gap-2">
-                        <input required type="date" value={newPayment.paid_at} onChange={e => setNewPayment({...newPayment, paid_at: e.target.value})} className="flex-1 px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500" />
-                        <button type="submit" className="px-5 py-3 bg-emerald-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all active:scale-95 whitespace-nowrap">Guardar</button>
-                      </div>
+                      <input required type="date" value={newPayment.paid_at} onChange={e => setNewPayment({...newPayment, paid_at: e.target.value})} className="px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500" />
+                    </div>
+                    <div className="flex justify-end pb-6 border-b border-gray-50 mb-6">
+                      <button type="submit" className="px-8 py-3 bg-emerald-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-emerald-700 transition-all active:scale-95 shadow-lg shadow-emerald-100">✓ Guardar Pago</button>
                     </div>
                   </motion.form>
                 )}
