@@ -5,7 +5,7 @@ import {
   Plus, Download, RefreshCw, Sparkles, LayoutDashboard, 
   List, Users, Youtube, TrendingUp, 
   BarChart3, Award, Zap, Trophy, Search, Filter, Trash2, ShieldCheck,
-  LayoutGrid, List as ListIcon, Briefcase, Wallet, DollarSign, Calendar, Calculator
+  LayoutGrid, List as ListIcon, Briefcase, Wallet, DollarSign, Calendar, Calculator, X
 } from 'lucide-react';
 import { BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -58,6 +58,7 @@ export default function AdminDashboard() {
   const [managingUser, setManagingUser] = useState<UserProfile | null>(null);
   const [selectedCampaignReport, setSelectedCampaignReport] = useState<string | null>(null);
   const [calculatorAmount, setCalculatorAmount] = useState<string>('');
+  const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
   
   // Processing states
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -989,43 +990,15 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* Calculadora Founders */}
-            <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-8 rounded-[2.5rem] shadow-xl text-white relative overflow-hidden">
-              <div className="absolute -right-12 -top-12 w-48 h-48 bg-white/10 rounded-full blur-3xl mix-blend-overlay pointer-events-none" />
-              <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
-                <div className="flex-1 w-full">
-                  <h3 className="text-xl font-black mb-2 flex items-center gap-2"><Calculator className="h-5 w-5 opacity-80" /> Calculadora de Founders</h3>
-                  <p className="text-sm text-indigo-100 mb-6">Ingresá el monto total que vas a registrar para ver cuánto le corresponde a cada founder (división en 3 partes iguales).</p>
-                  
-                  <div className="relative max-w-sm">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 font-black text-indigo-200 text-xl">$</span>
-                    <input
-                      type="text"
-                      inputMode="decimal"
-                      placeholder="0.00"
-                      value={calculatorAmount}
-                      onChange={(e) => {
-                        const v = e.target.value;
-                        if (v === '' || /^[0-9]*\.?[0-9]*$/.test(v)) setCalculatorAmount(v);
-                      }}
-                      className="w-full bg-white/10 border border-white/20 rounded-2xl pl-10 pr-4 py-3 outline-none focus:bg-white/20 focus:border-white/40 transition-all font-black text-2xl text-white placeholder-indigo-200/50"
-                    />
-                  </div>
-                </div>
-                
-                <div className="w-full md:w-auto bg-white/10 p-6 rounded-[2rem] border border-white/20 min-w-[250px] text-center backdrop-blur-md">
-                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-200 mb-2">Por Founder (÷3)</p>
-                   <span className="text-4xl font-black text-white drop-shadow-lg">
-                     ${calculatorAmount ? (Number(calculatorAmount) / 3).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
-                   </span>
-                </div>
-              </div>
-            </div>
-
             {/* Add Payment */}
             <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-8">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-black text-gray-900 flex items-center gap-2"><DollarSign className="h-5 w-5 text-emerald-500" /> Registrar Pago</h3>
+                <div className="flex items-center gap-4">
+                  <h3 className="text-xl font-black text-gray-900 flex items-center gap-2"><DollarSign className="h-5 w-5 text-emerald-500" /> Registrar Pago</h3>
+                  <button onClick={() => setIsCalculatorOpen(true)} className="flex items-center justify-center p-2.5 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 transition-colors shadow-sm" title="Calculadora Founders">
+                    <Calculator className="h-4 w-4" />
+                  </button>
+                </div>
                 <button onClick={() => setIsAddingPayment(!isAddingPayment)} className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all active:scale-95">
                   <Plus className="h-4 w-4" /> Nuevo Pago
                 </button>
@@ -1362,7 +1335,46 @@ export default function AdminDashboard() {
             }}
           />
         )}
+
+        <AnimatePresence>
+          {isCalculatorOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" onClick={() => setIsCalculatorOpen(false)} />
+              <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="relative w-full max-w-sm bg-gradient-to-br from-indigo-500 to-purple-600 rounded-[2.5rem] p-8 shadow-2xl text-white overflow-hidden">
+                 <div className="absolute -right-12 -top-12 w-48 h-48 bg-white/10 rounded-full blur-3xl mix-blend-overlay pointer-events-none" />
+                 <div className="relative z-10 flex justify-between items-start mb-6">
+                   <h3 className="text-xl font-black flex items-center gap-2"><Calculator className="h-5 w-5 opacity-80" /> Founders (÷3)</h3>
+                   <button onClick={() => setIsCalculatorOpen(false)} className="p-2 bg-white/10 hover:bg-white/20 rounded-xl transition-colors"><X className="h-4 w-4" /></button>
+                 </div>
+                 
+                 <div className="relative mb-6">
+                   <span className="absolute left-4 top-1/2 -translate-y-1/2 font-black text-indigo-200 text-xl">$</span>
+                   <input
+                     type="text"
+                     inputMode="decimal"
+                     autoFocus
+                     placeholder="0.00"
+                     value={calculatorAmount}
+                     onChange={(e) => {
+                       const v = e.target.value;
+                       if (v === '' || /^[0-9]*\.?[0-9]*$/.test(v)) setCalculatorAmount(v);
+                     }}
+                     className="w-full bg-white/10 border border-white/20 rounded-2xl pl-10 pr-4 py-3 outline-none focus:bg-white/20 focus:border-white/40 transition-all font-black text-2xl text-white placeholder-indigo-200/50"
+                   />
+                 </div>
+                 
+                 <div className="bg-white/10 p-6 rounded-[2rem] border border-white/20 text-center backdrop-blur-md">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-200 mb-2">A cada uno</p>
+                    <span className="text-4xl font-black text-white drop-shadow-lg">
+                      ${calculatorAmount ? (Number(calculatorAmount) / 3).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
+                    </span>
+                 </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </main>
     </div>
   );
 }
+
