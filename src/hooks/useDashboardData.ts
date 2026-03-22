@@ -94,16 +94,25 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
     let result = role === 'creator' ? content.filter(c => c.creator_id === user?.id) : content;
     
     if (filters) {
-      if (filters.platform && filters.platform !== 'all') {
-        result = result.filter(c => c.platform?.toLowerCase() === filters.platform.toLowerCase());
+      // Improved defensive filtering
+      if (filters.platform && filters.platform !== 'all' && filters.platform !== '') {
+        const pFilter = filters.platform.toLowerCase().trim();
+        result = result.filter(c => c.platform?.toLowerCase().trim() === pFilter);
       }
-      if (filters.campaign && filters.campaign !== 'all') {
+      if (filters.campaign && filters.campaign !== 'all' && filters.campaign !== '') {
         result = result.filter(c => c.campaign_id === filters.campaign);
       }
-      if (filters.creator && filters.creator !== 'all') {
+      if (filters.creator && filters.creator !== 'all' && filters.creator !== '') {
         result = result.filter(c => c.creator_id === filters.creator);
       }
     }
+    
+    console.log('useDashboardData Debug:', { 
+      total: content.length, 
+      filtered: result.length, 
+      filters,
+      role 
+    });
     
     return result;
   }, [content, role, user, filters]);
@@ -179,7 +188,7 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
 
   return {
     campaigns,
-    content: filteredContent,
+    content,
     users,
     payments,
     loading,
