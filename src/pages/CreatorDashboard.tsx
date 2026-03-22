@@ -14,7 +14,8 @@ import { normalizeUrl } from '../utils/urlParser';
 // Custom Hooks
 import { useDashboardData, getAgencyRank, AGENCY_TIERS } from '../hooks/useDashboardData';
 import { useToast } from '../hooks/useToast';
-import { useTabNavigation } from '../hooks/useTabNavigation';
+import { useSearchParams } from 'react-router-dom';
+import { useFilterParams } from '../hooks/useTabNavigation';
 
 // Modular Components
 import StatsCard from '../components/dashboard/StatsCard';
@@ -28,10 +29,28 @@ import ContentModal from '../components/dashboard/ContentModal';
 export default function CreatorDashboard() {
   const { user, profile } = useAuth();
   const { success, error: toastError, info } = useToast();
-  const CREATOR_TABS = ['overview', 'campaigns', 'content', 'journey'] as const;
-  const [filters, setFilter, setFilters, resetFilters] = useTabNavigation<any>('overview', CREATOR_TABS);
-  const activeTab = filters.tab || 'overview';
-  const { campaigns, content, filteredContent, metrics, refresh } = useDashboardData('creator', filters);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTabState] = useState<string>(searchParams.get('tab') || 'overview');
+  const [filters, setFilter, setFilters, resetFilters] = useFilterParams<{ campaign: string }>({ campaign: 'all' });
+  const { campaigns, content, filteredContent, metrics, refresh } = useDashboardData('creator', { ...filters, tab: activeTab } as any);
+
+  // Sync state with URL manually to ensure it works even if hook fails
+  const setActiveTab = (tab: string) => {
+    setActiveTabState(tab);
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev);
+      if (tab === 'overview') next.delete('tab');
+      else next.set('tab', tab);
+      return next;
+    });
+  };
+
+  // Listen for URL changes (back button)
+  React.useEffect(() => {
+    const tab = searchParams.get('tab') || 'overview';
+    if (tab !== activeTab) setActiveTabState(tab);
+  }, [searchParams]);
+
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
@@ -122,55 +141,55 @@ export default function CreatorDashboard() {
     }
   };
 
-  return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 p-4 md:p-0 pb-20 md:pb-6">
-      {/* Header Section */}
-      <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-        <div className="cursor-pointer" onClick={() => resetFilters({ tab: 'overview' })}>
-          <h1 className="text-2xl font-black text-gray-900 leading-tight tracking-tight hover:text-indigo-600 transition-colors">Hola, {profile?.display_name || 'Creador'}</h1>
-          <p className="text-sm font-medium text-gray-500 flex items-center gap-2 mt-0.5">
-            <span className={`w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse`} />
-            Tu carrera en Umbra: <span className="text-indigo-600 font-bold uppercase tracking-widest text-[10px]">{myRank.name}</span>
-          </p>
+    return (
+      <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 p-4 md:p-0 pb-20 md:pb-6">
+        {/* Header Section */}
+        <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+          <div className="cursor-pointer" onClick={() => { setActiveTab('overview'); resetFilters(); }}>
+            <h1 className="text-2xl font-black text-gray-900 leading-tight tracking-tight hover:text-indigo-600 transition-colors">Hola, {profile?.display_name || 'Creador'}</h1>
+            <p className="text-sm font-medium text-gray-500 flex items-center gap-2 mt-0.5">
+              <span className={`w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse`} />
+              Tu carrera en Umbra: <span className="text-indigo-600 font-bold uppercase tracking-widest text-[10px]">{myRank.name}</span>
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row items-center gap-2 w-full lg:w-auto">
+            <button onClick={handleRefresh} disabled={isRefreshing} className={`flex-1 lg:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-white text-gray-900 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-sm ring-1 ring-gray-100 hover:bg-gray-50 transition-all ${isRefreshing ? 'opacity-50' : ''}`}>
+              <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              Sincronizar
+            </button>
+            <button onClick={() => setIsContentModalOpen(true)} className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-2xl shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95">
+              <Plus className="h-4 w-4" />
+              Nuevo Contenido
+            </button>
+          </div>
+        </header>
+        {/* Main Tabs Navigation */}
+        <div className="flex items-center gap-2 p-1.5 bg-gray-100/50 rounded-2xl w-full lg:w-fit overflow-x-auto no-scrollbar relative z-50">
+          {[
+            { id: 'overview', label: 'Resumen', icon: LayoutDashboard },
+            { id: 'campaigns', label: 'Campañas', icon: Rocket },
+            { id: 'content', label: 'Mi Contenido', icon: ListIcon },
+            { id: 'journey', label: 'Mi Camino', icon: Trophy }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log("Tab clicked:", tab.id);
+                setActiveTab(tab.id);
+              }}
+              className={`flex-none flex items-center gap-2.5 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 pointer-events-auto ${
+                activeTab === tab.id 
+                  ? 'bg-white text-indigo-600 shadow-[0_8px_20px_-4px_rgba(79,70,229,0.15)] ring-1 ring-gray-100/50' 
+                  : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              <tab.icon className={`h-4 w-4 ${activeTab === tab.id ? 'text-indigo-600' : 'text-gray-400'}`} />
+              {tab.label}
+            </button>
+          ))}
         </div>
-        <div className="flex flex-col sm:flex-row items-center gap-2 w-full lg:w-auto">
-          <button onClick={handleRefresh} disabled={isRefreshing} className={`flex-1 lg:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-white text-gray-900 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-sm ring-1 ring-gray-100 hover:bg-gray-50 transition-all ${isRefreshing ? 'opacity-50' : ''}`}>
-            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-            Sincronizar
-          </button>
-          <button onClick={() => setIsContentModalOpen(true)} className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-2xl shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95">
-            <Plus className="h-4 w-4" />
-            Nuevo Contenido
-          </button>
-        </div>
-      </header>
-
-      {/* Main Tabs Navigation */}
-      <div className="flex items-center gap-2 p-1.5 bg-gray-100/50 rounded-2xl w-full lg:w-fit overflow-x-auto no-scrollbar">
-        {[
-          { id: 'overview', label: 'Resumen', icon: LayoutDashboard },
-          { id: 'campaigns', label: 'Campañas', icon: Rocket },
-          { id: 'content', label: 'Mi Contenido', icon: ListIcon },
-          { id: 'journey', label: 'Mi Camino', icon: Trophy }
-        ].map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => {
-              if (tab.id === 'overview') {
-                resetFilters({ tab: 'overview' });
-              } else {
-                setFilters({ tab: tab.id } as any);
-              }
-            }}
-            className={`flex-none flex items-center gap-2.5 px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
-              activeTab === tab.id ? 'bg-white text-indigo-600 shadow-md' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-200/50'
-            }`}
-          >
-            <tab.icon className="h-3.5 w-3.5" />
-            {tab.label}
-          </button>
-        ))}
-      </div>
 
       {activeTab === 'overview' && (
         <div className="space-y-6 animate-in fade-in duration-500">
@@ -215,7 +234,7 @@ export default function CreatorDashboard() {
                     <button 
                       onClick={() => {
                         setFilter('campaign', campaign.id);
-                        setFilters({ tab: 'content' } as any);
+                        setActiveTab('content');
                       }}
                       className="px-4 py-2 bg-white text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm border border-gray-100"
                     >
@@ -431,7 +450,7 @@ export default function CreatorDashboard() {
                      <button 
                        onClick={() => {
                          setFilter('campaign', campaign.id);
-                         setFilters({ tab: 'content' } as any);
+                         setActiveTab('content');
                        }} 
                        className="w-full py-3 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all"
                      >
