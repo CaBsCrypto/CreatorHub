@@ -110,6 +110,10 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
           result = result.filter(c => c.creator_id === filters.creator);
         }
       }
+      
+      console.log('DEBUG [useDashboardData] filters:', filters);
+      console.log('DEBUG [useDashboardData] initial count:', role === 'creator' ? content.filter(c => c.creator_id === user?.id).length : content.length);
+      console.log('DEBUG [useDashboardData] filtered count:', result.length);
     }
     
     
