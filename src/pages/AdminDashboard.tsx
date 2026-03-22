@@ -959,7 +959,11 @@ export default function AdminDashboard() {
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: i * 0.05 }}
                   onClick={() => setManagingUser(u)}
-                  className="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group cursor-pointer relative overflow-hidden"
+                  className={`bg-white p-6 rounded-[2.5rem] border hover:shadow-xl hover:-translate-y-1 transition-all group cursor-pointer relative overflow-hidden ${
+                    u.role === 'admin' ? 'border-rose-300 shadow-sm shadow-rose-100/50' :
+                    u.role === 'manager' ? 'border-amber-300 shadow-sm shadow-amber-100/50' :
+                    'border-gray-100 shadow-sm'
+                  }`}
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                   

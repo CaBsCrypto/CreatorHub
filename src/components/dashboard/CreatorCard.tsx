@@ -28,7 +28,7 @@ interface CreatorCardProps {
 
 const CreatorCard: React.FC<CreatorCardProps> = ({ creator, index, userRole, onEditAudience, onViewProfile }) => {
   const RankIcon = creator.rank.icon;
-  const borderClass = userRole === 'admin' ? 'border-rose-300 ring-1 ring-rose-100' : userRole === 'manager' ? 'border-purple-300 ring-1 ring-purple-100' : 'border-gray-100';
+  const borderClass = userRole === 'admin' ? 'border-rose-300 ring-1 ring-rose-100' : userRole === 'manager' ? 'border-amber-300 ring-1 ring-amber-100' : 'border-gray-100';
 
   return (
     <motion.div
