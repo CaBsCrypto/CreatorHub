@@ -68,11 +68,8 @@ export function useFilterParams<T extends Record<string, string>>(
   }, [setFilters]);
 
   const resetFilters = useCallback((overrides?: Partial<T>) => {
-    setSearchParams(prev => {
-      const next = new URLSearchParams(prev);
-      for (const key of Object.keys(defaults)) {
-        next.delete(key);
-      }
+    setSearchParams(() => {
+      const next = new URLSearchParams();
       if (overrides) {
         for (const [key, value] of Object.entries(overrides)) {
           next.set(key, value as string);
@@ -80,7 +77,7 @@ export function useFilterParams<T extends Record<string, string>>(
       }
       return next;
     });
-  }, [setSearchParams, defaults]);
+  }, [setSearchParams]);
 
   return [filters, setFilter, setFilters, resetFilters];
 }
