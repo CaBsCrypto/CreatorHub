@@ -103,7 +103,12 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
         result = result.filter(c => c.campaign_id === filters.campaign);
       }
       if (filters.creator && filters.creator !== 'all' && filters.creator !== '') {
-        result = result.filter(c => c.creator_id === filters.creator);
+        if (filters.creator.startsWith('guest:')) {
+          const gName = filters.creator.replace('guest:', '');
+          result = result.filter(c => c.guest_name === gName);
+        } else {
+          result = result.filter(c => c.creator_id === filters.creator);
+        }
       }
     }
     

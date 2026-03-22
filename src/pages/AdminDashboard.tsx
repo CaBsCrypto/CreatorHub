@@ -432,12 +432,25 @@ export default function AdminDashboard() {
                           </div>
 
                           <div className="space-y-1.5">
-                            <label className="text-[10px] font-black text-gray-400 uppercase ml-1">Creador</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase ml-1">Colaborador / Invitado</label>
                             <select value={filterCreator} onChange={e => setFilter('creator', e.target.value)} className="w-full bg-gray-50 border-none rounded-xl px-4 py-2.5 text-xs font-bold text-gray-700 focus:ring-2 focus:ring-indigo-500 outline-none">
-                              <option value="all">Todos los creadores</option>
-                              {users.filter(u => u.role === 'creator').map(u => (
-                                <option key={u.id} value={u.id}>{u.admin_alias || u.display_name || u.email.split('@')[0]}</option>
-                              ))}
+                              <option value="all">Todos los colaboradores</option>
+                              
+                              <optgroup label="Equipo (Cuentas)">
+                                {users.filter(u => u.role !== 'client').map(u => (
+                                  <option key={u.id} value={u.id}>
+                                    {u.admin_alias || u.display_name || u.email.split('@')[0]} ({u.role})
+                                  </option>
+                                ))}
+                              </optgroup>
+
+                              {content.some(c => !c.creator_id && c.guest_name) && (
+                                <optgroup label="Invitados (Manuales)">
+                                  {[...new Set(content.filter(c => !c.creator_id && c.guest_name).map(c => c.guest_name))].map(name => (
+                                    <option key={name} value={`guest:${name}`}>{name}</option>
+                                  ))}
+                                </optgroup>
+                              )}
                             </select>
                           </div>
 
