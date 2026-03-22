@@ -74,7 +74,7 @@ export default function AdminDashboard() {
   const [twitchPreview, setTwitchPreview] = useState<string | null>(null);
 
   // Filters (synced to URL)
-  const [filters, setFilter, resetFilters] = useFilterParams({ 
+  const [filters, setFilter, setFilters, resetFilters] = useFilterParams({ 
     search: '', 
     platform: 'all', 
     campaign: 'all', 
@@ -789,8 +789,10 @@ export default function AdminDashboard() {
                         totalPosts={campaignContent.length}
                         onDelete={handleDeleteCampaign}
                         onClick={(id) => {
-                          setFilter('campaign', id);
-                          setFilter('creator', 'all'); // Reset creator filter to see everything of that campaign
+                          setFilters({
+                            campaign: id,
+                            creator: 'all'
+                          });
                           setActiveTab('content');
                         }}
                         onViewReport={(id, e) => {

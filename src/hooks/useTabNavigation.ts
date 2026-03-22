@@ -39,7 +39,7 @@ export function useTabNavigation<T extends string>(
  */
 export function useFilterParams<T extends Record<string, string>>(
   defaults: T
-): [T, (key: keyof T, value: string) => void, () => void] {
+): [T, (key: keyof T, value: string) => void, (updates: Partial<T>) => void, () => void] {
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Build current filter values from URL, falling back to defaults
@@ -49,17 +49,23 @@ export function useFilterParams<T extends Record<string, string>>(
     (filters as any)[key] = urlValue ?? defaults[key];
   }
 
-  const setFilter = useCallback((key: keyof T, value: string) => {
+  const setFilters = useCallback((updates: Partial<T>) => {
     setSearchParams(prev => {
       const next = new URLSearchParams(prev);
-      if (value === defaults[key]) {
-        next.delete(key as string);
-      } else {
-        next.set(key as string, value);
+      for (const [key, value] of Object.entries(updates)) {
+        if (value === defaults[key]) {
+          next.delete(key);
+        } else {
+          next.set(key, value as string);
+        }
       }
       return next;
     });
   }, [setSearchParams, defaults]);
+
+  const setFilter = useCallback((key: keyof T, value: string) => {
+    setFilters({ [key]: value } as Partial<T>);
+  }, [setFilters]);
 
   const resetFilters = useCallback(() => {
     setSearchParams(prev => {
@@ -71,5 +77,5 @@ export function useFilterParams<T extends Record<string, string>>(
     });
   }, [setSearchParams, defaults]);
 
-  return [filters, setFilter, resetFilters];
+  return [filters, setFilter, setFilters, resetFilters];
 }
