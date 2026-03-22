@@ -404,62 +404,72 @@ export default function AdminDashboard() {
                         <button onClick={resetFilters} className="text-[10px] font-black text-rose-500 uppercase hover:underline">Limpiar</button>
                       </div>
 
-                      <div className="space-y-4">
-                        <div className="space-y-1.5">
-                          <label className="text-[10px] font-black text-gray-400 uppercase ml-1">Plataforma</label>
-                          <select value={filterPlatform} onChange={e => setFilter('platform', e.target.value)} className="w-full bg-gray-50 border-none rounded-xl px-4 py-2.5 text-xs font-bold text-gray-700 focus:ring-2 focus:ring-indigo-500 outline-none">
-                            <option value="all">Todas las plataformas</option>
-                            <option value="tiktok">TikTok</option>
-                            <option value="instagram">Instagram</option>
-                            <option value="youtube">YouTube</option>
-                            <option value="twitch">Twitch</option>
-                            <option value="x">X / Twitter</option>
-                            <option value="coinmarketcap">CoinMarketCap</option>
-                          </select>
-                        </div>
+                        <div className="space-y-4">
+                          <div className="border-b border-gray-50 pb-2 mb-2">
+                             <h5 className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Filtros Globales</h5>
+                          </div>
+                          
+                          <div className="space-y-1.5">
+                            <label className="text-[10px] font-black text-gray-400 uppercase ml-1">Plataforma</label>
+                            <select value={filterPlatform} onChange={e => setFilter('platform', e.target.value)} className="w-full bg-gray-50 border-none rounded-xl px-4 py-2.5 text-xs font-bold text-gray-700 focus:ring-2 focus:ring-indigo-500 outline-none">
+                              <option value="all">Todas las plataformas</option>
+                              <option value="tiktok">TikTok</option>
+                              <option value="instagram">Instagram</option>
+                              <option value="youtube">YouTube</option>
+                              <option value="twitch">Twitch</option>
+                              <option value="x">X / Twitter</option>
+                              <option value="coinmarketcap">CoinMarketCap</option>
+                            </select>
+                          </div>
 
-                        <div className="space-y-1.5">
-                          <label className="text-[10px] font-black text-gray-400 uppercase ml-1">Campaña</label>
-                          <select value={filterCampaign} onChange={e => setFilter('campaign', e.target.value)} className="w-full bg-gray-50 border-none rounded-xl px-4 py-2.5 text-xs font-bold text-gray-700 focus:ring-2 focus:ring-indigo-500 outline-none">
-                            <option value="all">Todas las campañas</option>
-                            {campaigns.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                          </select>
-                        </div>
+                          <div className="space-y-1.5">
+                            <label className="text-[10px] font-black text-gray-400 uppercase ml-1">Campaña</label>
+                            <select value={filterCampaign} onChange={e => setFilter('campaign', e.target.value)} className="w-full bg-gray-50 border-none rounded-xl px-4 py-2.5 text-xs font-bold text-gray-700 focus:ring-2 focus:ring-indigo-500 outline-none">
+                              <option value="all">Todas las campañas</option>
+                              {campaigns.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                            </select>
+                          </div>
 
-                        <div className="space-y-1.5">
-                          <label className="text-[10px] font-black text-gray-400 uppercase ml-1">Creador</label>
-                          <select value={filterCreator} onChange={e => setFilter('creator', e.target.value)} className="w-full bg-gray-50 border-none rounded-xl px-4 py-2.5 text-xs font-bold text-gray-700 focus:ring-2 focus:ring-indigo-500 outline-none">
-                            <option value="all">Todos los creadores</option>
-                            {users.filter(u => u.role === 'creator').map(u => (
-                              <option key={u.id} value={u.id}>{u.display_name || u.email.split('@')[0]}</option>
-                            ))}
-                          </select>
-                        </div>
-
-                        {(activeTab === 'payments') && (
-                          <div className="pt-4 border-t border-gray-50 space-y-1.5">
-                            <label className="text-[10px] font-black text-gray-400 uppercase ml-1 italic">Filtro de Pagos (Mes)</label>
-                            <select value={payMonth} onChange={e => setFilter('pay_month', e.target.value)} className="w-full bg-indigo-50/50 border-none rounded-xl px-4 py-2.5 text-xs font-bold text-indigo-700 focus:ring-2 focus:ring-indigo-500 outline-none">
-                              <option value="all">Todos los meses</option>
-                              {[...new Set(payments.map(p => p.paid_at.substring(0, 7)))].sort().reverse().map(month => (
-                                <option key={month} value={month}>{new Date(month + '-02').toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</option>
+                          <div className="space-y-1.5">
+                            <label className="text-[10px] font-black text-gray-400 uppercase ml-1">Creador</label>
+                            <select value={filterCreator} onChange={e => setFilter('creator', e.target.value)} className="w-full bg-gray-50 border-none rounded-xl px-4 py-2.5 text-xs font-bold text-gray-700 focus:ring-2 focus:ring-indigo-500 outline-none">
+                              <option value="all">Todos los creadores</option>
+                              {users.filter(u => u.role === 'creator').map(u => (
+                                <option key={u.id} value={u.id}>{u.admin_alias || u.display_name || u.email.split('@')[0]}</option>
                               ))}
                             </select>
                           </div>
-                        )}
 
-                        {(activeTab === 'team') && (
-                          <div className="pt-4 border-t border-gray-50 space-y-1.5">
-                            <label className="text-[10px] font-black text-gray-400 uppercase ml-1 italic">Filtrar Equipo</label>
-                            <select value={teamRole} onChange={e => setFilter('team_role', e.target.value)} className="w-full bg-rose-50/50 border-none rounded-xl px-4 py-2.5 text-xs font-bold text-rose-700 focus:ring-2 focus:ring-rose-500 outline-none">
-                              <option value="all">Todos</option>
-                              <option value="staff">Staff (Admin/Manager)</option>
-                              <option value="creator">Creadores</option>
-                              <option value="client">Clientes</option>
-                            </select>
-                          </div>
-                        )}
-                      </div>
+                          {(activeTab === 'payments' || activeTab === 'team') && (
+                            <div className="pt-4 border-t border-gray-100 mt-2">
+                               <h5 className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-4">Filtros Específicos ({activeTab})</h5>
+                               
+                               {activeTab === 'payments' && (
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] font-black text-gray-400 uppercase ml-1">Mes del Pago</label>
+                                  <select value={payMonth} onChange={e => setFilter('pay_month', e.target.value)} className="w-full bg-indigo-50/50 border-none rounded-xl px-4 py-2.5 text-xs font-bold text-indigo-700 focus:ring-2 focus:ring-indigo-500 outline-none">
+                                    <option value="all">Todos los meses</option>
+                                    {[...new Set(payments.map(p => p.paid_at.substring(0, 7)))].sort().reverse().map(month => (
+                                      <option key={month} value={month}>{new Date(month + '-02').toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</option>
+                                    ))}
+                                  </select>
+                                </div>
+                               )}
+
+                               {activeTab === 'team' && (
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] font-black text-gray-400 uppercase ml-1">Rol del Miembro</label>
+                                  <select value={teamRole} onChange={e => setFilter('team_role', e.target.value)} className="w-full bg-rose-50/50 border-none rounded-xl px-4 py-2.5 text-xs font-bold text-rose-700 focus:ring-2 focus:ring-rose-500 outline-none">
+                                    <option value="all">Todos los roles</option>
+                                    <option value="staff">Staff (Admin/Manager)</option>
+                                    <option value="creator">Creadores</option>
+                                    <option value="client">Clientes</option>
+                                  </select>
+                                </div>
+                               )}
+                            </div>
+                          )}
+                        </div>
                     </motion.div>
                   </>
                 )}
@@ -780,10 +790,9 @@ export default function AdminDashboard() {
 
         {activeTab === 'creators' && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="flex items-center justify-between gap-4 mb-8">
-               <div className="relative flex-1 max-w-md"><Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" /><input type="text" placeholder="Buscar creadores..." className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-white border border-gray-100 text-sm focus:ring-2 focus:ring-indigo-500 transition-all" value={searchTerm} onChange={e => setFilter('search', e.target.value)} /></div>
-               <div className="flex items-center gap-2"><button className="p-3.5 rounded-2xl bg-white border border-gray-100 text-gray-400 hover:text-indigo-600 transition-all"><Filter className="h-4 w-4" /></button></div>
-            </div>
+             <div className="flex items-center justify-between gap-4 mb-8">
+                <div className="relative flex-1 max-w-md"><Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" /><input type="text" placeholder="Buscar creadores..." className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-white border border-gray-100 text-sm focus:ring-2 focus:ring-indigo-500 transition-all" value={searchTerm} onChange={e => setFilter('search', e.target.value)} /></div>
+             </div>
             <div className="grid grid-cols-1 gap-6">
               {creatorStats
                 .filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -821,41 +830,7 @@ export default function AdminDashboard() {
                   </div>
                   
                   <div className="flex flex-wrap items-center gap-2">
-                    <select 
-                      value={filterPlatform}
-                      onChange={(e) => setFilter('platform', e.target.value)}
-                      className="px-4 py-3 bg-gray-50 border border-transparent focus:bg-white focus:border-indigo-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-gray-500 transition-all outline-none cursor-pointer"
-                    >
-                      <option value="all">Plataformas</option>
-                      <option value="tiktok">TikTok</option>
-                      <option value="instagram">Instagram</option>
-                      <option value="youtube">YouTube</option>
-                      <option value="twitch">Twitch</option>
-                      <option value="x">X</option>
-                      <option value="coinmarketcap">CMC</option>
-                    </select>
-
-                    <select 
-                      value={filterCampaign}
-                      onChange={(e) => setFilter('campaign', e.target.value)}
-                      className="px-4 py-3 bg-gray-50 border border-transparent focus:bg-white focus:border-indigo-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-gray-500 transition-all outline-none cursor-pointer max-w-[150px]"
-                    >
-                      <option value="all">Campañas</option>
-                      {campaigns.map(c => (
-                        <option key={c.id} value={c.id}>{c.name}</option>
-                      ))}
-                    </select>
-
-                    <select 
-                      value={filterCreator}
-                      onChange={(e) => setFilter('creator', e.target.value)}
-                      className="px-4 py-3 bg-gray-50 border border-transparent focus:bg-white focus:border-indigo-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-gray-500 transition-all outline-none cursor-pointer max-w-[150px]"
-                    >
-                      <option value="all">Creadores</option>
-                      {users.map(u => (
-                        <option key={u.id} value={u.id}>{u.admin_alias || u.display_name || u.email.split('@')[0]} ({u.role})</option>
-                      ))}
-                    </select>
+                    {/* Local filters removed - now in global header dropdown */}
 
                     <div className="flex items-center gap-1 p-1 bg-gray-50 rounded-xl border border-gray-100">
                       <button 
