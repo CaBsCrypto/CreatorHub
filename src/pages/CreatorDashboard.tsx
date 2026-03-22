@@ -118,7 +118,7 @@ export default function CreatorDashboard() {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-6">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 p-4 md:p-0 pb-20 md:pb-6">
       {/* Header Section */}
       <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
@@ -163,10 +163,22 @@ export default function CreatorDashboard() {
 
       {activeTab === 'overview' && (
         <div className="space-y-6 animate-in fade-in duration-500">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
-            <StatsCard label="Vistas Totales" value={metrics.totalViews.toLocaleString()} trend="+12% vs mes anterior" icon={TrendingUp} iconColor="text-indigo-600" />
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 items-stretch">
+            <StatsCard 
+              label="Vistas Totales" 
+              value={metrics.totalViews.toLocaleString()} 
+              trend={metrics.viewsTrend ? `${metrics.viewsTrend.isPositive ? '+' : '-'}${metrics.viewsTrend.value}% vs mes anterior` : undefined} 
+              icon={TrendingUp} 
+              iconColor="text-indigo-600" 
+            />
             <StatsCard label="Promedio Vistas" value={Math.round(metrics.totalViews / (metrics.totalPosts || 1)).toLocaleString()} icon={Zap} iconColor="text-rose-600" />
-            <StatsCard label="Publicaciones" value={metrics.totalPosts} icon={List} iconColor="text-teal-600" />
+            <StatsCard 
+              label="Publicaciones" 
+              value={metrics.totalPosts} 
+              trend={metrics.postsTrend ? `${metrics.postsTrend.isPositive ? '+' : '-'}${metrics.postsTrend.value}% vs mes anterior` : undefined} 
+              icon={List} 
+              iconColor="text-teal-600" 
+            />
           </div>
 
           <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden relative group">

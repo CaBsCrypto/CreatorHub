@@ -98,13 +98,40 @@ export const useDashboardData = (role: 'admin' | 'creator') => {
     const totalViews = filteredContent.reduce((acc, curr) => acc + (curr.views || 0), 0);
     const totalEngagement = filteredContent.reduce((acc, curr) => acc + (curr.likes || 0) + (curr.comments || 0), 0);
     const totalPosts = filteredContent.length;
-    
+
+    // Calculate month-over-month trends
+    const now = new Date();
+    const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+    const thisMonthContent = filteredContent.filter(c => {
+      const d = c.uploaded_at ? new Date(c.uploaded_at) : new Date(c.created_at);
+      return d >= startOfThisMonth;
+    });
+    const lastMonthContent = filteredContent.filter(c => {
+      const d = c.uploaded_at ? new Date(c.uploaded_at) : new Date(c.created_at);
+      return d >= startOfLastMonth && d < startOfThisMonth;
+    });
+
+    const thisMonthViews = thisMonthContent.reduce((s, c) => s + (c.views || 0), 0);
+    const lastMonthViews = lastMonthContent.reduce((s, c) => s + (c.views || 0), 0);
+    const thisMonthPosts = thisMonthContent.length;
+    const lastMonthPosts = lastMonthContent.length;
+
+    const calcTrend = (current: number, previous: number) => {
+      if (previous === 0) return current > 0 ? { value: 100, isPositive: true } : null;
+      const pct = Math.round(((current - previous) / previous) * 100);
+      return { value: Math.abs(pct), isPositive: pct >= 0 };
+    };
+
     return {
       totalViews,
       totalEngagement,
       totalPosts,
       activeCreators: users.filter(u => u.role === 'creator').length,
-      roi: (totalViews / 1000) * 2.5 // Estimated $2.5 CPM
+      roi: (totalViews / 1000) * 2.5,
+      viewsTrend: calcTrend(thisMonthViews, lastMonthViews),
+      postsTrend: calcTrend(thisMonthPosts, lastMonthPosts)
     };
   }, [filteredContent, users]);
 

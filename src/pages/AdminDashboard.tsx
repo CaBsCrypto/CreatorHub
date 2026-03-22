@@ -15,7 +15,7 @@ import { normalizeUrl } from '../utils/urlParser';
 // Custom Hooks
 import { useDashboardData, getAgencyRank, AGENCY_TIERS } from '../hooks/useDashboardData';
 import { useToast } from '../hooks/useToast';
-import { useTabNavigation } from '../hooks/useTabNavigation';
+import { useTabNavigation, useFilterParams } from '../hooks/useTabNavigation';
 
 // Modular Components
 import AdminMetricCard from '../components/dashboard/AdminMetricCard';
@@ -73,12 +73,14 @@ export default function AdminDashboard() {
   const [twitchStats, setTwitchStats] = useState<any>(null);
   const [twitchPreview, setTwitchPreview] = useState<string | null>(null);
 
-  // Filters
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterPlatform, setFilterPlatform] = useState('all');
-  const [filterCampaign, setFilterCampaign] = useState('all');
-  const [filterCreator, setFilterCreator] = useState('all');
-  const [isCompactView, setIsCompactView] = useState(true);
+  // Filters (synced to URL)
+  const FILTER_DEFAULTS = { search: '', platform: 'all', campaign: 'all', creator: 'all', view: 'compact' } as const;
+  const [filters, setFilter] = useFilterParams({ search: '', platform: 'all', campaign: 'all', creator: 'all', view: 'compact' });
+  const searchTerm = filters.search;
+  const filterPlatform = filters.platform;
+  const filterCampaign = filters.campaign;
+  const filterCreator = filters.creator;
+  const isCompactView = filters.view !== 'grid';
   const [deletedUserIds, setDeletedUserIds] = useState<string[]>([]);
   
   // Payments form
@@ -330,16 +332,16 @@ export default function AdminDashboard() {
         </nav>
       </aside>
 
-      <main className="flex-1 p-8 lg:p-12 overflow-y-auto">
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
-          <div>
-            <h1 className="text-3xl font-black text-gray-900 leading-tight">Panel de Control</h1>
+      <main className="flex-1 p-4 md:p-8 lg:p-12 overflow-y-auto pb-32 lg:pb-12 bg-gray-50/30">
+        <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-12">
+          <div className="animate-in fade-in slide-in-from-left-4 duration-500">
+            <h1 className="text-3xl lg:text-4xl font-black text-gray-900 leading-tight">Panel de Control</h1>
             <p className="text-sm font-medium text-gray-400">Gestiona la agencia, creadores y campañas activas.</p>
           </div>
-          <div className="flex items-center gap-3">
-            <button onClick={() => setIsAnalyzingCreator(true)} className="flex items-center gap-2 px-6 py-3 bg-indigo-50 text-indigo-600 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-indigo-100 transition-all active:scale-95 border border-indigo-100"><Search className="h-4 w-4" /> Analizar</button>
-            <button onClick={() => setIsCreatingCampaign(true)} className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95"><Plus className="h-4 w-4" /> Nueva Campaña</button>
-            <button onClick={() => setIsAddingUser(true)} className="flex items-center gap-2 px-6 py-3 bg-white text-gray-900 rounded-2xl text-xs font-black uppercase tracking-widest shadow-sm ring-1 ring-gray-100 hover:bg-gray-50 transition-all"><Users className="h-4 w-4" /> Añadir Miembro</button>
+          <div className="flex flex-wrap items-center gap-2 md:gap-3 w-full lg:w-auto animate-in fade-in slide-in-from-right-4 duration-500">
+            <button onClick={() => setIsAnalyzingCreator(true)} className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-indigo-50 text-indigo-600 rounded-2xl text-[10px] md:text-xs font-black uppercase tracking-widest hover:bg-indigo-100 transition-all active:scale-95 border border-indigo-100"><Search className="h-4 w-4" /> Analizar</button>
+            <button onClick={() => setIsCreatingCampaign(true)} className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-indigo-600 text-white rounded-2xl text-[10px] md:text-xs font-black uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95"><Plus className="h-4 w-4" /> Nueva Campaña</button>
+            <button onClick={() => setIsAddingUser(true)} className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-white text-gray-900 rounded-2xl text-[10px] md:text-xs font-black uppercase tracking-widest shadow-sm ring-1 ring-gray-100 hover:bg-gray-50 transition-all"><Users className="h-4 w-4" /> Añadir Miembro</button>
           </div>
         </header>
 
@@ -435,11 +437,11 @@ export default function AdminDashboard() {
 
         {activeTab === 'overview' && (
           <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-6">
               <AdminMetricCard 
                 title="Vistas Totales" 
                 value={metrics.totalViews.toLocaleString()} 
-                trend={{ value: 12, isPositive: true }} 
+                trend={metrics.viewsTrend || undefined} 
                 icon={TrendingUp} 
                 color="from-indigo-500 to-indigo-600"
                 onClick={() => setActiveTab('content')} 
@@ -461,7 +463,7 @@ export default function AdminDashboard() {
               <AdminMetricCard 
                 title="Posts Totales" 
                 value={metrics.totalPosts.toLocaleString()} 
-                trend={{ value: 15, isPositive: true }} 
+                trend={metrics.postsTrend || undefined} 
                 icon={List} 
                 color="from-amber-500 to-orange-600"
                 onClick={() => setActiveTab('content')} 
@@ -496,7 +498,7 @@ export default function AdminDashboard() {
                         dataKey="value"
                         onClick={(data) => {
                           if (data && data.payload && data.payload.id) {
-                            setFilterPlatform(data.payload.id);
+                            setFilter('platform', data.payload.id);
                             setActiveTab('content');
                           }
                         }}
@@ -530,7 +532,7 @@ export default function AdminDashboard() {
                     <button 
                       key={item.id} 
                       onClick={() => {
-                        setFilterPlatform(item.id);
+                        setFilter('platform', item.id);
                         setActiveTab('content');
                       }}
                       className="w-full flex items-center justify-between p-3 bg-white hover:bg-gray-50 rounded-2xl border border-gray-50 transition-all cursor-pointer"
@@ -568,7 +570,7 @@ export default function AdminDashboard() {
                         dataKey="value"
                         onClick={(data) => {
                           if (data && data.payload && data.payload.id) {
-                            setFilterPlatform(data.payload.id);
+                            setFilter('platform', data.payload.id);
                             setActiveTab('content');
                           }
                         }}
@@ -601,7 +603,7 @@ export default function AdminDashboard() {
                     <button 
                       key={platform} 
                       onClick={() => {
-                        setFilterPlatform(platform);
+                        setFilter('platform', platform);
                         setActiveTab('content');
                       }}
                       className="w-full flex items-center justify-between p-3 bg-white hover:bg-gray-50 rounded-2xl border border-gray-50 transition-all cursor-pointer"
@@ -632,7 +634,7 @@ export default function AdminDashboard() {
                         totalPosts={campaignContent.length}
                         onDelete={handleDeleteCampaign}
                         onClick={(id) => {
-                          setFilterCampaign(id);
+                          setFilter('campaign', id);
                           setActiveTab('content');
                         }}
                         onViewReport={(id, e) => {
@@ -648,7 +650,7 @@ export default function AdminDashboard() {
         {activeTab === 'creators' && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="flex items-center justify-between gap-4 mb-8">
-               <div className="relative flex-1 max-w-md"><Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" /><input type="text" placeholder="Buscar creadores..." className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-white border border-gray-100 text-sm focus:ring-2 focus:ring-indigo-500 transition-all" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} /></div>
+               <div className="relative flex-1 max-w-md"><Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" /><input type="text" placeholder="Buscar creadores..." className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-white border border-gray-100 text-sm focus:ring-2 focus:ring-indigo-500 transition-all" value={searchTerm} onChange={e => setFilter('search', e.target.value)} /></div>
                <div className="flex items-center gap-2"><button className="p-3.5 rounded-2xl bg-white border border-gray-100 text-gray-400 hover:text-indigo-600 transition-all"><Filter className="h-4 w-4" /></button></div>
             </div>
             <div className="grid grid-cols-1 gap-6">
@@ -682,7 +684,7 @@ export default function AdminDashboard() {
                       type="text"
                       placeholder="Buscar contenido..."
                       value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
+                      onChange={(e) => setFilter('search', e.target.value)}
                       className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-transparent focus:bg-white focus:border-indigo-100 rounded-2xl text-sm transition-all outline-none"
                     />
                   </div>
@@ -690,7 +692,7 @@ export default function AdminDashboard() {
                   <div className="flex flex-wrap items-center gap-2">
                     <select 
                       value={filterPlatform}
-                      onChange={(e) => setFilterPlatform(e.target.value)}
+                      onChange={(e) => setFilter('platform', e.target.value)}
                       className="px-4 py-3 bg-gray-50 border border-transparent focus:bg-white focus:border-indigo-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-gray-500 transition-all outline-none cursor-pointer"
                     >
                       <option value="all">Plataformas</option>
@@ -704,7 +706,7 @@ export default function AdminDashboard() {
 
                     <select 
                       value={filterCampaign}
-                      onChange={(e) => setFilterCampaign(e.target.value)}
+                      onChange={(e) => setFilter('campaign', e.target.value)}
                       className="px-4 py-3 bg-gray-50 border border-transparent focus:bg-white focus:border-indigo-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-gray-500 transition-all outline-none cursor-pointer max-w-[150px]"
                     >
                       <option value="all">Campañas</option>
@@ -715,7 +717,7 @@ export default function AdminDashboard() {
 
                     <select 
                       value={filterCreator}
-                      onChange={(e) => setFilterCreator(e.target.value)}
+                      onChange={(e) => setFilter('creator', e.target.value)}
                       className="px-4 py-3 bg-gray-50 border border-transparent focus:bg-white focus:border-indigo-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-gray-500 transition-all outline-none cursor-pointer max-w-[150px]"
                     >
                       <option value="all">Creadores</option>
@@ -726,14 +728,14 @@ export default function AdminDashboard() {
 
                     <div className="flex items-center gap-1 p-1 bg-gray-50 rounded-xl border border-gray-100">
                       <button 
-                        onClick={() => setIsCompactView(false)}
+                        onClick={() => setFilter('view', 'grid')}
                         className={`p-2 rounded-lg transition-all ${!isCompactView ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                         title="Vista Cuadrícula"
                       >
                         <LayoutGrid className="h-4 w-4" />
                       </button>
                       <button 
-                        onClick={() => setIsCompactView(true)}
+                        onClick={() => setFilter('view', 'compact')}
                         className={`p-2 rounded-lg transition-all ${isCompactView ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                         title="Vista Lista"
                       >
@@ -1368,9 +1370,9 @@ export default function AdminDashboard() {
             content={content}
             users={users}
             onFilterChange={({ platform, creatorId, campaignId }) => {
-              if (platform) setFilterPlatform(platform);
-              if (creatorId) setFilterCreator(creatorId);
-              if (campaignId) setFilterCampaign(campaignId);
+              if (platform) setFilter('platform', platform);
+              if (creatorId) setFilter('creator', creatorId);
+              if (campaignId) setFilter('campaign', campaignId);
               setActiveTab('content');
               setSelectedCampaignReport(null);
               setTimeout(() => {
@@ -1418,6 +1420,31 @@ export default function AdminDashboard() {
           )}
         </AnimatePresence>
       </main>
+
+      {/* Mobile Bottom Navigation */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-6 pt-2 bg-gradient-to-t from-gray-50 via-gray-50 to-transparent pointer-events-none">
+        <div className="bg-white/80 backdrop-blur-xl border border-white shadow-2xl rounded-3xl p-2 flex items-center justify-between pointer-events-auto">
+          {sidebarItems.map(item => (
+            <button
+              key={item.id}
+              onClick={() => {
+                setActiveTab(item.id);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className={`flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-2xl transition-all ${
+                activeTab === item.id 
+                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' 
+                  : 'text-gray-400 hover:text-gray-600'
+              }`}
+            >
+              <item.icon className={`h-5 w-5 ${activeTab === item.id ? 'animate-in zoom-in-75 duration-300' : ''}`} />
+              <span className={`text-[8px] font-black uppercase tracking-tighter mt-1 ${activeTab === item.id ? 'block' : 'hidden'}`}>
+                {item.label.substring(0, 6)}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

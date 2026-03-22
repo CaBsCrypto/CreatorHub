@@ -31,3 +31,45 @@ export function useTabNavigation<T extends string>(
 
   return [activeTab, setActiveTab];
 }
+
+/**
+ * Syncs filter values with URL search params.
+ * Filters are stored as query params (e.g. ?tab=content&platform=tiktok&campaign=abc).
+ * Default values are omitted from the URL to keep it clean.
+ */
+export function useFilterParams<T extends Record<string, string>>(
+  defaults: T
+): [T, (key: keyof T, value: string) => void, () => void] {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Build current filter values from URL, falling back to defaults
+  const filters = {} as T;
+  for (const key of Object.keys(defaults) as (keyof T)[]) {
+    const urlValue = searchParams.get(key as string);
+    (filters as any)[key] = urlValue ?? defaults[key];
+  }
+
+  const setFilter = useCallback((key: keyof T, value: string) => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev);
+      if (value === defaults[key]) {
+        next.delete(key as string);
+      } else {
+        next.set(key as string, value);
+      }
+      return next;
+    });
+  }, [setSearchParams, defaults]);
+
+  const resetFilters = useCallback(() => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev);
+      for (const key of Object.keys(defaults)) {
+        next.delete(key);
+      }
+      return next;
+    });
+  }, [setSearchParams, defaults]);
+
+  return [filters, setFilter, resetFilters];
+}

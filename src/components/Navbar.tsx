@@ -18,6 +18,8 @@ export default function Navbar() {
 
   if (!user) return null;
 
+  const isAdminPath = location.pathname.startsWith('/admin');
+
   const isAdmin = profile?.role === 'admin' || profile?.role === 'manager';
   const isCreator = profile?.role === 'creator';
   const isClient = profile?.role === 'client';
@@ -36,7 +38,10 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="bg-white shadow-sm sticky top-0 z-50">
+    <nav className={clsx(
+      "bg-white shadow-sm sticky top-0 z-50",
+      isAdminPath && "hidden lg:block" // Hide on mobile if it's admin path
+    )}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 justify-between items-center">
           <div className="flex items-center">
