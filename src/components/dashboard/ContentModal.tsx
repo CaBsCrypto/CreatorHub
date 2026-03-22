@@ -239,65 +239,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
                     />
                   </div>
 
-                  {twitchPreview && (
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        try {
-                          if (twitchPreview && twitchPreview.length > 5 * 1024 * 1024) {
-                            toastError("La imagen es muy pesada para la IA. Intenta con una captura de pantalla más pequeña.");
-                            return;
-                          }
-                          setIsAnalyzing(true);
-                          
-                          // Compress image before sending to AI to avoid payload limits
-                          const compressedImage = await resizeImage(twitchPreview, 1024, 1024);
-                          console.log(`Original size: ${twitchPreview.length}, Compressed size: ${compressedImage.length}`);
-                          
-                          const { data: { session } } = await supabase.auth.getSession();
-                          const res = await fetch('/api/analyze-twitch', {
-                            method: 'POST',
-                            headers: { 
-                              'Content-Type': 'application/json',
-                              'Authorization': `Bearer ${session?.access_token}`
-                            },
-                            body: JSON.stringify({ image: compressedImage })
-                          });
-                          
-                          const data = await res.json();
-                          
-                          if (!res.ok) {
-                            throw new Error(data.details || data.message || data.error || "Error desconocido en el servidor");
-                          }
-
-                          if (data.views !== undefined) {
-                            setFormData(prev => ({
-                              ...prev,
-                              views: data.views || 0,
-                              peek_viewers: data.peek_viewers || 0,
-                              duration_minutes: data.duration_minutes || 0,
-                              average_viewers: data.average_viewers || 0,
-                              title: data.title || prev.title
-                            }));
-                          }
-                        } catch (err: any) {
-                          console.error("AI Analysis failed:", err);
-                          if (err.message?.includes("QUOTA_EXCEEDED") || err.message?.includes("429")) {
-                            toastError("Límite de IA alcanzado (Gratis). Por favor, ingresa los datos manualmente abajo.");
-                          } else {
-                            toastError("Error de IA: " + err.message);
-                          }
-                        } finally {
-                          setIsAnalyzing(false);
-                        }
-                      }}
-                      disabled={isAnalyzing}
-                      className="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-xl bg-purple-50 text-purple-700 text-xs font-bold hover:bg-purple-100 transition-all border border-purple-100"
-                    >
-                      {isAnalyzing ? <RefreshCw className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
-                      {isAnalyzing ? "Analizando imagen..." : "Auto-completar con IA ✨"}
-                    </button>
-                  )}
+                  {/* AI Autocomplete removed for speed and manual reliability as requested */}
 
                   <div className="pt-2 px-2 pb-4 bg-gray-50/50 rounded-xl border border-gray-100">
                     <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
@@ -331,14 +273,39 @@ const ContentModal: React.FC<ContentModalProps> = ({
                           className="block w-full rounded-xl border-gray-200 bg-white py-2 px-3 text-xs focus:ring-2 focus:ring-indigo-500 transition-all font-bold"
                         />
                       </div>
-                      <div>
-                        <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1 ml-1">Duration (min)</label>
-                        <input
-                          type="number"
-                          value={formData.duration_minutes}
-                          onChange={(e) => setFormData({ ...formData, duration_minutes: parseInt(e.target.value) || 0 })}
-                          className="block w-full rounded-xl border-gray-200 bg-white py-2 px-3 text-xs focus:ring-2 focus:ring-indigo-500 transition-all font-bold"
-                        />
+                      <div className="col-span-2">
+                        <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1 ml-1 text-indigo-600">Stream Duration</label>
+                        <div className="flex items-center gap-3">
+                          <div className="flex-1">
+                            <input
+                              type="number"
+                              placeholder="Hrs"
+                              value={Math.floor(formData.duration_minutes / 60) || ''}
+                              onChange={(e) => {
+                                const h = parseInt(e.target.value) || 0;
+                                const m = formData.duration_minutes % 60;
+                                setFormData({ ...formData, duration_minutes: (h * 60) + m });
+                              }}
+                              className="block w-full rounded-xl border-gray-200 bg-white py-2 px-3 text-xs focus:ring-2 focus:ring-indigo-500 transition-all font-bold"
+                            />
+                            <span className="text-[7px] text-gray-400 font-bold uppercase ml-1">Horas</span>
+                          </div>
+                          <div className="flex-1">
+                            <input
+                              type="number"
+                              placeholder="Min"
+                              max="59"
+                              value={formData.duration_minutes % 60 || ''}
+                              onChange={(e) => {
+                                const h = Math.floor(formData.duration_minutes / 60);
+                                const m = parseInt(e.target.value) || 0;
+                                setFormData({ ...formData, duration_minutes: (h * 60) + m });
+                              }}
+                              className="block w-full rounded-xl border-gray-200 bg-white py-2 px-3 text-xs focus:ring-2 focus:ring-indigo-500 transition-all font-bold"
+                            />
+                            <span className="text-[7px] text-gray-400 font-bold uppercase ml-1">Minutos</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
