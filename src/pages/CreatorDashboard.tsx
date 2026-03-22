@@ -4,8 +4,8 @@ import { useAuth } from '../AuthContext';
 import { 
   Sparkles, Youtube, Instagram, Globe, 
   ExternalLink, TrendingUp, Zap, Trophy, Flame, CheckCircle2,
-  LayoutDashboard, Upload, Wallet, Plus, RefreshCw, BarChart3, List, Award,
-  AlertCircle, CheckCircle, Rocket
+  LayoutDashboard, Upload, Wallet, Plus, RefreshCw, BarChart3, List as ListIcon, LayoutGrid, Award,
+  AlertCircle, CheckCircle, Rocket, X
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -39,6 +39,7 @@ export default function CreatorDashboard() {
   const [isProcessingContent, setIsProcessingContent] = useState(false);
   const [previewRankIndex, setPreviewRankIndex] = useState<number | null>(null);
   const [editingContent, setEditingContent] = useState<any>(null);
+  const [isCompactView, setIsCompactView] = useState(false);
 
   // Derived state
   const currentRankIndex = useMemo(() => {
@@ -149,7 +150,7 @@ export default function CreatorDashboard() {
         {[
           { id: 'overview', label: 'Resumen', icon: LayoutDashboard },
           { id: 'campaigns', label: 'Campañas', icon: Rocket },
-          { id: 'content', label: 'Mi Contenido', icon: List },
+          { id: 'content', label: 'Mi Contenido', icon: ListIcon },
           { id: 'journey', label: 'Mi Camino', icon: Trophy }
         ].map(tab => (
           <button
@@ -180,7 +181,7 @@ export default function CreatorDashboard() {
               label="Publicaciones" 
               value={metrics.totalPosts} 
               trend={metrics.postsTrend ? `${metrics.postsTrend.isPositive ? '+' : '-'}${metrics.postsTrend.value}% vs mes anterior` : undefined} 
-              icon={List} 
+              icon={ListIcon} 
               iconColor="text-teal-600" 
             />
           </div>
@@ -291,32 +292,105 @@ export default function CreatorDashboard() {
       )}
 
       {activeTab === 'content' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-in fade-in duration-500">
-          {filteredContent.map((item, i) => (
-            <ContentCard 
-                key={item.id} 
-                item={item as any} 
-                index={i} 
-                onEdit={(c) => { 
-                    setEditingContent(c); 
-                    setIsContentModalOpen(true); 
-                }} 
-                onDelete={async (id) => { 
-                    if(confirm("¿Eliminar contenido?")) {
-                        await supabase.from('content').delete().eq('id', id);
-                        success("Contenido eliminado");
-                        refresh();
-                    }
-                }} 
-                onClick={() => window.open(item.url, '_blank')}
-            />
-          ))}
-          <button onClick={() => { setEditingContent(null); setIsContentModalOpen(true); }} className="aspect-square rounded-[2rem] border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-4 text-gray-400 hover:border-indigo-300 hover:text-indigo-400 transition-all group">
-            <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-indigo-50 transition-all">
-              <Plus className="h-6 w-6" />
+        <div className="space-y-6 animate-in fade-in duration-500">
+          <div className="flex items-center justify-between gap-4 mb-2">
+            <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight">Mi Contenido</h2>
+            <div className="flex items-center gap-1 p-1 bg-gray-50 rounded-xl border border-gray-100">
+              <button 
+                onClick={() => setIsCompactView(false)}
+                className={`p-2 rounded-lg transition-all ${!isCompactView ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                title="Vista Cuadrícula"
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </button>
+              <button 
+                onClick={() => setIsCompactView(true)}
+                className={`p-2 rounded-lg transition-all ${isCompactView ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                title="Vista Lista"
+              >
+                <ListIcon className="h-4 w-4" />
+              </button>
             </div>
-            <span className="text-xs font-black uppercase tracking-widest">Añadir Contenido</span>
-          </button>
+          </div>
+
+          <div className={isCompactView ? "space-y-3" : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"}>
+            {filteredContent.map((item, i) => (
+              isCompactView ? (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.03 }}
+                  onClick={() => window.open(item.url, '_blank')}
+                  className="group bg-white p-4 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 cursor-pointer"
+                >
+                  <div className="flex items-center gap-4 w-full sm:w-auto">
+                    <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-50 transition-colors">
+                      {item.platform === 'tiktok' && <Flame className="h-5 w-5 text-rose-500" />}
+                      {item.platform === 'instagram' && <Instagram className="h-5 w-5 text-pink-500" />}
+                      {item.platform === 'youtube' && <Youtube className="h-5 w-5 text-red-500" />}
+                      {item.platform === 'twitch' && <Zap className="h-5 w-5 text-purple-500" />}
+                      {!['tiktok', 'instagram', 'youtube', 'twitch'].includes(item.platform) && <Globe className="h-5 w-5 text-indigo-500" />}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-black text-gray-900 truncate leading-tight">{item.title || 'Sin Título'}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest px-1.5 py-0.5 bg-gray-50 rounded-md border border-gray-100">{item.platform}</span>
+                        <span className="text-[9px] font-bold text-indigo-400 uppercase tracking-widest">{campaigns.find(c => c.id === item.campaign_id)?.name || 'General'}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto px-1 sm:px-0">
+                    <div className="flex items-center gap-8">
+                      <div className="flex flex-col items-end">
+                        <span className="text-base font-black text-gray-900 leading-none">{item.views?.toLocaleString() || 0}</span>
+                        <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest mt-0.5">Vistas</span>
+                      </div>
+                      <div className="flex flex-col items-end">
+                        <span className="text-base font-black text-emerald-600 leading-none">${((item.views || 0) / 1000 * 2.5).toFixed(2)}</span>
+                        <span className="text-[8px] font-black text-emerald-400 uppercase tracking-widest mt-0.5">ROI Est.</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+                       <button onClick={() => { setEditingContent(item); setIsContentModalOpen(true); }} className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"><BarChart3 className="h-4 w-4" /></button>
+                       <button onClick={async () => {
+                         if(confirm("¿Eliminar contenido?")) {
+                            await supabase.from('content').delete().eq('id', item.id);
+                            refresh();
+                         }
+                       }} className="p-2 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"><AlertCircle className="h-4 w-4" /></button>
+                    </div>
+                  </div>
+                </motion.div>
+              ) : (
+                <ContentCard 
+                    key={item.id} 
+                    item={item as any} 
+                    index={i} 
+                    onEdit={(c) => { 
+                        setEditingContent(c); 
+                        setIsContentModalOpen(true); 
+                    }} 
+                    onDelete={async (id) => { 
+                        if(confirm("¿Eliminar contenido?")) {
+                            await supabase.from('content').delete().eq('id', id);
+                            success("Contenido eliminado");
+                            refresh();
+                        }
+                    }} 
+                    onClick={() => window.open(item.url, '_blank')}
+                />
+              )
+            ))}
+            <button onClick={() => { setEditingContent(null); setIsContentModalOpen(true); }} className={`rounded-[2rem] border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-4 text-gray-400 hover:border-indigo-300 hover:text-indigo-400 transition-all group ${isCompactView ? 'h-20 flex-row px-8' : 'aspect-square'}`}>
+              <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-indigo-50 transition-all">
+                <Plus className="h-6 w-6" />
+              </div>
+              <span className="text-xs font-black uppercase tracking-widest">Añadir Contenido</span>
+            </button>
+          </div>
         </div>
       )}
       
