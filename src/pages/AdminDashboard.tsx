@@ -347,8 +347,7 @@ export default function AdminDashboard() {
       <aside className="w-72 bg-white border-r border-gray-100 p-8 hidden lg:block">
         <div 
           onClick={() => {
-            resetFilters();
-            setActiveTab('overview');
+            resetFilters({ tab: 'overview' } as any);
           }}
           className="flex items-center gap-3 px-2 mb-10 cursor-pointer group active:scale-95 transition-all"
         >
@@ -363,8 +362,11 @@ export default function AdminDashboard() {
             <button
               key={item.id}
               onClick={() => {
-                if (item.id === 'overview') resetFilters();
-                setActiveTab(item.id);
+                if (item.id === 'overview') {
+                  resetFilters({ tab: 'overview' } as any);
+                } else {
+                  setActiveTab(item.id);
+                }
               }}
               className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-black uppercase tracking-widest transition-all ${
                 activeTab === item.id ? 'bg-indigo-50 text-indigo-600 shadow-sm' : 'text-gray-400 hover:bg-gray-50 hover:text-gray-600'
@@ -1686,8 +1688,11 @@ export default function AdminDashboard() {
             <button
               key={item.id}
               onClick={() => {
-                if (item.id === 'overview') resetFilters();
-                setActiveTab(item.id);
+                if (item.id === 'overview') {
+                  resetFilters({ tab: 'overview' } as any);
+                } else {
+                  setActiveTab(item.id);
+                }
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
               className={`flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-2xl transition-all ${
