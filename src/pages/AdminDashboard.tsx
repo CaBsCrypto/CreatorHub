@@ -80,7 +80,8 @@ export default function AdminDashboard() {
     creator: 'all', 
     view: 'compact',
     pay_campaign: 'all',
-    pay_month: 'all'
+    pay_month: 'all',
+    team_role: 'all'
   });
   const searchTerm = filters.search;
   const filterPlatform = filters.platform;
@@ -88,6 +89,7 @@ export default function AdminDashboard() {
   const filterCreator = filters.creator;
   const payCampaign = filters.pay_campaign;
   const payMonth = filters.pay_month;
+  const teamRole = filters.team_role;
   const isCompactView = filters.view !== 'grid';
   const [deletedUserIds, setDeletedUserIds] = useState<string[]>([]);
 
@@ -109,8 +111,16 @@ export default function AdminDashboard() {
   const [newPayment, setNewPayment] = useState({ creator_id: '', guest_name: '', amount: '', currency: 'USDT', concept: '', campaign_id: '', paid_at: new Date().toISOString().split('T')[0] });
 
   const filteredUsers = useMemo(() => {
-    return users.filter(u => !deletedUserIds.includes(u.id));
-  }, [users, deletedUserIds]);
+    let result = users.filter(u => !deletedUserIds.includes(u.id));
+    if (teamRole !== 'all') {
+      if (teamRole === 'staff') {
+        result = result.filter(u => u.role === 'admin' || u.role === 'manager');
+      } else {
+        result = result.filter(u => u.role === teamRole);
+      }
+    }
+    return result;
+  }, [users, deletedUserIds, teamRole]);
 
   const handleDeleteCampaign = async (id: string) => {
     if (!window.confirm('¿Estás seguro de eliminar esta campaña?')) return;
@@ -1028,6 +1038,44 @@ export default function AdminDashboard() {
 
         {activeTab === 'team' && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Team Filter Bar */}
+            <div className="flex flex-wrap items-center gap-3 bg-white p-4 rounded-[2rem] border border-gray-100 shadow-sm">
+              <div className="flex items-center gap-2 px-4 py-2 bg-rose-50 text-rose-600 rounded-xl">
+                <Users className="h-4 w-4" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-rose-600">Filtros de Equipo</span>
+              </div>
+              
+              <div className="flex flex-wrap items-center gap-2">
+                {[
+                  { id: 'all', label: 'Todos', count: users.length, color: 'indigo' },
+                  { id: 'staff', label: 'Staff (Admin/Manager)', count: users.filter(u => u.role === 'admin' || u.role === 'manager').length, color: 'rose' },
+                  { id: 'creator', label: 'Creadores', count: users.filter(u => u.role === 'creator').length, color: 'emerald' },
+                  { id: 'client', label: 'Clientes', count: users.filter(u => u.role === 'client').length, color: 'amber' }
+                ].map((role) => (
+                  <button
+                    key={role.id}
+                    onClick={() => setFilter('team_role', role.id)}
+                    className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border-2 ${
+                      teamRole === role.id 
+                        ? `bg-${role.color}-600 border-${role.color}-600 text-white shadow-lg` 
+                        : `bg-white border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-100`
+                    }`}
+                  >
+                    {role.label} <span className={`ml-1 opacity-60`}>({role.count})</span>
+                  </button>
+                ))}
+              </div>
+
+              {teamRole !== 'all' && (
+                <button 
+                  onClick={() => setFilter('team_role', 'all')}
+                  className="text-[10px] font-black uppercase tracking-widest text-rose-500 hover:text-rose-600 transition-colors ml-auto flex items-center gap-1"
+                >
+                  <X className="h-3 w-3" /> Limpiar
+                </button>
+              )}
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredUsers.map((u, i) => (
                 <motion.div 
