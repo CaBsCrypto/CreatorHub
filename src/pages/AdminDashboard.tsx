@@ -929,14 +929,56 @@ export default function AdminDashboard() {
               </div>
             </div>
 
+            {/* Active Filter Indicator */}
+            {(filterCampaign !== 'all' || filterPlatform !== 'all' || filterCreator !== 'all' || searchTerm) && (
+              <div className="flex flex-wrap items-center gap-2 mb-4 animate-in fade-in slide-in-from-left-4 duration-300">
+                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">Filtros Activos:</span>
+                
+                {filterCampaign !== 'all' && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-xl text-[10px] font-black border border-indigo-100 uppercase tracking-widest">
+                    Campaña: {campaigns.find(c => c.id === filterCampaign)?.name || '...'}
+                    <button onClick={() => setFilter('campaign', 'all')} className="hover:text-indigo-900"><X className="h-3 w-3" /></button>
+                  </div>
+                )}
+
+                {filterPlatform !== 'all' && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-xl text-[10px] font-black border border-indigo-100 uppercase tracking-widest">
+                    Plataforma: {filterPlatform}
+                    <button onClick={() => setFilter('platform', 'all')} className="hover:text-indigo-900"><X className="h-3 w-3" /></button>
+                  </div>
+                )}
+
+                {filterCreator !== 'all' && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-xl text-[10px] font-black border border-indigo-100 uppercase tracking-widest">
+                    Creador: {filterCreator.startsWith('guest:') ? filterCreator.replace('guest:', '') : (users.find(u => u.id === filterCreator)?.display_name || '...')}
+                    <button onClick={() => setFilter('creator', 'all')} className="hover:text-indigo-900"><X className="h-3 w-3" /></button>
+                  </div>
+                )}
+
+                {searchTerm && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-xl text-[10px] font-black border border-indigo-100 uppercase tracking-widest">
+                    Búsqueda: {searchTerm}
+                    <button onClick={() => setFilter('search', '')} className="hover:text-indigo-900"><X className="h-3 w-3" /></button>
+                  </div>
+                )}
+
+                <button 
+                  onClick={resetFilters}
+                  className="px-3 py-1.5 text-[10px] font-black text-rose-500 hover:bg-rose-50 rounded-xl uppercase tracking-widest transition-colors border border-transparent hover:border-rose-100"
+                >
+                  Limpiar Todo
+                </button>
+              </div>
+            )}
+
             {/* Content Grid */}
             <div className={isCompactView ? "space-y-3" : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"}>
               {filteredContent
                 .filter(item => !deletedContentIds.includes(item.id))
                 .filter(item => {
-                  const matchesSearch = item.title?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                                      item.platform.toLowerCase().includes(searchTerm.toLowerCase());
-                  return matchesSearch;
+                  if (!searchTerm) return true;
+                  return item.title?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                         item.platform.toLowerCase().includes(searchTerm.toLowerCase());
                 })
                 .map((item, i) => (
                   isCompactView ? (
