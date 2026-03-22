@@ -142,7 +142,7 @@ export default function CreatorDashboard() {
   };
 
     return (
-      <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 p-4 md:p-0 pb-20 md:pb-6">
+      <div className="relative z-0 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 p-4 md:p-0 pb-20 md:pb-6">
         {/* Header Section */}
         <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
           <div className="cursor-pointer" onClick={() => { setActiveTab('overview'); resetFilters(); }}>
@@ -164,7 +164,10 @@ export default function CreatorDashboard() {
           </div>
         </header>
         {/* Main Tabs Navigation */}
-        <div className="flex items-center gap-2 p-1.5 bg-gray-100/50 rounded-2xl w-full lg:w-fit overflow-x-auto no-scrollbar relative z-50">
+        <div 
+          className="flex items-center gap-2 p-1.5 bg-gray-100/50 rounded-2xl w-full lg:w-fit overflow-x-auto no-scrollbar relative z-[9999] pointer-events-auto"
+          style={{ isolation: 'isolate' }}
+        >
           {[
             { id: 'overview', label: 'Resumen', icon: LayoutDashboard },
             { id: 'campaigns', label: 'Campañas', icon: Rocket },
@@ -176,10 +179,11 @@ export default function CreatorDashboard() {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log("Tab clicked:", tab.id);
+                console.log("CRITICAL: Tab clicked ->", tab.id);
+                alert("Click detected: " + tab.id); // Aggressive debug
                 setActiveTab(tab.id);
               }}
-              className={`flex-none flex items-center gap-2.5 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 pointer-events-auto ${
+              className={`flex-none flex items-center gap-2.5 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 pointer-events-auto cursor-pointer ${
                 activeTab === tab.id 
                   ? 'bg-white text-indigo-600 shadow-[0_8px_20px_-4px_rgba(79,70,229,0.15)] ring-1 ring-gray-100/50' 
                   : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
