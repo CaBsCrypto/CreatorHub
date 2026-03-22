@@ -54,6 +54,7 @@ export default function AdminDashboard() {
   const [editingAudienceUser, setEditingAudienceUser] = useState<UserProfile | null>(null);
   const [isTwitchModalOpen, setIsTwitchModalOpen] = useState(false);
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
+  const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
   const [editingContent, setEditingContent] = useState<ContentItem | null>(null);
   const [isAnalyzingCreator, setIsAnalyzingCreator] = useState(false);
   const [managingUser, setManagingUser] = useState<UserProfile | null>(null);
@@ -369,7 +370,102 @@ export default function AdminDashboard() {
             <h1 className="text-3xl lg:text-4xl font-black text-gray-900 leading-tight">Panel de Control</h1>
             <p className="text-sm font-medium text-gray-400">Gestiona la agencia, creadores y campañas activas.</p>
           </div>
-          <div className="flex flex-wrap items-center gap-2 md:gap-3 w-full lg:w-auto animate-in fade-in slide-in-from-right-4 duration-500">
+          <div className="flex flex-wrap items-center gap-2 md:gap-3 w-full lg:w-auto animate-in fade-in slide-in-from-right-4 duration-500 relative">
+            <div className="relative">
+              <button 
+                onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)} 
+                className={`flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 md:px-6 py-3 rounded-2xl text-[10px] md:text-xs font-black uppercase tracking-widest transition-all active:scale-95 border ${
+                  isFilterMenuOpen || (filterPlatform !== 'all' || filterCampaign !== 'all' || filterCreator !== 'all' || payMonth !== 'all' || teamRole !== 'all')
+                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-xl shadow-indigo-100' 
+                    : 'bg-white text-gray-900 border-gray-100 shadow-sm hover:bg-gray-50'
+                }`}
+              >
+                <Filter className="h-4 w-4" /> 
+                Filtros
+                {(filterPlatform !== 'all' || filterCampaign !== 'all' || filterCreator !== 'all' || payMonth !== 'all' || teamRole !== 'all') && (
+                  <span className="w-5 h-5 bg-rose-500 text-white text-[10px] rounded-full flex items-center justify-center animate-bounce">
+                    {[filterPlatform, filterCampaign, filterCreator, payMonth, teamRole].filter(f => f !== 'all').length}
+                  </span>
+                )}
+              </button>
+
+              <AnimatePresence>
+                {isFilterMenuOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setIsFilterMenuOpen(false)} />
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      className="absolute right-0 top-full mt-3 w-[320px] bg-white rounded-[2rem] shadow-2xl border border-gray-100 p-6 z-50 space-y-6"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-xs font-black text-gray-900 uppercase tracking-widest">Ajustar Vista</h4>
+                        <button onClick={resetFilters} className="text-[10px] font-black text-rose-500 uppercase hover:underline">Limpiar</button>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-black text-gray-400 uppercase ml-1">Plataforma</label>
+                          <select value={filterPlatform} onChange={e => setFilter('platform', e.target.value)} className="w-full bg-gray-50 border-none rounded-xl px-4 py-2.5 text-xs font-bold text-gray-700 focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <option value="all">Todas las plataformas</option>
+                            <option value="tiktok">TikTok</option>
+                            <option value="instagram">Instagram</option>
+                            <option value="youtube">YouTube</option>
+                            <option value="twitch">Twitch</option>
+                            <option value="x">X / Twitter</option>
+                            <option value="coinmarketcap">CoinMarketCap</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-black text-gray-400 uppercase ml-1">Campaña</label>
+                          <select value={filterCampaign} onChange={e => setFilter('campaign', e.target.value)} className="w-full bg-gray-50 border-none rounded-xl px-4 py-2.5 text-xs font-bold text-gray-700 focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <option value="all">Todas las campañas</option>
+                            {campaigns.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                          </select>
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-black text-gray-400 uppercase ml-1">Creador</label>
+                          <select value={filterCreator} onChange={e => setFilter('creator', e.target.value)} className="w-full bg-gray-50 border-none rounded-xl px-4 py-2.5 text-xs font-bold text-gray-700 focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <option value="all">Todos los creadores</option>
+                            {users.filter(u => u.role === 'creator').map(u => (
+                              <option key={u.id} value={u.id}>{u.display_name || u.email.split('@')[0]}</option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {(activeTab === 'payments') && (
+                          <div className="pt-4 border-t border-gray-50 space-y-1.5">
+                            <label className="text-[10px] font-black text-gray-400 uppercase ml-1 italic">Filtro de Pagos (Mes)</label>
+                            <select value={payMonth} onChange={e => setFilter('pay_month', e.target.value)} className="w-full bg-indigo-50/50 border-none rounded-xl px-4 py-2.5 text-xs font-bold text-indigo-700 focus:ring-2 focus:ring-indigo-500 outline-none">
+                              <option value="all">Todos los meses</option>
+                              {[...new Set(payments.map(p => p.paid_at.substring(0, 7)))].sort().reverse().map(month => (
+                                <option key={month} value={month}>{new Date(month + '-02').toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</option>
+                              ))}
+                            </select>
+                          </div>
+                        )}
+
+                        {(activeTab === 'team') && (
+                          <div className="pt-4 border-t border-gray-50 space-y-1.5">
+                            <label className="text-[10px] font-black text-gray-400 uppercase ml-1 italic">Filtrar Equipo</label>
+                            <select value={teamRole} onChange={e => setFilter('team_role', e.target.value)} className="w-full bg-rose-50/50 border-none rounded-xl px-4 py-2.5 text-xs font-bold text-rose-700 focus:ring-2 focus:ring-rose-500 outline-none">
+                              <option value="all">Todos</option>
+                              <option value="staff">Staff (Admin/Manager)</option>
+                              <option value="creator">Creadores</option>
+                              <option value="client">Clientes</option>
+                            </select>
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
+
             <button onClick={() => setIsAnalyzingCreator(true)} className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-indigo-50 text-indigo-600 rounded-2xl text-[10px] md:text-xs font-black uppercase tracking-widest hover:bg-indigo-100 transition-all active:scale-95 border border-indigo-100"><Search className="h-4 w-4" /> Analizar</button>
             <button onClick={() => setIsCreatingCampaign(true)} className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-indigo-600 text-white rounded-2xl text-[10px] md:text-xs font-black uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95"><Plus className="h-4 w-4" /> Nueva Campaña</button>
             <button onClick={() => setIsAddingUser(true)} className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-white text-gray-900 rounded-2xl text-[10px] md:text-xs font-black uppercase tracking-widest shadow-sm ring-1 ring-gray-100 hover:bg-gray-50 transition-all"><Users className="h-4 w-4" /> Añadir Miembro</button>
@@ -468,58 +564,6 @@ export default function AdminDashboard() {
 
         {activeTab === 'overview' && (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {/* Global Filters Bar */}
-            <div className="flex flex-wrap items-center gap-3 bg-indigo-50/50 p-4 rounded-[2rem] border border-indigo-100/50 shadow-sm">
-              <div className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl shadow-lg shadow-indigo-100">
-                <Filter className="h-4 w-4" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-white">Filtros Activos</span>
-              </div>
-              
-              <div className="flex flex-wrap items-center gap-2">
-                <select 
-                  value={filterPlatform} 
-                  onChange={e => setFilter('platform', e.target.value)}
-                  className="bg-white border-2 border-transparent focus:border-indigo-100 rounded-xl px-4 py-2 text-xs font-bold text-gray-700 shadow-sm outline-none transition-all cursor-pointer hover:bg-gray-50"
-                >
-                  <option value="all">Filtro: Todas las plataformas</option>
-                  <option value="tiktok">TikTok</option>
-                  <option value="instagram">Instagram</option>
-                  <option value="youtube">YouTube</option>
-                  <option value="twitch">Twitch</option>
-                  <option value="x">X / Twitter</option>
-                  <option value="coinmarketcap">CoinMarketCap</option>
-                </select>
-
-                <select 
-                  value={filterCampaign} 
-                  onChange={e => setFilter('campaign', e.target.value)}
-                  className="bg-white border-2 border-transparent focus:border-indigo-100 rounded-xl px-4 py-2 text-xs font-bold text-gray-700 shadow-sm outline-none transition-all cursor-pointer hover:bg-gray-50 max-w-[200px]"
-                >
-                  <option value="all">Filtro: Todas las campañas</option>
-                  {campaigns.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
-
-                <select 
-                  value={filterCreator} 
-                  onChange={e => setFilter('creator', e.target.value)}
-                  className="bg-white border-2 border-transparent focus:border-indigo-100 rounded-xl px-4 py-2 text-xs font-bold text-gray-700 shadow-sm outline-none transition-all cursor-pointer hover:bg-gray-50 max-w-[200px]"
-                >
-                  <option value="all">Filtro: Todos los creadores</option>
-                  {users.filter(u => u.role === 'creator').map(u => (
-                    <option key={u.id} value={u.id}>{u.display_name || u.email.split('@')[0]}</option>
-                  ))}
-                </select>
-              </div>
-
-              {(filterPlatform !== 'all' || filterCampaign !== 'all' || filterCreator !== 'all' || searchTerm !== '') && (
-                <button 
-                  onClick={resetFilters}
-                  className="flex items-center gap-2 px-4 py-2 bg-rose-50 text-rose-600 border border-rose-100 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-100 transition-all ml-auto"
-                >
-                  <X className="h-3 w-3" /> Limpiar Todo
-                </button>
-              )}
-            </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-6">
               <AdminMetricCard 
@@ -1038,43 +1082,6 @@ export default function AdminDashboard() {
 
         {activeTab === 'team' && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {/* Team Filter Bar */}
-            <div className="flex flex-wrap items-center gap-3 bg-white p-4 rounded-[2rem] border border-gray-100 shadow-sm">
-              <div className="flex items-center gap-2 px-4 py-2 bg-rose-50 text-rose-600 rounded-xl">
-                <Users className="h-4 w-4" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-rose-600">Filtros de Equipo</span>
-              </div>
-              
-              <div className="flex flex-wrap items-center gap-2">
-                {[
-                  { id: 'all', label: 'Todos', count: users.length, color: 'indigo' },
-                  { id: 'staff', label: 'Staff (Admin/Manager)', count: users.filter(u => u.role === 'admin' || u.role === 'manager').length, color: 'rose' },
-                  { id: 'creator', label: 'Creadores', count: users.filter(u => u.role === 'creator').length, color: 'emerald' },
-                  { id: 'client', label: 'Clientes', count: users.filter(u => u.role === 'client').length, color: 'amber' }
-                ].map((role) => (
-                  <button
-                    key={role.id}
-                    onClick={() => setFilter('team_role', role.id)}
-                    className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border-2 ${
-                      teamRole === role.id 
-                        ? `bg-${role.color}-600 border-${role.color}-600 text-white shadow-lg` 
-                        : `bg-white border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-100`
-                    }`}
-                  >
-                    {role.label} <span className={`ml-1 opacity-60`}>({role.count})</span>
-                  </button>
-                ))}
-              </div>
-
-              {teamRole !== 'all' && (
-                <button 
-                  onClick={() => setFilter('team_role', 'all')}
-                  className="text-[10px] font-black uppercase tracking-widest text-rose-500 hover:text-rose-600 transition-colors ml-auto flex items-center gap-1"
-                >
-                  <X className="h-3 w-3" /> Limpiar
-                </button>
-              )}
-            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredUsers.map((u, i) => (
@@ -1150,47 +1157,6 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* Payments Filter Bar */}
-            <div className="flex flex-wrap items-center gap-3 bg-white p-4 rounded-[2rem] border border-gray-100 shadow-sm">
-              <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 text-gray-500 rounded-xl">
-                <Filter className="h-4 w-4" />
-                <span className="text-[10px] font-black uppercase tracking-widest">Filtros de Pagos</span>
-              </div>
-              
-              <select 
-                value={payCampaign} 
-                onChange={e => setFilter('pay_campaign', e.target.value)}
-                className="bg-gray-50 border-none rounded-xl px-4 py-2 text-xs font-bold text-gray-600 focus:ring-2 focus:ring-indigo-500 outline-none transition-all max-w-[200px]"
-              >
-                <option value="all">Todas las campañas</option>
-                {campaigns.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
-
-              <select 
-                value={payMonth} 
-                onChange={e => setFilter('pay_month', e.target.value)}
-                className="bg-gray-50 border-none rounded-xl px-4 py-2 text-xs font-bold text-gray-600 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
-              >
-                <option value="all">Todos los meses</option>
-                {[...new Set(payments.map(p => p.paid_at.substring(0, 7)))].sort().reverse().map(month => (
-                  <option key={month} value={month}>
-                    {new Date(month + '-02').toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
-                  </option>
-                ))}
-              </select>
-
-              {(payCampaign !== 'all' || payMonth !== 'all') && (
-                <button 
-                  onClick={() => {
-                    setFilter('pay_campaign', 'all');
-                    setFilter('pay_month', 'all');
-                  }}
-                  className="text-[10px] font-black uppercase tracking-widest text-rose-500 hover:text-rose-600 transition-colors ml-auto flex items-center gap-1"
-                >
-                  <X className="h-3 w-3" /> Limpiar
-                </button>
-              )}
-            </div>
 
             {/* Add Payment */}
             <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-8">
