@@ -100,14 +100,16 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
         result = result.filter(c => c.platform?.toLowerCase().trim() === pFilter);
       }
       if (filters.campaign && filters.campaign !== 'all' && filters.campaign !== '') {
-        result = result.filter(c => c.campaign_id === filters.campaign);
+        const targetId = String(filters.campaign);
+        result = result.filter(c => String(c.campaign_id) === targetId);
       }
       if (filters.creator && filters.creator !== 'all' && filters.creator !== '') {
         if (filters.creator.startsWith('guest:')) {
           const gName = filters.creator.replace('guest:', '');
           result = result.filter(c => c.guest_name === gName);
         } else {
-          result = result.filter(c => c.creator_id === filters.creator);
+          const targetCreatorId = String(filters.creator);
+          result = result.filter(c => String(c.creator_id) === targetCreatorId);
         }
       }
       
