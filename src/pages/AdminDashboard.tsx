@@ -790,6 +790,7 @@ export default function AdminDashboard() {
                         onDelete={handleDeleteCampaign}
                         onClick={(id) => {
                           setFilter('campaign', id);
+                          setFilter('creator', 'all'); // Reset creator filter to see everything of that campaign
                           setActiveTab('content');
                         }}
                         onViewReport={(id, e) => {
