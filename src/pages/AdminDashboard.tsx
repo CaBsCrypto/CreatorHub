@@ -93,6 +93,7 @@ export default function AdminDashboard() {
   const teamRole = filters.team_role;
   const isCompactView = filters.view !== 'grid';
   const [deletedUserIds, setDeletedUserIds] = useState<string[]>([]);
+  const [deletedContentIds, setDeletedContentIds] = useState<string[]>([]);
 
   const { campaigns, content, users, payments, metrics, creatorStats, refresh, filteredContent } = useDashboardData('admin', { 
     platform: filters.platform, 
@@ -915,6 +916,7 @@ export default function AdminDashboard() {
             {/* Content Grid */}
             <div className={isCompactView ? "space-y-3" : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"}>
               {content
+                .filter(item => !deletedContentIds.includes(item.id))
                 .filter(item => {
                   const matchesSearch = item.title?.toLowerCase().includes(searchTerm.toLowerCase()) || 
                                       item.platform.toLowerCase().includes(searchTerm.toLowerCase());
@@ -1024,6 +1026,7 @@ export default function AdminDashboard() {
                             e.preventDefault();
                             e.stopPropagation();
                             if (confirm("¿Estás seguro de eliminar esta publicación?")) {
+                              setDeletedContentIds(prev => [...prev, item.id]);
                               const { error } = await supabase.from('content').delete().eq('id', item.id);
                               if (error) {
                                 toastError("Error al eliminar: " + error.message);
@@ -1052,6 +1055,7 @@ export default function AdminDashboard() {
                       }}
                       onDelete={async (id) => {
                         if (confirm("¿Estás seguro de que deseas eliminar este contenido?")) {
+                          setDeletedContentIds(prev => [...prev, id]);
                           const { error } = await supabase.from('content').delete().eq('id', id);
                           if (!error) refresh();
                         }
