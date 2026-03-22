@@ -974,6 +974,26 @@ export default function AdminDashboard() {
               </div>
             )}
 
+            {/* Filtered Content Summary Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div className="bg-white/50 backdrop-blur-sm p-4 rounded-3xl border border-gray-100 flex flex-col group hover:bg-white hover:shadow-md transition-all duration-300">
+                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                  <Youtube className="h-3 w-3 text-indigo-400" /> Videos Filtrados
+                </span>
+                <span className="text-xl font-black text-gray-900">
+                  {filteredContent.filter(item => !deletedContentIds.includes(item.id)).length}
+                </span>
+              </div>
+              <div className="bg-white/50 backdrop-blur-sm p-4 rounded-3xl border border-gray-100 flex flex-col group hover:bg-white hover:shadow-md transition-all duration-300">
+                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                  <TrendingUp className="h-3 w-3 text-emerald-400" /> Vistas Totales
+                </span>
+                <span className="text-xl font-black text-emerald-600">
+                  {filteredContent.filter(item => !deletedContentIds.includes(item.id)).reduce((sum, item) => sum + (item.views || 0), 0).toLocaleString()}
+                </span>
+              </div>
+            </div>
+
             {/* Content Grid */}
             <div className={isCompactView ? "space-y-3" : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"}>
               {filteredContent
