@@ -46,7 +46,7 @@ export default function AdminDashboard() {
   const { success, error: toastError, info } = useToast();
   
   const ADMIN_TABS = ['overview', 'campaigns', 'clients', 'content', 'creators', 'payments', 'team'] as const;
-  const [activeTab, setActiveTab] = useTabNavigation<typeof ADMIN_TABS[number]>('overview', ADMIN_TABS);
+  // Tab management moved to filters hook for atomic state updates
   
   // Modals state
   const [isCreatingCampaign, setIsCreatingCampaign] = useState(false);
@@ -75,6 +75,7 @@ export default function AdminDashboard() {
 
   // Filters (synced to URL)
   const [filters, setFilter, setFilters, resetFilters] = useFilterParams({ 
+    tab: 'overview',
     search: '', 
     platform: 'all', 
     campaign: 'all', 
@@ -84,6 +85,8 @@ export default function AdminDashboard() {
     pay_month: 'all',
     team_role: 'all'
   });
+  const activeTab = filters.tab as typeof ADMIN_TABS[number];
+  const setActiveTab = (tab: typeof ADMIN_TABS[number]) => setFilter('tab', tab);
   const searchTerm = filters.search;
   const filterPlatform = filters.platform;
   const filterCampaign = filters.campaign;
@@ -790,10 +793,10 @@ export default function AdminDashboard() {
                         onDelete={handleDeleteCampaign}
                         onClick={(id) => {
                           setFilters({
+                            tab: 'content',
                             campaign: id,
                             creator: 'all'
                           });
-                          setActiveTab('content');
                         }}
                         onViewReport={(id, e) => {
                           e.stopPropagation();
