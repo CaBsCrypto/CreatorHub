@@ -5,7 +5,7 @@ import {
   Plus, Download, RefreshCw, Sparkles, LayoutDashboard, 
   List, Users, Youtube, TrendingUp, 
   BarChart3, Award, Zap, Trophy, Search, Filter, Trash2, ShieldCheck, Edit2,
-  LayoutGrid, List as ListIcon, Briefcase, Wallet, DollarSign, Calendar, Calculator, X
+  LayoutGrid, List as ListIcon, Briefcase, Wallet, DollarSign, Calendar, Calculator, X, Image as ImageIcon
 } from 'lucide-react';
 import { BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -94,7 +94,8 @@ export default function AdminDashboard() {
   const payCampaign = filters.pay_campaign;
   const payMonth = filters.pay_month;
   const teamRole = filters.team_role;
-  const isCompactView = filters.view !== 'grid';
+  const viewMode = (filters.view as 'grid' | 'compact' | 'gallery') || 'compact';
+  const isCompactView = viewMode === 'compact';
   const [deletedUserIds, setDeletedUserIds] = useState<string[]>([]);
   const [deletedContentIds, setDeletedContentIds] = useState<string[]>([]);
 
@@ -866,14 +867,21 @@ export default function AdminDashboard() {
                     <div className="flex items-center gap-1 p-1 bg-gray-50 rounded-xl border border-gray-100">
                       <button 
                         onClick={() => setFilter('view', 'grid')}
-                        className={`p-2 rounded-lg transition-all ${!isCompactView ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                        className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                         title="Vista Cuadrícula"
                       >
                         <LayoutGrid className="h-4 w-4" />
                       </button>
                       <button 
+                        onClick={() => setFilter('view', 'gallery')}
+                        className={`p-2 rounded-lg transition-all ${viewMode === 'gallery' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                        title="Vista Galería (Álbum)"
+                      >
+                        <ImageIcon className="h-4 w-4" />
+                      </button>
+                      <button 
                         onClick={() => setFilter('view', 'compact')}
-                        className={`p-2 rounded-lg transition-all ${isCompactView ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                        className={`p-2 rounded-lg transition-all ${viewMode === 'compact' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                         title="Vista Lista"
                       >
                         <ListIcon className="h-4 w-4" />
@@ -1005,8 +1013,12 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* Content Grid */}
-            <div className={isCompactView ? "space-y-3" : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"}>
+            {/* Content Grid/Gallery/List */}
+            <div className={
+              viewMode === 'compact' ? "space-y-3" : 
+              viewMode === 'gallery' ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4" :
+              "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+            }>
               {filteredContent
                 .filter(item => !deletedContentIds.includes(item.id))
                 .filter(item => {
@@ -1015,7 +1027,38 @@ export default function AdminDashboard() {
                          item.platform.toLowerCase().includes(searchTerm.toLowerCase());
                 })
                 .map((item, i) => (
-                  isCompactView ? (
+                  viewMode === 'gallery' ? (
+                    <motion.div
+                      key={item.id}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: i * 0.01 }}
+                      onClick={() => window.open(item.url, '_blank')}
+                      className="aspect-square rounded-[2rem] overflow-hidden border border-gray-100 hover:ring-4 hover:ring-indigo-100 transition-all group relative cursor-pointer"
+                    >
+                      {item.thumbnail ? (
+                        <img src={item.thumbnail} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                      ) : (
+                        <div className="w-full h-full bg-gray-50 flex items-center justify-center">
+                          <ImageIcon className="h-6 w-6 text-gray-200" />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-3 flex flex-col justify-end">
+                        <p className="text-[8px] font-black text-white uppercase tracking-widest truncate">{item.platform}</p>
+                        <p className="text-[10px] font-bold text-white line-clamp-1">{item.title || 'Sin título'}</p>
+                      </div>
+                      <div 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingContent(item as any);
+                          setIsContentModalOpen(true);
+                        }}
+                        className="absolute top-2 right-2 p-1.5 bg-white/90 backdrop-blur-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white text-gray-700"
+                      >
+                        <Edit2 className="h-3 w-3" />
+                      </div>
+                    </motion.div>
+                  ) : isCompactView ? (
                     <motion.div 
                       key={item.id}
                       initial={{ opacity: 0, y: 10 }}
