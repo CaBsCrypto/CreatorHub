@@ -1601,9 +1601,9 @@ export default function AdminDashboard() {
                   : 'text-gray-400 hover:text-gray-600'
               }`}
             >
-              <item.icon className={`h-5 w-5 ${activeTab === item.id ? 'animate-in zoom-in-75 duration-300' : ''}`} />
-              <span className={`text-[8px] font-black uppercase tracking-tighter mt-1 ${activeTab === item.id ? 'block' : 'hidden'}`}>
-                {item.label.substring(0, 6)}
+              <item.icon className={`h-5 w-5 ${activeTab === item.id ? 'animate-in zoom-in-75 duration-300 mb-0.5' : 'mb-0.5'}`} />
+              <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-tighter mt-0.5 block w-full text-center truncate px-0.5">
+                {item.label}
               </span>
             </button>
           ))}
