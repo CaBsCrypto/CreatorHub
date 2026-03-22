@@ -345,18 +345,27 @@ export default function AdminDashboard() {
     <div className="flex min-h-screen bg-slate-50">
       {/* Sidebar */}
       <aside className="w-72 bg-white border-r border-gray-100 p-8 hidden lg:block">
-        <div className="flex items-center gap-3 mb-12">
-          <div className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-100">
+        <div 
+          onClick={() => {
+            resetFilters();
+            setActiveTab('overview');
+          }}
+          className="flex items-center gap-3 px-2 mb-10 cursor-pointer group active:scale-95 transition-all"
+        >
+          <div className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-100 group-hover:rotate-12 transition-transform">
             <Sparkles className="text-white h-5 w-5" />
           </div>
-          <span className="text-xl font-black text-gray-900 tracking-tighter">Umbra <span className="text-indigo-600">Admin</span></span>
+          <span className="text-xl font-black text-gray-900 tracking-tighter group-hover:text-indigo-600 transition-colors">Umbra <span className="text-indigo-600 group-hover:text-indigo-700">Admin</span></span>
         </div>
 
         <nav className="space-y-2">
           {sidebarItems.map(item => (
             <button
               key={item.id}
-              onClick={() => setActiveTab(item.id)}
+              onClick={() => {
+                if (item.id === 'overview') resetFilters();
+                setActiveTab(item.id);
+              }}
               className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-black uppercase tracking-widest transition-all ${
                 activeTab === item.id ? 'bg-indigo-50 text-indigo-600 shadow-sm' : 'text-gray-400 hover:bg-gray-50 hover:text-gray-600'
               }`}
@@ -975,20 +984,20 @@ export default function AdminDashboard() {
             )}
 
             {/* Filtered Content Summary Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              <div className="bg-white/50 backdrop-blur-sm p-4 rounded-3xl border border-gray-100 flex flex-col group hover:bg-white hover:shadow-md transition-all duration-300">
-                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                  <Youtube className="h-3 w-3 text-indigo-400" /> Videos Filtrados
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
+              <div className="bg-white/50 backdrop-blur-sm p-4 md:p-5 rounded-[2rem] border border-gray-100 flex flex-col group hover:bg-white hover:shadow-xl hover:shadow-indigo-100/20 transition-all duration-500">
+                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                  <Youtube className="h-3 w-3 text-indigo-400" /> Videos
                 </span>
-                <span className="text-xl font-black text-gray-900">
+                <span className="text-xl md:text-2xl font-black text-gray-900 group-hover:text-indigo-600 transition-colors">
                   {filteredContent.filter(item => !deletedContentIds.includes(item.id)).length}
                 </span>
               </div>
-              <div className="bg-white/50 backdrop-blur-sm p-4 rounded-3xl border border-gray-100 flex flex-col group hover:bg-white hover:shadow-md transition-all duration-300">
-                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                  <TrendingUp className="h-3 w-3 text-emerald-400" /> Vistas Totales
+              <div className="bg-white/50 backdrop-blur-sm p-4 md:p-5 rounded-[2rem] border border-gray-100 flex flex-col group hover:bg-white hover:shadow-xl hover:shadow-emerald-100/20 transition-all duration-500">
+                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                  <TrendingUp className="h-3 w-3 text-emerald-400" /> Vistas
                 </span>
-                <span className="text-xl font-black text-emerald-600">
+                <span className="text-xl md:text-2xl font-black text-emerald-600 group-hover:text-emerald-700 transition-colors">
                   {filteredContent.filter(item => !deletedContentIds.includes(item.id)).reduce((sum, item) => sum + (item.views || 0), 0).toLocaleString()}
                 </span>
               </div>
@@ -1677,6 +1686,7 @@ export default function AdminDashboard() {
             <button
               key={item.id}
               onClick={() => {
+                if (item.id === 'overview') resetFilters();
                 setActiveTab(item.id);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
