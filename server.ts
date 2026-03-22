@@ -21,8 +21,10 @@ import {
   FetchMetadataSchema, 
   RefreshMetricsSchema, 
   AnalyzeCreatorSchema, 
-  SendEmailSchema 
+  SendEmailSchema,
+  AnalyzeTwitchSchema
 } from "./src/middleware/validation.js";
+import { analyzeTwitchScreenshot } from "./src/services/aiService.js";
 
 dotenv.config();
 
@@ -103,6 +105,17 @@ app.post("/api/fetch-metadata", authenticate, validate(FetchMetadataSchema), asy
     res.json(data);
   } catch (error: any) {
     console.error("Metadata fetch error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/api/analyze-twitch", authenticate, validate(AnalyzeTwitchSchema), async (req, res) => {
+  try {
+    const { image } = req.body;
+    const analysis = await analyzeTwitchScreenshot(image);
+    res.json(analysis);
+  } catch (error: any) {
+    console.error("Twitch analysis error:", error.message);
     res.status(500).json({ error: error.message });
   }
 });

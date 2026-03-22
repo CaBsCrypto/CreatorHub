@@ -34,7 +34,7 @@ export async function analyzeTwitchScreenshot(image: string) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("AI Key not configured");
 
-  const prompt = "Analiza esta captura de pantalla de las estadísticas de un stream de Twitch. Extrae los siguientes datos en formato JSON: { 'views': número, 'peek_viewers': número, 'duration_minutes': número, 'title': cadena, 'stream_date': cadena ISO }. Si no encuentras alguno, pon 0 o null. No incluyas markdown, solo el objeto JSON puro.";
+  const prompt = "Analiza esta captura de pantalla de las estadísticas de un stream de Twitch. Extrae los siguientes datos en formato JSON: { 'views': número (reproducciones en vivo), 'peek_viewers': número (máximo de espectadores), 'duration_minutes': número (duración total en minutos), 'average_viewers': número (promedio de espectadores), 'title': cadena, 'stream_date': cadena ISO }. Si no encuentras alguno, pon 0 o null. No incluyas markdown, solo el objeto JSON puro.";
   const base64Data = image.split(',')[1] || image;
   
   // Use gemini-2.0-flash as confirmed by list-models diagnostic

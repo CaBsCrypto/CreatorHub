@@ -1,7 +1,9 @@
 import axios from "axios";
 import { google } from "googleapis";
+import { logScraperAction } from "./scraperLogService.js";
 
 export async function fetchTikTokData(url: string) {
+  const start = Date.now();
   try {
     let title = "TikTok Video", author = "", thumbnail = "";
     try {
@@ -33,8 +35,14 @@ export async function fetchTikTokData(url: string) {
       if (commentMatch) comments = parseInt(commentMatch[1], 10);
     } catch (err: any) { console.error("TikTok scrape error:", err.message); }
 
+    const duration = Date.now() - start;
+    const isZeroViews = views === 0;
+    await logScraperAction('tiktok', url, isZeroViews ? 'error' : 'success', isZeroViews ? 'TikTok returned 0 views' : undefined, duration, { views, likes });
+
     return { title: (author ? `${author} - ${title}` : title).substring(0, 100), views, likes, comments, thumbnail };
-  } catch (error) {
+  } catch (error: any) {
+    const duration = Date.now() - start;
+    await logScraperAction('tiktok', url, 'error', error.message, duration);
     return { title: "TikTok Post", views: 0, likes: 0, comments: 0, thumbnail: "" };
   }
 }
@@ -94,6 +102,7 @@ export async function fetchYouTubeData(url: string) {
 export async function fetchInstagramData(url: string) {
   let title = "Instagram Post", views = 0, likes = 0, comments = 0, ownerId = "", shortcode = "", thumbnail = "";
   const apiKey = process.env.RAPIDAPI_KEY || '1e492088c3msh36ba0d59dedf5a7p1b7467jsnc6a3c896dd38';
+  const start = Date.now();
   try {
     try {
       const pageRes = await axios.get(url, { headers: { "User-Agent": "Mozilla/5.0" }, timeout: 3000 });
@@ -152,8 +161,15 @@ export async function fetchInstagramData(url: string) {
         }
       } catch (e) {}
     }
+
+    const duration = Date.now() - start;
+    const isZeroViews = views === 0 && isVideo;
+    await logScraperAction('instagram', url, isZeroViews ? 'error' : 'success', isZeroViews ? 'Extracted 0 views for IG video' : undefined, duration, { views, likes });
+
     return { title: title.substring(0, 100), views, likes, comments, thumbnail };
   } catch (error: any) {
+    const duration = Date.now() - start;
+    await logScraperAction('instagram', url, 'error', error.message, duration, { status: error.response?.status });
     console.error("Instagram Fetch Error:", error.message);
     return { title: "Instagram Post", views: 0, likes: 0, comments: 0, thumbnail: "" };
   }

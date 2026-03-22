@@ -179,8 +179,7 @@ export default function CreatorDashboard() {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log("CRITICAL: Tab clicked ->", tab.id);
-                alert("Click detected: " + tab.id); // Aggressive debug
+                console.log("Tab changed to:", tab.id);
                 setActiveTab(tab.id);
               }}
               className={`flex-none flex items-center gap-2.5 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 pointer-events-auto cursor-pointer ${
@@ -240,9 +239,9 @@ export default function CreatorDashboard() {
                         setFilter('campaign', campaign.id);
                         setActiveTab('content');
                       }}
-                      className="px-4 py-2 bg-white text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm border border-gray-100"
+                      className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-100/50 border border-indigo-200 active:scale-95 transition-all"
                     >
-                      Participar
+                      Ir a la Campaña
                     </button>
                   </motion.div>
                 ))}
@@ -485,7 +484,7 @@ export default function CreatorDashboard() {
         campaigns={campaigns} 
         editingContent={editingContent}
         isProcessing={isProcessingContent}
-        onTwitchUpload={async (file, explicitCreatorId, vCount, pCount) => {
+        onTwitchUpload={async (file, explicitCreatorId, vCount, pCount, dCount, aCount) => {
           setIsProcessingContent(true);
           try {
             const currentCampaignId = document.querySelector('select')?.value || campaigns.find(c => c.status === 'active')?.id || '';
@@ -513,6 +512,8 @@ export default function CreatorDashboard() {
               status: 'active',
               views: vCount || 0,
               peek_viewers: pCount || 0,
+              duration_minutes: dCount || 0,
+              average_viewers: aCount || 0,
               uploaded_at: new Date().toISOString()
             }]);
 

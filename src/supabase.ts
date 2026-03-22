@@ -53,6 +53,7 @@ export interface Content {
   comments: number;
   peek_viewers?: number; // Twitch specific
   duration_minutes?: number; // Twitch specific
+  average_viewers?: number; // Twitch specific
   status: 'active' | 'archived' | 'pending';
   uploaded_at: string | null;
   created_at: string;

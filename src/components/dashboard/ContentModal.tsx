@@ -11,7 +11,7 @@ interface ContentModalProps {
   users?: UserProfile[];
   editingContent: Content | null;
   onSubmit: (data: any) => Promise<void>;
-  onTwitchUpload: (file: File, creator_id?: string, views?: number, peek?: number) => Promise<void>;
+  onTwitchUpload: (file: File, creator_id?: string, views?: number, peek?: number, duration?: number, average?: number) => Promise<void>;
   isProcessing: boolean;
 }
 
@@ -44,6 +44,9 @@ const ContentModal: React.FC<ContentModalProps> = ({
     views: editingContent?.views || 0,
     likes: editingContent?.likes || 0,
     comments: editingContent?.comments || 0,
+    peek_viewers: editingContent?.peek_viewers || 0,
+    duration_minutes: editingContent?.duration_minutes || 0,
+    average_viewers: editingContent?.average_viewers || 0,
     guest_name: editingContent?.guest_name || ''
   });
   const [twitchFile, setTwitchFile] = React.useState<File | null>(null);
@@ -61,6 +64,9 @@ const ContentModal: React.FC<ContentModalProps> = ({
         views: editingContent.views || 0,
         likes: editingContent.likes || 0,
         comments: editingContent.comments || 0,
+        peek_viewers: editingContent.peek_viewers || 0,
+        duration_minutes: editingContent.duration_minutes || 0,
+        average_viewers: editingContent.average_viewers || 0,
         guest_name: editingContent.guest_name || ''
       });
     } else {
@@ -73,6 +79,9 @@ const ContentModal: React.FC<ContentModalProps> = ({
         views: 0,
         likes: 0,
         comments: 0,
+        peek_viewers: 0,
+        duration_minutes: 0,
+        average_viewers: 0,
         guest_name: ''
       });
     }
@@ -93,8 +102,21 @@ const ContentModal: React.FC<ContentModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.platform === 'twitch' && twitchFile) {
-      console.log("Submitting Twitch Content:", { creator_id: formData.creator_id, views: formData.views, peek: formData.likes });
-      onTwitchUpload(twitchFile, formData.creator_id, formData.views, formData.likes);
+      console.log("Submitting Twitch Content:", { 
+        creator_id: formData.creator_id, 
+        views: formData.views, 
+        peek: formData.peek_viewers, 
+        duration: formData.duration_minutes, 
+        average: formData.average_viewers 
+      });
+      onTwitchUpload(
+        twitchFile, 
+        formData.creator_id, 
+        formData.views, 
+        formData.peek_viewers, 
+        formData.duration_minutes, 
+        formData.average_viewers
+      );
     } else {
       onSubmit(formData);
     }
@@ -252,13 +274,19 @@ const ContentModal: React.FC<ContentModalProps> = ({
                             setFormData(prev => ({
                               ...prev,
                               views: data.views || 0,
-                              likes: data.peek_viewers || 0,
+                              peek_viewers: data.peek_viewers || 0,
+                              duration_minutes: data.duration_minutes || 0,
+                              average_viewers: data.average_viewers || 0,
                               title: data.title || prev.title
                             }));
                           }
                         } catch (err: any) {
                           console.error("AI Analysis failed:", err);
-                          toastError("Error de IA: " + err.message);
+                          if (err.message?.includes("QUOTA_EXCEEDED") || err.message?.includes("429")) {
+                            toastError("Límite de IA alcanzado (Gratis). Por favor, ingresa los datos manualmente abajo.");
+                          } else {
+                            toastError("Error de IA: " + err.message);
+                          }
                         } finally {
                           setIsAnalyzing(false);
                         }
@@ -271,28 +299,47 @@ const ContentModal: React.FC<ContentModalProps> = ({
                     </button>
                   )}
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5 ml-1">Vistas Totales</label>
-                      <input
-                        type="number"
-                        min="0"
-                        placeholder="Ej: 1500"
-                        value={formData.views}
-                        onChange={(e) => setFormData({ ...formData, views: parseInt(e.target.value) || 0 })}
-                        className="block w-full rounded-xl border-gray-200 bg-white py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 transition-all font-bold"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5 ml-1">Peak Viewers</label>
-                      <input
-                        type="number"
-                        min="0"
-                        placeholder="Ej: 150"
-                        value={formData.likes} // We use 'likes' temporarily as 'peek' proxy in form or add dedicated state
-                        onChange={(e) => setFormData({ ...formData, likes: parseInt(e.target.value) || 0 })}
-                        className="block w-full rounded-xl border-gray-200 bg-white py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 transition-all font-bold"
-                      />
+                  <div className="pt-2 px-2 pb-4 bg-gray-50/50 rounded-xl border border-gray-100">
+                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                       <RefreshCw className="h-3 w-3" /> Datos del Stream (Manual / IA)
+                    </p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1 ml-1">Live Views</label>
+                        <input
+                          type="number"
+                          value={formData.views}
+                          onChange={(e) => setFormData({ ...formData, views: parseInt(e.target.value) || 0 })}
+                          className="block w-full rounded-xl border-gray-200 bg-white py-2 px-3 text-xs focus:ring-2 focus:ring-indigo-500 transition-all font-bold"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1 ml-1">Max Viewers</label>
+                        <input
+                          type="number"
+                          value={formData.peek_viewers}
+                          onChange={(e) => setFormData({ ...formData, peek_viewers: parseInt(e.target.value) || 0 })}
+                          className="block w-full rounded-xl border-gray-200 bg-white py-2 px-3 text-xs focus:ring-2 focus:ring-indigo-500 transition-all font-bold"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1 ml-1">Average Viewers</label>
+                        <input
+                          type="number"
+                          value={formData.average_viewers}
+                          onChange={(e) => setFormData({ ...formData, average_viewers: parseInt(e.target.value) || 0 })}
+                          className="block w-full rounded-xl border-gray-200 bg-white py-2 px-3 text-xs focus:ring-2 focus:ring-indigo-500 transition-all font-bold"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1 ml-1">Duration (min)</label>
+                        <input
+                          type="number"
+                          value={formData.duration_minutes}
+                          onChange={(e) => setFormData({ ...formData, duration_minutes: parseInt(e.target.value) || 0 })}
+                          className="block w-full rounded-xl border-gray-200 bg-white py-2 px-3 text-xs focus:ring-2 focus:ring-indigo-500 transition-all font-bold"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
