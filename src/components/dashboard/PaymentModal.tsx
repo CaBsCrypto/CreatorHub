@@ -24,7 +24,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, profile, o
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-0">
       <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity" onClick={onClose}></div>
       <div className="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg animate-in zoom-in-95 duration-200">
         <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">

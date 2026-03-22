@@ -1552,7 +1552,7 @@ export default function AdminDashboard() {
 
         <AnimatePresence>
           {isCalculatorOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" onClick={() => setIsCalculatorOpen(false)} />
               <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="relative w-full max-w-sm bg-gradient-to-br from-indigo-500 to-purple-600 rounded-[2.5rem] p-8 shadow-2xl text-white overflow-hidden">
                  <div className="absolute -right-12 -top-12 w-48 h-48 bg-white/10 rounded-full blur-3xl mix-blend-overlay pointer-events-none" />
