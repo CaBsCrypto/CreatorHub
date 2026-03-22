@@ -949,6 +949,10 @@ export default function AdminDashboard() {
                           <span className="text-[9px] font-black text-indigo-600 uppercase tracking-widest px-2 py-0.5 bg-indigo-50 rounded-md">
                             {item.platform}
                           </span>
+                          <span className="text-[9px] font-black text-gray-500 bg-gray-100 rounded-md px-2 py-0.5 flex items-center gap-1 uppercase tracking-widest">
+                            <List className="h-2.5 w-2.5" />
+                            {campaigns.find(c => c.id === item.campaign_id)?.name || 'Sin Campaña'}
+                          </span>
                           <span 
                             onClick={(e) => {
                               e.stopPropagation();
