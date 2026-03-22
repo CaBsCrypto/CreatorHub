@@ -936,7 +936,10 @@ export default function AdminDashboard() {
                                       item.platform.toLowerCase().includes(searchTerm.toLowerCase());
                   const matchesPlatform = filterPlatform === 'all' || item.platform === filterPlatform;
                   const matchesCampaign = filterCampaign === 'all' || item.campaign_id === filterCampaign;
-                  const matchesCreator = filterCreator === 'all' || item.creator_id === filterCreator;
+                  const matchesCreator = filterCreator === 'all' || 
+                                       (filterCreator.startsWith('guest:') ? 
+                                          item.guest_name === filterCreator.replace('guest:', '') : 
+                                          item.creator_id === filterCreator);
                   return matchesSearch && matchesPlatform && matchesCampaign && matchesCreator;
                 })
                 .map((item, i) => (
