@@ -1,8 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
 import { Request, Response, NextFunction } from 'express';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || '';
 
 // We need a service role client to check roles and perform admin actions
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {

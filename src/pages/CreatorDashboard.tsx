@@ -80,9 +80,13 @@ export default function CreatorDashboard() {
     try {
       const { data } = await supabase.from('content').select('id, url, platform').eq('creator_id', user?.id);
       if (data && data.length > 0) {
+        const { data: { session } } = await supabase.auth.getSession();
         const response = await fetch('/api/refresh-metrics', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token}`
+          },
           body: JSON.stringify({ items: data })
         });
         const result = await response.json();
@@ -289,12 +293,23 @@ export default function CreatorDashboard() {
       {activeTab === 'content' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-in fade-in duration-500">
           {content.map((item, i) => (
-            <ContentCard key={item.id} item={item as any} index={i} onEdit={() => { setEditingContent(item); setIsContentModalOpen(true); }} onDelete={async () => { 
-                if(confirm("¿Eliminar contenido?")) {
-                    await supabase.from('content').delete().eq('id', item.id);
-                    success("Contenido eliminado");
-                }
-            }} />
+            <ContentCard 
+                key={item.id} 
+                item={item as any} 
+                index={i} 
+                onEdit={(c) => { 
+                    setEditingContent(c); 
+                    setIsContentModalOpen(true); 
+                }} 
+                onDelete={async (id) => { 
+                    if(confirm("¿Eliminar contenido?")) {
+                        await supabase.from('content').delete().eq('id', id);
+                        success("Contenido eliminado");
+                        refresh();
+                    }
+                }} 
+                onClick={() => window.open(item.url, '_blank')}
+            />
           ))}
           <button onClick={() => { setEditingContent(null); setIsContentModalOpen(true); }} className="aspect-square rounded-[2rem] border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-4 text-gray-400 hover:border-indigo-300 hover:text-indigo-400 transition-all group">
             <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-indigo-50 transition-all">
@@ -442,6 +457,32 @@ export default function CreatorDashboard() {
                 
               if (error) throw error;
               success("Contenido actualizado");
+
+              // If URL changed, fetch new metadata in background
+              if (cleanUrl !== normalizeUrl(editingContent.url, editingContent.platform)) {
+                const { data: { session } } = await supabase.auth.getSession();
+                fetch('/api/fetch-metadata', {
+                  method: 'POST',
+                  headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session?.access_token}`
+                  },
+                  body: JSON.stringify({ url: cleanUrl, platform: data.platform })
+                }).then(async (res) => {
+                  if (res.ok) {
+                    const metadata = await res.json();
+                    await supabase.from('content').update({
+                      title: metadata.title || 'Contenido Actualizado',
+                      thumbnail: metadata.thumbnail || '',
+                      views: metadata.views || 0,
+                      likes: metadata.likes || 0,
+                      comments: metadata.comments || 0
+                    }).eq('id', editingContent.id);
+                    refresh();
+                  }
+                }).catch(e => console.warn("Background update after edit failed:", e));
+              }
+
               setIsContentModalOpen(false);
               setEditingContent(null);
               refresh();
@@ -486,9 +527,13 @@ export default function CreatorDashboard() {
               }).catch(e => console.warn("Email notification failed:", e));
 
               // 3. FETCH METADATA IN BACKGROUND (Don't await)
+              const { data: { session } } = await supabase.auth.getSession();
               fetch('/api/fetch-metadata', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${session?.access_token}`
+                },
                 body: JSON.stringify({ url: cleanUrl, platform: data.platform })
               }).then(async (res) => {
                 if (res.ok && insertedData?.[0]) {

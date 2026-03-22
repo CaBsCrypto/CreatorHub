@@ -4,7 +4,7 @@ import { useAuth } from '../AuthContext';
 import { 
   Plus, Download, RefreshCw, Sparkles, LayoutDashboard, 
   List, Users, Youtube, TrendingUp, 
-  BarChart3, Award, Zap, Trophy, Search, Filter, Trash2, ShieldCheck,
+  BarChart3, Award, Zap, Trophy, Search, Filter, Trash2, ShieldCheck, Edit2,
   LayoutGrid, List as ListIcon, Briefcase, Wallet, DollarSign, Calendar, Calculator, X
 } from 'lucide-react';
 import { BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
@@ -970,14 +970,20 @@ export default function AdminDashboard() {
                         <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">ROI Est.</p>
                       </div>
 
-                      <div className="flex items-center gap-2 shrink-0">
+                      <div className="flex items-center gap-3 shrink-0">
                         <button 
-                          onClick={async () => {
+                          onClick={async (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
                             info("Sincronizando video...");
                             try {
+                              const { data: { session } } = await supabase.auth.getSession();
                               const res = await fetch('/api/fetch-metadata', {
                                 method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
+                                headers: { 
+                                  'Content-Type': 'application/json',
+                                  'Authorization': `Bearer ${session?.access_token}`
+                                },
                                 body: JSON.stringify({ url: item.url, platform: item.platform })
                               });
                               if (!res.ok) throw new Error("Error al obtener metadata");
@@ -996,26 +1002,38 @@ export default function AdminDashboard() {
                               toastError("Error: " + e.message);
                             }
                           }}
-                          className="p-2 text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-colors"
+                          className="p-2.5 text-indigo-500 hover:text-indigo-700 hover:bg-indigo-50 rounded-xl transition-all active:scale-90"
                           title="Sincronizar"
                         >
                           <RefreshCw className="h-4 w-4" />
                         </button>
                         <button 
-                          onClick={() => { setEditingContent(item as any); setIsContentModalOpen(true); }}
-                          className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-colors"
+                          onClick={(e) => { 
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setEditingContent(item as any); 
+                            setIsContentModalOpen(true); 
+                          }}
+                          className="p-2.5 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all active:scale-90"
                           title="Editar"
                         >
-                          <Plus className="h-4 w-4 text-xs" />
+                          <Edit2 className="h-4 w-4" />
                         </button>
                         <button 
-                          onClick={async () => {
-                            if (confirm("¿Eliminar este contenido?")) {
+                          onClick={async (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (confirm("¿Estás seguro de eliminar esta publicación?")) {
                               const { error } = await supabase.from('content').delete().eq('id', item.id);
-                              if (!error) refresh();
+                              if (error) {
+                                toastError("Error al eliminar: " + error.message);
+                              } else {
+                                success("Contenido eliminado");
+                                refresh();
+                              }
                             }
                           }}
-                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                          className="p-2.5 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all active:scale-90"
                           title="Eliminar"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -1417,6 +1435,31 @@ export default function AdminDashboard() {
                 
                 if (error) throw error;
                 success("Contenido actualizado");
+
+                // If URL changed, fetch new metadata in background
+                if (cleanUrl !== normalizeUrl(editingContent.url, editingContent.platform)) {
+                  const { data: { session } } = await supabase.auth.getSession();
+                  fetch('/api/fetch-metadata', {
+                    method: 'POST',
+                    headers: { 
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${session?.access_token}`
+                    },
+                    body: JSON.stringify({ url: cleanUrl, platform: data.platform })
+                  }).then(async (res) => {
+                    if (res.ok) {
+                      const metadata = await res.json();
+                      await supabase.from('content').update({
+                        title: metadata.title || 'Contenido Actualizado',
+                        thumbnail: metadata.thumbnail || '',
+                        views: metadata.views || 0,
+                        likes: metadata.likes || 0,
+                        comments: metadata.comments || 0
+                      }).eq('id', editingContent.id);
+                      refresh();
+                    }
+                  }).catch(e => console.warn("Background update after edit failed:", e));
+                }
               } else {
                 // 1. Check duplicate for new inserts
                 const { data: existing } = await supabase.from('content').select('id').eq('campaign_id', data.campaign_id).eq('url', cleanUrl).limit(1);
@@ -1445,9 +1488,13 @@ export default function AdminDashboard() {
                 success("¡Contenido creado! Las métricas se actualizarán en breve.");
 
                 // 3. FETCH METADATA IN BACKGROUND
+                const { data: { session } } = await supabase.auth.getSession();
                 fetch('/api/fetch-metadata', {
                   method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
+                  headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session?.access_token}`
+                  },
                   body: JSON.stringify({ url: cleanUrl, platform: data.platform })
                 }).then(async (res) => {
                   if (res.ok && insertedData?.[0]) {

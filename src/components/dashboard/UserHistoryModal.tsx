@@ -176,6 +176,7 @@ export default function UserHistoryModal({
                         href={item.url} 
                         target="_blank" 
                         rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
                         className="p-2 text-gray-400 hover:text-indigo-600 opacity-0 group-hover:opacity-100 transition-all"
                       >
                         <ExternalLink className="h-4 w-4" />

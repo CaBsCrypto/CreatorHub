@@ -107,12 +107,6 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
       }
     }
     
-    console.log('useDashboardData Debug:', { 
-      total: content.length, 
-      filtered: result.length, 
-      filters,
-      role 
-    });
     
     return result;
   }, [content, role, user, filters]);
