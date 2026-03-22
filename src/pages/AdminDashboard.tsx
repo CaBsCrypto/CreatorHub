@@ -1342,7 +1342,7 @@ export default function AdminDashboard() {
             setEditingContent(null);
           }}
           campaigns={campaigns}
-          users={users.filter(u => u.role === 'creator')}
+          users={users.filter(u => u.role !== 'client')}
           editingContent={editingContent as any}
           isProcessing={isProcessingContent}
           onTwitchUpload={async (file, selectedCreatorId) => {
