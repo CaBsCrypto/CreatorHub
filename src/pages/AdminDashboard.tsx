@@ -1503,7 +1503,7 @@ export default function AdminDashboard() {
           users={users.filter(u => u.role !== 'client')}
           editingContent={editingContent as any}
           isProcessing={isProcessingContent}
-          onTwitchUpload={async (file, selectedCreatorId, vCount, pCount, dCount, aCount) => {
+          onTwitchUpload={async (file, selectedCreatorId, vCount, pCount, aCount, uCount, dCount) => {
             setIsProcessingContent(true);
             try {
               const activeCreatorId = selectedCreatorId || user?.id;
@@ -1527,8 +1527,9 @@ export default function AdminDashboard() {
                 status: 'active',
                 views: vCount || 0,
                 peek_viewers: pCount || 0,
-                duration_minutes: dCount || 0,
                 average_viewers: aCount || 0,
+                unique_chatters: uCount || 0,
+                duration_minutes: dCount || 0,
                 uploaded_at: new Date().toISOString()
               }]);
 
@@ -1621,6 +1622,10 @@ export default function AdminDashboard() {
                   views: 0,
                   likes: 0,
                   comments: 0,
+                  peek_viewers: 0,
+                  average_viewers: 0,
+                  unique_chatters: 0,
+                  duration_minutes: 0,
                   creator_id: activeCreatorId,
                   guest_name: guestName,
                   status: 'active',

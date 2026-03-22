@@ -484,10 +484,10 @@ export default function CreatorDashboard() {
         campaigns={campaigns} 
         editingContent={editingContent}
         isProcessing={isProcessingContent}
-        onTwitchUpload={async (file, explicitCreatorId, vCount, pCount, dCount, aCount) => {
+        onTwitchUpload={async (file, explicitCreatorId, vCount, pCount, aCount, uCount, dCount) => {
           setIsProcessingContent(true);
           try {
-            const currentCampaignId = document.querySelector('select')?.value || campaigns.find(c => c.status === 'active')?.id || '';
+            const currentCampaignId = filters.campaign === 'all' ? (campaigns[0]?.id || '') : filters.campaign;
             const fileName = `${explicitCreatorId || user?.id}/${Date.now()}-${file.name}`;
             
             const { error: uploadError } = await supabase.storage
@@ -512,8 +512,9 @@ export default function CreatorDashboard() {
               status: 'active',
               views: vCount || 0,
               peek_viewers: pCount || 0,
-              duration_minutes: dCount || 0,
               average_viewers: aCount || 0,
+              unique_chatters: uCount || 0,
+              duration_minutes: dCount || 0,
               uploaded_at: new Date().toISOString()
             }]);
 

@@ -11,7 +11,7 @@ interface ContentModalProps {
   users?: UserProfile[];
   editingContent: Content | null;
   onSubmit: (data: any) => Promise<void>;
-  onTwitchUpload: (file: File, creator_id?: string, views?: number, peek?: number, duration?: number, average?: number) => Promise<void>;
+  onTwitchUpload: (file: File, creator_id?: string, vCount?: number, pCount?: number, aCount?: number, uCount?: number, dCount?: number) => Promise<void>;
   isProcessing: boolean;
 }
 
@@ -47,6 +47,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
     peek_viewers: editingContent?.peek_viewers || 0,
     duration_minutes: editingContent?.duration_minutes || 0,
     average_viewers: editingContent?.average_viewers || 0,
+    unique_chatters: editingContent?.unique_chatters || 0,
     guest_name: editingContent?.guest_name || ''
   });
   const [twitchFile, setTwitchFile] = React.useState<File | null>(null);
@@ -67,6 +68,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
         peek_viewers: editingContent.peek_viewers || 0,
         duration_minutes: editingContent.duration_minutes || 0,
         average_viewers: editingContent.average_viewers || 0,
+        unique_chatters: editingContent.unique_chatters || 0,
         guest_name: editingContent.guest_name || ''
       });
     } else {
@@ -82,6 +84,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
         peek_viewers: 0,
         duration_minutes: 0,
         average_viewers: 0,
+        unique_chatters: 0,
         guest_name: ''
       });
     }
@@ -114,8 +117,9 @@ const ContentModal: React.FC<ContentModalProps> = ({
         formData.creator_id, 
         formData.views, 
         formData.peek_viewers, 
-        formData.duration_minutes, 
-        formData.average_viewers
+        formData.average_viewers,
+        formData.unique_chatters,
+        formData.duration_minutes
       );
     } else {
       onSubmit(formData);
@@ -245,63 +249,83 @@ const ContentModal: React.FC<ContentModalProps> = ({
                     <p className="text-[8px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
                        Manual Stream Data
                     </p>
-                    <div className="grid grid-cols-4 gap-2">
-                      <div className="col-span-1">
-                        <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-0.5">Live</label>
-                        <input
-                          type="number"
-                          value={formData.views || ''}
-                          onChange={(e) => setFormData({ ...formData, views: parseInt(e.target.value) || 0 })}
-                          className="block w-full rounded-lg border-gray-100 bg-white py-1.5 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                          placeholder="0"
-                        />
-                      </div>
-                      <div className="col-span-1">
-                        <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-0.5">Peak</label>
-                        <input
-                          type="number"
-                          value={formData.peek_viewers || ''}
-                          onChange={(e) => setFormData({ ...formData, peek_viewers: parseInt(e.target.value) || 0 })}
-                          className="block w-full rounded-lg border-gray-100 bg-white py-1.5 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                          placeholder="0"
-                        />
-                      </div>
-                      <div className="col-span-1">
-                        <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-0.5">Avg</label>
-                        <input
-                          type="number"
-                          value={formData.average_viewers || ''}
-                          onChange={(e) => setFormData({ ...formData, average_viewers: parseInt(e.target.value) || 0 })}
-                          className="block w-full rounded-lg border-gray-100 bg-white py-1.5 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                          placeholder="0"
-                        />
-                      </div>
-                      <div className="col-span-1">
-                        <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-0.5 text-indigo-500">Duration</label>
-                        <div className="flex gap-1">
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-4 gap-2">
+                        <div className="col-span-1">
+                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-0.5">Viewers</label>
                           <input
                             type="number"
-                            placeholder="H"
-                            value={Math.floor(formData.duration_minutes / 60) || ''}
-                            onChange={(e) => {
-                              const h = parseInt(e.target.value) || 0;
-                              const m = formData.duration_minutes % 60;
-                              setFormData({ ...formData, duration_minutes: (h * 60) + m });
-                            }}
-                            className="w-full rounded-lg border-gray-100 bg-white py-1.5 px-1 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            value={formData.views || ''}
+                            onChange={(e) => setFormData({ ...formData, views: parseInt(e.target.value) || 0 })}
+                            className="block w-full rounded-lg border-gray-100 bg-white py-1.5 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            placeholder="0"
                           />
+                        </div>
+                        <div className="col-span-1">
+                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-0.5">Peak</label>
                           <input
                             type="number"
-                            placeholder="M"
-                            max="59"
-                            value={formData.duration_minutes % 60 || ''}
-                            onChange={(e) => {
-                              const h = Math.floor(formData.duration_minutes / 60);
-                              const m = parseInt(e.target.value) || 0;
-                              setFormData({ ...formData, duration_minutes: (h * 60) + m });
-                            }}
-                            className="w-full rounded-lg border-gray-100 bg-white py-1.5 px-1 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            value={formData.peek_viewers || ''}
+                            onChange={(e) => setFormData({ ...formData, peek_viewers: parseInt(e.target.value) || 0 })}
+                            className="block w-full rounded-lg border-gray-100 bg-white py-1.5 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            placeholder="0"
                           />
+                        </div>
+                        <div className="col-span-1">
+                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-0.5">Avg</label>
+                          <input
+                            type="number"
+                            value={formData.average_viewers || ''}
+                            onChange={(e) => setFormData({ ...formData, average_viewers: parseInt(e.target.value) || 0 })}
+                            className="block w-full rounded-lg border-gray-100 bg-white py-1.5 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            placeholder="0"
+                          />
+                        </div>
+                        <div className="col-span-1">
+                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-0.5">Chatters</label>
+                          <input
+                            type="number"
+                            value={formData.unique_chatters || ''}
+                            onChange={(e) => setFormData({ ...formData, unique_chatters: parseInt(e.target.value) || 0 })}
+                            className="block w-full rounded-lg border-gray-100 bg-white py-1.5 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            placeholder="0"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="pt-2 border-t border-gray-100/50">
+                        <label className="block text-[8px] font-bold text-indigo-400 uppercase tracking-widest mb-1 ml-0.5">Stream Duration</label>
+                        <div className="flex gap-2 items-center">
+                          <div className="flex-1 flex gap-1">
+                            <input
+                              type="number"
+                              placeholder="H"
+                              value={Math.floor(formData.duration_minutes / 60) || ''}
+                              onChange={(e) => {
+                                const h = parseInt(e.target.value) || 0;
+                                const m = formData.duration_minutes % 60;
+                                setFormData({ ...formData, duration_minutes: (h * 60) + m });
+                              }}
+                              className="w-16 rounded-lg border-gray-100 bg-white py-1.5 px-1 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            />
+                            <span className="text-[8px] text-gray-400 self-center uppercase font-bold">hrs</span>
+                          </div>
+                          <div className="flex-1 flex gap-1">
+                            <input
+                              type="number"
+                              placeholder="M"
+                              max="59"
+                              value={formData.duration_minutes % 60 || ''}
+                              onChange={(e) => {
+                                const h = Math.floor(formData.duration_minutes / 60);
+                                const m = parseInt(e.target.value) || 0;
+                                setFormData({ ...formData, duration_minutes: (h * 60) + m });
+                              }}
+                              className="w-16 rounded-lg border-gray-100 bg-white py-1.5 px-1 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            />
+                            <span className="text-[8px] text-gray-400 self-center uppercase font-bold">min</span>
+                          </div>
+                          <div className="flex-[2]" />
                         </div>
                       </div>
                     </div>
