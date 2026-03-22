@@ -241,70 +241,67 @@ const ContentModal: React.FC<ContentModalProps> = ({
 
                   {/* AI Autocomplete removed for speed and manual reliability as requested */}
 
-                  <div className="pt-2 px-2 pb-4 bg-gray-50/50 rounded-xl border border-gray-100">
-                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                       <RefreshCw className="h-3 w-3" /> Datos del Stream (Manual / IA)
+                  <div className="pt-2 px-3 pb-3 bg-gray-50/50 rounded-2xl border border-gray-100">
+                    <p className="text-[8px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
+                       Manual Stream Data
                     </p>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1 ml-1">Live Views</label>
+                    <div className="grid grid-cols-4 gap-2">
+                      <div className="col-span-1">
+                        <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-0.5">Live</label>
                         <input
                           type="number"
-                          value={formData.views}
+                          value={formData.views || ''}
                           onChange={(e) => setFormData({ ...formData, views: parseInt(e.target.value) || 0 })}
-                          className="block w-full rounded-xl border-gray-200 bg-white py-2 px-3 text-xs focus:ring-2 focus:ring-indigo-500 transition-all font-bold"
+                          className="block w-full rounded-lg border-gray-100 bg-white py-1.5 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          placeholder="0"
                         />
                       </div>
-                      <div>
-                        <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1 ml-1">Max Viewers</label>
+                      <div className="col-span-1">
+                        <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-0.5">Peak</label>
                         <input
                           type="number"
-                          value={formData.peek_viewers}
+                          value={formData.peek_viewers || ''}
                           onChange={(e) => setFormData({ ...formData, peek_viewers: parseInt(e.target.value) || 0 })}
-                          className="block w-full rounded-xl border-gray-200 bg-white py-2 px-3 text-xs focus:ring-2 focus:ring-indigo-500 transition-all font-bold"
+                          className="block w-full rounded-lg border-gray-100 bg-white py-1.5 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          placeholder="0"
                         />
                       </div>
-                      <div>
-                        <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1 ml-1">Average Viewers</label>
+                      <div className="col-span-1">
+                        <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-0.5">Avg</label>
                         <input
                           type="number"
-                          value={formData.average_viewers}
+                          value={formData.average_viewers || ''}
                           onChange={(e) => setFormData({ ...formData, average_viewers: parseInt(e.target.value) || 0 })}
-                          className="block w-full rounded-xl border-gray-200 bg-white py-2 px-3 text-xs focus:ring-2 focus:ring-indigo-500 transition-all font-bold"
+                          className="block w-full rounded-lg border-gray-100 bg-white py-1.5 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          placeholder="0"
                         />
                       </div>
-                      <div className="col-span-2">
-                        <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1 ml-1 text-indigo-600">Stream Duration</label>
-                        <div className="flex items-center gap-3">
-                          <div className="flex-1">
-                            <input
-                              type="number"
-                              placeholder="Hrs"
-                              value={Math.floor(formData.duration_minutes / 60) || ''}
-                              onChange={(e) => {
-                                const h = parseInt(e.target.value) || 0;
-                                const m = formData.duration_minutes % 60;
-                                setFormData({ ...formData, duration_minutes: (h * 60) + m });
-                              }}
-                              className="block w-full rounded-xl border-gray-200 bg-white py-2 px-3 text-xs focus:ring-2 focus:ring-indigo-500 transition-all font-bold"
-                            />
-                            <span className="text-[7px] text-gray-400 font-bold uppercase ml-1">Horas</span>
-                          </div>
-                          <div className="flex-1">
-                            <input
-                              type="number"
-                              placeholder="Min"
-                              max="59"
-                              value={formData.duration_minutes % 60 || ''}
-                              onChange={(e) => {
-                                const h = Math.floor(formData.duration_minutes / 60);
-                                const m = parseInt(e.target.value) || 0;
-                                setFormData({ ...formData, duration_minutes: (h * 60) + m });
-                              }}
-                              className="block w-full rounded-xl border-gray-200 bg-white py-2 px-3 text-xs focus:ring-2 focus:ring-indigo-500 transition-all font-bold"
-                            />
-                            <span className="text-[7px] text-gray-400 font-bold uppercase ml-1">Minutos</span>
-                          </div>
+                      <div className="col-span-1">
+                        <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-0.5 text-indigo-500">Duration</label>
+                        <div className="flex gap-1">
+                          <input
+                            type="number"
+                            placeholder="H"
+                            value={Math.floor(formData.duration_minutes / 60) || ''}
+                            onChange={(e) => {
+                              const h = parseInt(e.target.value) || 0;
+                              const m = formData.duration_minutes % 60;
+                              setFormData({ ...formData, duration_minutes: (h * 60) + m });
+                            }}
+                            className="w-full rounded-lg border-gray-100 bg-white py-1.5 px-1 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          />
+                          <input
+                            type="number"
+                            placeholder="M"
+                            max="59"
+                            value={formData.duration_minutes % 60 || ''}
+                            onChange={(e) => {
+                              const h = Math.floor(formData.duration_minutes / 60);
+                              const m = parseInt(e.target.value) || 0;
+                              setFormData({ ...formData, duration_minutes: (h * 60) + m });
+                            }}
+                            className="w-full rounded-lg border-gray-100 bg-white py-1.5 px-1 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          />
                         </div>
                       </div>
                     </div>
