@@ -62,11 +62,18 @@ export async function analyzeTwitchScreenshot(image: string) {
     }
 
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-    const cleanText = text.replace(/```json|```/g, "").trim();
-    return JSON.parse(cleanText);
+    
+    // Improved JSON extraction: find the first { and last }
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      console.error("No JSON found in AI response:", text);
+      throw new Error("La IA no devolvió un formato válido.");
+    }
+    
+    return JSON.parse(jsonMatch[0]);
   } catch (err: any) {
     console.error("REST AI Analysis failed:", err.message);
-    throw new Error("Fallo en el análisis de imagen (REST): " + err.message);
+    throw new Error("Fallo en el análisis de imagen: " + err.message);
   }
 }
 
