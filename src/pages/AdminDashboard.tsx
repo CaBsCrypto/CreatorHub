@@ -73,8 +73,7 @@ export default function AdminDashboard() {
   const [twitchPreview, setTwitchPreview] = useState<string | null>(null);
 
   // Filters (synced to URL)
-  const FILTER_DEFAULTS = { search: '', platform: 'all', campaign: 'all', creator: 'all', view: 'compact' } as const;
-  const [filters, setFilter] = useFilterParams({ search: '', platform: 'all', campaign: 'all', creator: 'all', view: 'compact' });
+  const [filters, setFilter, resetFilters] = useFilterParams({ search: '', platform: 'all', campaign: 'all', creator: 'all', view: 'compact' });
   const searchTerm = filters.search;
   const filterPlatform = filters.platform;
   const filterCampaign = filters.campaign;
@@ -442,56 +441,54 @@ export default function AdminDashboard() {
         {activeTab === 'overview' && (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Global Filters Bar */}
-            <div className="flex flex-wrap items-center gap-3 bg-white p-4 rounded-[2rem] border border-gray-100 shadow-sm">
-              <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl">
+            <div className="flex flex-wrap items-center gap-3 bg-indigo-50/50 p-4 rounded-[2rem] border border-indigo-100/50 shadow-sm">
+              <div className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl shadow-lg shadow-indigo-100">
                 <Filter className="h-4 w-4" />
-                <span className="text-[10px] font-black uppercase tracking-widest">Filtros Globales</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-white">Filtros Activos</span>
               </div>
               
-              <select 
-                value={filterPlatform} 
-                onChange={e => setFilter('platform', e.target.value)}
-                className="bg-gray-50 border-none rounded-xl px-4 py-2 text-xs font-bold text-gray-600 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
-              >
-                <option value="all">Todas las plataformas</option>
-                <option value="tiktok">TikTok</option>
-                <option value="instagram">Instagram</option>
-                <option value="youtube">YouTube</option>
-                <option value="twitch">Twitch</option>
-                <option value="x">X / Twitter</option>
-                <option value="coinmarketcap">CoinMarketCap</option>
-              </select>
-
-              <select 
-                value={filterCampaign} 
-                onChange={e => setFilter('campaign', e.target.value)}
-                className="bg-gray-50 border-none rounded-xl px-4 py-2 text-xs font-bold text-gray-600 focus:ring-2 focus:ring-indigo-500 outline-none transition-all max-w-[200px]"
-              >
-                <option value="all">Todas las campañas</option>
-                {campaigns.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
-
-              <select 
-                value={filterCreator} 
-                onChange={e => setFilter('creator', e.target.value)}
-                className="bg-gray-50 border-none rounded-xl px-4 py-2 text-xs font-bold text-gray-600 focus:ring-2 focus:ring-indigo-500 outline-none transition-all max-w-[200px]"
-              >
-                <option value="all">Todos los creadores</option>
-                {users.filter(u => u.role === 'creator').map(u => (
-                  <option key={u.id} value={u.id}>{u.display_name || u.email.split('@')[0]}</option>
-                ))}
-              </select>
-
-              {(filterPlatform !== 'all' || filterCampaign !== 'all' || filterCreator !== 'all') && (
-                <button 
-                  onClick={() => {
-                    setFilter('platform', 'all');
-                    setFilter('campaign', 'all');
-                    setFilter('creator', 'all');
-                  }}
-                  className="text-[10px] font-black uppercase tracking-widest text-rose-500 hover:text-rose-600 transition-colors ml-auto"
+              <div className="flex flex-wrap items-center gap-2">
+                <select 
+                  value={filterPlatform} 
+                  onChange={e => setFilter('platform', e.target.value)}
+                  className="bg-white border-2 border-transparent focus:border-indigo-100 rounded-xl px-4 py-2 text-xs font-bold text-gray-700 shadow-sm outline-none transition-all cursor-pointer hover:bg-gray-50"
                 >
-                  Limpiar Filtros
+                  <option value="all">Filtro: Todas las plataformas</option>
+                  <option value="tiktok">TikTok</option>
+                  <option value="instagram">Instagram</option>
+                  <option value="youtube">YouTube</option>
+                  <option value="twitch">Twitch</option>
+                  <option value="x">X / Twitter</option>
+                  <option value="coinmarketcap">CoinMarketCap</option>
+                </select>
+
+                <select 
+                  value={filterCampaign} 
+                  onChange={e => setFilter('campaign', e.target.value)}
+                  className="bg-white border-2 border-transparent focus:border-indigo-100 rounded-xl px-4 py-2 text-xs font-bold text-gray-700 shadow-sm outline-none transition-all cursor-pointer hover:bg-gray-50 max-w-[200px]"
+                >
+                  <option value="all">Filtro: Todas las campañas</option>
+                  {campaigns.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+
+                <select 
+                  value={filterCreator} 
+                  onChange={e => setFilter('creator', e.target.value)}
+                  className="bg-white border-2 border-transparent focus:border-indigo-100 rounded-xl px-4 py-2 text-xs font-bold text-gray-700 shadow-sm outline-none transition-all cursor-pointer hover:bg-gray-50 max-w-[200px]"
+                >
+                  <option value="all">Filtro: Todos los creadores</option>
+                  {users.filter(u => u.role === 'creator').map(u => (
+                    <option key={u.id} value={u.id}>{u.display_name || u.email.split('@')[0]}</option>
+                  ))}
+                </select>
+              </div>
+
+              {(filterPlatform !== 'all' || filterCampaign !== 'all' || filterCreator !== 'all' || searchTerm !== '') && (
+                <button 
+                  onClick={resetFilters}
+                  className="flex items-center gap-2 px-4 py-2 bg-rose-50 text-rose-600 border border-rose-100 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-100 transition-all ml-auto"
+                >
+                  <X className="h-3 w-3" /> Limpiar Todo
                 </button>
               )}
             </div>
@@ -544,12 +541,12 @@ export default function AdminDashboard() {
                     <PieChart>
                       <Pie 
                         data={[
-                          { name: 'Youtube', id: 'youtube', value: filteredContent.filter(c => c.platform === 'youtube').length },
-                          { name: 'Instagram', id: 'instagram', value: filteredContent.filter(c => c.platform === 'instagram').length },
-                          { name: 'TikTok', id: 'tiktok', value: filteredContent.filter(c => c.platform === 'tiktok').length },
-                          { name: 'X', id: 'x', value: filteredContent.filter(c => c.platform === 'x').length },
-                          { name: 'Twitch', id: 'twitch', value: filteredContent.filter(c => c.platform === 'twitch').length },
-                          { name: 'CMC', id: 'coinmarketcap', value: filteredContent.filter(c => c.platform === 'coinmarketcap').length }
+                          { name: 'Youtube', id: 'youtube', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'youtube').length },
+                          { name: 'Instagram', id: 'instagram', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'instagram').length },
+                          { name: 'TikTok', id: 'tiktok', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'tiktok').length },
+                          { name: 'X', id: 'x', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'x').length },
+                          { name: 'Twitch', id: 'twitch', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'twitch').length },
+                          { name: 'CMC', id: 'coinmarketcap', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'coinmarketcap').length }
                         ].filter(d => d.value > 0)} 
                         innerRadius={80} 
                         outerRadius={100} 
@@ -581,12 +578,12 @@ export default function AdminDashboard() {
 
                 <div className="mt-8 space-y-3">
                   {[
-                    { name: 'Youtube', id: 'youtube', value: filteredContent.filter(c => c.platform === 'youtube').length },
-                    { name: 'Instagram', id: 'instagram', value: filteredContent.filter(c => c.platform === 'instagram').length },
-                    { name: 'TikTok', id: 'tiktok', value: filteredContent.filter(c => c.platform === 'tiktok').length },
-                    { name: 'X', id: 'x', value: filteredContent.filter(c => c.platform === 'x').length },
-                    { name: 'Twitch', id: 'twitch', value: filteredContent.filter(c => c.platform === 'twitch').length },
-                    { name: 'CMC', id: 'coinmarketcap', value: filteredContent.filter(c => c.platform === 'coinmarketcap').length }
+                    { name: 'Youtube', id: 'youtube', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'youtube').length },
+                    { name: 'Instagram', id: 'instagram', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'instagram').length },
+                    { name: 'TikTok', id: 'tiktok', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'tiktok').length },
+                    { name: 'X', id: 'x', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'x').length },
+                    { name: 'Twitch', id: 'twitch', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'twitch').length },
+                    { name: 'CMC', id: 'coinmarketcap', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'coinmarketcap').length }
                   ].filter(d => d.value > 0).sort((a, b) => b.value - a.value).map((item) => (
                     <button 
                       key={item.id} 
@@ -615,7 +612,8 @@ export default function AdminDashboard() {
                       <Pie 
                         data={Object.entries(
                           filteredContent.reduce((acc, curr) => {
-                            acc[curr.platform] = (acc[curr.platform] || 0) + (curr.views || 0);
+                            const p = curr.platform?.toLowerCase() || 'other';
+                            acc[p] = (acc[p] || 0) + (curr.views || 0);
                             return acc;
                           }, {} as Record<string, number>)
                         ).map(([name, value]) => ({ 
@@ -636,7 +634,8 @@ export default function AdminDashboard() {
                       >
                         {Object.entries(
                           filteredContent.reduce((acc, curr) => {
-                            acc[curr.platform] = (acc[curr.platform] || 0) + (curr.views || 0);
+                            const p = curr.platform?.toLowerCase() || 'other';
+                            acc[p] = (acc[p] || 0) + (curr.views || 0);
                             return acc;
                           }, {} as Record<string, number>)
                         ).map(([name], i) => (
@@ -655,7 +654,8 @@ export default function AdminDashboard() {
                 <div className="mt-8 space-y-3 relative z-10">
                   {Object.entries(
                     filteredContent.reduce((acc, curr) => {
-                      acc[curr.platform] = (acc[curr.platform] || 0) + (curr.views || 0);
+                      const p = curr.platform?.toLowerCase() || 'other';
+                      acc[p] = (acc[p] || 0) + (curr.views || 0);
                       return acc;
                     }, {} as Record<string, number>)
                   ).sort((a, b) => b[1] - a[1]).map(([platform, views], i) => (

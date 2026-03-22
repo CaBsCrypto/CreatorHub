@@ -95,7 +95,7 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
     
     if (filters) {
       if (filters.platform && filters.platform !== 'all') {
-        result = result.filter(c => c.platform === filters.platform);
+        result = result.filter(c => c.platform?.toLowerCase() === filters.platform.toLowerCase());
       }
       if (filters.campaign && filters.campaign !== 'all') {
         result = result.filter(c => c.campaign_id === filters.campaign);
