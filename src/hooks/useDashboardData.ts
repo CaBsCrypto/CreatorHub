@@ -35,7 +35,7 @@ export const getAgencyRank = (posts: number, views: number) => {
   return AGENCY_TIERS[0];
 };
 
-export const useDashboardData = (role: 'admin' | 'creator') => {
+export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform?: string, campaign?: string, creator?: string }) => {
   const { user } = useAuth();
   const { error: toastError } = useToast();
   
@@ -91,8 +91,22 @@ export const useDashboardData = (role: 'admin' | 'creator') => {
   }, [user, fetchData]);
 
   const filteredContent = useMemo(() => {
-    return role === 'creator' ? content.filter(c => c.creator_id === user?.id) : content;
-  }, [content, role, user]);
+    let result = role === 'creator' ? content.filter(c => c.creator_id === user?.id) : content;
+    
+    if (filters) {
+      if (filters.platform && filters.platform !== 'all') {
+        result = result.filter(c => c.platform === filters.platform);
+      }
+      if (filters.campaign && filters.campaign !== 'all') {
+        result = result.filter(c => c.campaign_id === filters.campaign);
+      }
+      if (filters.creator && filters.creator !== 'all') {
+        result = result.filter(c => c.creator_id === filters.creator);
+      }
+    }
+    
+    return result;
+  }, [content, role, user, filters]);
 
   const metrics = useMemo(() => {
     const totalViews = filteredContent.reduce((acc, curr) => acc + (curr.views || 0), 0);
@@ -171,6 +185,7 @@ export const useDashboardData = (role: 'admin' | 'creator') => {
     loading,
     metrics,
     creatorStats,
-    refresh: fetchData
+    refresh: fetchData,
+    filteredContent
   };
 };

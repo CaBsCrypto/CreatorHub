@@ -44,7 +44,6 @@ const PLATFORM_COLORS: Record<string, string> = {
 export default function AdminDashboard() {
   const { user } = useAuth();
   const { success, error: toastError, info } = useToast();
-  const { campaigns, content, users, payments, metrics, creatorStats, refresh } = useDashboardData('admin');
   
   const ADMIN_TABS = ['overview', 'campaigns', 'clients', 'content', 'creators', 'payments', 'team'] as const;
   const [activeTab, setActiveTab] = useTabNavigation<typeof ADMIN_TABS[number]>('overview', ADMIN_TABS);
@@ -82,7 +81,12 @@ export default function AdminDashboard() {
   const filterCreator = filters.creator;
   const isCompactView = filters.view !== 'grid';
   const [deletedUserIds, setDeletedUserIds] = useState<string[]>([]);
-  
+
+  const { campaigns, content, users, payments, metrics, creatorStats, refresh, filteredContent } = useDashboardData('admin', { 
+    platform: filters.platform, 
+    campaign: filters.campaign, 
+    creator: filters.creator 
+  });
   // Payments form
   const [isAddingPayment, setIsAddingPayment] = useState(false);
   const [newPayment, setNewPayment] = useState({ creator_id: '', guest_name: '', amount: '', currency: 'USDT', concept: '', campaign_id: '', paid_at: new Date().toISOString().split('T')[0] });
@@ -436,7 +440,62 @@ export default function AdminDashboard() {
         )}
 
         {activeTab === 'overview' && (
-          <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Global Filters Bar */}
+            <div className="flex flex-wrap items-center gap-3 bg-white p-4 rounded-[2rem] border border-gray-100 shadow-sm">
+              <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl">
+                <Filter className="h-4 w-4" />
+                <span className="text-[10px] font-black uppercase tracking-widest">Filtros Globales</span>
+              </div>
+              
+              <select 
+                value={filterPlatform} 
+                onChange={e => setFilter('platform', e.target.value)}
+                className="bg-gray-50 border-none rounded-xl px-4 py-2 text-xs font-bold text-gray-600 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+              >
+                <option value="all">Todas las plataformas</option>
+                <option value="tiktok">TikTok</option>
+                <option value="instagram">Instagram</option>
+                <option value="youtube">YouTube</option>
+                <option value="twitch">Twitch</option>
+                <option value="x">X / Twitter</option>
+                <option value="coinmarketcap">CoinMarketCap</option>
+              </select>
+
+              <select 
+                value={filterCampaign} 
+                onChange={e => setFilter('campaign', e.target.value)}
+                className="bg-gray-50 border-none rounded-xl px-4 py-2 text-xs font-bold text-gray-600 focus:ring-2 focus:ring-indigo-500 outline-none transition-all max-w-[200px]"
+              >
+                <option value="all">Todas las campañas</option>
+                {campaigns.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+
+              <select 
+                value={filterCreator} 
+                onChange={e => setFilter('creator', e.target.value)}
+                className="bg-gray-50 border-none rounded-xl px-4 py-2 text-xs font-bold text-gray-600 focus:ring-2 focus:ring-indigo-500 outline-none transition-all max-w-[200px]"
+              >
+                <option value="all">Todos los creadores</option>
+                {users.filter(u => u.role === 'creator').map(u => (
+                  <option key={u.id} value={u.id}>{u.display_name || u.email.split('@')[0]}</option>
+                ))}
+              </select>
+
+              {(filterPlatform !== 'all' || filterCampaign !== 'all' || filterCreator !== 'all') && (
+                <button 
+                  onClick={() => {
+                    setFilter('platform', 'all');
+                    setFilter('campaign', 'all');
+                    setFilter('creator', 'all');
+                  }}
+                  className="text-[10px] font-black uppercase tracking-widest text-rose-500 hover:text-rose-600 transition-colors ml-auto"
+                >
+                  Limpiar Filtros
+                </button>
+              )}
+            </div>
+
             <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-6">
               <AdminMetricCard 
                 title="Vistas Totales" 
@@ -485,12 +544,12 @@ export default function AdminDashboard() {
                     <PieChart>
                       <Pie 
                         data={[
-                          { name: 'Youtube', id: 'youtube', value: content.filter(c => c.platform === 'youtube').length },
-                          { name: 'Instagram', id: 'instagram', value: content.filter(c => c.platform === 'instagram').length },
-                          { name: 'TikTok', id: 'tiktok', value: content.filter(c => c.platform === 'tiktok').length },
-                          { name: 'X', id: 'x', value: content.filter(c => c.platform === 'x').length },
-                          { name: 'Twitch', id: 'twitch', value: content.filter(c => c.platform === 'twitch').length },
-                          { name: 'CMC', id: 'coinmarketcap', value: content.filter(c => c.platform === 'coinmarketcap').length }
+                          { name: 'Youtube', id: 'youtube', value: filteredContent.filter(c => c.platform === 'youtube').length },
+                          { name: 'Instagram', id: 'instagram', value: filteredContent.filter(c => c.platform === 'instagram').length },
+                          { name: 'TikTok', id: 'tiktok', value: filteredContent.filter(c => c.platform === 'tiktok').length },
+                          { name: 'X', id: 'x', value: filteredContent.filter(c => c.platform === 'x').length },
+                          { name: 'Twitch', id: 'twitch', value: filteredContent.filter(c => c.platform === 'twitch').length },
+                          { name: 'CMC', id: 'coinmarketcap', value: filteredContent.filter(c => c.platform === 'coinmarketcap').length }
                         ].filter(d => d.value > 0)} 
                         innerRadius={80} 
                         outerRadius={100} 
@@ -510,7 +569,7 @@ export default function AdminDashboard() {
                           { id: 'x' },
                           { id: 'twitch' },
                           { id: 'coinmarketcap' }
-                        ].filter(d => content.filter(c => c.platform === d.id).length > 0).map((entry, i) => (
+                        ].filter(d => filteredContent.filter(c => c.platform === d.id).length > 0).map((entry, i) => (
                           <Cell key={i} fill={PLATFORM_COLORS[entry.id]} className="cursor-pointer hover:opacity-80 transition-opacity" />
                         ))}
                       </Pie>
@@ -522,12 +581,12 @@ export default function AdminDashboard() {
 
                 <div className="mt-8 space-y-3">
                   {[
-                    { name: 'Youtube', id: 'youtube', value: content.filter(c => c.platform === 'youtube').length },
-                    { name: 'Instagram', id: 'instagram', value: content.filter(c => c.platform === 'instagram').length },
-                    { name: 'TikTok', id: 'tiktok', value: content.filter(c => c.platform === 'tiktok').length },
-                    { name: 'X', id: 'x', value: content.filter(c => c.platform === 'x').length },
-                    { name: 'Twitch', id: 'twitch', value: content.filter(c => c.platform === 'twitch').length },
-                    { name: 'CMC', id: 'coinmarketcap', value: content.filter(c => c.platform === 'coinmarketcap').length }
+                    { name: 'Youtube', id: 'youtube', value: filteredContent.filter(c => c.platform === 'youtube').length },
+                    { name: 'Instagram', id: 'instagram', value: filteredContent.filter(c => c.platform === 'instagram').length },
+                    { name: 'TikTok', id: 'tiktok', value: filteredContent.filter(c => c.platform === 'tiktok').length },
+                    { name: 'X', id: 'x', value: filteredContent.filter(c => c.platform === 'x').length },
+                    { name: 'Twitch', id: 'twitch', value: filteredContent.filter(c => c.platform === 'twitch').length },
+                    { name: 'CMC', id: 'coinmarketcap', value: filteredContent.filter(c => c.platform === 'coinmarketcap').length }
                   ].filter(d => d.value > 0).sort((a, b) => b.value - a.value).map((item) => (
                     <button 
                       key={item.id} 
@@ -555,7 +614,7 @@ export default function AdminDashboard() {
                     <PieChart>
                       <Pie 
                         data={Object.entries(
-                          content.reduce((acc, curr) => {
+                          filteredContent.reduce((acc, curr) => {
                             acc[curr.platform] = (acc[curr.platform] || 0) + (curr.views || 0);
                             return acc;
                           }, {} as Record<string, number>)
@@ -576,7 +635,7 @@ export default function AdminDashboard() {
                         }}
                       >
                         {Object.entries(
-                          content.reduce((acc, curr) => {
+                          filteredContent.reduce((acc, curr) => {
                             acc[curr.platform] = (acc[curr.platform] || 0) + (curr.views || 0);
                             return acc;
                           }, {} as Record<string, number>)
@@ -595,7 +654,7 @@ export default function AdminDashboard() {
 
                 <div className="mt-8 space-y-3 relative z-10">
                   {Object.entries(
-                    content.reduce((acc, curr) => {
+                    filteredContent.reduce((acc, curr) => {
                       acc[curr.platform] = (acc[curr.platform] || 0) + (curr.views || 0);
                       return acc;
                     }, {} as Record<string, number>)
