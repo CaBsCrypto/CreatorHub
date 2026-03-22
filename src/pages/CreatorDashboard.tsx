@@ -28,10 +28,10 @@ import ContentModal from '../components/dashboard/ContentModal';
 export default function CreatorDashboard() {
   const { user, profile } = useAuth();
   const { success, error: toastError, info } = useToast();
-  const { campaigns, content, filteredContent, metrics, refresh } = useDashboardData('creator');
-  
   const CREATOR_TABS = ['overview', 'campaigns', 'content', 'journey'] as const;
-  const [activeTab, setActiveTab] = useTabNavigation<typeof CREATOR_TABS[number]>('overview', CREATOR_TABS);
+  const [filters, setFilter, setFilters, resetFilters] = useTabNavigation<any>('overview', CREATOR_TABS);
+  const activeTab = filters.tab || 'overview';
+  const { campaigns, content, filteredContent, metrics, refresh } = useDashboardData('creator', filters);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
@@ -126,8 +126,8 @@ export default function CreatorDashboard() {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 p-4 md:p-0 pb-20 md:pb-6">
       {/* Header Section */}
       <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-black text-gray-900 leading-tight tracking-tight">Hola, {profile?.display_name || 'Creador'}</h1>
+        <div className="cursor-pointer" onClick={() => resetFilters({ tab: 'overview' })}>
+          <h1 className="text-2xl font-black text-gray-900 leading-tight tracking-tight hover:text-indigo-600 transition-colors">Hola, {profile?.display_name || 'Creador'}</h1>
           <p className="text-sm font-medium text-gray-500 flex items-center gap-2 mt-0.5">
             <span className={`w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse`} />
             Tu carrera en Umbra: <span className="text-indigo-600 font-bold uppercase tracking-widest text-[10px]">{myRank.name}</span>
@@ -155,7 +155,13 @@ export default function CreatorDashboard() {
         ].map(tab => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
+            onClick={() => {
+              if (tab.id === 'overview') {
+                resetFilters({ tab: 'overview' });
+              } else {
+                setFilters({ tab: tab.id } as any);
+              }
+            }}
             className={`flex-none flex items-center gap-2.5 px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
               activeTab === tab.id ? 'bg-white text-indigo-600 shadow-md' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-200/50'
             }`}
@@ -207,7 +213,10 @@ export default function CreatorDashboard() {
                       <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Meta: {campaign.target_posts} posts</p>
                     </div>
                     <button 
-                      onClick={() => setActiveTab('content')}
+                      onClick={() => {
+                        setFilter('campaign', campaign.id);
+                        setFilters({ tab: 'content' } as any);
+                      }}
                       className="px-4 py-2 bg-white text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm border border-gray-100"
                     >
                       Participar
@@ -295,21 +304,29 @@ export default function CreatorDashboard() {
         <div className="space-y-6 animate-in fade-in duration-500">
           <div className="flex items-center justify-between gap-4 mb-2">
             <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight">Mi Contenido</h2>
-            <div className="flex items-center gap-1 p-1 bg-gray-50 rounded-xl border border-gray-100">
-              <button 
-                onClick={() => setIsCompactView(false)}
-                className={`p-2 rounded-lg transition-all ${!isCompactView ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
-                title="Vista Cuadrícula"
-              >
-                <LayoutGrid className="h-4 w-4" />
-              </button>
-              <button 
-                onClick={() => setIsCompactView(true)}
-                className={`p-2 rounded-lg transition-all ${isCompactView ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
-                title="Vista Lista"
-              >
-                <ListIcon className="h-4 w-4" />
-              </button>
+            <div className="flex items-center gap-4">
+              {filters.campaign && filters.campaign !== 'all' && (
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-xl text-[10px] font-black border border-indigo-100 uppercase tracking-widest animate-in fade-in slide-in-from-right-4">
+                  Campaña: {campaigns.find(c => c.id === filters.campaign)?.name || '...'}
+                  <button onClick={() => setFilter('campaign', 'all')} className="hover:text-indigo-900 ml-1"><X className="h-3 w-3" /></button>
+                </div>
+              )}
+              <div className="flex items-center gap-1 p-1 bg-gray-50 rounded-xl border border-gray-100">
+                <button 
+                  onClick={() => setIsCompactView(false)}
+                  className={`p-2 rounded-lg transition-all ${!isCompactView ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                  title="Vista Cuadrícula"
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                </button>
+                <button 
+                  onClick={() => setIsCompactView(true)}
+                  className={`p-2 rounded-lg transition-all ${isCompactView ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                  title="Vista Lista"
+                >
+                  <ListIcon className="h-4 w-4" />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -411,7 +428,15 @@ export default function CreatorDashboard() {
                  <h3 className="text-xl font-bold text-gray-900 mb-2 leading-tight group-hover:text-indigo-600 transition-colors">{campaign.name}</h3>
                  <p className="text-sm text-gray-500 line-clamp-2 mb-6 min-h-[40px]">{campaign.description || 'Sin descripción.'}</p>
                  <div className="pt-6 border-t border-gray-50 flex items-center justify-between">
-                    <button onClick={() => setActiveTab('content')} className="w-full py-3 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all">Ver Posts</button>
+                     <button 
+                       onClick={() => {
+                         setFilter('campaign', campaign.id);
+                         setFilters({ tab: 'content' } as any);
+                       }} 
+                       className="w-full py-3 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all"
+                     >
+                       Ver Posts
+                     </button>
                  </div>
                </div>
             </div>
@@ -438,33 +463,23 @@ export default function CreatorDashboard() {
         editingContent={editingContent}
         isProcessing={isProcessingContent}
         onTwitchUpload={async (file, explicitCreatorId, vCount, pCount) => {
-          console.log("onTwitchUpload triggered with:", { vCount, pCount, explicitCreatorId });
           setIsProcessingContent(true);
           try {
-            // Using the current form campaign or first active
             const currentCampaignId = document.querySelector('select')?.value || campaigns.find(c => c.status === 'active')?.id || '';
-            console.log("Using campaign:", currentCampaignId);
             const fileName = `${explicitCreatorId || user?.id}/${Date.now()}-${file.name}`;
             
-            console.log("Starting upload to content-attachments:", fileName);
-            
-            const { data: uploadData, error: uploadError } = await supabase.storage
+            const { error: uploadError } = await supabase.storage
               .from('content-attachments')
               .upload(fileName, file, {
                 cacheControl: '3600',
                 upsert: false
               });
 
-            if (uploadError) {
-              console.error("Storage Upload Error:", uploadError);
-              throw uploadError;
-            }
+            if (uploadError) throw uploadError;
 
             const { data: { publicUrl } } = supabase.storage
               .from('content-attachments')
               .getPublicUrl(fileName);
-
-            console.log("Public URL generated:", publicUrl);
 
             const { error: dbError } = await supabase.from('content').insert([{
               campaign_id: currentCampaignId,
@@ -494,7 +509,6 @@ export default function CreatorDashboard() {
             }).catch(e => console.warn("Email alert failed:", e));
 
           } catch (err: any) {
-            console.error("Twitch Upload Process Failed:", err);
             toastError("Fallo en la subida: " + (err.message || "Error desconocido"));
           } finally {
             setIsProcessingContent(false);
@@ -506,15 +520,6 @@ export default function CreatorDashboard() {
             const cleanUrl = normalizeUrl(data.url, data.platform);
 
             if (editingContent) {
-              if (cleanUrl !== normalizeUrl(editingContent.url, editingContent.platform)) {
-                 const { data: existing } = await supabase.from('content').select('id').eq('campaign_id', data.campaign_id).eq('url', cleanUrl).neq('id', editingContent.id).limit(1);
-                 if (existing && existing.length > 0) {
-                    toastError("¡Ese enlace ya está vinculado a esta campaña!");
-                    setIsProcessingContent(false);
-                    return;
-                 }
-              }
-
               const { error } = await supabase
                 .from('content')
                 .update({ 
@@ -527,41 +532,14 @@ export default function CreatorDashboard() {
                   comments: data.comments
                 })
                 .eq('id', editingContent.id)
-                .eq('creator_id', user?.id); // Ensure they only edit their own
+                .eq('creator_id', user?.id);
                 
               if (error) throw error;
               success("Contenido actualizado");
-
-              // If URL changed, fetch new metadata in background
-              if (cleanUrl !== normalizeUrl(editingContent.url, editingContent.platform)) {
-                const { data: { session } } = await supabase.auth.getSession();
-                fetch('/api/fetch-metadata', {
-                  method: 'POST',
-                  headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${session?.access_token}`
-                  },
-                  body: JSON.stringify({ url: cleanUrl, platform: data.platform })
-                }).then(async (res) => {
-                  if (res.ok) {
-                    const metadata = await res.json();
-                    await supabase.from('content').update({
-                      title: metadata.title || 'Contenido Actualizado',
-                      thumbnail: metadata.thumbnail || '',
-                      views: metadata.views || 0,
-                      likes: metadata.likes || 0,
-                      comments: metadata.comments || 0
-                    }).eq('id', editingContent.id);
-                    refresh();
-                  }
-                }).catch(e => console.warn("Background update after edit failed:", e));
-              }
-
               setIsContentModalOpen(false);
               setEditingContent(null);
               refresh();
             } else {
-              // 1. Check duplicate for new inserts
               const { data: existing } = await supabase.from('content').select('id').eq('campaign_id', data.campaign_id).eq('url', cleanUrl).limit(1);
               if (existing && existing.length > 0) {
                   toastError("¡Este contenido ya se encuentra registrado en la campaña!");
@@ -569,7 +547,6 @@ export default function CreatorDashboard() {
                   return;
               }
 
-              // 2. INSERT IMMEDIATELY (FAST)
               const { data: insertedData, error } = await supabase.from('content').insert([{
                 ...data,
                 url: cleanUrl,
@@ -590,17 +567,7 @@ export default function CreatorDashboard() {
               setEditingContent(null);
               refresh();
 
-              fetch('/api/send-email', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  subject: '🔗 Nuevo Contenido Vinculado',
-                  html: `<p>El creador <strong>${profile?.display_name || user?.email || 'Desconocido'}</strong> ha vinculado un nuevo enlace de <strong>${data.platform}</strong> a una campaña activa.</p>
-                         <p>Enlace: <a href="${cleanUrl}">${cleanUrl}</a></p>`
-                })
-              }).catch(e => console.warn("Email notification failed:", e));
-
-              // 3. FETCH METADATA IN BACKGROUND (Don't await)
+              // Fetch metadata in background
               const { data: { session } } = await supabase.auth.getSession();
               fetch('/api/fetch-metadata', {
                 method: 'POST',
@@ -623,7 +590,6 @@ export default function CreatorDashboard() {
                 }
               }).catch(e => console.warn("Background update failed:", e));
             }
-
           } catch (err: any) {
             toastError("Error al guardar contenido: " + err.message);
           } finally {
