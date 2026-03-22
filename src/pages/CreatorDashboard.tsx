@@ -14,6 +14,7 @@ import { normalizeUrl } from '../utils/urlParser';
 // Custom Hooks
 import { useDashboardData, getAgencyRank, AGENCY_TIERS } from '../hooks/useDashboardData';
 import { useToast } from '../hooks/useToast';
+import { useTabNavigation } from '../hooks/useTabNavigation';
 
 // Modular Components
 import StatsCard from '../components/dashboard/StatsCard';
@@ -29,7 +30,8 @@ export default function CreatorDashboard() {
   const { success, error: toastError, info } = useToast();
   const { campaigns, content, metrics, refresh } = useDashboardData('creator');
   
-  const [activeTab, setActiveTab] = useState<'overview' | 'campaigns' | 'content' | 'journey'>('overview');
+  const CREATOR_TABS = ['overview', 'campaigns', 'content', 'journey'] as const;
+  const [activeTab, setActiveTab] = useTabNavigation<typeof CREATOR_TABS[number]>('overview', CREATOR_TABS);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);

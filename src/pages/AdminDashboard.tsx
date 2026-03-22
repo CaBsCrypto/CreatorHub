@@ -15,6 +15,7 @@ import { normalizeUrl } from '../utils/urlParser';
 // Custom Hooks
 import { useDashboardData, getAgencyRank, AGENCY_TIERS } from '../hooks/useDashboardData';
 import { useToast } from '../hooks/useToast';
+import { useTabNavigation } from '../hooks/useTabNavigation';
 
 // Modular Components
 import AdminMetricCard from '../components/dashboard/AdminMetricCard';
@@ -45,7 +46,8 @@ export default function AdminDashboard() {
   const { success, error: toastError, info } = useToast();
   const { campaigns, content, users, payments, metrics, creatorStats, refresh } = useDashboardData('admin');
   
-  const [activeTab, setActiveTab] = useState<'overview' | 'campaigns' | 'clients' | 'content' | 'creators' | 'payments' | 'team'>('overview');
+  const ADMIN_TABS = ['overview', 'campaigns', 'clients', 'content', 'creators', 'payments', 'team'] as const;
+  const [activeTab, setActiveTab] = useTabNavigation<typeof ADMIN_TABS[number]>('overview', ADMIN_TABS);
   
   // Modals state
   const [isCreatingCampaign, setIsCreatingCampaign] = useState(false);
@@ -514,6 +516,32 @@ export default function AdminDashboard() {
                       <Legend />
                     </PieChart>
                   </ResponsiveContainer>
+                </div>
+
+                <div className="mt-8 space-y-3">
+                  {[
+                    { name: 'Youtube', id: 'youtube', value: content.filter(c => c.platform === 'youtube').length },
+                    { name: 'Instagram', id: 'instagram', value: content.filter(c => c.platform === 'instagram').length },
+                    { name: 'TikTok', id: 'tiktok', value: content.filter(c => c.platform === 'tiktok').length },
+                    { name: 'X', id: 'x', value: content.filter(c => c.platform === 'x').length },
+                    { name: 'Twitch', id: 'twitch', value: content.filter(c => c.platform === 'twitch').length },
+                    { name: 'CMC', id: 'coinmarketcap', value: content.filter(c => c.platform === 'coinmarketcap').length }
+                  ].filter(d => d.value > 0).sort((a, b) => b.value - a.value).map((item) => (
+                    <button 
+                      key={item.id} 
+                      onClick={() => {
+                        setFilterPlatform(item.id);
+                        setActiveTab('content');
+                      }}
+                      className="w-full flex items-center justify-between p-3 bg-white hover:bg-gray-50 rounded-2xl border border-gray-50 transition-all cursor-pointer"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: PLATFORM_COLORS[item.id] || '#cbd5e1' }} />
+                        <span className="text-xs font-black text-gray-900 uppercase tracking-widest">{item.name}</span>
+                      </div>
+                      <span className="text-xs font-black text-gray-900">{item.value.toLocaleString()}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
               <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden relative">
