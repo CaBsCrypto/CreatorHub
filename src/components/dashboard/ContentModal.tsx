@@ -43,7 +43,8 @@ const ContentModal: React.FC<ContentModalProps> = ({
     title: editingContent?.title || '',
     views: editingContent?.views || 0,
     likes: editingContent?.likes || 0,
-    comments: editingContent?.comments || 0
+    comments: editingContent?.comments || 0,
+    guest_name: editingContent?.guest_name || ''
   });
   const [twitchFile, setTwitchFile] = React.useState<File | null>(null);
   const [twitchPreview, setTwitchPreview] = React.useState<string | null>(null);
@@ -59,7 +60,8 @@ const ContentModal: React.FC<ContentModalProps> = ({
         title: editingContent.title || '',
         views: editingContent.views || 0,
         likes: editingContent.likes || 0,
-        comments: editingContent.comments || 0
+        comments: editingContent.comments || 0,
+        guest_name: editingContent.guest_name || ''
       });
     } else {
       setFormData({
@@ -70,7 +72,8 @@ const ContentModal: React.FC<ContentModalProps> = ({
         title: '',
         views: 0,
         likes: 0,
-        comments: 0
+        comments: 0,
+        guest_name: ''
       });
     }
   }, [editingContent, isOpen]);
@@ -145,7 +148,22 @@ const ContentModal: React.FC<ContentModalProps> = ({
                   {users.map(u => (
                     <option key={u.id} value={u.id}>{u.admin_alias || u.display_name || u.email.split('@')[0]}</option>
                   ))}
+                  <option value="guest">Invitado (Añadir Manualmente)</option>
                 </select>
+              </div>
+            )}
+
+            {formData.creator_id === 'guest' && (
+              <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Nombre del Invitado</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.guest_name}
+                  onChange={e => setFormData({ ...formData, guest_name: e.target.value })}
+                  placeholder="Ej: Ibai Llanos"
+                  className="block w-full rounded-xl border-gray-200 bg-gray-50/50 py-3 text-sm focus:ring-2 focus:ring-indigo-500 transition-all"
+                />
               </div>
             )}
             

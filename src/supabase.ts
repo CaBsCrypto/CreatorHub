@@ -42,7 +42,8 @@ export interface Campaign {
 export interface Content {
   id: string;
   campaign_id: string;
-  creator_id: string;
+  creator_id: string | null;
+  guest_name?: string | null;
   platform: 'youtube' | 'instagram' | 'tiktok' | 'x' | 'coinmarketcap' | 'twitch';
   url: string;
   title: string | null;

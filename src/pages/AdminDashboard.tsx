@@ -956,12 +956,12 @@ export default function AdminDashboard() {
                           <span 
                             onClick={(e) => {
                               e.stopPropagation();
-                              setManagingUser(users.find(u => u.id === item.creator_id) || null);
+                              if (item.creator_id) setManagingUser(users.find(u => u.id === item.creator_id) || null);
                             }}
-                            className="text-[9px] font-bold text-gray-400 flex items-center gap-1 uppercase tracking-widest hover:text-indigo-600 transition-colors cursor-pointer"
+                            className={`text-[9px] font-bold flex items-center gap-1 uppercase tracking-widest transition-colors ${item.creator_id ? 'text-gray-400 hover:text-indigo-600 cursor-pointer' : 'text-gray-400'}`}
                           >
                             <Users className="h-2.5 w-2.5" />
-                            {users.find(u => u.id === item.creator_id)?.display_name || 'Desconocido'}
+                            {item.creator_id ? (users.find(u => u.id === item.creator_id)?.display_name || 'Desconocido') : (item.guest_name || 'Invitado')}
                           </span>
                         </div>
                       </div>
@@ -1413,7 +1413,8 @@ export default function AdminDashboard() {
           onSubmit={async (data) => {
             setIsProcessingContent(true);
             try {
-              const activeCreatorId = data.creator_id || user?.id;
+              const activeCreatorId = data.creator_id === 'guest' ? null : (data.creator_id || user?.id);
+              const guestName = data.creator_id === 'guest' ? data.guest_name : null;
               const cleanUrl = normalizeUrl(data.url, data.platform);
 
               if (editingContent) {
@@ -1434,6 +1435,7 @@ export default function AdminDashboard() {
                     platform: data.platform, 
                     url: cleanUrl, 
                     creator_id: activeCreatorId,
+                    guest_name: guestName,
                     title: data.title,
                     views: data.views,
                     likes: data.likes,
@@ -1487,6 +1489,7 @@ export default function AdminDashboard() {
                   likes: 0,
                   comments: 0,
                   creator_id: activeCreatorId,
+                  guest_name: guestName,
                   status: 'active',
                   uploaded_at: new Date().toISOString()
                 }]).select();
