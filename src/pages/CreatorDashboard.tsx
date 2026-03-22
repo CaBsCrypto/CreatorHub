@@ -28,7 +28,7 @@ import ContentModal from '../components/dashboard/ContentModal';
 export default function CreatorDashboard() {
   const { user, profile } = useAuth();
   const { success, error: toastError, info } = useToast();
-  const { campaigns, content, metrics, refresh } = useDashboardData('creator');
+  const { campaigns, content, filteredContent, metrics, refresh } = useDashboardData('creator');
   
   const CREATOR_TABS = ['overview', 'campaigns', 'content', 'journey'] as const;
   const [activeTab, setActiveTab] = useTabNavigation<typeof CREATOR_TABS[number]>('overview', CREATOR_TABS);
@@ -292,7 +292,7 @@ export default function CreatorDashboard() {
 
       {activeTab === 'content' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-in fade-in duration-500">
-          {content.map((item, i) => (
+          {filteredContent.map((item, i) => (
             <ContentCard 
                 key={item.id} 
                 item={item as any} 
