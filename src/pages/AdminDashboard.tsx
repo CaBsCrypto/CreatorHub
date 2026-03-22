@@ -73,11 +73,21 @@ export default function AdminDashboard() {
   const [twitchPreview, setTwitchPreview] = useState<string | null>(null);
 
   // Filters (synced to URL)
-  const [filters, setFilter, resetFilters] = useFilterParams({ search: '', platform: 'all', campaign: 'all', creator: 'all', view: 'compact' });
+  const [filters, setFilter, resetFilters] = useFilterParams({ 
+    search: '', 
+    platform: 'all', 
+    campaign: 'all', 
+    creator: 'all', 
+    view: 'compact',
+    pay_campaign: 'all',
+    pay_month: 'all'
+  });
   const searchTerm = filters.search;
   const filterPlatform = filters.platform;
   const filterCampaign = filters.campaign;
   const filterCreator = filters.creator;
+  const payCampaign = filters.pay_campaign;
+  const payMonth = filters.pay_month;
   const isCompactView = filters.view !== 'grid';
   const [deletedUserIds, setDeletedUserIds] = useState<string[]>([]);
 
@@ -86,6 +96,14 @@ export default function AdminDashboard() {
     campaign: filters.campaign, 
     creator: filters.creator 
   });
+
+  const filteredPayments = useMemo(() => {
+    return payments.filter(p => {
+      const matchCampaign = payCampaign === 'all' || p.campaign_id === payCampaign;
+      const matchMonth = payMonth === 'all' || p.paid_at.startsWith(payMonth);
+      return matchCampaign && matchMonth;
+    });
+  }, [payments, payCampaign, payMonth]);
   // Payments form
   const [isAddingPayment, setIsAddingPayment] = useState(false);
   const [newPayment, setNewPayment] = useState({ creator_id: '', guest_name: '', amount: '', currency: 'USDT', concept: '', campaign_id: '', paid_at: new Date().toISOString().split('T')[0] });
@@ -1069,18 +1087,61 @@ export default function AdminDashboard() {
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Payment Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Total Pagado</p>
-                <span className="text-3xl font-black text-gray-900">${payments.reduce((s, p) => s + Number(p.amount), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+              <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm relative overflow-hidden group">
+                <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-emerald-50 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
+                <p className="relative z-10 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Total Pagado</p>
+                <span className="relative z-10 text-3xl font-black text-gray-900">${filteredPayments.reduce((s, p) => s + Number(p.amount), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
               </div>
               <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Pagos Registrados</p>
-                <span className="text-3xl font-black text-gray-900">{payments.length}</span>
+                <span className="text-3xl font-black text-gray-900">{filteredPayments.length}</span>
               </div>
               <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Creadores Pagados</p>
-                <span className="text-3xl font-black text-gray-900">{new Set(payments.map(p => p.creator_id)).size}</span>
+                <span className="text-3xl font-black text-gray-900">{new Set(filteredPayments.map(p => p.creator_id)).size}</span>
               </div>
+            </div>
+
+            {/* Payments Filter Bar */}
+            <div className="flex flex-wrap items-center gap-3 bg-white p-4 rounded-[2rem] border border-gray-100 shadow-sm">
+              <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 text-gray-500 rounded-xl">
+                <Filter className="h-4 w-4" />
+                <span className="text-[10px] font-black uppercase tracking-widest">Filtros de Pagos</span>
+              </div>
+              
+              <select 
+                value={payCampaign} 
+                onChange={e => setFilter('pay_campaign', e.target.value)}
+                className="bg-gray-50 border-none rounded-xl px-4 py-2 text-xs font-bold text-gray-600 focus:ring-2 focus:ring-indigo-500 outline-none transition-all max-w-[200px]"
+              >
+                <option value="all">Todas las campañas</option>
+                {campaigns.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+
+              <select 
+                value={payMonth} 
+                onChange={e => setFilter('pay_month', e.target.value)}
+                className="bg-gray-50 border-none rounded-xl px-4 py-2 text-xs font-bold text-gray-600 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+              >
+                <option value="all">Todos los meses</option>
+                {[...new Set(payments.map(p => p.paid_at.substring(0, 7)))].sort().reverse().map(month => (
+                  <option key={month} value={month}>
+                    {new Date(month + '-02').toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
+                  </option>
+                ))}
+              </select>
+
+              {(payCampaign !== 'all' || payMonth !== 'all') && (
+                <button 
+                  onClick={() => {
+                    setFilter('pay_campaign', 'all');
+                    setFilter('pay_month', 'all');
+                  }}
+                  className="text-[10px] font-black uppercase tracking-widest text-rose-500 hover:text-rose-600 transition-colors ml-auto flex items-center gap-1"
+                >
+                  <X className="h-3 w-3" /> Limpiar
+                </button>
+              )}
             </div>
 
             {/* Add Payment */}
@@ -1180,7 +1241,7 @@ export default function AdminDashboard() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
-                    {payments.map(p => {
+                    {filteredPayments.map(p => {
                       const creator = users.find(u => u.id === p.creator_id);
                       const camp = campaigns.find(c => c.id === p.campaign_id);
                       return (
@@ -1215,14 +1276,14 @@ export default function AdminDashboard() {
                         </tr>
                       );
                     })}
-                    {payments.length === 0 && (
+                    {filteredPayments.length === 0 && (
                       <tr>
                         <td colSpan={7} className="py-20 text-center">
                           <div className="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center mx-auto mb-4">
                             <Wallet className="h-8 w-8 text-gray-200" />
                           </div>
-                          <h3 className="text-lg font-black text-gray-900">No hay pagos registrados</h3>
-                          <p className="text-sm text-gray-400">Registra un pago con el botón de arriba.</p>
+                          <h3 className="text-lg font-black text-gray-900">No hay pagos coincidentes</h3>
+                          <p className="text-sm text-gray-400">Intenta cambiar los filtros seleccionados.</p>
                         </td>
                       </tr>
                     )}
