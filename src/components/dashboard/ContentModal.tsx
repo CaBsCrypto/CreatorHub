@@ -152,87 +152,96 @@ const ContentModal: React.FC<ContentModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
-      <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm animate-in fade-in duration-300" onClick={onClose}></div>
-      <div className="relative w-full max-w-lg rounded-3xl bg-white p-8 shadow-2xl ring-1 ring-gray-900/10 animate-in zoom-in-95 slide-in-from-bottom-8 duration-300 overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500"></div>
+      <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-500" onClick={onClose}></div>
+      <div className="relative w-full max-w-xl rounded-[2.5rem] bg-white p-8 sm:p-10 shadow-2xl ring-1 ring-slate-200 animate-in zoom-in-95 slide-in-from-bottom-10 duration-500 overflow-hidden">
+        {/* Decorative background element */}
+        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-indigo-50/50 to-transparent -z-10"></div>
         
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-start mb-10">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-3xl font-black text-slate-900 tracking-tight">
               {editingContent ? 'Editar Contenido' : 'Nuevo Contenido'}
             </h2>
-            <p className="text-sm text-gray-500 mt-1">Ingresa el enlace de tu publicación</p>
+            <p className="text-sm font-bold text-slate-400 mt-2 uppercase tracking-widest">
+              {editingContent ? 'Actualiza las métricas y detalles' : 'Vincula tu nueva publicación'}
+            </p>
           </div>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
+          <button 
+            onClick={onClose} 
+            className="p-3 rounded-2xl bg-slate-50 text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-all hover:rotate-90 shadow-sm"
+          >
             <X className="h-6 w-6" />
           </button>
         </div>
         
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Campaña Activa</label>
-              <select
-                required
-                value={formData.campaign_id}
-                onChange={(e) => setFormData({ ...formData, campaign_id: e.target.value })}
-                className="block w-full rounded-xl border-gray-200 bg-gray-50/50 py-3 text-sm focus:ring-2 focus:ring-indigo-500 transition-all"
-              >
-                <option value="" disabled>{campaigns.length > 0 ? "Seleccionar campaña" : "No hay campañas activas"}</option>
-                {campaigns.map(c => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
-            </div>
-
-            {users && users.length > 0 && (
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="space-y-6">
+            {/* Header Fields: Campaign & Creator */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50/50 p-4 rounded-[2rem] border border-slate-100/50">
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Asignar a Creador</label>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2.5 ml-1">Campaña</label>
                 <select
-                  required={false}
-                  value={formData.creator_id}
-                  onChange={(e) => setFormData({ ...formData, creator_id: e.target.value })}
-                  className="block w-full rounded-xl border-gray-200 bg-gray-50/50 py-3 text-sm focus:ring-2 focus:ring-indigo-500 transition-all"
+                  required
+                  value={formData.campaign_id}
+                  onChange={(e) => setFormData({ ...formData, campaign_id: e.target.value })}
+                  className="block w-full rounded-2xl border-slate-100 bg-white py-3 px-4 text-sm font-bold text-slate-700 shadow-sm focus:ring-2 focus:ring-indigo-500 transition-all"
                 >
-                  <option value="">Mi Cuenta (Automático)</option>
-                  {users.map(u => (
-                    <option key={u.id} value={u.id}>{u.admin_alias || u.display_name || u.email.split('@')[0]}</option>
+                  <option value="" disabled>{campaigns.length > 0 ? "Seleccionar..." : "No hay campañas"}</option>
+                  {campaigns.map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
-                  <option value="guest">Invitado (Añadir Manualmente)</option>
                 </select>
               </div>
-            )}
+
+              {users && users.length > 0 && (
+                <div>
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2.5 ml-1">Creador</label>
+                  <select
+                    required={false}
+                    value={formData.creator_id}
+                    onChange={(e) => setFormData({ ...formData, creator_id: e.target.value })}
+                    className="block w-full rounded-2xl border-slate-100 bg-white py-3 px-4 text-sm font-bold text-slate-700 shadow-sm focus:ring-2 focus:ring-indigo-500 transition-all"
+                  >
+                    <option value="">Mi Cuenta</option>
+                    {users.map(u => (
+                      <option key={u.id} value={u.id}>{u.admin_alias || u.display_name || u.email.split('@')[0]}</option>
+                    ))}
+                    <option value="guest">Invitado</option>
+                  </select>
+                </div>
+              )}
+            </div>
 
             {formData.creator_id === 'guest' && (
-              <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Nombre del Invitado</label>
+              <div className="animate-in fade-in slide-in-from-top-4 duration-500 px-1">
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2.5 ml-1">Nombre del Invitado</label>
                 <input
                   type="text"
                   required
                   value={formData.guest_name}
                   onChange={e => setFormData({ ...formData, guest_name: e.target.value })}
                   placeholder="Ej: Ibai Llanos"
-                  className="block w-full rounded-xl border-gray-200 bg-gray-50/50 py-3 text-sm focus:ring-2 focus:ring-indigo-500 transition-all"
+                  className="block w-full rounded-2xl border-slate-100 bg-slate-50 py-3 px-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 transition-all"
                 />
               </div>
             )}
             
-            <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Plataforma</label>
-              <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+            <div className="px-1">
+              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 ml-1">Seleccionar Plataforma</label>
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
                 {platforms.map((p) => (
                   <button
                     key={p.id}
                     type="button"
                     onClick={() => setFormData({ ...formData, platform: p.id as any })}
-                    className={`flex flex-col items-center justify-center p-2 rounded-xl border-2 transition-all ${
+                    className={`flex flex-col items-center justify-center p-3 rounded-2xl border-2 transition-all duration-300 ${
                       formData.platform === p.id
-                        ? 'border-indigo-600 bg-indigo-50/50 shadow-sm'
-                        : 'border-transparent bg-gray-50 hover:bg-gray-100 hover:border-gray-200'
+                        ? 'border-indigo-600 bg-indigo-600 shadow-lg shadow-indigo-200 scale-105'
+                        : 'border-slate-100 bg-white hover:border-slate-200 hover:bg-slate-50'
                     }`}
                   >
-                    <p.icon className={`h-5 w-5 ${p.color}`} />
-                    <span className={`text-[9px] mt-1 font-black uppercase tracking-widest ${formData.platform === p.id ? 'text-indigo-600' : 'text-gray-400'}`}>
+                    <p.icon className={`h-6 w-6 mb-2 ${formData.platform === p.id ? 'text-white' : p.color}`} />
+                    <span className={`text-[8px] font-black uppercase tracking-widest ${formData.platform === p.id ? 'text-white' : 'text-slate-400'}`}>
                       {p.label}
                     </span>
                   </button>
@@ -240,47 +249,55 @@ const ContentModal: React.FC<ContentModalProps> = ({
               </div>
             </div>
             
-            <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
-                {(formData.platform as any) === 'stream' ? 'Captura de Estadísticas' : 'URL del Contenido'}
+            <div className="px-1 pt-2">
+              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 ml-1">
+                {(formData.platform as any) === 'stream' ? 'Captura y Datos de Directo' : 'Link de la Publicación'}
               </label>
 
               {(formData.platform as any) === 'stream' && (
-                <div className="flex gap-2 mb-4 bg-gray-50 p-1.5 rounded-2xl border border-gray-100">
+                <div className="flex gap-2 mb-6 bg-slate-100/50 p-2 rounded-2xl border border-slate-200/50">
                   <button
                     type="button"
                     onClick={() => setStreamPlatform('twitch')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                      streamPlatform === 'twitch' ? 'bg-white shadow-sm text-indigo-600 ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600'
+                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] transition-all ${
+                      streamPlatform === 'twitch' ? 'bg-white shadow-md text-indigo-600 ring-1 ring-slate-100 scale-[1.02]' : 'text-slate-400 hover:text-slate-600'
                     }`}
                   >
-                    <Globe className="h-3 w-3" /> Twitch
+                    <Globe className="h-3.5 w-3.5" /> Twitch
                   </button>
                   <button
                     type="button"
                     onClick={() => setStreamPlatform('tiktok')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                      streamPlatform === 'tiktok' ? 'bg-white shadow-sm text-black ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600'
+                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] transition-all ${
+                      streamPlatform === 'tiktok' ? 'bg-white shadow-md text-slate-900 ring-1 ring-slate-100 scale-[1.02]' : 'text-slate-400 hover:text-slate-600'
                     }`}
                   >
-                    <Music2 className="h-3 w-3" /> TikTok
+                    <Music2 className="h-3.5 w-3.5" /> TikTok
                   </button>
                 </div>
               )}
 
               {(formData.platform as any) === 'stream' ? (
-                <div className="space-y-4">
+                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                   <div 
-                    className="relative border-2 border-dashed border-gray-300 rounded-xl p-6 flex flex-col items-center justify-center hover:border-indigo-400 transition-colors cursor-pointer bg-gray-50/30"
+                    className="relative border-2 border-dashed border-slate-200 rounded-3xl p-8 flex flex-col items-center justify-center hover:border-indigo-400 hover:bg-indigo-50/30 transition-all cursor-pointer bg-slate-50/50 group"
                     onClick={() => document.getElementById('twitch-upload-modal')?.click()}
                   >
                     {twitchPreview ? (
-                      <img src={twitchPreview} alt="Preview" className="max-h-40 rounded-lg shadow-sm" />
+                      <div className="relative group">
+                        <img src={twitchPreview} alt="Preview" className="max-h-48 rounded-2xl shadow-2xl transition-transform group-hover:scale-[1.02]" />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl flex items-center justify-center">
+                          <Plus className="h-8 w-8 text-white" />
+                        </div>
+                      </div>
                     ) : (
-                      <>
-                        <Plus className="h-8 w-8 text-gray-400 mb-2" />
-                        <p className="text-sm text-gray-500">Haz clic para subir captura</p>
-                      </>
+                      <div className="flex flex-col items-center">
+                        <div className="w-14 h-14 rounded-full bg-white shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                          <Plus className="h-6 w-6 text-indigo-500" />
+                        </div>
+                        <p className="text-sm font-bold text-slate-600">Subir captura de resultados</p>
+                        <p className="text-[10px] text-slate-400 mt-1 uppercase font-black tracking-widest">JPG, PNG hasta 10MB</p>
+                      </div>
                     )}
                     <input
                       type="file"
@@ -291,11 +308,10 @@ const ContentModal: React.FC<ContentModalProps> = ({
                     />
                   </div>
 
-                  {/* AI Autocomplete removed for speed and manual reliability */}
-                  <div className="pt-2 px-3 pb-3 bg-gray-50/50 rounded-2xl border border-gray-100">
-                      <div className="grid grid-cols-3 gap-2">
-                        <div className="col-span-1 bg-white border border-gray-100 rounded-xl p-2 shadow-sm">
-                          <label className="block text-[8px] font-bold text-indigo-400 uppercase tracking-widest mb-1.5 ml-0.5">
+                  <div className="p-5 bg-indigo-50/30 rounded-[2.5rem] border border-indigo-100/50">
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="bg-white border border-slate-100 rounded-2xl p-3 shadow-sm transition-transform hover:scale-[1.02]">
+                          <label className="block text-[8px] font-black text-indigo-400 uppercase tracking-widest mb-2 ml-1">
                             {streamPlatform === 'tiktok' ? 'Tiempo' : 'Duración'}
                           </label>
                           <div className="flex gap-1 items-center">
@@ -308,8 +324,9 @@ const ContentModal: React.FC<ContentModalProps> = ({
                                 const m = formData.duration_minutes % 60;
                                 setFormData({ ...formData, duration_minutes: (h * 60) + m });
                               }}
-                              className="w-full rounded-lg border-gray-50 bg-gray-50/30 py-1.5 px-0.5 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                              className="w-full rounded-xl border-slate-50 bg-slate-50/50 py-2 px-1 text-xs focus:ring-2 focus:ring-indigo-500 transition-all font-black text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-slate-700"
                             />
+                            <span className="text-slate-300 font-black">:</span>
                             <input
                               type="number"
                               placeholder="M"
@@ -320,13 +337,13 @@ const ContentModal: React.FC<ContentModalProps> = ({
                                 const m = parseInt(e.target.value) || 0;
                                 setFormData({ ...formData, duration_minutes: (h * 60) + m });
                               }}
-                              className="w-full rounded-lg border-gray-100 bg-gray-50/30 py-1.5 px-0.5 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                              className="w-full rounded-xl border-slate-50 bg-slate-50/50 py-2 px-1 text-xs focus:ring-2 focus:ring-indigo-500 transition-all font-black text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-slate-700"
                             />
                           </div>
                         </div>
-                        <div className="col-span-1 bg-white border border-gray-100 rounded-xl p-2 shadow-sm">
-                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-0.5">
-                            {streamPlatform === 'tiktok' ? 'Me gusta' : 'Promedio (Avg)'}
+                        <div className="bg-white border border-slate-100 rounded-2xl p-3 shadow-sm transition-transform hover:scale-[1.02]">
+                          <label className="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">
+                            {streamPlatform === 'tiktok' ? 'Likes' : 'Avg Viewers'}
                           </label>
                           <input
                             type="number"
@@ -336,13 +353,13 @@ const ContentModal: React.FC<ContentModalProps> = ({
                               if (streamPlatform === 'tiktok') setFormData({ ...formData, likes: v });
                               else setFormData({ ...formData, average_viewers: v });
                             }}
-                            className="block w-full rounded-lg border-gray-50 bg-gray-50/30 py-1.5 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            className="block w-full rounded-xl border-slate-50 bg-slate-50/50 py-2 px-3 text-xs focus:ring-2 focus:ring-indigo-500 transition-all font-black [appearance:textfield] text-slate-700"
                             placeholder="0"
                           />
                         </div>
-                        <div className="col-span-1 bg-white border border-gray-100 rounded-xl p-2 shadow-sm">
-                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-0.5">
-                            {streamPlatform === 'tiktok' ? 'Comentarios' : 'Máximo (Peak)'}
+                        <div className="bg-white border border-slate-100 rounded-2xl p-3 shadow-sm transition-transform hover:scale-[1.02]">
+                          <label className="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">
+                            {streamPlatform === 'tiktok' ? 'Coments' : 'Peak'}
                           </label>
                           <input
                             type="number"
@@ -352,26 +369,26 @@ const ContentModal: React.FC<ContentModalProps> = ({
                               if (streamPlatform === 'tiktok') setFormData({ ...formData, comments: v });
                               else setFormData({ ...formData, peek_viewers: v });
                             }}
-                            className="block w-full rounded-lg border-gray-50 bg-gray-50/30 py-1.5 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            className="block w-full rounded-xl border-slate-50 bg-slate-50/50 py-2 px-3 text-xs focus:ring-2 focus:ring-indigo-500 transition-all font-black [appearance:textfield] text-slate-700"
                             placeholder="0"
                           />
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-3 gap-2 pt-2">
-                        <div className="col-span-1 bg-white border border-gray-100 rounded-xl p-2 shadow-sm">
-                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-0.5">Esp. Únicos</label>
+                      <div className="grid grid-cols-3 gap-3 pt-3">
+                        <div className="bg-white border border-slate-100 rounded-2xl p-3 shadow-sm transition-transform hover:scale-[1.02]">
+                          <label className="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Únicos</label>
                           <input
                             type="number"
                             value={formData.unique_viewers || ''}
                             onChange={(e) => setFormData({ ...formData, unique_viewers: parseInt(e.target.value) || 0 })}
-                            className="block w-full rounded-lg border-gray-50 bg-gray-50/30 py-1.5 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            className="block w-full rounded-xl border-slate-50 bg-slate-50/50 py-2 px-3 text-xs focus:ring-2 focus:ring-indigo-500 transition-all font-black [appearance:textfield] text-slate-700"
                             placeholder="0"
                           />
                         </div>
-                        <div className="col-span-1 bg-white border border-gray-100 rounded-xl p-2 shadow-sm">
-                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-0.5">
-                            {streamPlatform === 'tiktok' ? 'Extra' : 'Chatters Ún.'}
+                        <div className="bg-white border border-slate-100 rounded-2xl p-3 shadow-sm transition-transform hover:scale-[1.02]">
+                          <label className="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">
+                            {streamPlatform === 'tiktok' ? 'Extra' : 'Chatters'}
                           </label>
                           <input
                             type="number"
@@ -381,37 +398,37 @@ const ContentModal: React.FC<ContentModalProps> = ({
                               if (streamPlatform === 'tiktok') setFormData({ ...formData, average_viewers: v });
                               else setFormData({ ...formData, unique_chatters: v });
                             }}
-                            className="block w-full rounded-lg border-gray-50 bg-gray-50/30 py-1.5 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            className="block w-full rounded-xl border-slate-50 bg-slate-50/50 py-2 px-3 text-xs focus:ring-2 focus:ring-indigo-500 transition-all font-black [appearance:textfield] text-slate-700"
                             placeholder="0"
                           />
                         </div>
-                        <div className="col-span-1 bg-white border border-gray-100 rounded-xl p-2 shadow-sm">
-                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-0.5">
-                            {streamPlatform === 'tiktok' ? 'Visualizaciones' : 'Vistas en Vivo'}
+                        <div className="bg-white border border-slate-100 rounded-2xl p-3 shadow-sm transition-transform hover:scale-[1.02]">
+                          <label className="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">
+                            {streamPlatform === 'tiktok' ? 'Vistas' : 'Live Views'}
                           </label>
                           <input
                             type="number"
                             value={formData.views || ''}
                             onChange={(e) => setFormData({ ...formData, views: parseInt(e.target.value) || 0 })}
-                            className="block w-full rounded-lg border-gray-50 bg-gray-50/30 py-1.5 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            className="block w-full rounded-xl border-slate-50 bg-slate-50/50 py-2 px-3 text-xs focus:ring-2 focus:ring-indigo-500 transition-all font-black [appearance:textfield] text-slate-700"
                             placeholder="0"
                           />
                         </div>
                       </div>
                     </div>
-                  </div>
-                ) : (
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <ExternalLink className="h-4 w-4 text-gray-400" />
+                </div>
+              ) : (
+                <div className="relative group animate-in fade-in slide-in-from-top-2">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <ExternalLink className="h-5 w-5 text-slate-300 group-focus-within:text-indigo-500 transition-colors" />
                   </div>
                   <input
                     type="url"
                     required
                     value={formData.url}
                     onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-                    placeholder="https://www.instagram.com/reel/..."
-                    className="block w-full pl-10 rounded-xl border-gray-200 bg-gray-50/50 py-3 text-sm focus:ring-2 focus:ring-indigo-500 transition-all placeholder:text-gray-400"
+                    placeholder="https://..."
+                    className="block w-full pl-12 rounded-[1.5rem] border-slate-100 bg-slate-50/50 py-4 text-sm font-bold text-slate-700 shadow-inner focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all placeholder:text-slate-300"
                   />
                 </div>
               )}
@@ -419,74 +436,75 @@ const ContentModal: React.FC<ContentModalProps> = ({
           </div>
 
           {editingContent && (
-            <div className="pt-6 border-t border-gray-100 space-y-4 animate-in fade-in slide-in-from-bottom-2">
-              <h3 className="text-xs font-black text-gray-900 uppercase tracking-widest flex items-center gap-2">
-                <RefreshCw className="h-4 w-4 text-indigo-500" /> Ajuste Manual de Métricas
-              </h3>
-              <p className="text-[10px] text-gray-500 font-medium leading-tight">
-                Usa estos campos si el scraper falló (ej. TikToks con 0 vistas o títulos incorrectos). 
-                Al guardar, la campaña usará exactamente los números que escribas aquí.
-              </p>
+            <div className="pt-8 border-t border-slate-100 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+              <div className="flex items-center gap-3 bg-indigo-50/50 p-3 rounded-2xl border border-indigo-100/50">
+                <RefreshCw className="h-5 w-5 text-indigo-500" />
+                <div>
+                  <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest leading-none">Ajuste Manual</h3>
+                  <p className="text-[9px] text-slate-400 font-bold mt-1.5 uppercase tracking-tighter">Úsalo si el scraper falló o tiene datos incorrectos</p>
+                </div>
+              </div>
               
-              <div>
-                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Título de la Publicación</label>
+              <div className="px-1">
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2.5 ml-1">Título de la Publicación</label>
                 <input
                   type="text"
                   value={formData.title}
                   onChange={e => setFormData({...formData, title: e.target.value})}
-                  className="block w-full rounded-xl border-gray-200 bg-white shadow-sm py-2.5 px-3 text-sm focus:ring-2 focus:ring-indigo-500 transition-all font-medium"
+                  className="block w-full rounded-2xl border-slate-100 bg-slate-50/30 py-3 px-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 transition-all"
                 />
               </div>
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Vistas</label>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div className="bg-emerald-50/30 p-4 rounded-3xl border border-emerald-100/50">
+                  <label className="block text-[9px] font-black text-emerald-600 uppercase tracking-[0.2em] mb-3 ml-1">Vistas</label>
                   <input
                     type="number"
                     min="0"
                     value={formData.views}
                     onChange={e => setFormData({...formData, views: parseInt(e.target.value) || 0})}
-                    className="block w-full rounded-xl border-gray-200 bg-white shadow-sm py-2 px-3 text-sm focus:ring-2 focus:ring-indigo-500 transition-all font-bold text-emerald-600"
+                    className="block w-full rounded-xl border-transparent bg-white shadow-sm py-2.5 px-3 text-base focus:ring-2 focus:ring-emerald-500 transition-all font-black text-emerald-700 text-center"
                   />
                 </div>
-                <div>
-                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Likes</label>
+                <div className="bg-pink-50/30 p-4 rounded-3xl border border-pink-100/50">
+                  <label className="block text-[9px] font-black text-pink-600 uppercase tracking-[0.2em] mb-3 ml-1">Likes</label>
                   <input
                     type="number"
                     min="0"
                     value={formData.likes}
                     onChange={e => setFormData({...formData, likes: parseInt(e.target.value) || 0})}
-                    className="block w-full rounded-xl border-gray-200 bg-white shadow-sm py-2 px-3 text-sm focus:ring-2 focus:ring-indigo-500 transition-all font-bold text-pink-500"
+                    className="block w-full rounded-xl border-transparent bg-white shadow-sm py-2.5 px-3 text-base focus:ring-2 focus:ring-pink-500 transition-all font-black text-pink-700 text-center"
                   />
                 </div>
-                <div>
-                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Comentarios</label>
+                <div className="bg-indigo-50/30 p-4 rounded-3xl border border-indigo-100/50">
+                  <label className="block text-[9px] font-black text-indigo-600 uppercase tracking-[0.2em] mb-3 ml-1">Coments</label>
                   <input
                     type="number"
                     min="0"
                     value={formData.comments}
                     onChange={e => setFormData({...formData, comments: parseInt(e.target.value) || 0})}
-                    className="block w-full rounded-xl border-gray-200 bg-white shadow-sm py-2 px-3 text-sm focus:ring-2 focus:ring-indigo-500 transition-all font-bold text-indigo-500"
+                    className="block w-full rounded-xl border-transparent bg-white shadow-sm py-2.5 px-3 text-base focus:ring-2 focus:ring-indigo-500 transition-all font-black text-indigo-700 text-center"
                   />
                 </div>
               </div>
             </div>
           )}
 
-          <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-100">
+          <div className="flex flex-col sm:flex-row gap-4 pt-8 border-t border-slate-100">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-3 rounded-xl border border-gray-200 text-sm font-bold text-gray-600 hover:bg-gray-50 transition-colors"
+              className="flex-1 px-6 py-4 rounded-2xl bg-white border border-slate-100 text-sm font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all hover:bg-slate-50"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={isProcessing}
-              className="flex-[2] px-4 py-3 rounded-xl bg-indigo-600 text-sm font-bold text-white shadow-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+              className="flex-[2] px-6 py-4 rounded-2xl bg-indigo-600 text-sm font-black uppercase tracking-widest text-white shadow-xl shadow-indigo-100 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98] flex items-center justify-center gap-3"
             >
-              {isProcessing && <RefreshCw className="h-4 w-4 animate-spin" />}
-              {isProcessing ? 'Procesando...' : (editingContent ? 'Guardar Cambios' : 'Anexar Link')}
+              {isProcessing && <RefreshCw className="h-5 w-5 animate-spin" />}
+              {isProcessing ? 'Procesando...' : (editingContent ? 'Guardar Cambios' : 'Anexar Publicación')}
             </button>
           </div>
         </form>
