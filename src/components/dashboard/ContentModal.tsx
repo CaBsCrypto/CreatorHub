@@ -258,9 +258,9 @@ const ContentModal: React.FC<ContentModalProps> = ({
                   {/* AI Autocomplete removed for speed and manual reliability as requested */}
 
                   <div className="pt-2 px-3 pb-3 bg-gray-50/50 rounded-2xl border border-gray-100">
-                      <div className="grid grid-cols-4 gap-2">
-                        <div className="col-span-1 bg-white border border-gray-100 rounded-xl p-1.5 shadow-sm">
-                          <label className="block text-[8px] font-bold text-indigo-400 uppercase tracking-widest mb-1.5 ml-0.5">Duración (Stream)</label>
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="col-span-1 bg-white border border-gray-100 rounded-xl p-2 shadow-sm">
+                          <label className="block text-[8px] font-bold text-indigo-400 uppercase tracking-widest mb-2 ml-0.5">Duración (Stream)</label>
                           <div className="flex gap-1 items-center">
                             <input
                               type="number"
@@ -271,7 +271,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
                                 const m = formData.duration_minutes % 60;
                                 setFormData({ ...formData, duration_minutes: (h * 60) + m });
                               }}
-                              className="w-full rounded-lg border-gray-50 bg-gray-50/30 py-1 px-0.5 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                              className="w-full rounded-lg border-gray-50 bg-gray-50/30 py-1.5 px-0.5 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             />
                             <input
                               type="number"
@@ -283,80 +283,60 @@ const ContentModal: React.FC<ContentModalProps> = ({
                                 const m = parseInt(e.target.value) || 0;
                                 setFormData({ ...formData, duration_minutes: (h * 60) + m });
                               }}
-                              className="w-full rounded-lg border-gray-50 bg-gray-50/30 py-1 px-0.5 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                              className="w-full rounded-lg border-gray-100 bg-gray-50/30 py-1.5 px-0.5 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             />
                           </div>
                         </div>
-                        <div className="col-span-1 bg-white border border-gray-100 rounded-xl p-1.5 shadow-sm">
-                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-0.5">Promedio (Avg)</label>
+                        <div className="col-span-1 bg-white border border-gray-100 rounded-xl p-2 shadow-sm">
+                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-0.5">Promedio (Avg)</label>
                           <input
                             type="number"
                             value={formData.average_viewers || ''}
                             onChange={(e) => setFormData({ ...formData, average_viewers: parseInt(e.target.value) || 0 })}
-                            className="block w-full rounded-lg border-gray-50 bg-gray-50/30 py-1 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            className="block w-full rounded-lg border-gray-50 bg-gray-50/30 py-1.5 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             placeholder="0"
                           />
                         </div>
-                        <div className="col-span-1 bg-white border border-gray-100 rounded-xl p-1.5 shadow-sm">
-                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-0.5">Máximo (Peak)</label>
+                        <div className="col-span-1 bg-white border border-gray-100 rounded-xl p-2 shadow-sm">
+                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-0.5">Máximo (Peak)</label>
                           <input
                             type="number"
                             value={formData.peek_viewers || ''}
                             onChange={(e) => setFormData({ ...formData, peek_viewers: parseInt(e.target.value) || 0 })}
-                            className="block w-full rounded-lg border-gray-50 bg-gray-50/30 py-1 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                            placeholder="0"
-                          />
-                        </div>
-                        <div className="col-span-1 bg-white border border-gray-100 rounded-xl p-1.5 shadow-sm">
-                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-0.5">Esp. Únicos</label>
-                          <input
-                            type="number"
-                            value={formData.unique_viewers || ''}
-                            onChange={(e) => setFormData({ ...formData, unique_viewers: parseInt(e.target.value) || 0 })}
-                            className="block w-full rounded-lg border-gray-50 bg-gray-50/30 py-1 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            className="block w-full rounded-lg border-gray-50 bg-gray-50/30 py-1.5 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             placeholder="0"
                           />
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-4 gap-2 pt-2">
-                        <div className="col-span-1 bg-white border border-gray-100 rounded-xl p-1.5 shadow-sm">
-                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-0.5">Chatters Ún.</label>
+                      <div className="grid grid-cols-3 gap-2 pt-2">
+                        <div className="col-span-1 bg-white border border-gray-100 rounded-xl p-2 shadow-sm">
+                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-0.5">Esp. Únicos</label>
+                          <input
+                            type="number"
+                            value={formData.unique_viewers || ''}
+                            onChange={(e) => setFormData({ ...formData, unique_viewers: parseInt(e.target.value) || 0 })}
+                            className="block w-full rounded-lg border-gray-50 bg-gray-50/30 py-1.5 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            placeholder="0"
+                          />
+                        </div>
+                        <div className="col-span-1 bg-white border border-gray-100 rounded-xl p-2 shadow-sm">
+                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-0.5">Chatters Ún.</label>
                           <input
                             type="number"
                             value={formData.unique_chatters || ''}
                             onChange={(e) => setFormData({ ...formData, unique_chatters: parseInt(e.target.value) || 0 })}
-                            className="block w-full rounded-lg border-gray-50 bg-gray-50/30 py-1 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            className="block w-full rounded-lg border-gray-50 bg-gray-50/30 py-1.5 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             placeholder="0"
                           />
                         </div>
-                        <div className="col-span-1 bg-white border border-gray-100 rounded-xl p-1.5 shadow-sm">
-                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-0.5">Vistas en Vivo</label>
+                        <div className="col-span-1 bg-white border border-gray-100 rounded-xl p-2 shadow-sm">
+                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-0.5">Vistas en Vivo</label>
                           <input
                             type="number"
                             value={formData.views || ''}
                             onChange={(e) => setFormData({ ...formData, views: parseInt(e.target.value) || 0 })}
-                            className="block w-full rounded-lg border-gray-50 bg-gray-50/30 py-1 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                            placeholder="0"
-                          />
-                        </div>
-                        <div className="col-span-1 bg-white border border-gray-100 rounded-xl p-1.5 shadow-sm">
-                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-0.5">Seguidores</label>
-                          <input
-                            type="number"
-                            value={formData.followers || ''}
-                            onChange={(e) => setFormData({ ...formData, followers: parseInt(e.target.value) || 0 })}
-                            className="block w-full rounded-lg border-gray-50 bg-gray-50/30 py-1 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                            placeholder="0"
-                          />
-                        </div>
-                        <div className="col-span-1 bg-white border border-gray-100 rounded-xl p-1.5 shadow-sm">
-                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-0.5">Nvas. Subs</label>
-                          <input
-                            type="number"
-                            value={formData.new_subscriptions || ''}
-                            onChange={(e) => setFormData({ ...formData, new_subscriptions: parseInt(e.target.value) || 0 })}
-                            className="block w-full rounded-lg border-gray-50 bg-gray-50/30 py-1 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            className="block w-full rounded-lg border-gray-50 bg-gray-50/30 py-1.5 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             placeholder="0"
                           />
                         </div>
