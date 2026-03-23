@@ -31,6 +31,7 @@ export default function ClientDashboard() {
         .from('campaigns')
         .select('*')
         .eq('client_id', user?.id)
+        .is('deleted_at', null)
         .order('created_at', { ascending: false });
 
       if (campaignsError) throw campaignsError;
@@ -43,6 +44,7 @@ export default function ClientDashboard() {
         const { data: contentData, error: contentError } = await supabase
           .from('content')
           .select('*')
+          .is('deleted_at', null)
           .in('campaign_id', campaignIds);
         
         if (contentError) throw contentError;
@@ -51,7 +53,8 @@ export default function ClientDashboard() {
         // 3. Fetch all users to show in reports
         const { data: usersData, error: usersError } = await supabase
           .from('users')
-          .select('*');
+          .select('*')
+          .is('deleted_at', null);
         
         if (usersError) throw usersError;
         setUsers(usersData || []);

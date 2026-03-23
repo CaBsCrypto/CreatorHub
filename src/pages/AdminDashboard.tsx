@@ -434,7 +434,7 @@ export default function AdminDashboard() {
                               <option value="tiktok">TikTok</option>
                               <option value="instagram">Instagram</option>
                               <option value="youtube">YouTube</option>
-                              <option value="twitch">Twitch</option>
+                               <option value="twitch">Stream</option>
                               <option value="x">X / Twitter</option>
                               <option value="coinmarketcap">CoinMarketCap</option>
                             </select>
@@ -658,7 +658,7 @@ export default function AdminDashboard() {
                           { name: 'Instagram', id: 'instagram', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'instagram').length },
                           { name: 'TikTok', id: 'tiktok', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'tiktok').length },
                           { name: 'X', id: 'x', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'x').length },
-                          { name: 'Twitch', id: 'twitch', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'twitch').length },
+                          { name: 'Stream', id: 'twitch', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'twitch').length },
                           { name: 'CMC', id: 'coinmarketcap', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'coinmarketcap').length }
                         ].filter(d => d.value > 0)} 
                         innerRadius={80} 
@@ -695,7 +695,7 @@ export default function AdminDashboard() {
                     { name: 'Instagram', id: 'instagram', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'instagram').length },
                     { name: 'TikTok', id: 'tiktok', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'tiktok').length },
                     { name: 'X', id: 'x', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'x').length },
-                    { name: 'Twitch', id: 'twitch', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'twitch').length },
+                    { name: 'Stream', id: 'twitch', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'twitch').length },
                     { name: 'CMC', id: 'coinmarketcap', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'coinmarketcap').length }
                   ].filter(d => d.value > 0).sort((a, b) => b.value - a.value).map((item) => (
                     <button 
@@ -1049,7 +1049,7 @@ export default function AdminDashboard() {
                         </div>
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-3 flex flex-col justify-end">
-                        <p className="text-[8px] font-black text-white uppercase tracking-widest truncate">{item.platform}</p>
+                        <p className="text-[8px] font-black text-white uppercase tracking-widest truncate">{item.platform === 'twitch' ? 'stream' : item.platform}</p>
                         <p className="text-[10px] font-bold text-white line-clamp-1">{item.title || 'Sin título'}</p>
                       </div>
                       <div 
@@ -1088,7 +1088,7 @@ export default function AdminDashboard() {
                         <p className="text-sm font-black text-gray-900 line-clamp-1">{item.title || 'Contenido sin título'}</p>
                         <div className="flex items-center gap-3 mt-1">
                           <span className="text-[9px] font-black text-indigo-600 uppercase tracking-widest px-2 py-0.5 bg-indigo-50 rounded-md">
-                            {item.platform}
+                            {item.platform === 'twitch' ? 'stream' : item.platform}
                           </span>
                           <span className="text-[9px] font-black text-gray-500 bg-gray-100 rounded-md px-2 py-0.5 flex items-center gap-1 uppercase tracking-widest">
                             <List className="h-2.5 w-2.5" />
@@ -1582,7 +1582,7 @@ export default function AdminDashboard() {
               if (editingContent) {
                 // Check duplicate if URL changed
                 if (cleanUrl !== normalizeUrl(editingContent.url, editingContent.platform)) {
-                   const { data: existing } = await supabase.from('content').select('id').eq('campaign_id', data.campaign_id).eq('url', cleanUrl).neq('id', editingContent.id).limit(1);
+                   const { data: existing } = await supabase.from('content').select('id').eq('campaign_id', data.campaign_id).eq('url', cleanUrl).is('deleted_at', null).neq('id', editingContent.id).limit(1);
                    if (existing && existing.length > 0) {
                       toastError("¡Ese enlace ya está vinculado a esta campaña!");
                       setIsProcessingContent(false);
@@ -1634,7 +1634,7 @@ export default function AdminDashboard() {
                 }
               } else {
                 // 1. Check duplicate for new inserts
-                const { data: existing } = await supabase.from('content').select('id').eq('campaign_id', data.campaign_id).eq('url', cleanUrl).limit(1);
+                const { data: existing } = await supabase.from('content').select('id').eq('campaign_id', data.campaign_id).eq('url', cleanUrl).is('deleted_at', null).limit(1);
                 if (existing && existing.length > 0) {
                     toastError("¡Este contenido ya se encuentra registrado en la campaña!");
                     setIsProcessingContent(false);

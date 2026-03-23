@@ -100,7 +100,7 @@ export default function CreatorDashboard() {
     setIsRefreshing(true);
     info("Sincronizando tus métricas...");
     try {
-      const { data } = await supabase.from('content').select('id, url, platform').eq('creator_id', user?.id);
+      const { data } = await supabase.from('content').select('id, url, platform').eq('creator_id', user?.id).is('deleted_at', null);
       if (data && data.length > 0) {
         const { data: { session } } = await supabase.auth.getSession();
         const response = await fetch('/api/refresh-metrics', {
@@ -584,7 +584,7 @@ export default function CreatorDashboard() {
               setEditingContent(null);
               refresh();
             } else {
-              const { data: existing } = await supabase.from('content').select('id').eq('campaign_id', data.campaign_id).eq('url', cleanUrl).limit(1);
+              const { data: existing } = await supabase.from('content').select('id').eq('campaign_id', data.campaign_id).eq('url', cleanUrl).is('deleted_at', null).limit(1);
               if (existing && existing.length > 0) {
                   toastError("¡Este contenido ya se encuentra registrado en la campaña!");
                   setIsProcessingContent(false);

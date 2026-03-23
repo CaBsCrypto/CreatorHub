@@ -273,7 +273,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
                         streamPlatform === 'twitch' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-400 hover:text-slate-600'
                       }`}
                     >
-                      <Globe className="h-3 w-3" /> Twitch
+                      <Globe className="h-3 w-3" /> Stream
                     </button>
                     <button
                       type="button"

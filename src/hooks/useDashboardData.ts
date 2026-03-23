@@ -48,9 +48,9 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
   const fetchData = useCallback(async () => {
     try {
       const [camps, conts, usrs] = await Promise.all([
-        supabase.from('campaigns').select('*').order('created_at', { ascending: false }),
-        supabase.from('content').select('*').order('created_at', { ascending: false }),
-        supabase.from('users').select('*')
+        supabase.from('campaigns').select('*').is('deleted_at', null).order('created_at', { ascending: false }),
+        supabase.from('content').select('*').is('deleted_at', null).order('created_at', { ascending: false }),
+        supabase.from('users').select('*').is('deleted_at', null)
       ]);
 
       if (camps.error) throw camps.error;

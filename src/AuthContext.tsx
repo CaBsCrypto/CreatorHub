@@ -96,6 +96,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .from('users')
         .select('*')
         .eq('id', currentUser.id)
+        .is('deleted_at', null)
         .single();
 
       // 2. If not found by ID, try looking up by email (pre-invited users)

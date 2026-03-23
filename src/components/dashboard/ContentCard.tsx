@@ -75,7 +75,7 @@ const ContentCard: React.FC<ContentCardProps> = ({ item, campaignName, onEdit, o
             <PlatformIcon className={`h-6 w-6 ${platformColor}`} />
           </div>
           <span className={`text-[9px] font-black uppercase tracking-[0.2em] ${item.thumbnail ? 'text-white' : 'text-gray-400'}`}>
-            {item.platform}
+            {item.platform === 'twitch' ? 'stream' : item.platform}
           </span>
         </div>
 
