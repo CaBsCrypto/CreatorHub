@@ -100,6 +100,7 @@ export default function AdminDashboard() {
   const isCompactView = viewMode === 'compact';
   const [deletedUserIds, setDeletedUserIds] = useState<string[]>([]);
   const [deletedContentIds, setDeletedContentIds] = useState<string[]>([]);
+  const [viewingDeleted, setViewingDeleted] = useState<{ type: 'content' | 'campaign' | 'user', item: any } | null>(null);
 
   const { campaigns, content, users, payments, metrics, creatorStats, refresh, filteredContent, deletedContent, deletedCampaigns, deletedUsers } = useDashboardData('admin', { 
     platform: filters.platform, 
@@ -1470,17 +1471,17 @@ export default function AdminDashboard() {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {deletedContent.map(item => (
-                  <div key={item.id} className="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm flex items-center justify-between group">
+                  <div key={item.id} onClick={() => setViewingDeleted({ type: 'content', item })} className="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm flex items-center justify-between group cursor-pointer hover:border-indigo-200 hover:shadow-md transition-all">
                     <div className="flex items-center gap-4 min-w-0">
-                      <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <Youtube className="h-5 w-5 text-gray-400" />
+                      <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-50 transition-colors">
+                        <Youtube className="h-5 w-5 text-gray-400 group-hover:text-indigo-500" />
                       </div>
                       <div className="min-w-0">
                         <p className="text-sm font-bold text-gray-900 truncate">{item.title || 'Sin título'}</p>
                         <p className="text-[10px] text-gray-400 font-medium">Borrado el {item.deleted_at ? new Date(item.deleted_at).toLocaleDateString() : 'N/A'}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 ml-4">
+                    <div className="flex items-center gap-2 ml-4" onClick={e => e.stopPropagation()}>
                       <button 
                         onClick={async () => {
                           const { error } = await supabase.from('content').update({ deleted_at: null }).eq('id', item.id);
@@ -1517,9 +1518,9 @@ export default function AdminDashboard() {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {deletedCampaigns.map(camp => (
-                  <div key={camp.id} className="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm flex items-center justify-between group">
+                  <div key={camp.id} onClick={() => setViewingDeleted({ type: 'campaign', item: camp })} className="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm flex items-center justify-between group cursor-pointer hover:border-emerald-200 hover:shadow-md transition-all">
                     <div className="flex items-center gap-4 min-w-0">
-                      <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-100 transition-colors">
                         <Target className="h-5 w-5 text-emerald-600" />
                       </div>
                       <div className="min-w-0">
@@ -1527,7 +1528,7 @@ export default function AdminDashboard() {
                         <p className="text-[10px] text-gray-400 font-medium">Borrada el {camp.deleted_at ? new Date(camp.deleted_at).toLocaleDateString() : 'N/A'}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 ml-4">
+                    <div className="flex items-center gap-2 ml-4" onClick={e => e.stopPropagation()}>
                       <button 
                         onClick={async () => {
                           const { error } = await supabase.from('campaigns').update({ deleted_at: null }).eq('id', camp.id);
@@ -1564,9 +1565,9 @@ export default function AdminDashboard() {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {deletedUsers.map(u => (
-                  <div key={u.id} className="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm flex items-center justify-between group">
+                  <div key={u.id} onClick={() => setViewingDeleted({ type: 'user', item: u })} className="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm flex items-center justify-between group cursor-pointer hover:border-amber-200 hover:shadow-md transition-all">
                     <div className="flex items-center gap-4 min-w-0">
-                      <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-amber-100 transition-colors">
                         <Users className="h-5 w-5 text-amber-600" />
                       </div>
                       <div className="min-w-0">
@@ -1574,7 +1575,7 @@ export default function AdminDashboard() {
                         <p className="text-[10px] text-gray-400 font-medium">Borrado el {u.deleted_at ? new Date(u.deleted_at).toLocaleDateString() : 'N/A'}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 ml-4">
+                    <div className="flex items-center gap-2 ml-4" onClick={e => e.stopPropagation()}>
                       <button 
                         onClick={async () => {
                           const { error } = await supabase.from('users').update({ deleted_at: null }).eq('id', u.id);
@@ -1911,6 +1912,103 @@ export default function AdminDashboard() {
                       ${calculatorAmount ? (Number(calculatorAmount) / 3).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
                     </span>
                  </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* Deleted Item Details Modal */}
+        <AnimatePresence>
+          {viewingDeleted && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setViewingDeleted(null)}
+                className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm"
+              />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="relative bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden"
+              >
+                <div className="p-8">
+                  <div className="flex items-center justify-between mb-8">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
+                        viewingDeleted.type === 'content' ? 'bg-indigo-50 text-indigo-600' :
+                        viewingDeleted.type === 'campaign' ? 'bg-emerald-50 text-emerald-600' :
+                        'bg-amber-50 text-amber-600'
+                      }`}>
+                        {viewingDeleted.type === 'content' && <Youtube className="h-6 w-6" />}
+                        {viewingDeleted.type === 'campaign' && <Target className="h-6 w-6" />}
+                        {viewingDeleted.type === 'user' && <Users className="h-6 w-6" />}
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-black text-gray-900 uppercase tracking-tight">Detalles del {viewingDeleted.type === 'user' ? 'Usuario' : viewingDeleted.type === 'campaign' ? 'Campaña' : 'Contenido'}</h3>
+                        <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-0.5">Estado: Eliminado</p>
+                      </div>
+                    </div>
+                    <button onClick={() => setViewingDeleted(null)} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
+                      <X className="h-5 w-5 text-gray-400" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-6 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
+                    {Object.entries(viewingDeleted.item).map(([key, value]) => {
+                      if (value === null || value === undefined || typeof value === 'object' || key.includes('id')) return null;
+                      return (
+                        <div key={key} className="flex flex-col gap-1">
+                          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{key.replace(/_/g, ' ')}</span>
+                          <span className="text-sm font-bold text-gray-900 break-all">{String(value)}</span>
+                        </div>
+                      );
+                    })}
+                    <div className="pt-4 border-t border-gray-50">
+                       <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest">Fecha de Eliminación</span>
+                       <p className="text-sm font-black text-rose-600 mt-1">{viewingDeleted.item.deleted_at ? new Date(viewingDeleted.item.deleted_at).toLocaleString() : 'N/A'}</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-8 pt-8 border-t border-gray-50 grid grid-cols-2 gap-4">
+                    <button 
+                      onClick={async () => {
+                        const table = viewingDeleted.type === 'content' ? 'content' : viewingDeleted.type === 'campaign' ? 'campaigns' : 'users';
+                        const { error } = await supabase.from(table).update({ deleted_at: null }).eq('id', viewingDeleted.item.id);
+                        if (!error) {
+                          success("Restaurado correctamente");
+                          setViewingDeleted(null);
+                          refresh();
+                        } else {
+                          toastError("Error al restaurar");
+                        }
+                      }}
+                      className="flex items-center justify-center gap-2 py-4 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all active:scale-95 shadow-lg shadow-indigo-100"
+                    >
+                      <RefreshCw className="h-4 w-4" /> Restaurar Item
+                    </button>
+                    <button 
+                      onClick={async () => {
+                        if (confirm("¿Estás seguro de eliminar permanentemente? Esta acción es irreversible.")) {
+                          const table = viewingDeleted.type === 'content' ? 'content' : viewingDeleted.type === 'campaign' ? 'campaigns' : 'users';
+                          const { error } = await supabase.from(table).delete().eq('id', viewingDeleted.item.id);
+                          if (!error) {
+                            success("Eliminado permanentemente");
+                            setViewingDeleted(null);
+                            refresh();
+                          } else {
+                            toastError("Error al eliminar");
+                          }
+                        }
+                      }}
+                      className="flex items-center justify-center gap-2 py-4 bg-rose-50 text-rose-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-100 transition-all active:scale-95"
+                    >
+                      <Trash2 className="h-4 w-4" /> Borrado Físico
+                    </button>
+                  </div>
+                </div>
               </motion.div>
             </div>
           )}
