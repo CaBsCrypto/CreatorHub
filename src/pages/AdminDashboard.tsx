@@ -417,7 +417,7 @@ export default function AdminDashboard() {
                     >
                       <div className="flex items-center justify-between mb-2">
                         <h4 className="text-xs font-black text-gray-900 uppercase tracking-widest">Ajustar Vista</h4>
-                        <button onClick={resetFilters} className="text-[10px] font-black text-rose-500 uppercase hover:underline">Limpiar</button>
+                        <button onClick={() => resetFilters()} className="text-[10px] font-black text-rose-500 uppercase hover:underline">Limpiar</button>
                       </div>
 
                         <div className="space-y-4">
@@ -889,7 +889,6 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                 </div>
-
                 {/* Actions Group */}
                 <div className="flex items-center gap-3">
                   <button 
@@ -985,7 +984,7 @@ export default function AdminDashboard() {
                 )}
 
                 <button 
-                  onClick={resetFilters}
+                  onClick={() => resetFilters()}
                   className="px-3 py-1.5 text-[10px] font-black text-rose-500 hover:bg-rose-50 rounded-xl uppercase tracking-widest transition-colors border border-transparent hover:border-rose-100"
                 >
                   Limpiar Todo
@@ -1503,14 +1502,18 @@ export default function AdminDashboard() {
           users={users.filter(u => u.role !== 'client')}
           editingContent={editingContent as any}
           isProcessing={isProcessingContent}
-          onTwitchUpload={async (file, selectedCreatorId, vCount, uvCount, pCount, aCount, uCount, dCount) => {
+          onTwitchUpload={async (file, selectedCreatorId, dCount, aCount, pCount, uvCount, uChatters, vCount, fCount, sCount) => {
             setIsProcessingContent(true);
             try {
               const activeCreatorId = selectedCreatorId || user?.id;
               const fileName = `${activeCreatorId}/${Date.now()}-${file.name}`;
-              const { data: uploadData, error: uploadError } = await supabase.storage
+              
+              const { error: uploadError } = await supabase.storage
                 .from('content-attachments')
-                .upload(fileName, file);
+                .upload(fileName, file, {
+                  cacheControl: '3600',
+                  upsert: false
+                });
 
               if (uploadError) throw uploadError;
 
@@ -1519,9 +1522,9 @@ export default function AdminDashboard() {
                 .getPublicUrl(fileName);
 
               const { error: dbError } = await supabase.from('content').insert([{
-                campaign_id: campaigns.find(c => c.status === 'active')?.id || (campaigns[0]?.id || ''),
+                campaign_id: editingContent?.campaign_id || (campaigns[0]?.id || ''),
                 platform: 'twitch',
-                url: 'https://twitch.tv/capture-' + Date.now(),
+                url: 'https://twitch.tv/stats-' + Date.now(),
                 thumbnail: publicUrl,
                 creator_id: activeCreatorId,
                 status: 'active',
@@ -1529,7 +1532,9 @@ export default function AdminDashboard() {
                 unique_viewers: uvCount || 0,
                 peek_viewers: pCount || 0,
                 average_viewers: aCount || 0,
-                unique_chatters: uCount || 0,
+                unique_chatters: uChatters || 0,
+                followers: fCount || 0,
+                new_subscriptions: sCount || 0,
                 duration_minutes: dCount || 0,
                 uploaded_at: new Date().toISOString()
               }]);
@@ -1627,6 +1632,8 @@ export default function AdminDashboard() {
                   peek_viewers: data.peek_viewers || 0,
                   average_viewers: data.average_viewers || 0,
                   unique_chatters: data.unique_chatters || 0,
+                  followers: data.followers || 0,
+                  new_subscriptions: data.new_subscriptions || 0,
                   duration_minutes: data.duration_minutes || 0,
                   creator_id: activeCreatorId,
                   guest_name: guestName,

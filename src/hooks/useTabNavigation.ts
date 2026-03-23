@@ -39,7 +39,7 @@ export function useTabNavigation<T extends string>(
  */
 export function useFilterParams<T extends Record<string, string>>(
   defaults: T
-): [T, (key: keyof T, value: string) => void, (updates: Partial<T>) => void, () => void] {
+): [T, (key: keyof T, value: string) => void, (updates: Partial<T>) => void, (overrides?: Partial<T>) => void] {
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Build current filter values from URL, falling back to defaults

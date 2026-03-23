@@ -484,7 +484,7 @@ export default function CreatorDashboard() {
         campaigns={campaigns} 
         editingContent={editingContent}
         isProcessing={isProcessingContent}
-        onTwitchUpload={async (file, explicitCreatorId, vCount, uvCount, pCount, aCount, uCount, dCount) => {
+        onTwitchUpload={async (file, explicitCreatorId, dCount, aCount, pCount, uvCount, uChatters, vCount, fCount, sCount) => {
           setIsProcessingContent(true);
           try {
             const currentCampaignId = filters.campaign === 'all' ? (campaigns[0]?.id || '') : filters.campaign;
@@ -514,7 +514,9 @@ export default function CreatorDashboard() {
               unique_viewers: uvCount || 0,
               peek_viewers: pCount || 0,
               average_viewers: aCount || 0,
-              unique_chatters: uCount || 0,
+              unique_chatters: uChatters || 0,
+              followers: fCount || 0,
+              new_subscriptions: sCount || 0,
               duration_minutes: dCount || 0,
               uploaded_at: new Date().toISOString()
             }]);
