@@ -125,25 +125,9 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
                 </div>
               )}
 
-              <div className="mt-12 flex flex-col gap-4">
-                <a 
-                  href={item.url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="w-full py-4 bg-indigo-600 text-white rounded-[1.5rem] text-xs font-black uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 group"
-                >
-                  Ver en {config.label} <ExternalLink className="h-4 w-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                </a>
-                <button 
-                  onClick={onClose}
-                  className="w-full py-4 border border-gray-100 text-gray-400 rounded-[1.5rem] text-xs font-black uppercase tracking-widest hover:bg-gray-50 transition-all"
-                >
-                  Cerrar Detalle
-                </button>
               </div>
-            </div>
-          </motion.div>
-        </div>
+            </motion.div>
+          </div>
       )}
     </AnimatePresence>
   );
