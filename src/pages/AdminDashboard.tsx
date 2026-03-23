@@ -1465,67 +1465,102 @@ export default function AdminDashboard() {
             </div>
 
             {/* Deleted Content */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-black text-gray-900 uppercase tracking-[0.2em] flex items-center gap-2 px-2">
-                <Youtube className="h-4 w-4 text-indigo-500" /> Contenido Eliminado ({deletedContent.length})
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between px-2">
+                <h3 className="text-sm font-black text-gray-900 uppercase tracking-[0.2em] flex items-center gap-2">
+                  <Youtube className="h-4 w-4 text-indigo-500" /> Contenido Eliminado ({deletedContent.length})
+                </h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
                 {deletedContent.map(item => (
-                  <div key={item.id} onClick={() => setViewingDeleted({ type: 'content', item })} className="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm flex items-center justify-between group cursor-pointer hover:border-indigo-200 hover:shadow-md transition-all">
-                    <div className="flex items-center gap-4 min-w-0">
-                      <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-50 transition-colors">
-                        <Youtube className="h-5 w-5 text-gray-400 group-hover:text-indigo-500" />
+                  <div 
+                    key={item.id} 
+                    onClick={() => setViewingDeleted({ type: 'content', item })} 
+                    className="group bg-white rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl hover:border-indigo-100 transition-all duration-300 overflow-hidden cursor-pointer relative"
+                  >
+                    {/* Thumbnail overlay for deleted */}
+                    <div className="aspect-video relative overflow-hidden bg-gray-100">
+                      {item.thumbnail ? (
+                        <img src={item.thumbnail} alt="" className="w-full h-full object-cover grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-300">
+                          <Youtube className="h-8 w-8" />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-gray-900/60 to-transparent" />
+                      <div className="absolute top-4 left-4">
+                        <span className="px-2 py-1 bg-white/20 backdrop-blur-md rounded-lg text-[8px] font-black text-white uppercase tracking-widest border border-white/20">
+                          {item.platform}
+                        </span>
                       </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-bold text-gray-900 truncate">{item.title || 'Sin título'}</p>
-                        <p className="text-[10px] text-gray-400 font-medium">Borrado el {item.deleted_at ? new Date(item.deleted_at).toLocaleDateString() : 'N/A'}</p>
+                      <div className="absolute bottom-4 left-4 right-4">
+                         <p className="text-white text-xs font-black truncate drop-shadow-sm">{item.title || 'Sin título'}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 ml-4" onClick={e => e.stopPropagation()}>
-                      <button 
-                        onClick={async () => {
-                          const { error } = await supabase.from('content').update({ deleted_at: null }).eq('id', item.id);
-                          if (!error) { success("Contenido restaurado"); refresh(); }
-                        }}
-                        className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
-                        title="Restaurar"
-                      >
-                        <RefreshCw className="h-4 w-4" />
-                      </button>
-                      <button 
-                        onClick={async () => {
-                          if (confirm("¿Eliminar permanentemente? Esta acción es irreversible.")) {
-                            const { error } = await supabase.from('content').delete().eq('id', item.id);
-                            if (!error) { success("Eliminado permanentemente"); refresh(); }
-                          }
-                        }}
-                        className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
-                        title="Eliminar Permanente"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+
+                    <div className="p-5 flex items-center justify-between">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 text-[8px] font-black text-rose-400 uppercase tracking-widest mb-1">
+                          <AlertTriangle className="h-2.5 w-2.5" /> Borrado el {item.deleted_at ? new Date(item.deleted_at).toLocaleDateString() : 'N/A'}
+                        </div>
+                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tight truncate">Campaña ID: {item.campaign_id.split('-')[0]}</p>
+                      </div>
+                      <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+                        <button 
+                          onClick={async () => {
+                            const { error } = await supabase.from('content').update({ deleted_at: null }).eq('id', item.id);
+                            if (!error) { success("Contenido restaurado"); refresh(); }
+                          }}
+                          className="w-9 h-9 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition-all shadow-sm"
+                          title="Restaurar"
+                        >
+                          <RefreshCw className="h-4 w-4" />
+                        </button>
+                        <button 
+                          onClick={async () => {
+                            if (confirm("¿Eliminar permanentemente? Esta acción es irreversible.")) {
+                              const { error } = await supabase.from('content').delete().eq('id', item.id);
+                              if (!error) { success("Eliminado permanentemente"); refresh(); }
+                            }
+                          }}
+                          className="w-9 h-9 flex items-center justify-center bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-500 hover:text-white transition-all shadow-sm"
+                          title="Eliminar Permanente"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
-                {deletedContent.length === 0 && <p className="text-xs text-gray-400 italic px-2">No hay contenido en la papelera.</p>}
+                {deletedContent.length === 0 && (
+                  <div className="col-span-full py-12 text-center bg-gray-50/50 rounded-[2.5rem] border border-dashed border-gray-200">
+                    <p className="text-sm text-gray-400 font-medium italic">No hay contenido en la papelera.</p>
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Deleted Campaigns */}
-            <div className="space-y-4">
+            <div className="space-y-6">
               <h3 className="text-sm font-black text-gray-900 uppercase tracking-[0.2em] flex items-center gap-2 px-2">
                 <List className="h-4 w-4 text-emerald-500" /> Campañas Eliminadas ({deletedCampaigns.length})
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
                 {deletedCampaigns.map(camp => (
-                  <div key={camp.id} onClick={() => setViewingDeleted({ type: 'campaign', item: camp })} className="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm flex items-center justify-between group cursor-pointer hover:border-emerald-200 hover:shadow-md transition-all">
+                  <div 
+                    key={camp.id} 
+                    onClick={() => setViewingDeleted({ type: 'campaign', item: camp })} 
+                    className="group bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl hover:border-emerald-100 transition-all duration-300 cursor-pointer flex items-center justify-between"
+                  >
                     <div className="flex items-center gap-4 min-w-0">
-                      <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-100 transition-colors">
-                        <Target className="h-5 w-5 text-emerald-600" />
+                      <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-100 transition-colors">
+                        <Target className="h-6 w-6 text-emerald-600" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-bold text-gray-900 truncate">{camp.name}</p>
-                        <p className="text-[10px] text-gray-400 font-medium">Borrada el {camp.deleted_at ? new Date(camp.deleted_at).toLocaleDateString() : 'N/A'}</p>
+                        <p className="text-sm font-black text-gray-900 truncate leading-tight mb-1">{camp.name}</p>
+                        <div className="flex items-center gap-2 text-[8px] font-black text-rose-400 uppercase tracking-widest">
+                          <AlertTriangle className="h-2.5 w-2.5" /> {camp.deleted_at ? new Date(camp.deleted_at).toLocaleDateString() : 'N/A'}
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 ml-4" onClick={e => e.stopPropagation()}>
@@ -1534,7 +1569,7 @@ export default function AdminDashboard() {
                           const { error } = await supabase.from('campaigns').update({ deleted_at: null }).eq('id', camp.id);
                           if (!error) { success("Campaña restaurada"); refresh(); }
                         }}
-                        className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
+                        className="w-9 h-9 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition-all shadow-sm"
                         title="Restaurar"
                       >
                         <RefreshCw className="h-4 w-4" />
@@ -1546,7 +1581,7 @@ export default function AdminDashboard() {
                             if (!error) { success("Campaña eliminada"); refresh(); }
                           }
                         }}
-                        className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
+                        className="w-9 h-9 flex items-center justify-center bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-500 hover:text-white transition-all shadow-sm"
                         title="Eliminar Permanente"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -1554,25 +1589,35 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                 ))}
-                {deletedCampaigns.length === 0 && <p className="text-xs text-gray-400 italic px-2">No hay campañas en la papelera.</p>}
+                {deletedCampaigns.length === 0 && (
+                  <div className="col-span-full py-12 text-center bg-gray-50/50 rounded-[2.5rem] border border-dashed border-gray-200">
+                    <p className="text-sm text-gray-400 font-medium italic">No hay campañas en la papelera.</p>
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Deleted Users */}
-            <div className="space-y-4">
+            <div className="space-y-6">
               <h3 className="text-sm font-black text-gray-900 uppercase tracking-[0.2em] flex items-center gap-2 px-2">
                 <Users className="h-4 w-4 text-amber-500" /> Usuarios Eliminados ({deletedUsers.length})
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
                 {deletedUsers.map(u => (
-                  <div key={u.id} onClick={() => setViewingDeleted({ type: 'user', item: u })} className="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm flex items-center justify-between group cursor-pointer hover:border-amber-200 hover:shadow-md transition-all">
+                  <div 
+                    key={u.id} 
+                    onClick={() => setViewingDeleted({ type: 'user', item: u })} 
+                    className="group bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl hover:border-amber-100 transition-all duration-300 cursor-pointer flex items-center justify-between"
+                  >
                     <div className="flex items-center gap-4 min-w-0">
-                      <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-amber-100 transition-colors">
-                        <Users className="h-5 w-5 text-amber-600" />
+                      <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:bg-amber-100 transition-colors">
+                        <Users className="h-6 w-6 text-amber-600" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-bold text-gray-900 truncate">{u.display_name || u.email}</p>
-                        <p className="text-[10px] text-gray-400 font-medium">Borrado el {u.deleted_at ? new Date(u.deleted_at).toLocaleDateString() : 'N/A'}</p>
+                        <p className="text-sm font-black text-gray-900 truncate leading-tight mb-1">{u.display_name || u.email}</p>
+                        <div className="flex items-center gap-2 text-[8px] font-black text-rose-400 uppercase tracking-widest">
+                          <AlertTriangle className="h-2.5 w-2.5" /> {u.deleted_at ? new Date(u.deleted_at).toLocaleDateString() : 'N/A'}
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 ml-4" onClick={e => e.stopPropagation()}>
@@ -1581,7 +1626,7 @@ export default function AdminDashboard() {
                           const { error } = await supabase.from('users').update({ deleted_at: null }).eq('id', u.id);
                           if (!error) { success("Usuario restaurado"); refresh(); }
                         }}
-                        className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
+                        className="w-9 h-9 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition-all shadow-sm"
                         title="Restaurar"
                       >
                         <RefreshCw className="h-4 w-4" />
@@ -1593,7 +1638,7 @@ export default function AdminDashboard() {
                             if (!error) { success("Usuario eliminado"); refresh(); }
                           }
                         }}
-                        className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
+                        className="w-9 h-9 flex items-center justify-center bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-500 hover:text-white transition-all shadow-sm"
                         title="Eliminar Permanente"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -1601,7 +1646,11 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                 ))}
-                {deletedUsers.length === 0 && <p className="text-xs text-gray-400 italic px-2">No hay usuarios en la papelera.</p>}
+                {deletedUsers.length === 0 && (
+                  <div className="col-span-full py-12 text-center bg-gray-50/50 rounded-[2.5rem] border border-dashed border-gray-200">
+                    <p className="text-sm text-gray-400 font-medium italic">No hay usuarios en la papelera.</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
