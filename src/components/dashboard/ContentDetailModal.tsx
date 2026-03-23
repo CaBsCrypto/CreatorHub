@@ -117,16 +117,17 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
                           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><Users className="h-3 w-3" /> Únicos</p>
                           <p className="text-lg font-black text-slate-900">{(item.unique_viewers || 0).toLocaleString()}</p>
                         </div>
-                        <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 shadow-sm">
-                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
-                            {isTikTokStream ? <TrendingUp className="h-3 w-3" /> : <MessageSquare className="h-3 w-3" />}
-                            {isTikTokStream ? 'Extra' : 'Chatters'}
-                          </p>
-                          <p className="text-lg font-black text-slate-900">
-                            {isTikTokStream ? (item.average_viewers || 0).toLocaleString() : (item.unique_chatters || 0).toLocaleString()}
-                          </p>
-                        </div>
-                        <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 shadow-sm">
+                        {item.platform === 'twitch' && (
+                          <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 shadow-sm">
+                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                              <MessageSquare className="h-3 w-3" /> Chatters
+                            </p>
+                            <p className="text-lg font-black text-slate-900">
+                              {(item.unique_chatters || 0).toLocaleString()}
+                            </p>
+                          </div>
+                        )}
+                        <div className={`bg-slate-50 border border-slate-100 rounded-2xl p-4 shadow-sm ${isTikTokStream ? 'col-span-2' : ''}`}>
                           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><Eye className="h-3 w-3" /> {isTikTokStream ? 'Visualizaciones' : 'Vistas'}</p>
                           <p className="text-lg font-black text-slate-900">{(item.views || 0).toLocaleString()}</p>
                         </div>

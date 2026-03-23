@@ -305,73 +305,74 @@ const ContentModal: React.FC<ContentModalProps> = ({
                   </div>
 
                   <div className="p-4 bg-slate-50/50 rounded-2xl border border-slate-100">
-                      <div className="grid grid-cols-3 gap-2">
-                        <div className="bg-white border border-slate-200 rounded-xl p-2.5">
-                          <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
-                            {streamPlatform === 'tiktok' ? 'Tiempo' : 'Duración'}
-                          </label>
-                          <div className="flex gap-1 items-center">
-                            <input
-                              type="number"
-                              placeholder="H"
-                              value={Math.floor(formData.duration_minutes / 60) || ''}
-                              onChange={(e) => {
-                                const h = parseInt(e.target.value) || 0;
-                                const m = formData.duration_minutes % 60;
-                                setFormData({ ...formData, duration_minutes: (h * 60) + m });
-                              }}
-                              className="w-full bg-slate-50/50 py-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-slate-700"
-                            />
-                            <span className="text-slate-300 font-bold">:</span>
-                            <input
-                              type="number"
-                              placeholder="M"
-                              max="59"
-                              value={formData.duration_minutes % 60 || ''}
-                              onChange={(e) => {
-                                const h = Math.floor(formData.duration_minutes / 60);
-                                const m = parseInt(e.target.value) || 0;
-                                setFormData({ ...formData, duration_minutes: (h * 60) + m });
-                              }}
-                              className="w-full bg-slate-50/50 py-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-slate-700"
-                            />
-                          </div>
-                        </div>
-                        <div className="bg-white border border-slate-200 rounded-xl p-2.5">
-                          <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
-                            {streamPlatform === 'tiktok' ? 'Likes' : 'Avg View'}
-                          </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="bg-white border border-slate-200 rounded-xl p-2.5">
+                        <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
+                          {streamPlatform === 'tiktok' ? 'Tiempo' : 'Duración'}
+                        </label>
+                        <div className="flex gap-1 items-center">
                           <input
                             type="number"
-                            value={(streamPlatform === 'tiktok' ? formData.likes : formData.average_viewers) || ''}
+                            placeholder="H"
+                            value={Math.floor(formData.duration_minutes / 60) || ''}
                             onChange={(e) => {
-                              const v = parseInt(e.target.value) || 0;
-                              if (streamPlatform === 'tiktok') setFormData({ ...formData, likes: v });
-                              else setFormData({ ...formData, average_viewers: v });
+                              const h = parseInt(e.target.value) || 0;
+                              const m = formData.duration_minutes % 60;
+                              setFormData({ ...formData, duration_minutes: (h * 60) + m });
                             }}
-                            className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
-                            placeholder="0"
+                            className="w-full bg-slate-50/50 py-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-slate-700"
                           />
-                        </div>
-                        <div className="bg-white border border-slate-200 rounded-xl p-2.5">
-                          <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
-                            {streamPlatform === 'tiktok' ? 'Coment' : 'Peak'}
-                          </label>
+                          <span className="text-slate-300 font-bold">:</span>
                           <input
                             type="number"
-                            value={(streamPlatform === 'tiktok' ? formData.comments : formData.peek_viewers) || ''}
+                            placeholder="M"
+                            max="59"
+                            value={formData.duration_minutes % 60 || ''}
                             onChange={(e) => {
-                              const v = parseInt(e.target.value) || 0;
-                              if (streamPlatform === 'tiktok') setFormData({ ...formData, comments: v });
-                              else setFormData({ ...formData, peek_viewers: v });
+                              const h = Math.floor(formData.duration_minutes / 60);
+                              const m = parseInt(e.target.value) || 0;
+                              setFormData({ ...formData, duration_minutes: (h * 60) + m });
                             }}
-                            className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
-                            placeholder="0"
+                            className="w-full bg-slate-50/50 py-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-slate-700"
                           />
                         </div>
                       </div>
+                      <div className="bg-white border border-slate-200 rounded-xl p-2.5">
+                        <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
+                          {streamPlatform === 'tiktok' ? 'Vistas' : 'Avg View'}
+                        </label>
+                        <input
+                          type="number"
+                          value={(streamPlatform === 'tiktok' ? formData.views : formData.average_viewers) || ''}
+                          onChange={(e) => {
+                            const v = parseInt(e.target.value) || 0;
+                            if (streamPlatform === 'tiktok') setFormData({ ...formData, views: v });
+                            else setFormData({ ...formData, average_viewers: v });
+                          }}
+                          className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
+                          placeholder="0"
+                        />
+                      </div>
+                      <div className="bg-white border border-slate-200 rounded-xl p-2.5">
+                        <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
+                          {streamPlatform === 'tiktok' ? 'Únicos' : 'Peak'}
+                        </label>
+                        <input
+                          type="number"
+                          value={(streamPlatform === 'tiktok' ? formData.unique_viewers : formData.peek_viewers) || ''}
+                          onChange={(e) => {
+                            const v = parseInt(e.target.value) || 0;
+                            if (streamPlatform === 'tiktok') setFormData({ ...formData, unique_viewers: v });
+                            else setFormData({ ...formData, peek_viewers: v });
+                          }}
+                          className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
+                          placeholder="0"
+                        />
+                      </div>
+                    </div>
 
-                      <div className="grid grid-cols-3 gap-2 pt-2">
+                    <div className="grid grid-cols-3 gap-2 pt-2">
+                      {streamPlatform === 'twitch' && (
                         <div className="bg-white border border-slate-200 rounded-xl p-2.5">
                           <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">Únicos</label>
                           <input
@@ -382,36 +383,42 @@ const ContentModal: React.FC<ContentModalProps> = ({
                             placeholder="0"
                           />
                         </div>
-                        <div className="bg-white border border-slate-200 rounded-xl p-2.5">
-                          <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
-                            {streamPlatform === 'tiktok' ? 'Extra' : 'Chatters'}
-                          </label>
-                          <input
-                            type="number"
-                            value={(streamPlatform === 'tiktok' ? formData.average_viewers : formData.unique_chatters) || ''}
-                            onChange={(e) => {
-                              const v = parseInt(e.target.value) || 0;
-                              if (streamPlatform === 'tiktok') setFormData({ ...formData, average_viewers: v });
-                              else setFormData({ ...formData, unique_chatters: v });
-                            }}
-                            className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
-                            placeholder="0"
-                          />
-                        </div>
-                        <div className="bg-white border border-slate-200 rounded-xl p-2.5">
-                          <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
-                            {streamPlatform === 'tiktok' ? 'Vistas' : 'Vistas V.'}
-                          </label>
-                          <input
-                            type="number"
-                            value={formData.views || ''}
-                            onChange={(e) => setFormData({ ...formData, views: parseInt(e.target.value) || 0 })}
-                            className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
-                            placeholder="0"
-                          />
-                        </div>
+                      )}
+                      <div className={`bg-white border border-slate-200 rounded-xl p-2.5 ${streamPlatform === 'tiktok' ? 'col-span-1.5' : ''}`}>
+                        <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
+                          {streamPlatform === 'tiktok' ? 'Likes' : 'Chatters'}
+                        </label>
+                        <input
+                          type="number"
+                          value={(streamPlatform === 'tiktok' ? formData.likes : formData.unique_chatters) || ''}
+                          onChange={(e) => {
+                            const v = parseInt(e.target.value) || 0;
+                            if (streamPlatform === 'tiktok') setFormData({ ...formData, likes: v });
+                            else setFormData({ ...formData, unique_chatters: v });
+                          }}
+                          className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
+                          placeholder="0"
+                        />
                       </div>
+                      <div className={`bg-white border border-slate-200 rounded-xl p-2.5 ${streamPlatform === 'tiktok' ? 'col-span-1.5' : ''}`}>
+                        <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
+                          {streamPlatform === 'tiktok' ? 'Coment' : 'Vistas V.'}
+                        </label>
+                        <input
+                          type="number"
+                          value={(streamPlatform === 'tiktok' ? formData.comments : formData.views) || ''}
+                          onChange={(e) => {
+                            const v = parseInt(e.target.value) || 0;
+                            if (streamPlatform === 'tiktok') setFormData({ ...formData, comments: v });
+                            else setFormData({ ...formData, views: v });
+                          }}
+                          className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
+                          placeholder="0"
+                        />
+                      </div>
+                      {streamPlatform === 'tiktok' && <div className="hidden"></div>}
                     </div>
+                  </div>
                 </div>
               ) : (
                 <div className="relative group animate-in fade-in slide-in-from-top-1">
