@@ -11,7 +11,7 @@ interface ContentModalProps {
   users?: UserProfile[];
   editingContent: Content | null;
   onSubmit: (data: any) => Promise<void>;
-  onTwitchUpload: (file: File, creator_id?: string, vCount?: number, pCount?: number, aCount?: number, uCount?: number, dCount?: number) => Promise<void>;
+  onTwitchUpload: (file: File, creator_id?: string, vCount?: number, uvCount?: number, pCount?: number, aCount?: number, uChatters?: number, dCount?: number) => Promise<void>;
   isProcessing: boolean;
 }
 
@@ -48,6 +48,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
     duration_minutes: editingContent?.duration_minutes || 0,
     average_viewers: editingContent?.average_viewers || 0,
     unique_chatters: editingContent?.unique_chatters || 0,
+    unique_viewers: editingContent?.unique_viewers || 0,
     guest_name: editingContent?.guest_name || ''
   });
   const [twitchFile, setTwitchFile] = React.useState<File | null>(null);
@@ -69,6 +70,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
         duration_minutes: editingContent.duration_minutes || 0,
         average_viewers: editingContent.average_viewers || 0,
         unique_chatters: editingContent.unique_chatters || 0,
+        unique_viewers: editingContent.unique_viewers || 0,
         guest_name: editingContent.guest_name || ''
       });
     } else {
@@ -85,6 +87,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
         duration_minutes: 0,
         average_viewers: 0,
         unique_chatters: 0,
+        unique_viewers: 0,
         guest_name: ''
       });
     }
@@ -116,6 +119,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
         twitchFile, 
         formData.creator_id, 
         formData.views, 
+        formData.unique_viewers,
         formData.peek_viewers, 
         formData.average_viewers,
         formData.unique_chatters,
@@ -252,11 +256,21 @@ const ContentModal: React.FC<ContentModalProps> = ({
                     <div className="space-y-3">
                       <div className="grid grid-cols-4 gap-2">
                         <div className="col-span-1">
-                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-0.5">Espectadores</label>
+                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-0.5">Vistas en Vivo</label>
                           <input
                             type="number"
                             value={formData.views || ''}
                             onChange={(e) => setFormData({ ...formData, views: parseInt(e.target.value) || 0 })}
+                            className="block w-full rounded-lg border-gray-100 bg-white py-1.5 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            placeholder="0"
+                          />
+                        </div>
+                        <div className="col-span-1">
+                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-0.5">Espectadores Únicos</label>
+                          <input
+                            type="number"
+                            value={formData.unique_viewers || ''}
+                            onChange={(e) => setFormData({ ...formData, unique_viewers: parseInt(e.target.value) || 0 })}
                             className="block w-full rounded-lg border-gray-100 bg-white py-1.5 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             placeholder="0"
                           />
@@ -281,6 +295,9 @@ const ContentModal: React.FC<ContentModalProps> = ({
                             placeholder="0"
                           />
                         </div>
+                      </div>
+
+                      <div className="grid grid-cols-4 gap-2 pt-2 border-t border-gray-100/50">
                         <div className="col-span-1">
                           <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-0.5">Chatters Únicos</label>
                           <input
@@ -291,41 +308,39 @@ const ContentModal: React.FC<ContentModalProps> = ({
                             placeholder="0"
                           />
                         </div>
-                      </div>
-
-                      <div className="pt-2 border-t border-gray-100/50">
-                        <label className="block text-[8px] font-bold text-indigo-400 uppercase tracking-widest mb-1 ml-0.5">Duración del Stream</label>
-                        <div className="flex gap-2 items-center">
-                          <div className="flex-1 flex gap-1">
-                            <input
-                              type="number"
-                              placeholder="H"
-                              value={Math.floor(formData.duration_minutes / 60) || ''}
-                              onChange={(e) => {
-                                const h = parseInt(e.target.value) || 0;
-                                const m = formData.duration_minutes % 60;
-                                setFormData({ ...formData, duration_minutes: (h * 60) + m });
-                              }}
-                              className="w-16 rounded-lg border-gray-100 bg-white py-1.5 px-1 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                            />
-                            <span className="text-[8px] text-gray-400 self-center uppercase font-bold">horas</span>
+                        <div className="col-span-3">
+                          <label className="block text-[8px] font-bold text-indigo-400 uppercase tracking-widest mb-1 ml-0.5">Duración del Stream</label>
+                          <div className="flex gap-2 items-center">
+                            <div className="flex-1 flex gap-1">
+                              <input
+                                type="number"
+                                placeholder="H"
+                                value={Math.floor(formData.duration_minutes / 60) || ''}
+                                onChange={(e) => {
+                                  const h = parseInt(e.target.value) || 0;
+                                  const m = formData.duration_minutes % 60;
+                                  setFormData({ ...formData, duration_minutes: (h * 60) + m });
+                                }}
+                                className="w-16 rounded-lg border-gray-100 bg-white py-1.5 px-1 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                              />
+                              <span className="text-[8px] text-gray-400 self-center uppercase font-bold">horas</span>
+                            </div>
+                            <div className="flex-1 flex gap-1">
+                              <input
+                                type="number"
+                                placeholder="M"
+                                max="59"
+                                value={formData.duration_minutes % 60 || ''}
+                                onChange={(e) => {
+                                  const h = Math.floor(formData.duration_minutes / 60);
+                                  const m = parseInt(e.target.value) || 0;
+                                  setFormData({ ...formData, duration_minutes: (h * 60) + m });
+                                }}
+                                className="w-16 rounded-lg border-gray-100 bg-white py-1.5 px-1 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                              />
+                              <span className="text-[8px] text-gray-400 self-center uppercase font-bold">min</span>
+                            </div>
                           </div>
-                          <div className="flex-1 flex gap-1">
-                            <input
-                              type="number"
-                              placeholder="M"
-                              max="59"
-                              value={formData.duration_minutes % 60 || ''}
-                              onChange={(e) => {
-                                const h = Math.floor(formData.duration_minutes / 60);
-                                const m = parseInt(e.target.value) || 0;
-                                setFormData({ ...formData, duration_minutes: (h * 60) + m });
-                              }}
-                              className="w-16 rounded-lg border-gray-100 bg-white py-1.5 px-1 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                            />
-                            <span className="text-[8px] text-gray-400 self-center uppercase font-bold">min</span>
-                          </div>
-                          <div className="flex-[2]" />
                         </div>
                       </div>
                     </div>
