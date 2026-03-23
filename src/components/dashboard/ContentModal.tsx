@@ -153,15 +153,15 @@ const ContentModal: React.FC<ContentModalProps> = ({
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
       <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-500" onClick={onClose}></div>
-      <div className="relative w-full max-w-lg rounded-[2rem] bg-white p-8 sm:p-10 shadow-xl ring-1 ring-slate-100 animate-in zoom-in-95 slide-in-from-bottom-10 duration-500 overflow-hidden">
+      <div className="relative w-full max-w-lg rounded-[2rem] bg-white p-6 sm:p-8 shadow-xl ring-1 ring-slate-100 animate-in zoom-in-95 slide-in-from-bottom-10 duration-500 overflow-y-auto max-h-[min(90vh,calc(100vh-2rem))]">
         
-        <div className="flex justify-between items-start mb-8">
+        <div className="flex justify-between items-start mb-4">
           <div>
             <h2 className="text-xl font-bold text-slate-900 tracking-tight">
               {editingContent ? 'Editar Contenido' : 'Nuevo Contenido'}
             </h2>
-            <p className="text-xs font-medium text-slate-500 mt-1">
-              {editingContent ? 'Actualiza los detalles de tu publicación' : 'Vincula una nueva publicación a tu campaña'}
+            <p className="text-xs font-medium text-slate-500 mt-0.5">
+              {editingContent ? 'Actualiza los detalles' : 'Vincula una nueva publicación'}
             </p>
           </div>
           <button 
@@ -247,7 +247,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
               </div>
             </div>
             
-            <div className="pt-2">
+            <div className="mb-5">
               <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-3 ml-1">
                 {(formData.platform as any) === 'stream' ? 'Captura y Resultados' : 'URL del Contenido'}
               </label>
@@ -304,7 +304,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
                     />
                   </div>
 
-                  <div className="p-4 bg-slate-50/50 rounded-2xl border border-slate-100">
+                  <div className="p-3 bg-slate-50/50 rounded-2xl border border-slate-100">
                     <div className="grid grid-cols-3 gap-2">
                       <div className="bg-white border border-slate-200 rounded-xl p-2.5">
                         <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
@@ -371,9 +371,9 @@ const ContentModal: React.FC<ContentModalProps> = ({
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-2 pt-2">
+                    <div className={`grid gap-2 mt-2 ${streamPlatform === 'twitch' ? 'grid-cols-3' : 'grid-cols-2'}`}>
                       {streamPlatform === 'twitch' && (
-                        <div className="bg-white border border-slate-200 rounded-xl p-2.5">
+                        <div className="bg-white border border-slate-200 rounded-xl p-2.5 shadow-sm">
                           <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">Únicos</label>
                           <input
                             type="number"
@@ -384,7 +384,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
                           />
                         </div>
                       )}
-                      <div className={`bg-white border border-slate-200 rounded-xl p-2.5 ${streamPlatform === 'tiktok' ? 'col-span-1.5' : ''}`}>
+                      <div className="bg-white border border-slate-200 rounded-xl p-2.5 shadow-sm">
                         <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
                           {streamPlatform === 'tiktok' ? 'Likes' : 'Chatters'}
                         </label>
@@ -400,7 +400,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
                           placeholder="0"
                         />
                       </div>
-                      <div className={`bg-white border border-slate-200 rounded-xl p-2.5 ${streamPlatform === 'tiktok' ? 'col-span-1.5' : ''}`}>
+                      <div className="bg-white border border-slate-200 rounded-xl p-2.5 shadow-sm">
                         <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
                           {streamPlatform === 'tiktok' ? 'Coment' : 'Vistas V.'}
                         </label>
@@ -416,7 +416,6 @@ const ContentModal: React.FC<ContentModalProps> = ({
                           placeholder="0"
                         />
                       </div>
-                      {streamPlatform === 'tiktok' && <div className="hidden"></div>}
                     </div>
                   </div>
                 </div>
