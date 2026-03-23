@@ -46,6 +46,7 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
   const [deletedContent, setDeletedContent] = useState<Content[]>([]);
   const [deletedCampaigns, setDeletedCampaigns] = useState<Campaign[]>([]);
   const [deletedUsers, setDeletedUsers] = useState<UserProfile[]>([]);
+  const [auditLogs, setAuditLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
@@ -77,6 +78,22 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
         if (delCont.data) setDeletedContent(delCont.data as Content[]);
         if (delCamp.data) setDeletedCampaigns(delCamp.data as Campaign[]);
         if (delUsr.data) setDeletedUsers(delUsr.data as UserProfile[]);
+
+        // Fetch audit logs for admins
+        const { data: logs, error: logsError } = await supabase
+          .from('audit_logs')
+          .select(`
+            *,
+            admin:admin_id (
+              display_name,
+              email
+            )
+          `)
+          .order('created_at', { ascending: false })
+          .limit(100);
+        
+        if (logsError) throw logsError;
+        setAuditLogs(logs || []);
       }
     } catch (err: any) {
       console.error("Dashboard data fetch error:", err);
@@ -208,6 +225,7 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
     deletedContent,
     deletedCampaigns,
     deletedUsers,
+    auditLogs,
     loading,
     metrics,
     creatorStats,

@@ -42,11 +42,24 @@ const PLATFORM_COLORS: Record<string, string> = {
   coinmarketcap: '#0d3efd' // Blue
 };
 
+const ADMIN_TABS = ['overview', 'campaigns', 'clients', 'content', 'creators', 'payments', 'team', 'trash'] as const;
+type AdminTab = typeof ADMIN_TABS[number];
+
+const sidebarItems = [
+  { id: 'overview', label: 'Resumen', icon: LayoutDashboard },
+  { id: 'campaigns', label: 'Campañas', icon: List },
+  { id: 'clients', label: 'Clientes', icon: Briefcase },
+  { id: 'content', label: 'Contenido', icon: Youtube },
+  { id: 'creators', label: 'Creadores', icon: Users },
+  { id: 'payments', label: 'Pagos', icon: Wallet },
+  { id: 'team', label: 'Equipo', icon: ShieldCheck },
+  { id: 'trash', label: 'Papelera', icon: Trash2 }
+] as const;
+
 export default function AdminDashboard() {
   const { user } = useAuth();
   const { success, error: toastError, info } = useToast();
   
-  const ADMIN_TABS = ['overview', 'campaigns', 'clients', 'content', 'creators', 'payments', 'team', 'trash'] as const;
   // Tab management moved to filters hook for atomic state updates
   
   // Modals state
@@ -102,7 +115,7 @@ export default function AdminDashboard() {
   const [deletedContentIds, setDeletedContentIds] = useState<string[]>([]);
   const [viewingDeleted, setViewingDeleted] = useState<{ type: 'content' | 'campaign' | 'user', item: any } | null>(null);
 
-  const { campaigns, content, users, payments, metrics, creatorStats, refresh, filteredContent, deletedContent, deletedCampaigns, deletedUsers } = useDashboardData('admin', { 
+  const { campaigns, content, users, payments, metrics, creatorStats, refresh, filteredContent, deletedContent, deletedCampaigns, deletedUsers, auditLogs } = useDashboardData('admin', { 
     platform: filters.platform, 
     campaign: filters.campaign, 
     creator: filters.creator 
@@ -335,16 +348,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const sidebarItems = [
-    { id: 'overview', label: 'Resumen', icon: LayoutDashboard },
-    { id: 'campaigns', label: 'Campañas', icon: List },
-    { id: 'clients', label: 'Clientes', icon: Briefcase },
-    { id: 'content', label: 'Contenido', icon: Youtube },
-    { id: 'creators', label: 'Creadores', icon: Users },
-    { id: 'payments', label: 'Pagos', icon: Wallet },
-    { id: 'team', label: 'Equipo', icon: ShieldCheck },
-    { id: 'trash', label: 'Papelera', icon: Trash2 }
-  ] as const;
+
 
   return (
     <div className="flex min-h-screen bg-slate-50">
@@ -1451,7 +1455,6 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
-
         {activeTab === 'trash' && (
           <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="bg-rose-50/50 p-6 rounded-[2.5rem] border border-rose-100 flex items-center gap-4">
@@ -1478,7 +1481,6 @@ export default function AdminDashboard() {
                     onClick={() => setViewingDeleted({ type: 'content', item })} 
                     className="group bg-white rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl hover:border-indigo-100 transition-all duration-300 overflow-hidden cursor-pointer relative"
                   >
-                    {/* Thumbnail overlay for deleted */}
                     <div className="aspect-video relative overflow-hidden bg-gray-100">
                       {item.thumbnail ? (
                         <img src={item.thumbnail} alt="" className="w-full h-full object-cover grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500" />
@@ -1653,6 +1655,89 @@ export default function AdminDashboard() {
                 )}
               </div>
             </div>
+
+            {/* Activity Logs Integrated at the bottom of Trash */}
+            <div className="pt-12 border-t border-gray-100 mt-12 mb-20 md:mb-0">
+              <div className="flex items-center justify-between px-2 mb-8">
+                <div>
+                  <h3 className="text-sm font-black text-gray-900 uppercase tracking-[0.2em] flex items-center gap-2">
+                    <Zap className="h-4 w-4 text-amber-500" /> Registro de Actividad Reciente ({auditLogs.length})
+                  </h3>
+                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Auditoría automática de acciones administrativas</p>
+                </div>
+                <button 
+                  onClick={() => refresh()} 
+                  className="p-2 bg-white border border-gray-100 rounded-xl text-gray-400 hover:text-indigo-600 hover:border-indigo-100 transition-all active:scale-95 shadow-sm"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden">
+                <div className="p-8">
+                  <div className="space-y-1">
+                    {auditLogs.map((log, index) => (
+                      <div key={log.id} className="relative pl-8 pb-8 group last:pb-0">
+                        {/* Timeline line */}
+                        {index !== auditLogs.length - 1 && (
+                          <div className="absolute left-[11px] top-6 bottom-0 w-[2px] bg-gray-50 group-hover:bg-indigo-50 transition-colors" />
+                        )}
+                        
+                        {/* Icon */}
+                        <div className={`absolute left-0 top-1 w-6 h-6 rounded-lg flex items-center justify-center z-10 shadow-sm ${
+                          log.action === 'SOFT_DELETE' ? 'bg-rose-50 text-rose-500' :
+                          log.action === 'RESTORE' ? 'bg-emerald-50 text-emerald-500' :
+                          log.action === 'CHANGE_ROLE' ? 'bg-amber-50 text-amber-500' :
+                          log.action === 'PAYMENT_REGISTERED' ? 'bg-indigo-50 text-indigo-500' :
+                          'bg-gray-50 text-gray-500'
+                        }`}>
+                          {log.action === 'SOFT_DELETE' && <Trash2 className="h-3 w-3" />}
+                          {log.action === 'RESTORE' && <RefreshCw className="h-3 w-3" />}
+                          {log.action === 'CHANGE_ROLE' && <ShieldCheck className="h-3 w-3" />}
+                          {log.action === 'PAYMENT_REGISTERED' && <DollarSign className="h-3 w-3" />}
+                          {log.action === 'HARD_DELETE' && <AlertTriangle className="h-3 w-3" />}
+                        </div>
+
+                        <div className="bg-gray-50/30 rounded-2xl p-4 border border-transparent hover:border-gray-100 hover:bg-white hover:shadow-md transition-all">
+                          <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-1">
+                            <p className="text-sm font-bold text-gray-900">
+                              <span className="text-indigo-600">
+                                {log.admin?.display_name || log.admin?.email?.split('@')[0] || 'Sistema'}
+                              </span>
+                              {' '}
+                              <span className="text-gray-400 font-medium">
+                                {log.action === 'SOFT_DELETE' ? 'eliminó' :
+                                 log.action === 'RESTORE' ? 'restauró' :
+                                 log.action === 'CHANGE_ROLE' ? 'cambió el rol de' :
+                                 log.action === 'PAYMENT_REGISTERED' ? 'registró un pago para' :
+                                 'realizó una acción en'}
+                              </span>
+                              {' '}
+                              {log.details?.name || 'un elemento'}
+                            </p>
+                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">
+                              {new Date(log.created_at).toLocaleString()}
+                            </span>
+                          </div>
+                          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">
+                            Referencia: {log.target_type} • {log.target_id?.split('-')[0]}...
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+
+                    {auditLogs.length === 0 && (
+                      <div className="py-20 text-center">
+                        <div className="w-16 h-16 bg-gray-50 rounded-3xl flex items-center justify-center mx-auto mb-4">
+                          <Zap className="h-8 w-8 text-gray-200" />
+                        </div>
+                        <p className="text-sm font-medium text-gray-400 italic">No hay actividad registrada aún.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
@@ -1714,11 +1799,6 @@ export default function AdminDashboard() {
         />
          <AudienceGeoModal user={editingAudienceUser} onClose={() => setEditingAudienceUser(null)} onSave={async (id, geo) => { await supabase.from('users').update({ audience_geo: geo }).eq('id', id); setEditingAudienceUser(null); success("Audiencia actualizada"); }} />
         <TwitchStatsModal isOpen={isTwitchModalOpen} onClose={() => setIsTwitchModalOpen(false)} isAnalyzing={isAnalyzingTwitch} stats={twitchStats} onSave={handleSaveTwitch} previewImage={twitchPreview} />
-        <ContentDetailModal 
-          isOpen={!!viewingContent}
-          onClose={() => setViewingContent(null)}
-          item={viewingContent}
-        />
 
         <ContentModal 
           isOpen={isContentModalOpen} 

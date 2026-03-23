@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UserProfile, Content, supabase, UserRole, Payment } from '../../supabase';
+import { useToast } from '../../hooks/useToast';
 
 interface UserHistoryModalProps {
   user: UserProfile | null;
@@ -33,6 +34,7 @@ export default function UserHistoryModal({
   const [deleteConfirmStep, setDeleteConfirmStep] = useState(0);
   const [isUpdating, setIsUpdating] = useState(false);
   const [adminAlias, setAdminAlias] = useState(user?.admin_alias || '');
+  const { success, error: toastError } = useToast();
 
   // Sync values when user changes
   React.useEffect(() => {
@@ -257,7 +259,7 @@ export default function UserHistoryModal({
                           onClick={() => {
                             if (user.binance_id) {
                               navigator.clipboard.writeText(user.binance_id);
-                              alert("Copiado: " + user.binance_id);
+                              success("Copiado: " + user.binance_id);
                             }
                           }}
                           className="p-1.5 hover:bg-emerald-50 rounded-md transition-colors text-emerald-600"
@@ -280,7 +282,7 @@ export default function UserHistoryModal({
                             onClick={() => {
                               if (user.wallet_address) {
                                 navigator.clipboard.writeText(user.wallet_address);
-                                alert("Copiado: " + user.wallet_address);
+                                success("Copiado: " + user.wallet_address);
                               }
                             }}
                             className="p-1.5 hover:bg-emerald-50 rounded-md transition-colors text-emerald-600"
