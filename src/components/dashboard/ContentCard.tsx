@@ -13,7 +13,12 @@ export interface ContentItem {
   likes: number;
   comments: number;
   peek_viewers?: number;
+  average_viewers?: number;
+  unique_viewers?: number;
+  unique_chatters?: number;
   duration_minutes?: number;
+  followers?: number;
+  new_subscriptions?: number;
   uploaded_at: string | null;
   created_at: string;
   creator_id: string;

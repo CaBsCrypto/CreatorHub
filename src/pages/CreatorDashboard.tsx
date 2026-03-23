@@ -22,9 +22,10 @@ import StatsCard from '../components/dashboard/StatsCard';
 import RankCard from '../components/dashboard/RankCard';
 import JourneyMap from '../components/dashboard/JourneyMap';
 import BadgeItem from '../components/dashboard/BadgeItem';
-import ContentCard from '../components/dashboard/ContentCard';
+import ContentCard, { ContentItem } from '../components/dashboard/ContentCard';
 import PaymentModal from '../components/dashboard/PaymentModal';
 import ContentModal from '../components/dashboard/ContentModal';
+import ContentDetailModal from '../components/dashboard/ContentDetailModal';
 
 export default function CreatorDashboard() {
   const { user, profile } = useAuth();
@@ -58,6 +59,7 @@ export default function CreatorDashboard() {
   const [isProcessingContent, setIsProcessingContent] = useState(false);
   const [previewRankIndex, setPreviewRankIndex] = useState<number | null>(null);
   const [editingContent, setEditingContent] = useState<any>(null);
+  const [viewingContent, setViewingContent] = useState<ContentItem | null>(null);
   const [isCompactView, setIsCompactView] = useState(false);
 
   // Derived state
@@ -419,7 +421,7 @@ export default function CreatorDashboard() {
                             refresh();
                         }
                     }} 
-                    onClick={() => window.open(item.url, '_blank')}
+                    onClick={() => setViewingContent(item as any)}
                 />
               )
             ))}
@@ -477,6 +479,12 @@ export default function CreatorDashboard() {
           <JourneyMap tiers={AGENCY_TIERS} currentRankIndex={currentRankIndex} />
         </div>
       )}
+
+      <ContentDetailModal 
+        isOpen={!!viewingContent}
+        onClose={() => setViewingContent(null)}
+        item={viewingContent}
+      />
 
       <ContentModal 
         isOpen={isContentModalOpen} 

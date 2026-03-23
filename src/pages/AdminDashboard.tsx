@@ -27,6 +27,7 @@ import AddCampaignModal from '../components/dashboard/AddCampaignModal';
 import AddUserModal from '../components/dashboard/AddUserModal';
 import AudienceGeoModal from '../components/dashboard/AudienceGeoModal';
 import ContentModal from '../components/dashboard/ContentModal';
+import ContentDetailModal from '../components/dashboard/ContentDetailModal';
 import CreatorSearchModal from '../components/dashboard/CreatorSearchModal';
 import UserHistoryModal from '../components/dashboard/UserHistoryModal';
 import CampaignReportModal from '../components/dashboard/CampaignReportModal';
@@ -54,6 +55,7 @@ export default function AdminDashboard() {
   const [editingAudienceUser, setEditingAudienceUser] = useState<UserProfile | null>(null);
   const [isTwitchModalOpen, setIsTwitchModalOpen] = useState(false);
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
+  const [viewingContent, setViewingContent] = useState<ContentItem | null>(null);
   const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
   const [editingContent, setEditingContent] = useState<ContentItem | null>(null);
   const [isAnalyzingCreator, setIsAnalyzingCreator] = useState(false);
@@ -1195,7 +1197,7 @@ export default function AdminDashboard() {
                           if (!error) refresh();
                         }
                       }}
-                      onClick={() => window.open(item.url, '_blank')}
+                      onClick={() => setViewingContent(item as any)}
                     />
                   )
                 ))}
@@ -1470,6 +1472,12 @@ export default function AdminDashboard() {
             setActiveTab('payments');
           }}
         />
+        <ContentDetailModal 
+          isOpen={!!viewingContent}
+          onClose={() => setViewingContent(null)}
+          item={viewingContent}
+        />
+
         <AddCampaignModal 
           isOpen={isCreatingCampaign} 
           onClose={() => setIsCreatingCampaign(false)} 
@@ -1492,6 +1500,12 @@ export default function AdminDashboard() {
         />
          <AudienceGeoModal user={editingAudienceUser} onClose={() => setEditingAudienceUser(null)} onSave={async (id, geo) => { await supabase.from('users').update({ audience_geo: geo }).eq('id', id); setEditingAudienceUser(null); success("Audiencia actualizada"); }} />
         <TwitchStatsModal isOpen={isTwitchModalOpen} onClose={() => setIsTwitchModalOpen(false)} isAnalyzing={isAnalyzingTwitch} stats={twitchStats} onSave={handleSaveTwitch} previewImage={twitchPreview} />
+        <ContentDetailModal 
+          isOpen={!!viewingContent}
+          onClose={() => setViewingContent(null)}
+          item={viewingContent}
+        />
+
         <ContentModal 
           isOpen={isContentModalOpen} 
           onClose={() => {
