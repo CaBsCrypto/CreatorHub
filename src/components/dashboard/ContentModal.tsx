@@ -247,12 +247,12 @@ const ContentModal: React.FC<ContentModalProps> = ({
 
                   <div className="pt-2 px-3 pb-3 bg-gray-50/50 rounded-2xl border border-gray-100">
                     <p className="text-[8px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
-                       Manual Stream Data
+                       Datos del Stream (Manual)
                     </p>
                     <div className="space-y-3">
                       <div className="grid grid-cols-4 gap-2">
                         <div className="col-span-1">
-                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-0.5">Viewers</label>
+                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-0.5">Espectadores</label>
                           <input
                             type="number"
                             value={formData.views || ''}
@@ -262,7 +262,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
                           />
                         </div>
                         <div className="col-span-1">
-                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-0.5">Peak</label>
+                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-0.5">Máximo (Peak)</label>
                           <input
                             type="number"
                             value={formData.peek_viewers || ''}
@@ -272,7 +272,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
                           />
                         </div>
                         <div className="col-span-1">
-                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-0.5">Avg</label>
+                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-0.5">Promedio</label>
                           <input
                             type="number"
                             value={formData.average_viewers || ''}
@@ -282,7 +282,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
                           />
                         </div>
                         <div className="col-span-1">
-                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-0.5">Chatters</label>
+                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-0.5">Chatters Únicos</label>
                           <input
                             type="number"
                             value={formData.unique_chatters || ''}
@@ -294,7 +294,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
                       </div>
 
                       <div className="pt-2 border-t border-gray-100/50">
-                        <label className="block text-[8px] font-bold text-indigo-400 uppercase tracking-widest mb-1 ml-0.5">Stream Duration</label>
+                        <label className="block text-[8px] font-bold text-indigo-400 uppercase tracking-widest mb-1 ml-0.5">Duración del Stream</label>
                         <div className="flex gap-2 items-center">
                           <div className="flex-1 flex gap-1">
                             <input
@@ -308,7 +308,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
                               }}
                               className="w-16 rounded-lg border-gray-100 bg-white py-1.5 px-1 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             />
-                            <span className="text-[8px] text-gray-400 self-center uppercase font-bold">hrs</span>
+                            <span className="text-[8px] text-gray-400 self-center uppercase font-bold">horas</span>
                           </div>
                           <div className="flex-1 flex gap-1">
                             <input
