@@ -3,7 +3,7 @@ import { supabase, UserProfile } from '../supabase';
 import { useAuth } from '../AuthContext';
 import { 
   Plus, Download, RefreshCw, Sparkles, LayoutDashboard, 
-  List, Users, Youtube, TrendingUp, 
+  List, Users, Youtube, TrendingUp, AlertTriangle, Target,
   BarChart3, Award, Zap, Trophy, Search, Filter, Trash2, ShieldCheck, Edit2,
   LayoutGrid, List as ListIcon, Briefcase, Wallet, DollarSign, Calendar, Calculator, X, Image as ImageIcon
 } from 'lucide-react';
@@ -46,7 +46,7 @@ export default function AdminDashboard() {
   const { user } = useAuth();
   const { success, error: toastError, info } = useToast();
   
-  const ADMIN_TABS = ['overview', 'campaigns', 'clients', 'content', 'creators', 'payments', 'team'] as const;
+  const ADMIN_TABS = ['overview', 'campaigns', 'clients', 'content', 'creators', 'payments', 'team', 'trash'] as const;
   // Tab management moved to filters hook for atomic state updates
   
   // Modals state
@@ -101,7 +101,7 @@ export default function AdminDashboard() {
   const [deletedUserIds, setDeletedUserIds] = useState<string[]>([]);
   const [deletedContentIds, setDeletedContentIds] = useState<string[]>([]);
 
-  const { campaigns, content, users, payments, metrics, creatorStats, refresh, filteredContent } = useDashboardData('admin', { 
+  const { campaigns, content, users, payments, metrics, creatorStats, refresh, filteredContent, deletedContent, deletedCampaigns, deletedUsers } = useDashboardData('admin', { 
     platform: filters.platform, 
     campaign: filters.campaign, 
     creator: filters.creator 
@@ -341,7 +341,8 @@ export default function AdminDashboard() {
     { id: 'content', label: 'Contenido', icon: Youtube },
     { id: 'creators', label: 'Creadores', icon: Users },
     { id: 'payments', label: 'Pagos', icon: Wallet },
-    { id: 'team', label: 'Equipo', icon: ShieldCheck }
+    { id: 'team', label: 'Equipo', icon: ShieldCheck },
+    { id: 'trash', label: 'Papelera', icon: Trash2 }
   ] as const;
 
   return (
@@ -1445,6 +1446,161 @@ export default function AdminDashboard() {
                     )}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'trash' && (
+          <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="bg-rose-50/50 p-6 rounded-[2.5rem] border border-rose-100 flex items-center gap-4">
+              <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-rose-600 shadow-sm">
+                <AlertTriangle className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-black text-rose-900">Papelera de Reciclaje</h3>
+                <p className="text-sm text-rose-600/70 font-medium">Los elementos aquí listados pueden ser restaurados o eliminados permanentemente.</p>
+              </div>
+            </div>
+
+            {/* Deleted Content */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-black text-gray-900 uppercase tracking-[0.2em] flex items-center gap-2 px-2">
+                <Youtube className="h-4 w-4 text-indigo-500" /> Contenido Eliminado ({deletedContent.length})
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {deletedContent.map(item => (
+                  <div key={item.id} className="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm flex items-center justify-between group">
+                    <div className="flex items-center gap-4 min-w-0">
+                      <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <Youtube className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-gray-900 truncate">{item.title || 'Sin título'}</p>
+                        <p className="text-[10px] text-gray-400 font-medium">Borrado el {item.deleted_at ? new Date(item.deleted_at).toLocaleDateString() : 'N/A'}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 ml-4">
+                      <button 
+                        onClick={async () => {
+                          const { error } = await supabase.from('content').update({ deleted_at: null }).eq('id', item.id);
+                          if (!error) { success("Contenido restaurado"); refresh(); }
+                        }}
+                        className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
+                        title="Restaurar"
+                      >
+                        <RefreshCw className="h-4 w-4" />
+                      </button>
+                      <button 
+                        onClick={async () => {
+                          if (confirm("¿Eliminar permanentemente? Esta acción es irreversible.")) {
+                            const { error } = await supabase.from('content').delete().eq('id', item.id);
+                            if (!error) { success("Eliminado permanentemente"); refresh(); }
+                          }
+                        }}
+                        className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
+                        title="Eliminar Permanente"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                {deletedContent.length === 0 && <p className="text-xs text-gray-400 italic px-2">No hay contenido en la papelera.</p>}
+              </div>
+            </div>
+
+            {/* Deleted Campaigns */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-black text-gray-900 uppercase tracking-[0.2em] flex items-center gap-2 px-2">
+                <List className="h-4 w-4 text-emerald-500" /> Campañas Eliminadas ({deletedCampaigns.length})
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {deletedCampaigns.map(camp => (
+                  <div key={camp.id} className="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm flex items-center justify-between group">
+                    <div className="flex items-center gap-4 min-w-0">
+                      <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <Target className="h-5 w-5 text-emerald-600" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-gray-900 truncate">{camp.name}</p>
+                        <p className="text-[10px] text-gray-400 font-medium">Borrada el {camp.deleted_at ? new Date(camp.deleted_at).toLocaleDateString() : 'N/A'}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 ml-4">
+                      <button 
+                        onClick={async () => {
+                          const { error } = await supabase.from('campaigns').update({ deleted_at: null }).eq('id', camp.id);
+                          if (!error) { success("Campaña restaurada"); refresh(); }
+                        }}
+                        className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
+                        title="Restaurar"
+                      >
+                        <RefreshCw className="h-4 w-4" />
+                      </button>
+                      <button 
+                        onClick={async () => {
+                          if (confirm("¿Eliminar permanentemente? Esta acción es irreversible.")) {
+                            const { error } = await supabase.from('campaigns').delete().eq('id', camp.id);
+                            if (!error) { success("Campaña eliminada"); refresh(); }
+                          }
+                        }}
+                        className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
+                        title="Eliminar Permanente"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                {deletedCampaigns.length === 0 && <p className="text-xs text-gray-400 italic px-2">No hay campañas en la papelera.</p>}
+              </div>
+            </div>
+
+            {/* Deleted Users */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-black text-gray-900 uppercase tracking-[0.2em] flex items-center gap-2 px-2">
+                <Users className="h-4 w-4 text-amber-500" /> Usuarios Eliminados ({deletedUsers.length})
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {deletedUsers.map(u => (
+                  <div key={u.id} className="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm flex items-center justify-between group">
+                    <div className="flex items-center gap-4 min-w-0">
+                      <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <Users className="h-5 w-5 text-amber-600" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-gray-900 truncate">{u.display_name || u.email}</p>
+                        <p className="text-[10px] text-gray-400 font-medium">Borrado el {u.deleted_at ? new Date(u.deleted_at).toLocaleDateString() : 'N/A'}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 ml-4">
+                      <button 
+                        onClick={async () => {
+                          const { error } = await supabase.from('users').update({ deleted_at: null }).eq('id', u.id);
+                          if (!error) { success("Usuario restaurado"); refresh(); }
+                        }}
+                        className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
+                        title="Restaurar"
+                      >
+                        <RefreshCw className="h-4 w-4" />
+                      </button>
+                      <button 
+                        onClick={async () => {
+                          if (confirm("¿Eliminar permanentemente? Esta acción es irreversible.")) {
+                            const { error } = await supabase.from('users').delete().eq('id', u.id);
+                            if (!error) { success("Usuario eliminado"); refresh(); }
+                          }
+                        }}
+                        className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
+                        title="Eliminar Permanente"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                {deletedUsers.length === 0 && <p className="text-xs text-gray-400 italic px-2">No hay usuarios en la papelera.</p>}
               </div>
             </div>
           </div>

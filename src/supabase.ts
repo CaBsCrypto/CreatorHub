@@ -25,6 +25,7 @@ export interface UserProfile {
   wallet_network: string | null;
   admin_alias?: string | null; // Nickname visible only to admins
   audience_geo?: Record<string, number>; // Mapping of country codes to audience percentage/count
+  deleted_at?: string | null;
   created_at: string;
 }
 
@@ -36,6 +37,7 @@ export interface Campaign {
   target_posts?: number; // Target number of posts for gamification
   client_id?: string | null; // Associated client for restricted view
   created_by: string;
+  deleted_at?: string | null;
   created_at: string;
 }
 
@@ -60,6 +62,7 @@ export interface Content {
   duration_minutes?: number; // Twitch specific
   status: 'active' | 'archived' | 'pending';
   uploaded_at: string | null;
+  deleted_at?: string | null;
   created_at: string;
 }
 

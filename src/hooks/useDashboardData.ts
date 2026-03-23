@@ -43,6 +43,9 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
   const [content, setContent] = useState<Content[]>([]);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
+  const [deletedContent, setDeletedContent] = useState<Content[]>([]);
+  const [deletedCampaigns, setDeletedCampaigns] = useState<Campaign[]>([]);
+  const [deletedUsers, setDeletedUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
@@ -61,13 +64,19 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
       setContent(conts.data as Content[]);
       setUsers(usrs.data as UserProfile[]);
 
-      // Fetch payments (admin-only, silently skip for non-admins)
+      // Fetch payments and deleted items (admin-only)
       if (role === 'admin') {
-        const { data: paymentsData } = await supabase
-          .from('payments')
-          .select('*')
-          .order('paid_at', { ascending: false });
-        setPayments((paymentsData as Payment[]) || []);
+        const [payRes, delCont, delCamp, delUsr] = await Promise.all([
+          supabase.from('payments').select('*').order('paid_at', { ascending: false }),
+          supabase.from('content').select('*').not('deleted_at', 'is', null).order('deleted_at', { ascending: false }),
+          supabase.from('campaigns').select('*').not('deleted_at', 'is', null).order('deleted_at', { ascending: false }),
+          supabase.from('users').select('*').not('deleted_at', 'is', null).order('deleted_at', { ascending: false })
+        ]);
+
+        if (payRes.data) setPayments(payRes.data as Payment[]);
+        if (delCont.data) setDeletedContent(delCont.data as Content[]);
+        if (delCamp.data) setDeletedCampaigns(delCamp.data as Campaign[]);
+        if (delUsr.data) setDeletedUsers(delUsr.data as UserProfile[]);
       }
     } catch (err: any) {
       console.error("Dashboard data fetch error:", err);
@@ -196,6 +205,9 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
     content,
     users,
     payments,
+    deletedContent,
+    deletedCampaigns,
+    deletedUsers,
     loading,
     metrics,
     creatorStats,
