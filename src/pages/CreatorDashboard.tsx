@@ -362,7 +362,11 @@ export default function CreatorDashboard() {
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.03 }}
-                  onClick={() => window.open(item.url, '_blank')}
+                  onClick={() => {
+                    const isStream = item.platform === 'twitch' || (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0);
+                    if (isStream) setViewingContent(item as any);
+                    else window.open(item.url, '_blank');
+                  }}
                   className="group bg-white p-4 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 cursor-pointer"
                 >
                   <div className="flex items-center gap-4 w-full sm:w-auto">
@@ -421,7 +425,11 @@ export default function CreatorDashboard() {
                             refresh();
                         }
                     }} 
-                    onClick={() => setViewingContent(item as any)}
+                    onClick={() => {
+                        const isStream = item.platform === 'twitch' || (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0);
+                        if (isStream) setViewingContent(item as any);
+                        else window.open(item.url, '_blank');
+                    }}
                 />
               )
             ))}

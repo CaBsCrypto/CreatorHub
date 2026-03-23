@@ -1034,7 +1034,11 @@ export default function AdminDashboard() {
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: i * 0.01 }}
-                      onClick={() => window.open(item.url, '_blank')}
+                      onClick={() => {
+                        const isStream = item.platform === 'twitch' || (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0);
+                        if (isStream) setViewingContent(item as any);
+                        else window.open(item.url, '_blank');
+                      }}
                       className="aspect-square rounded-[2rem] overflow-hidden border border-gray-100 hover:ring-4 hover:ring-indigo-100 transition-all group relative cursor-pointer"
                     >
                       {item.thumbnail ? (
@@ -1065,7 +1069,11 @@ export default function AdminDashboard() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.03 }}
-                      onClick={() => window.open(item.url, '_blank')}
+                      onClick={() => {
+                        const isStream = item.platform === 'twitch' || (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0);
+                        if (isStream) setViewingContent(item as any);
+                        else window.open(item.url, '_blank');
+                      }}
                       className="bg-white px-6 py-4 rounded-2xl border border-gray-100 flex items-center hover:border-indigo-100 hover:shadow-lg transition-all group gap-8 cursor-pointer active:scale-[0.99]"
                     >
                       <div className="w-12 h-12 bg-gray-50 rounded-xl overflow-hidden flex items-center justify-center border border-gray-50 shrink-0">

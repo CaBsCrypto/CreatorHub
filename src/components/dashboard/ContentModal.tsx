@@ -21,7 +21,7 @@ const platforms = [
   { id: 'tiktok', icon: Music2, color: 'text-black', label: 'TikTok' },
   { id: 'x', icon: Twitter, color: 'text-indigo-900', label: 'X' },
   { id: 'coinmarketcap', icon: Globe, color: 'text-indigo-600', label: 'CMC' },
-  { id: 'twitch', icon: Globe, color: 'text-purple-600', label: 'Twitch' }
+  { id: 'stream', icon: Globe, color: 'text-purple-600', label: 'Streams' }
 ];
 
 const ContentModal: React.FC<ContentModalProps> = ({ 
@@ -56,6 +56,18 @@ const ContentModal: React.FC<ContentModalProps> = ({
   const [twitchFile, setTwitchFile] = React.useState<File | null>(null);
   const [twitchPreview, setTwitchPreview] = React.useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = React.useState(false);
+  const [streamPlatform, setStreamPlatform] = React.useState<'twitch' | 'tiktok'>('twitch');
+
+  // Detect initial stream platform when editing
+  React.useEffect(() => {
+    if (editingContent?.platform === 'tiktok' && editingContent.duration_minutes > 0) {
+      setStreamPlatform('tiktok');
+      setFormData(prev => ({ ...prev, platform: 'stream' as any }));
+    } else if (editingContent?.platform === 'twitch') {
+      setStreamPlatform('twitch');
+      setFormData(prev => ({ ...prev, platform: 'stream' as any }));
+    }
+  }, [editingContent]);
 
   React.useEffect(() => {
     if (editingContent) {
@@ -113,14 +125,14 @@ const ContentModal: React.FC<ContentModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.platform === 'twitch' && twitchFile) {
-      console.log("Submitting Twitch Content:", { 
-        creator_id: formData.creator_id, 
-        views: formData.views, 
-        peek: formData.peek_viewers, 
-        duration: formData.duration_minutes, 
-        average: formData.average_viewers 
-      });
+    const finalData = { ...formData };
+    
+    // Resolve 'stream' platform to actual platform before submitting
+    if ((finalData.platform as any) === 'stream') {
+      finalData.platform = streamPlatform as any;
+    }
+
+    if ((formData.platform as any) === 'stream' && twitchFile) {
       onTwitchUpload(
         twitchFile, 
         formData.creator_id, 
@@ -134,7 +146,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
         formData.new_subscriptions
       );
     } else {
-      onSubmit(formData);
+      onSubmit(finalData);
     }
   };
 
@@ -230,9 +242,33 @@ const ContentModal: React.FC<ContentModalProps> = ({
             
             <div>
               <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
-                {formData.platform === 'twitch' ? 'Captura de Estadísticas' : 'URL del Contenido'}
+                {(formData.platform as any) === 'stream' ? 'Captura de Estadísticas' : 'URL del Contenido'}
               </label>
-              {formData.platform === 'twitch' ? (
+
+              {(formData.platform as any) === 'stream' && (
+                <div className="flex gap-2 mb-4 bg-gray-50 p-1.5 rounded-2xl border border-gray-100">
+                  <button
+                    type="button"
+                    onClick={() => setStreamPlatform('twitch')}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                      streamPlatform === 'twitch' ? 'bg-white shadow-sm text-indigo-600 ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600'
+                    }`}
+                  >
+                    <Globe className="h-3 w-3" /> Twitch
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStreamPlatform('tiktok')}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                      streamPlatform === 'tiktok' ? 'bg-white shadow-sm text-black ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600'
+                    }`}
+                  >
+                    <Music2 className="h-3 w-3" /> TikTok
+                  </button>
+                </div>
+              )}
+
+              {(formData.platform as any) === 'stream' ? (
                 <div className="space-y-4">
                   <div 
                     className="relative border-2 border-dashed border-gray-300 rounded-xl p-6 flex flex-col items-center justify-center hover:border-indigo-400 transition-colors cursor-pointer bg-gray-50/30"
@@ -255,12 +291,13 @@ const ContentModal: React.FC<ContentModalProps> = ({
                     />
                   </div>
 
-                  {/* AI Autocomplete removed for speed and manual reliability as requested */}
-
+                  {/* AI Autocomplete removed for speed and manual reliability */}
                   <div className="pt-2 px-3 pb-3 bg-gray-50/50 rounded-2xl border border-gray-100">
                       <div className="grid grid-cols-3 gap-2">
                         <div className="col-span-1 bg-white border border-gray-100 rounded-xl p-2 shadow-sm">
-                          <label className="block text-[8px] font-bold text-indigo-400 uppercase tracking-widest mb-2 ml-0.5">Duración (Stream)</label>
+                          <label className="block text-[8px] font-bold text-indigo-400 uppercase tracking-widest mb-1.5 ml-0.5">
+                            {streamPlatform === 'tiktok' ? 'Tiempo' : 'Duración'}
+                          </label>
                           <div className="flex gap-1 items-center">
                             <input
                               type="number"
@@ -288,21 +325,33 @@ const ContentModal: React.FC<ContentModalProps> = ({
                           </div>
                         </div>
                         <div className="col-span-1 bg-white border border-gray-100 rounded-xl p-2 shadow-sm">
-                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-0.5">Promedio (Avg)</label>
+                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-0.5">
+                            {streamPlatform === 'tiktok' ? 'Me gusta' : 'Promedio (Avg)'}
+                          </label>
                           <input
                             type="number"
-                            value={formData.average_viewers || ''}
-                            onChange={(e) => setFormData({ ...formData, average_viewers: parseInt(e.target.value) || 0 })}
+                            value={(streamPlatform === 'tiktok' ? formData.likes : formData.average_viewers) || ''}
+                            onChange={(e) => {
+                              const v = parseInt(e.target.value) || 0;
+                              if (streamPlatform === 'tiktok') setFormData({ ...formData, likes: v });
+                              else setFormData({ ...formData, average_viewers: v });
+                            }}
                             className="block w-full rounded-lg border-gray-50 bg-gray-50/30 py-1.5 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             placeholder="0"
                           />
                         </div>
                         <div className="col-span-1 bg-white border border-gray-100 rounded-xl p-2 shadow-sm">
-                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-0.5">Máximo (Peak)</label>
+                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-0.5">
+                            {streamPlatform === 'tiktok' ? 'Comentarios' : 'Máximo (Peak)'}
+                          </label>
                           <input
                             type="number"
-                            value={formData.peek_viewers || ''}
-                            onChange={(e) => setFormData({ ...formData, peek_viewers: parseInt(e.target.value) || 0 })}
+                            value={(streamPlatform === 'tiktok' ? formData.comments : formData.peek_viewers) || ''}
+                            onChange={(e) => {
+                              const v = parseInt(e.target.value) || 0;
+                              if (streamPlatform === 'tiktok') setFormData({ ...formData, comments: v });
+                              else setFormData({ ...formData, peek_viewers: v });
+                            }}
                             className="block w-full rounded-lg border-gray-50 bg-gray-50/30 py-1.5 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             placeholder="0"
                           />
@@ -311,7 +360,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
 
                       <div className="grid grid-cols-3 gap-2 pt-2">
                         <div className="col-span-1 bg-white border border-gray-100 rounded-xl p-2 shadow-sm">
-                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-0.5">Esp. Únicos</label>
+                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-0.5">Esp. Únicos</label>
                           <input
                             type="number"
                             value={formData.unique_viewers || ''}
@@ -321,17 +370,25 @@ const ContentModal: React.FC<ContentModalProps> = ({
                           />
                         </div>
                         <div className="col-span-1 bg-white border border-gray-100 rounded-xl p-2 shadow-sm">
-                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-0.5">Chatters Ún.</label>
+                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-0.5">
+                            {streamPlatform === 'tiktok' ? 'Extra' : 'Chatters Ún.'}
+                          </label>
                           <input
                             type="number"
-                            value={formData.unique_chatters || ''}
-                            onChange={(e) => setFormData({ ...formData, unique_chatters: parseInt(e.target.value) || 0 })}
+                            value={(streamPlatform === 'tiktok' ? formData.average_viewers : formData.unique_chatters) || ''}
+                            onChange={(e) => {
+                              const v = parseInt(e.target.value) || 0;
+                              if (streamPlatform === 'tiktok') setFormData({ ...formData, average_viewers: v });
+                              else setFormData({ ...formData, unique_chatters: v });
+                            }}
                             className="block w-full rounded-lg border-gray-50 bg-gray-50/30 py-1.5 px-2 text-[10px] focus:ring-1 focus:ring-indigo-500 transition-all font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             placeholder="0"
                           />
                         </div>
                         <div className="col-span-1 bg-white border border-gray-100 rounded-xl p-2 shadow-sm">
-                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-0.5">Vistas en Vivo</label>
+                          <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-0.5">
+                            {streamPlatform === 'tiktok' ? 'Visualizaciones' : 'Vistas en Vivo'}
+                          </label>
                           <input
                             type="number"
                             value={formData.views || ''}

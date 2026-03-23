@@ -78,52 +78,76 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
                 {item.title || 'Estadísticas del Contenido'}
               </h2>
 
-              {item.platform === 'twitch' ? (
-                <div className="space-y-6">
-                  <div className="grid grid-cols-3 gap-3">
-                    <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 shadow-sm">
-                      <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><Clock className="h-3 w-3" /> Duración</p>
-                      <p className="text-lg font-black text-slate-900">
-                        {Math.floor((item.duration_minutes || 0) / 60)}h {(item.duration_minutes || 0) % 60}m
-                      </p>
-                    </div>
-                    <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 shadow-sm">
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><BarChart3 className="h-3 w-3" /> Promedio</p>
-                      <p className="text-lg font-black text-slate-900">{(item.average_viewers || 0).toLocaleString()}</p>
-                    </div>
-                    <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 shadow-sm">
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><TrendingUp className="h-3 w-3" /> Máximo</p>
-                      <p className="text-lg font-black text-slate-900">{(item.peek_viewers || 0).toLocaleString()}</p>
-                    </div>
-                  </div>
+              {(() => {
+                const isTikTokStream = item.platform === 'tiktok' && (item.duration_minutes || 0) > 0;
+                const isStream = item.platform === 'twitch' || isTikTokStream;
 
-                  <div className="grid grid-cols-3 gap-3">
-                    <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 shadow-sm">
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><Users className="h-3 w-3" /> Únicos</p>
-                      <p className="text-lg font-black text-slate-900">{(item.unique_viewers || 0).toLocaleString()}</p>
+                if (isStream) {
+                  return (
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 shadow-sm">
+                          <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><Clock className="h-3 w-3" /> {isTikTokStream ? 'Tiempo' : 'Duración'}</p>
+                          <p className="text-lg font-black text-slate-900">
+                            {Math.floor((item.duration_minutes || 0) / 60)}h {(item.duration_minutes || 0) % 60}m
+                          </p>
+                        </div>
+                        <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 shadow-sm">
+                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                            {isTikTokStream ? <TrendingUp className="h-3 w-3" /> : <BarChart3 className="h-3 w-3" />} 
+                            {isTikTokStream ? 'Me gusta' : 'Promedio'}
+                          </p>
+                          <p className="text-lg font-black text-slate-900">
+                            {isTikTokStream ? (item.likes || 0).toLocaleString() : (item.average_viewers || 0).toLocaleString()}
+                          </p>
+                        </div>
+                        <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 shadow-sm">
+                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                            {isTikTokStream ? <MessageSquare className="h-3 w-3" /> : <TrendingUp className="h-3 w-3" />}
+                            {isTikTokStream ? 'Comentarios' : 'Máximo'}
+                          </p>
+                          <p className="text-lg font-black text-slate-900">
+                            {isTikTokStream ? (item.comments || 0).toLocaleString() : (item.peek_viewers || 0).toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 shadow-sm">
+                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><Users className="h-3 w-3" /> Únicos</p>
+                          <p className="text-lg font-black text-slate-900">{(item.unique_viewers || 0).toLocaleString()}</p>
+                        </div>
+                        <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 shadow-sm">
+                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                            {isTikTokStream ? <TrendingUp className="h-3 w-3" /> : <MessageSquare className="h-3 w-3" />}
+                            {isTikTokStream ? 'Extra' : 'Chatters'}
+                          </p>
+                          <p className="text-lg font-black text-slate-900">
+                            {isTikTokStream ? (item.average_viewers || 0).toLocaleString() : (item.unique_chatters || 0).toLocaleString()}
+                          </p>
+                        </div>
+                        <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 shadow-sm">
+                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><Eye className="h-3 w-3" /> {isTikTokStream ? 'Visualizaciones' : 'Vistas'}</p>
+                          <p className="text-lg font-black text-slate-900">{(item.views || 0).toLocaleString()}</p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 shadow-sm">
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><MessageSquare className="h-3 w-3" /> Chatters</p>
-                      <p className="text-lg font-black text-slate-900">{(item.unique_chatters || 0).toLocaleString()}</p>
+                  );
+                }
+
+                return (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5 shadow-sm">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2"><Eye className="h-4 w-4" /> Vistas</p>
+                      <p className="text-2xl font-black text-slate-900">{(item.views || 0).toLocaleString()}</p>
                     </div>
-                    <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 shadow-sm">
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><Eye className="h-3 w-3" /> Vistas</p>
-                      <p className="text-lg font-black text-slate-900">{(item.views || 0).toLocaleString()}</p>
+                    <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5 shadow-sm">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2"><TrendingUp className="h-4 w-4" /> Likes</p>
+                      <p className="text-2xl font-black text-slate-900">{(item.likes || 0).toLocaleString()}</p>
                     </div>
                   </div>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5 shadow-sm">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2"><Eye className="h-4 w-4" /> Vistas</p>
-                    <p className="text-2xl font-black text-slate-900">{(item.views || 0).toLocaleString()}</p>
-                  </div>
-                  <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5 shadow-sm">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2"><TrendingUp className="h-4 w-4" /> Likes</p>
-                    <p className="text-2xl font-black text-slate-900">{(item.likes || 0).toLocaleString()}</p>
-                  </div>
-                </div>
-              )}
+                );
+              })()}
 
               </div>
             </motion.div>
