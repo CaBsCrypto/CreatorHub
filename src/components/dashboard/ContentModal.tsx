@@ -252,31 +252,39 @@ const ContentModal: React.FC<ContentModalProps> = ({
                 {(formData.platform as any) === 'stream' ? 'Captura y Resultados' : 'URL del Contenido'}
               </label>
 
-              {(formData.platform as any) === 'stream' && (
-                <div className="flex items-center gap-1 p-1 bg-slate-100/50 rounded-xl mb-4 ring-1 ring-slate-200/50">
-                  <button
-                    type="button"
-                    onClick={() => setStreamPlatform('twitch')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all ${
-                      streamPlatform === 'twitch' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-400 hover:text-slate-600'
-                    }`}
-                  >
-                    <Globe className="h-3 w-3" /> Twitch
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setStreamPlatform('tiktok')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all ${
-                      streamPlatform === 'tiktok' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-400 hover:text-slate-600'
-                    }`}
-                  >
-                    <Music2 className="h-3 w-3" /> TikTok
-                  </button>
-                </div>
-              )}
-
               {(formData.platform as any) === 'stream' ? (
-                <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-400">
+                <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-400 mb-5">
+                  <div className="relative group">
+                    <input
+                      type="text"
+                      required
+                      value={formData.title}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      placeholder="Título del Stream (ej. Stream 24/03)"
+                      className="block w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/30 text-sm font-semibold text-slate-700 focus:ring-1 focus:ring-indigo-500 focus:bg-white transition-all placeholder:text-slate-400 outline-none"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-1 p-1 bg-slate-100/50 rounded-xl ring-1 ring-slate-200/50">
+                    <button
+                      type="button"
+                      onClick={() => setStreamPlatform('twitch')}
+                      className={`flex-1 flex items-center justify-center gap-2 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all ${
+                        streamPlatform === 'twitch' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-400 hover:text-slate-600'
+                      }`}
+                    >
+                      <Globe className="h-3 w-3" /> Twitch
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setStreamPlatform('tiktok')}
+                      className={`flex-1 flex items-center justify-center gap-2 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all ${
+                        streamPlatform === 'tiktok' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-400 hover:text-slate-600'
+                      }`}
+                    >
+                      <Music2 className="h-3 w-3" /> TikTok
+                    </button>
+                  </div>
                   <div 
                     className="relative border border-dashed border-slate-300 rounded-2xl p-6 flex flex-col items-center justify-center hover:border-indigo-400 hover:bg-slate-50/50 transition-all cursor-pointer bg-slate-50/20 group"
                     onClick={() => document.getElementById('twitch-upload-modal')?.click()}
