@@ -1957,6 +1957,28 @@ export default function AdminDashboard() {
                   </div>
 
                   <div className="space-y-6 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
+                    {/* Image Preview for Content */}
+                    {viewingDeleted.type === 'content' && viewingDeleted.item.thumbnail && (
+                      <div className="mb-6 rounded-[2rem] overflow-hidden border border-gray-100 shadow-sm aspect-video bg-gray-50 flex items-center justify-center">
+                        <img 
+                          src={viewingDeleted.item.thumbnail} 
+                          alt={viewingDeleted.item.title || 'Vista previa'} 
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            const parent = target.parentElement;
+                            if (parent) {
+                                const placeholder = document.createElement('div');
+                                placeholder.className = 'flex flex-col items-center justify-center text-gray-300 gap-2';
+                                placeholder.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-image"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg><span class="text-[10px] font-black uppercase tracking-widest">Imagen no disponible</span>';
+                                parent.appendChild(placeholder);
+                            }
+                          }}
+                        />
+                      </div>
+                    )}
+                    
                     {Object.entries(viewingDeleted.item).map(([key, value]) => {
                       if (value === null || value === undefined || typeof value === 'object' || key.includes('id')) return null;
                       return (
