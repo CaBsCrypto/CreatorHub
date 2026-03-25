@@ -36,6 +36,9 @@ export interface Campaign {
   status: 'active' | 'completed';
   target_posts?: number; // Target number of posts for gamification
   client_id?: string | null; // Associated client for restricted view
+  twitter_url?: string | null;
+  contact_info?: string | null;
+  budget?: number;
   created_by: string;
   deleted_at?: string | null;
   created_at: string;

@@ -189,6 +189,25 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
     };
   }, [filteredContent, users]);
 
+  const campaignStats = useMemo(() => {
+    return campaigns.map(campaign => {
+      const campaignPayments = payments.filter(p => p.campaign_id === campaign.id);
+      const spent = campaignPayments.reduce((acc, curr) => acc + Number(curr.amount), 0);
+      const remaining = (campaign.budget || 0) - spent;
+      
+      const campaignContent = content.filter(c => c.campaign_id === campaign.id);
+      const views = campaignContent.reduce((acc, curr) => acc + (curr.views || 0), 0);
+      
+      return {
+        ...campaign,
+        spent,
+        remaining,
+        views,
+        contentCount: campaignContent.length
+      };
+    });
+  }, [campaigns, payments, content]);
+
   const creatorStats = useMemo(() => {
     const stats: Record<string, any> = {};
     const statsContent = role === 'admin' ? content : filteredContent;
@@ -229,6 +248,7 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
     loading,
     metrics,
     creatorStats,
+    campaignStats,
     refresh: fetchData,
     filteredContent
   };

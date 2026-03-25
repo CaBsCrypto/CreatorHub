@@ -6,6 +6,10 @@ dotenv.config();
 const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || '';
 
+if (!supabaseUrl || !supabaseServiceKey) {
+  console.error('❌ Supabase Auth Middleware: Falta configuración (URL o Key)');
+}
+
 // We need a service role client to check roles and perform admin actions
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
   auth: {
