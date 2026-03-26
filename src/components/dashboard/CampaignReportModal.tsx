@@ -217,7 +217,31 @@ export default function CampaignReportModal({
                 </span>
               </div>
               <h2 className="text-3xl font-black text-gray-900 tracking-tight">{campaign.name}</h2>
-              <p className="text-gray-500 font-medium mt-1">Reporte detallado de rendimiento y desglose por creador.</p>
+              <div className="flex flex-wrap items-center gap-4 mt-2">
+                {campaign.twitter_url && (
+                  <a 
+                    href={campaign.twitter_url.startsWith('http') ? campaign.twitter_url : `https://x.com/${campaign.twitter_url.replace('@', '')}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="flex items-center gap-1.5 text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:bg-indigo-50 px-2 py-1 rounded-lg transition-all"
+                  >
+                    <Twitter className="h-3.5 w-3.5" /> {campaign.twitter_url}
+                  </a>
+                )}
+                {campaign.contact_info && (
+                  <a 
+                    href={campaign.contact_info.startsWith('http') ? campaign.contact_info : `https://t.me/${campaign.contact_info.replace('@', '')}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="flex items-center gap-1.5 text-[10px] font-black text-sky-600 uppercase tracking-widest hover:bg-sky-50 px-2 py-1 rounded-lg transition-all"
+                  >
+                    <Globe className="h-3.5 w-3.5" /> {campaign.contact_info}
+                  </a>
+                )}
+                <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest px-2">
+                  Reporte detallado de rendimiento
+                </p>
+              </div>
             </div>
             <div className="flex items-center gap-4">
               <select

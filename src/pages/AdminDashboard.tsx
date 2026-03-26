@@ -12,12 +12,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Papa from 'papaparse';
 import { normalizeUrl } from '../utils/urlParser';
 
+import { UserRole } from '../supabase';
+
 // Custom Hooks
 import { useDashboardData, getAgencyRank, AGENCY_TIERS } from '../hooks/useDashboardData';
 import { useToast } from '../hooks/useToast';
 import { useTabNavigation, useFilterParams } from '../hooks/useTabNavigation';
 
-// Modular Components
+// Modular Components (Shared)
 import AdminMetricCard from '../components/dashboard/AdminMetricCard';
 import CampaignCard from '../components/dashboard/CampaignCard';
 import CreatorCard from '../components/dashboard/CreatorCard';
@@ -31,7 +33,17 @@ import ContentDetailModal from '../components/dashboard/ContentDetailModal';
 import CreatorSearchModal from '../components/dashboard/CreatorSearchModal';
 import UserHistoryModal from '../components/dashboard/UserHistoryModal';
 import CampaignReportModal from '../components/dashboard/CampaignReportModal';
-import { UserRole } from '../supabase';
+
+// Modular Tab Components
+import OverviewTab from '../components/dashboard/OverviewTab';
+import CampaignsTab from '../components/dashboard/CampaignsTab';
+import CreatorsTab from '../components/dashboard/CreatorsTab';
+import ContentTab from '../components/dashboard/ContentTab';
+import TeamTab from '../components/dashboard/TeamTab';
+import PaymentsTab from '../components/dashboard/PaymentsTab';
+import TrashTab from '../components/dashboard/TrashTab';
+import ActivityTab from '../components/dashboard/ActivityTab';
+import ClientsTab from '../components/dashboard/ClientsTab';
 
 const PLATFORM_COLORS: Record<string, string> = {
   tiktok: '#0f172a', // Dark Slate/Black
@@ -77,8 +89,6 @@ export default function AdminDashboard() {
   const [isAnalyzingCreator, setIsAnalyzingCreator] = useState(false);
   const [managingUser, setManagingUser] = useState<UserProfile | null>(null);
   const [selectedCampaignReport, setSelectedCampaignReport] = useState<string | null>(null);
-  const [calculatorAmount, setCalculatorAmount] = useState<string>('');
-  const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
   
   // Processing states
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -153,6 +163,37 @@ export default function AdminDashboard() {
     }
     return result;
   }, [users, deletedUserIds, teamRole]);
+
+  const groupedLogs = useMemo(() => {
+    const groups: Record<string, any[]> = {};
+    const today = new Date().toLocaleDateString();
+    const yesterday = new Date(Date.now() - 86400000).toLocaleDateString();
+
+    auditLogs.forEach(log => {
+      const date = new Date(log.created_at);
+      const dateStr = date.toLocaleDateString();
+      let groupKey = dateStr;
+      
+      if (dateStr === today) groupKey = 'Hoy';
+      else if (dateStr === yesterday) groupKey = 'Ayer';
+      else {
+        groupKey = date.toLocaleDateString(undefined, { 
+          day: 'numeric', 
+          month: 'long', 
+          year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined 
+        });
+      }
+
+      if (!groups[groupKey]) groups[groupKey] = [];
+      groups[groupKey].push(log);
+    });
+
+    return Object.entries(groups).sort((a, b) => {
+      // Sort by priority if needed, but the original auditLogs is already sorted by date descending.
+      // We just need to ensure the most recent is first.
+      return new Date(groups[b[0]][0].created_at).getTime() - new Date(groups[a[0]][0].created_at).getTime();
+    });
+  }, [auditLogs]);
 
   const handleDeleteCampaign = async (id: string) => {
     if (!window.confirm('¿Estás seguro de eliminar esta campaña?')) return;
@@ -575,1238 +616,124 @@ export default function AdminDashboard() {
         </header>
 
         {activeTab === 'clients' && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden overflow-x-auto">
-              <table className="w-full text-left border-collapse min-w-[800px]">
-                <thead>
-                  <tr className="bg-gray-50/50">
-                    <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Cliente</th>
-                    <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Contacto</th>
-                    <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Proyectos</th>
-                    <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Redes</th>
-                    <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Métricas</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                  {users.filter(u => u.role === 'client').map(client => {
-                    const clientCampaigns = campaigns.filter(c => c.client_id === client.id);
-                    const platforms = Array.from(new Set(
-                      content.filter(cnt => clientCampaigns.some(camp => camp.id === cnt.campaign_id))
-                             .map(cnt => cnt.platform)
-                    ));
-                    
-                    return (
-                      <tr key={client.id} className="hover:bg-gray-50/50 transition-colors group">
-                        <td className="px-8 py-6">
-                          <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 font-bold overflow-hidden">
-                              {client.photo_url ? <img src={client.photo_url} alt="" className="w-full h-full object-cover" /> : client.display_name?.charAt(0) || client.email.charAt(0).toUpperCase()}
-                            </div>
-                            <div>
-                              <div className="font-bold text-gray-900 leading-tight">{client.display_name || 'Sin nombre'}</div>
-                              <div className="text-[10px] text-gray-400 font-medium uppercase tracking-tight">ID: {client.id.slice(0,8)}...</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-8 py-6 text-sm font-medium text-gray-500">{client.email}</td>
-                        <td className="px-8 py-6">
-                          <div className="flex flex-wrap gap-2">
-                            {clientCampaigns.map(c => (
-                              <span key={c.id} className="px-3 py-1 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-full text-[10px] font-black uppercase">
-                                {c.name}
-                              </span>
-                            ))}
-                            {clientCampaigns.length === 0 && <span className="text-gray-300 text-xs italic">Sin campañas</span>}
-                          </div>
-                        </td>
-                        <td className="px-8 py-6">
-                           <div className="flex -space-x-2">
-                             {platforms.map(p => (
-                               <div key={p} className="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-white text-[10px] font-bold" style={{ backgroundColor: PLATFORM_COLORS[p] || '#ccc' }}>
-                                 {p.charAt(0).toUpperCase()}
-                               </div>
-                             ))}
-                             {platforms.length === 0 && <span className="text-gray-300 text-xs px-3">-</span>}
-                           </div>
-                        </td>
-                        <td className="px-8 py-6 text-right">
-                          <button 
-                            onClick={() => {
-                              if (clientCampaigns[0]) {
-                                setSelectedCampaignReport(clientCampaigns[0].id);
-                              } else {
-                                info("Este cliente aún no tiene campañas asignadas.");
-                              }
-                            }}
-                            className="p-3 text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-2xl transition-all"
-                            title="Ver métricas de campaña"
-                          >
-                            <BarChart3 className="h-5 w-5" />
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                  {users.filter(u => u.role === 'client').length === 0 && (
-                    <tr>
-                      <td colSpan={5} className="py-20 text-center">
-                        <div className="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center mx-auto mb-4">
-                          <Briefcase className="h-8 w-8 text-gray-200" />
-                        </div>
-                        <h3 className="text-lg font-black text-gray-900">No hay clientes invitados</h3>
-                        <p className="text-sm text-gray-400">Invita a un cliente para que pueda ver los resultados.</p>
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <ClientsTab 
+            users={users} 
+            campaigns={campaigns} 
+            content={content} 
+            PLATFORM_COLORS={PLATFORM_COLORS} 
+            setSelectedCampaignReport={setSelectedCampaignReport} 
+            info={info} 
+          />
         )}
 
         {activeTab === 'overview' && (
-          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-
-            <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-6">
-              <AdminMetricCard 
-                title="Vistas Totales" 
-                value={metrics.totalViews.toLocaleString()} 
-                trend={metrics.viewsTrend || undefined} 
-                icon={TrendingUp} 
-                color="from-indigo-500 to-indigo-600"
-                onClick={() => setActiveTab('content')} 
-              />
-              <AdminMetricCard 
-                title="Vistas Promedio" 
-                value={Math.round(metrics.totalViews / (metrics.totalPosts || 1)).toLocaleString()} 
-                icon={Zap} 
-                color="from-rose-500 to-pink-600"
-                onClick={() => setActiveTab('content')} 
-              />
-              <AdminMetricCard 
-                title="Creadores" 
-                value={metrics.activeCreators} 
-                icon={Users} 
-                color="from-teal-500 to-emerald-600"
-                onClick={() => setActiveTab('creators')} 
-              />
-              <AdminMetricCard 
-                title="Posts Totales" 
-                value={metrics.totalPosts.toLocaleString()} 
-                trend={metrics.postsTrend || undefined} 
-                icon={List} 
-                color="from-amber-500 to-orange-600"
-                onClick={() => setActiveTab('content')} 
-              />
-              <AdminMetricCard 
-                title="Campañas Activas" 
-                value={campaigns.filter(c => c.status === 'active').length} 
-                icon={BarChart3} 
-                color="from-blue-500 to-blue-600"
-                onClick={() => setActiveTab('campaigns')} 
-              />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
-                <h3 className="text-xl font-black text-gray-900 mb-8 flex items-center gap-2"><BarChart3 className="h-5 w-5 text-indigo-500" /> Distribución por Plataforma</h3>
-                <div className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie 
-                        data={[
-                          { name: 'Youtube', id: 'youtube', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'youtube').length },
-                          { name: 'Instagram', id: 'instagram', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'instagram').length },
-                          { name: 'TikTok', id: 'tiktok', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'tiktok').length },
-                          { name: 'X', id: 'x', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'x').length },
-                          { name: 'Stream', id: 'twitch', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'twitch').length },
-                          { name: 'CMC', id: 'coinmarketcap', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'coinmarketcap').length }
-                        ].filter(d => d.value > 0)} 
-                        innerRadius={80} 
-                        outerRadius={100} 
-                        paddingAngle={5} 
-                        dataKey="value"
-                        onClick={(data) => {
-                          if (data && data.payload && data.payload.id) {
-                            setFilter('platform', data.payload.id);
-                            setActiveTab('content');
-                          }
-                        }}
-                      >
-                        {[
-                          { id: 'youtube' },
-                          { id: 'instagram' },
-                          { id: 'tiktok' },
-                          { id: 'x' },
-                          { id: 'twitch' },
-                          { id: 'coinmarketcap' }
-                        ].filter(d => filteredContent.filter(c => c.platform === d.id).length > 0).map((entry, i) => (
-                          <Cell key={i} fill={PLATFORM_COLORS[entry.id]} className="cursor-pointer hover:opacity-80 transition-opacity" />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                      <Legend />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-
-                <div className="mt-8 space-y-3">
-                  {[
-                    { name: 'Youtube', id: 'youtube', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'youtube').length },
-                    { name: 'Instagram', id: 'instagram', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'instagram').length },
-                    { name: 'TikTok', id: 'tiktok', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'tiktok').length },
-                    { name: 'X', id: 'x', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'x').length },
-                    { name: 'Stream', id: 'twitch', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'twitch').length },
-                    { name: 'CMC', id: 'coinmarketcap', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'coinmarketcap').length }
-                  ].filter(d => d.value > 0).sort((a, b) => b.value - a.value).map((item) => (
-                    <button 
-                      key={item.id} 
-                      onClick={() => {
-                        setFilter('platform', item.id);
-                        setActiveTab('content');
-                      }}
-                      className="w-full flex items-center justify-between p-3 bg-white hover:bg-gray-50 rounded-2xl border border-gray-50 transition-all cursor-pointer"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: PLATFORM_COLORS[item.id] || '#cbd5e1' }} />
-                        <span className="text-xs font-black text-gray-900 uppercase tracking-widest">{item.name}</span>
-                      </div>
-                      <span className="text-xs font-black text-gray-900">{item.value.toLocaleString()}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden relative">
-                <div className="absolute -right-12 -top-12 w-48 h-48 bg-indigo-50 rounded-full blur-3xl opacity-50" />
-                <h3 className="text-xl font-black text-gray-900 mb-12 flex items-center gap-2 relative z-10"><BarChart3 className="h-5 w-5 text-indigo-500" /> Vistas por Plataforma</h3>
-                
-                <div className="h-[300px] relative z-10">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie 
-                        data={Object.entries(
-                          filteredContent.reduce((acc, curr) => {
-                            const p = curr.platform?.toLowerCase() || 'other';
-                            acc[p] = (acc[p] || 0) + (curr.views || 0);
-                            return acc;
-                          }, {} as Record<string, number>)
-                        ).map(([name, value]) => ({ 
-                          name: name.charAt(0).toUpperCase() + name.slice(1), 
-                          id: name,
-                          value 
-                        }))} 
-                        innerRadius={80} 
-                        outerRadius={100} 
-                        paddingAngle={5} 
-                        dataKey="value"
-                        onClick={(data) => {
-                          if (data && data.payload && data.payload.id) {
-                            setFilter('platform', data.payload.id);
-                            setActiveTab('content');
-                          }
-                        }}
-                      >
-                        {Object.entries(
-                          filteredContent.reduce((acc, curr) => {
-                            const p = curr.platform?.toLowerCase() || 'other';
-                            acc[p] = (acc[p] || 0) + (curr.views || 0);
-                            return acc;
-                          }, {} as Record<string, number>)
-                        ).map(([name], i) => (
-                          <Cell key={i} fill={PLATFORM_COLORS[name] || '#cbd5e1'} className="cursor-pointer hover:opacity-80 transition-opacity" />
-                        ))}
-                      </Pie>
-                      <Tooltip 
-                        formatter={(value: number) => [value.toLocaleString() + ' vistas', 'Vistas']}
-                        contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                      />
-                      <Legend />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-
-                <div className="mt-8 space-y-3 relative z-10">
-                  {Object.entries(
-                    filteredContent.reduce((acc, curr) => {
-                      const p = curr.platform?.toLowerCase() || 'other';
-                      acc[p] = (acc[p] || 0) + (curr.views || 0);
-                      return acc;
-                    }, {} as Record<string, number>)
-                  ).sort((a, b) => b[1] - a[1]).map(([platform, views], i) => (
-                    <button 
-                      key={platform} 
-                      onClick={() => {
-                        setFilter('platform', platform);
-                        setActiveTab('content');
-                      }}
-                      className="w-full flex items-center justify-between p-3 bg-white hover:bg-gray-50 rounded-2xl border border-gray-50 transition-all cursor-pointer"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: PLATFORM_COLORS[platform] || '#cbd5e1' }} />
-                        <span className="text-xs font-black text-gray-900 uppercase tracking-widest">{platform}</span>
-                      </div>
-                      <span className="text-xs font-black text-gray-900">{views.toLocaleString()}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
+          <OverviewTab 
+            metrics={metrics} 
+            campaigns={campaigns} 
+            filteredContent={filteredContent} 
+            PLATFORM_COLORS={PLATFORM_COLORS} 
+            setActiveTab={setActiveTab} 
+            setFilter={setFilter} 
+          />
         )}
 
         {activeTab === 'campaigns' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  {campaignStats.map((campaign, i) => {
-                    return (
-                      <CampaignCard 
-                        key={campaign.id} 
-                        campaign={campaign} 
-                        index={i} 
-                        totalViews={campaign.views}
-                        totalPosts={campaign.contentCount}
-                        spent={campaign.spent}
-                        remaining={campaign.remaining}
-                        onDelete={handleDeleteCampaign}
-                        onEdit={() => handleEditCampaign(campaign)}
-                        onClick={(id) => {
-                          setFilters({
-                            tab: 'content',
-                            campaign: id,
-                            creator: 'all'
-                          });
-                        }}
-                        onViewReport={(id, e) => {
-                          e.stopPropagation();
-                          setSelectedCampaignReport(id);
-                        }}
-                      />
-                    );
-                  })}
-          </div>
+          <CampaignsTab 
+            campaignStats={campaignStats} 
+            onDelete={handleDeleteCampaign} 
+            onEdit={handleEditCampaign} 
+            setFilters={setFilters} 
+            setSelectedCampaignReport={setSelectedCampaignReport} 
+          />
         )}
 
         {activeTab === 'creators' && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-             <div className="flex items-center justify-between gap-4 mb-8">
-                <div className="relative flex-1 max-w-md"><Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" /><input type="text" placeholder="Buscar creadores..." className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-white border border-gray-100 text-sm focus:ring-2 focus:ring-indigo-500 transition-all" value={searchTerm} onChange={e => setFilter('search', e.target.value)} /></div>
-             </div>
-            <div className="grid grid-cols-1 gap-6">
-              {creatorStats
-                .filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()))
-                .filter(c => !deletedUserIds.includes(c.creator_id))
-                .map((c, i) => (
-                  <CreatorCard 
-                    key={c.creator_id} 
-                    creator={c} 
-                    index={i}
-                    userRole={users.find(u => u.id === c.creator_id)?.role}
-                    onViewProfile={() => setManagingUser(users.find(u => u.id === c.creator_id) || null)}
-                    onEditAudience={() => setEditingAudienceUser(users.find(u => u.id === c.creator_id) || null)} 
-                  />
-                ))}
-            </div>
-          </div>
+          <CreatorsTab 
+            creatorStats={creatorStats} 
+            users={users} 
+            deletedUserIds={deletedUserIds} 
+            searchTerm={searchTerm} 
+            setFilter={setFilter} 
+            setManagingUser={setManagingUser} 
+            setEditingAudienceUser={setEditingAudienceUser} 
+          />
         )}
 
         {activeTab === 'content' && (
-          <div id="content-section" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  {/* Enhanced Filter Bar */}
-            <div className="bg-white p-4 md:p-6 rounded-[2.5rem] border border-gray-100 shadow-sm space-y-4 md:space-y-0">
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                {/* Search & Filters Group */}
-                <div className="flex flex-wrap items-center gap-3 flex-1">
-                  <div className="relative flex-1 min-w-[200px] max-w-sm">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <input
-                      type="text"
-                      placeholder="Buscar contenido..."
-                      value={searchTerm}
-                      onChange={(e) => setFilter('search', e.target.value)}
-                      className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-transparent focus:bg-white focus:border-indigo-100 rounded-2xl text-sm transition-all outline-none"
-                    />
-                  </div>
-                  
-                  <div className="flex flex-wrap items-center gap-2">
-                    {/* Local filters removed - now in global header dropdown */}
-
-                    <div className="flex items-center gap-1 p-1 bg-gray-50 rounded-xl border border-gray-100">
-                      <button 
-                        onClick={() => setFilter('view', 'grid')}
-                        className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
-                        title="Vista Cuadrícula"
-                      >
-                        <LayoutGrid className="h-4 w-4" />
-                      </button>
-                      <button 
-                        onClick={() => setFilter('view', 'gallery')}
-                        className={`p-2 rounded-lg transition-all ${viewMode === 'gallery' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
-                        title="Vista Galería (Álbum)"
-                      >
-                        <ImageIcon className="h-4 w-4" />
-                      </button>
-                      <button 
-                        onClick={() => setFilter('view', 'compact')}
-                        className={`p-2 rounded-lg transition-all ${viewMode === 'compact' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
-                        title="Vista Lista"
-                      >
-                        <ListIcon className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                {/* Actions Group */}
-                <div className="flex items-center gap-3">
-                  <button 
-                    onClick={() => { setEditingContent(null); setIsContentModalOpen(true); }}
-                    className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-100 transition-all active:scale-95 whitespace-nowrap"
-                  >
-                    <Plus className="h-4 w-4" /> Nuevo Contenido
-                  </button>
-                  <button 
-                    onClick={async () => {
-                      if (content.length === 0) return info("No hay contenido para sincronizar");
-                      setIsRefreshing(true);
-                      info("Sincronizando todas las métricas...");
-                      try {
-                        const data = content.map(c => ({ id: c.id, url: c.url, platform: c.platform }));
-                        const { data: { session } } = await supabase.auth.getSession();
-                        const response = await fetch('/api/refresh-metrics', {
-                          method: 'POST',
-                          headers: { 
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${session?.access_token}`
-                          },
-                          body: JSON.stringify({ items: data })
-                        });
-                        const result = await response.json();
-                        if (result.success && result.results) {
-                          let updatedCount = 0;
-                          for (const r of result.results) {
-                            try {
-                              const { error: updateErr } = await supabase.from('content').update({
-                                title: r.title,
-                                views: r.views,
-                                likes: r.likes,
-                                comments: r.comments,
-                                thumbnail: r.thumbnail
-                              }).eq('id', r.id);
-                              if (!updateErr) updatedCount++;
-                            } catch (e) {
-                              console.error(`Error updating item ${r.id}:`, e);
-                            }
-                          }
-                          await refresh();
-                          success(`${updatedCount} de ${result.results.length} videos sincronizados correctamente`);
-                        } else {
-                          throw new Error(result.error || "Fallo en la sincronización masiva");
-                        }
-                      } catch (e: any) {
-                        toastError("Error: " + e.message);
-                      } finally {
-                        setIsRefreshing(false);
-                      }
-                    }}
-                    className={`flex items-center justify-center p-3 rounded-2xl transition-all ${isRefreshing ? 'bg-gray-100 text-gray-400' : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100 active:scale-95'}`}
-                    title="Sincronizar todo"
-                  >
-                    <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Active Filter Indicator */}
-            {(filterCampaign !== 'all' || filterPlatform !== 'all' || filterCreator !== 'all' || searchTerm) && (
-              <div className="flex flex-wrap items-center gap-2 mb-4 animate-in fade-in slide-in-from-left-4 duration-300">
-                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">Filtros Activos:</span>
-                
-                {filterCampaign !== 'all' && (
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-xl text-[10px] font-black border border-indigo-100 uppercase tracking-widest">
-                    Campaña: {campaigns.find(c => c.id === filterCampaign)?.name || '...'}
-                    <button onClick={() => setFilter('campaign', 'all')} className="hover:text-indigo-900"><X className="h-3 w-3" /></button>
-                  </div>
-                )}
-
-                {filterPlatform !== 'all' && (
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-xl text-[10px] font-black border border-indigo-100 uppercase tracking-widest">
-                    Plataforma: {filterPlatform}
-                    <button onClick={() => setFilter('platform', 'all')} className="hover:text-indigo-900"><X className="h-3 w-3" /></button>
-                  </div>
-                )}
-
-                {filterCreator !== 'all' && (
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-xl text-[10px] font-black border border-indigo-100 uppercase tracking-widest">
-                    Creador: {filterCreator.startsWith('guest:') ? filterCreator.replace('guest:', '') : (users.find(u => u.id === filterCreator)?.display_name || '...')}
-                    <button onClick={() => setFilter('creator', 'all')} className="hover:text-indigo-900"><X className="h-3 w-3" /></button>
-                  </div>
-                )}
-
-                {searchTerm && (
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-xl text-[10px] font-black border border-indigo-100 uppercase tracking-widest">
-                    Búsqueda: {searchTerm}
-                    <button onClick={() => setFilter('search', '')} className="hover:text-indigo-900"><X className="h-3 w-3" /></button>
-                  </div>
-                )}
-
-                <button 
-                  onClick={() => resetFilters()}
-                  className="px-3 py-1.5 text-[10px] font-black text-rose-500 hover:bg-rose-50 rounded-xl uppercase tracking-widest transition-colors border border-transparent hover:border-rose-100"
-                >
-                  Limpiar Todo
-                </button>
-              </div>
-            )}
-
-            {/* Filtered Content Summary Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
-              <div className="bg-white/50 backdrop-blur-sm p-4 md:p-5 rounded-[2rem] border border-gray-100 flex flex-col group hover:bg-white hover:shadow-xl hover:shadow-indigo-100/20 transition-all duration-500">
-                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
-                  <Youtube className="h-3 w-3 text-indigo-400" /> Videos
-                </span>
-                <span className="text-xl md:text-2xl font-black text-gray-900 group-hover:text-indigo-600 transition-colors">
-                  {filteredContent.filter(item => !deletedContentIds.includes(item.id)).length}
-                </span>
-              </div>
-              <div className="bg-white/50 backdrop-blur-sm p-4 md:p-5 rounded-[2rem] border border-gray-100 flex flex-col group hover:bg-white hover:shadow-xl hover:shadow-emerald-100/20 transition-all duration-500">
-                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
-                  <TrendingUp className="h-3 w-3 text-emerald-400" /> Vistas
-                </span>
-                <span className="text-xl md:text-2xl font-black text-emerald-600 group-hover:text-emerald-700 transition-colors">
-                  {filteredContent.filter(item => !deletedContentIds.includes(item.id)).reduce((sum, item) => sum + (item.views || 0), 0).toLocaleString()}
-                </span>
-              </div>
-            </div>
-
-            {/* Content Grid/Gallery/List */}
-            <div className={
-              viewMode === 'compact' ? "space-y-3" : 
-              viewMode === 'gallery' ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4" :
-              "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-            }>
-              {filteredContent
-                .filter(item => !deletedContentIds.includes(item.id))
-                .filter(item => {
-                  if (!searchTerm) return true;
-                  return item.title?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         item.platform.toLowerCase().includes(searchTerm.toLowerCase());
-                })
-                .map((item, i) => (
-                  viewMode === 'gallery' ? (
-                    <motion.div
-                      key={item.id}
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: i * 0.01 }}
-                      onClick={() => {
-                        const isStream = item.platform === 'twitch' || (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0);
-                        if (isStream) setViewingContent(item as any);
-                        else window.open(item.url, '_blank');
-                      }}
-                      className="aspect-square rounded-[2rem] overflow-hidden border border-gray-100 hover:ring-4 hover:ring-indigo-100 transition-all group relative cursor-pointer"
-                    >
-                      {item.thumbnail ? (
-                        <img src={item.thumbnail} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                      ) : (
-                        <div className="w-full h-full bg-gray-50 flex items-center justify-center">
-                          <ImageIcon className="h-6 w-6 text-gray-200" />
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-3 flex flex-col justify-end">
-                        <p className="text-[8px] font-black text-white uppercase tracking-widest truncate">{item.platform === 'twitch' ? 'stream' : item.platform}</p>
-                        <p className="text-[10px] font-bold text-white line-clamp-1">{item.title || 'Sin título'}</p>
-                      </div>
-                      <div 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setEditingContent(item as any);
-                          setIsContentModalOpen(true);
-                        }}
-                        className="absolute top-2 right-2 p-1.5 bg-white/90 backdrop-blur-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white text-gray-700"
-                      >
-                        <Edit2 className="h-3 w-3" />
-                      </div>
-                    </motion.div>
-                  ) : isCompactView ? (
-                    <motion.div 
-                      key={item.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.03 }}
-                      onClick={() => {
-                        const isStream = item.platform === 'twitch' || (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0);
-                        if (isStream) setViewingContent(item as any);
-                        else window.open(item.url, '_blank');
-                      }}
-                      className="bg-white px-6 py-4 rounded-2xl border border-gray-100 flex items-center hover:border-indigo-100 hover:shadow-lg transition-all group gap-8 cursor-pointer active:scale-[0.99]"
-                    >
-                      <div className="w-12 h-12 bg-gray-50 rounded-xl overflow-hidden flex items-center justify-center border border-gray-50 shrink-0">
-                        {item.thumbnail ? (
-                          <img src={item.thumbnail} alt="" className="w-full h-full object-cover" />
-                        ) : (
-                          <Youtube className="h-5 w-5 text-gray-300" />
-                        )}
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-black text-gray-900 line-clamp-1">{item.title || 'Contenido sin título'}</p>
-                        <div className="flex items-center gap-3 mt-1">
-                          <span className="text-[9px] font-black text-indigo-600 uppercase tracking-widest px-2 py-0.5 bg-indigo-50 rounded-md">
-                            {item.platform === 'twitch' ? 'stream' : item.platform}
-                          </span>
-                          <span className="text-[9px] font-black text-gray-500 bg-gray-100 rounded-md px-2 py-0.5 flex items-center gap-1 uppercase tracking-widest">
-                            <List className="h-2.5 w-2.5" />
-                            {campaigns.find(c => c.id === item.campaign_id)?.name || 'Sin Campaña'}
-                          </span>
-                          <span 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (item.creator_id) setManagingUser(users.find(u => u.id === item.creator_id) || null);
-                            }}
-                            className={`text-[9px] font-bold flex items-center gap-1 uppercase tracking-widest transition-colors ${item.creator_id ? 'text-gray-400 hover:text-indigo-600 cursor-pointer' : 'text-gray-400'}`}
-                          >
-                            <Users className="h-2.5 w-2.5" />
-                            {item.creator_id ? (users.find(u => u.id === item.creator_id)?.display_name || 'Desconocido') : (item.guest_name || 'Invitado')}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="hidden md:flex flex-col items-center w-32 shrink-0">
-                        <p className="text-xs font-black text-gray-900">{(item.views || 0).toLocaleString()}</p>
-                        <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Vistas</p>
-                      </div>
-
-                      <div className="hidden lg:flex flex-col items-center w-32 shrink-0">
-                        <p className="text-xs font-black text-emerald-600">${((item.views || 0) / 1000 * 2.5).toFixed(2)}</p>
-                        <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">ROI Est.</p>
-                      </div>
-
-                      <div className="flex items-center gap-3 shrink-0">
-                        <button 
-                          onClick={async (e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            info("Sincronizando video...");
-                            try {
-                              const { data: { session } } = await supabase.auth.getSession();
-                              const res = await fetch('/api/fetch-metadata', {
-                                method: 'POST',
-                                headers: { 
-                                  'Content-Type': 'application/json',
-                                  'Authorization': `Bearer ${session?.access_token}`
-                                },
-                                body: JSON.stringify({ url: item.url, platform: item.platform })
-                              });
-                              if (!res.ok) throw new Error("Error al obtener metadata");
-                              const metadata = await res.json();
-                              const { error } = await supabase.from('content').update({
-                                title: metadata.title,
-                                views: metadata.views,
-                                likes: metadata.likes,
-                                comments: metadata.comments,
-                                thumbnail: metadata.thumbnail
-                              }).eq('id', item.id);
-                              if (error) throw error;
-                              success("Video actualizado");
-                              refresh();
-                            } catch (e: any) {
-                              toastError("Error: " + e.message);
-                            }
-                          }}
-                          className="p-2.5 text-indigo-500 hover:text-indigo-700 hover:bg-indigo-50 rounded-xl transition-all active:scale-90"
-                          title="Sincronizar"
-                        >
-                          <RefreshCw className="h-4 w-4" />
-                        </button>
-                        <button 
-                          onClick={(e) => { 
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setEditingContent(item as any); 
-                            setIsContentModalOpen(true); 
-                          }}
-                          className="p-2.5 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all active:scale-90"
-                          title="Editar"
-                        >
-                          <Edit2 className="h-4 w-4" />
-                        </button>
-                        <button 
-                          onClick={async (e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            if (confirm("¿Estás seguro de eliminar esta publicación?")) {
-                              setDeletedContentIds(prev => [...prev, item.id]);
-                              const { error } = await supabase.from('content').delete().eq('id', item.id);
-                              if (error) {
-                                toastError("Error al eliminar: " + error.message);
-                              } else {
-                                success("Contenido eliminado");
-                                refresh();
-                              }
-                            }
-                          }}
-                          className="p-2.5 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all active:scale-90"
-                          title="Eliminar"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </motion.div>
-                  ) : (
-                    <ContentCard 
-                      key={item.id} 
-                      item={item as ContentItem} 
-                      index={i} 
-                      campaignName={campaigns.find(c => c.id === item.campaign_id)?.name}
-                      onEdit={(content) => {
-                        setEditingContent(content);
-                        setIsContentModalOpen(true);
-                      }}
-                      onDelete={async (id) => {
-                        if (confirm("¿Estás seguro de que deseas eliminar este contenido?")) {
-                          setDeletedContentIds(prev => [...prev, id]);
-                          const { error } = await supabase.from('content').delete().eq('id', id);
-                          if (!error) refresh();
-                        }
-                      }}
-                      onClick={() => setViewingContent(item as any)}
-                    />
-                  )
-                ))}
-              {content.length === 0 && (
-                <div className="col-span-full py-20 text-center">
-                  <div className="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center mx-auto mb-4">
-                    <Youtube className="h-8 w-8 text-gray-200" />
-                  </div>
-                  <h3 className="text-lg font-black text-gray-900">No hay contenido</h3>
-                  <p className="text-sm text-gray-400">Comienza vinculando contenido a tus campañas.</p>
-                </div>
-              )}
-            </div>
-          </div>
+          <ContentTab 
+            filteredContent={filteredContent} 
+            deletedContentIds={deletedContentIds} 
+            searchTerm={searchTerm} 
+            setFilter={setFilter} 
+            viewMode={viewMode}
+            isCompactView={isCompactView}
+            setEditingContent={setEditingContent} 
+            setIsContentModalOpen={setIsContentModalOpen} 
+            content={content}
+            setIsRefreshing={setIsRefreshing}
+            isRefreshing={isRefreshing}
+            info={info} 
+            success={success} 
+            toastError={toastError} 
+            refresh={refresh} 
+            campaigns={campaigns} 
+            users={users}
+            setManagingUser={setManagingUser}
+            setDeletedContentIds={setDeletedContentIds}
+            supabase={supabase}
+            resetFilters={resetFilters}
+            filterCampaign={filterCampaign}
+            filterPlatform={filterPlatform}
+            filterCreator={filterCreator}
+            setViewingContent={setViewingContent} 
+          />
         )}
 
         {activeTab === 'team' && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredUsers.map((u, i) => (
-                <motion.div 
-                  key={u.id}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: i * 0.05 }}
-                  onClick={() => setManagingUser(u)}
-                  className={`bg-white p-6 rounded-[2.5rem] border hover:shadow-xl hover:-translate-y-1 transition-all group cursor-pointer relative overflow-hidden ${
-                    u.role === 'admin' ? 'border-rose-300 shadow-sm shadow-rose-100/50' :
-                    u.role === 'manager' ? 'border-amber-300 shadow-sm shadow-amber-100/50' :
-                    'border-gray-100 shadow-sm'
-                  }`}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  
-                  <div className="relative z-10">
-                    <div className="flex items-start justify-between mb-6">
-                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-colors ${
-                        u.role === 'admin' ? 'bg-rose-50 text-rose-600' :
-                        u.role === 'manager' ? 'bg-amber-50 text-amber-600' :
-                        'bg-indigo-50 text-indigo-600'
-                      }`}>
-                        <Users className="h-7 w-7" />
-                      </div>
-                      <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                        u.role === 'admin' ? 'bg-rose-50 text-rose-600 border border-rose-100' :
-                        u.role === 'manager' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
-                        'bg-emerald-50 text-emerald-600 border border-emerald-100'
-                      }`}>
-                        {u.role}
-                      </div>
-                    </div>
-                    
-                    <h3 className="text-lg font-black text-gray-900 mb-1 group-hover:text-indigo-600 transition-colors">
-                      {u.display_name || u.email.split('@')[0]}
-                    </h3>
-                    <p className="text-sm text-gray-400 mb-6 truncate">{u.email}</p>
-                    
-                    <div className="pt-6 border-t border-gray-50 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                         <span className="text-[10px] font-bold text-gray-400 uppercase">Miembro desde</span>
-                         <span className="text-[10px] font-black text-gray-900">{u.created_at ? new Date(u.created_at).toLocaleDateString() : 'N/A'}</span>
-                      </div>
-                      <div className="flex items-center gap-1 text-[10px] font-black text-indigo-600 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
-                        Gestionar <Plus className="h-3 w-3" />
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
+          <TeamTab 
+            filteredUsers={filteredUsers} 
+            setManagingUser={setManagingUser} 
+          />
         )}
 
         {activeTab === 'payments' && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {/* Payment Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm relative overflow-hidden group">
-                <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-emerald-50 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
-                <p className="relative z-10 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Total Pagado</p>
-                <span className="relative z-10 text-3xl font-black text-gray-900">${filteredPayments.reduce((s, p) => s + Number(p.amount), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-              </div>
-              <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Pagos Registrados</p>
-                <span className="text-3xl font-black text-gray-900">{filteredPayments.length}</span>
-              </div>
-              <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Creadores Pagados</p>
-                <span className="text-3xl font-black text-gray-900">{new Set(filteredPayments.map(p => p.creator_id)).size}</span>
-              </div>
-            </div>
-
-
-            {/* Add Payment */}
-            <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-8">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-4">
-                  <h3 className="text-xl font-black text-gray-900 flex items-center gap-2"><DollarSign className="h-5 w-5 text-emerald-500" /> Registrar Pago</h3>
-                  <button onClick={() => setIsCalculatorOpen(true)} className="flex items-center justify-center p-2.5 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 transition-colors shadow-sm" title="Calculadora Founders">
-                    <Calculator className="h-4 w-4" />
-                  </button>
-                </div>
-                <button onClick={() => setIsAddingPayment(!isAddingPayment)} className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all active:scale-95">
-                  <Plus className="h-4 w-4" /> Nuevo Pago
-                </button>
-              </div>
-
-              <AnimatePresence>
-                {isAddingPayment && (
-                  <motion.form
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden"
-                    onSubmit={async (e) => {
-                      e.preventDefault();
-                      const isGuest = newPayment.creator_id === 'guest';
-                      if (isGuest && !newPayment.guest_name.trim()) {
-                        toastError('Debes ingresar el nombre del o la invitada');
-                        return;
-                      }
-                      const { error } = await supabase.from('payments').insert([{
-                        creator_id: isGuest ? null : newPayment.creator_id,
-                        guest_name: isGuest ? newPayment.guest_name.trim() : null,
-                        amount: parseFloat(newPayment.amount),
-                        currency: newPayment.currency,
-                        concept: newPayment.concept || null,
-                        campaign_id: newPayment.campaign_id || null,
-                        paid_at: newPayment.paid_at
-                      }]);
-                      if (error) {
-                        toastError('Error al registrar pago: ' + error.message);
-                      } else {
-                        success('Pago registrado');
-                        setIsAddingPayment(false);
-                        setNewPayment({ creator_id: '', guest_name: '', amount: '', currency: 'USDT', concept: '', campaign_id: '', paid_at: new Date().toISOString().split('T')[0] });
-                        refresh();
-                      }
-                    }}
-                  >
-                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-4">
-                      <select required value={newPayment.creator_id} onChange={e => setNewPayment({...newPayment, creator_id: e.target.value})} className="px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500">
-                        <option value="">Creador *</option>
-                        {users.map(u => (
-                          <option key={u.id} value={u.id}>{u.admin_alias || u.display_name || u.email} ({u.role})</option>
-                        ))}
-                        <option value="guest">Externo / Invitado</option>
-                      </select>
-                      {newPayment.creator_id === 'guest' && (
-                        <input required type="text" placeholder="Nombre Invitado *" value={newPayment.guest_name} onChange={e => setNewPayment({...newPayment, guest_name: e.target.value})} className="px-4 py-3 bg-indigo-50/50 border border-indigo-100 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500" />
-                      )}
-                      <input required type="text" inputMode="decimal" placeholder="Monto *" value={newPayment.amount} onChange={e => { const v = e.target.value; if (v === '' || /^[0-9]*\.?[0-9]*$/.test(v)) setNewPayment({...newPayment, amount: v}); }} className="px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500" />
-                      <select value={newPayment.currency} onChange={e => setNewPayment({...newPayment, currency: e.target.value})} className="px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500">
-                        <option value="USDT">USDT</option>
-                        <option value="BNB">BNB</option>
-                        <option value="USD">USD</option>
-                        <option value="ETH">ETH</option>
-                        <option value="SOL">SOL</option>
-                      </select>
-                      <input type="text" placeholder="Concepto" value={newPayment.concept} onChange={e => setNewPayment({...newPayment, concept: e.target.value})} className="px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500" />
-                      <select value={newPayment.campaign_id} onChange={e => setNewPayment({...newPayment, campaign_id: e.target.value})} className="px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500">
-                        <option value="">Campaña (opcional)</option>
-                        {campaigns.map(c => (
-                          <option key={c.id} value={c.id}>{c.name}</option>
-                        ))}
-                      </select>
-                      <input required type="date" value={newPayment.paid_at} onChange={e => setNewPayment({...newPayment, paid_at: e.target.value})} className="px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500" />
-                    </div>
-                    <div className="flex justify-end pb-6 border-b border-gray-50 mb-6">
-                      <button type="submit" className="px-8 py-3 bg-emerald-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-emerald-700 transition-all active:scale-95 shadow-lg shadow-emerald-100">✓ Guardar Pago</button>
-                    </div>
-                  </motion.form>
-                )}
-              </AnimatePresence>
-
-              {/* Payments Table */}
-              <div className="overflow-x-auto">
-                <table className="w-full text-left min-w-[700px]">
-                  <thead>
-                    <tr className="bg-gray-50/50">
-                      <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Creador</th>
-                      <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Monto</th>
-                      <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Moneda</th>
-                      <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Concepto</th>
-                      <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Campaña</th>
-                      <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Fecha</th>
-                      <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest"></th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-50">
-                    {filteredPayments.map(p => {
-                      const creator = users.find(u => u.id === p.creator_id);
-                      const camp = campaigns.find(c => c.id === p.campaign_id);
-                      return (
-                        <tr key={p.id} className="hover:bg-gray-50/50 transition-colors">
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-3">
-                              <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs overflow-hidden ${!p.creator_id ? 'bg-amber-50 text-amber-600' : 'bg-indigo-50 text-indigo-600'}`}>
-                                {creator?.photo_url ? <img src={creator.photo_url} alt="" className="w-full h-full object-cover" /> : (!p.creator_id ? (p.guest_name?.charAt(0) || '?') : (creator?.display_name?.charAt(0) || '?'))}
-                              </div>
-                              <span className="text-sm font-bold text-gray-900">
-                                {!p.creator_id ? (
-                                  <>{p.guest_name} <span className="ml-2 text-[9px] font-black text-amber-500 uppercase tracking-widest bg-amber-50 px-2 py-0.5 rounded-md border border-amber-100">Externo</span></>
-                                ) : (
-                                  creator?.admin_alias || creator?.display_name || creator?.email || 'Desconocido'
-                                )}
-                              </span>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 text-sm font-black text-emerald-600">${Number(p.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-                          <td className="px-6 py-4"><span className="px-2 py-1 bg-gray-100 rounded-lg text-[10px] font-black text-gray-600 uppercase">{p.currency}</span></td>
-                          <td className="px-6 py-4 text-sm text-gray-500">{p.concept || '—'}</td>
-                          <td className="px-6 py-4">{camp ? <span className="px-2 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-[10px] font-black uppercase">{camp.name}</span> : '—'}</td>
-                          <td className="px-6 py-4 text-sm text-gray-500">{new Date(p.paid_at).toLocaleDateString()}</td>
-                          <td className="px-6 py-4">
-                            <button onClick={async () => {
-                              if (!window.confirm('¿Eliminar este pago?')) return;
-                              const { error } = await supabase.from('payments').delete().eq('id', p.id);
-                              if (error) toastError('Error: ' + error.message);
-                              else { success('Pago eliminado'); refresh(); }
-                            }} className="p-2 text-gray-300 hover:text-rose-500 rounded-xl transition-colors"><Trash2 className="h-4 w-4" /></button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                    {filteredPayments.length === 0 && (
-                      <tr>
-                        <td colSpan={7} className="py-20 text-center">
-                          <div className="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center mx-auto mb-4">
-                            <Wallet className="h-8 w-8 text-gray-200" />
-                          </div>
-                          <h3 className="text-lg font-black text-gray-900">No hay pagos coincidentes</h3>
-                          <p className="text-sm text-gray-400">Intenta cambiar los filtros seleccionados.</p>
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+          <PaymentsTab 
+            filteredPayments={filteredPayments} 
+            isAddingPayment={isAddingPayment} 
+            setIsAddingPayment={setIsAddingPayment} 
+            newPayment={newPayment} 
+            setNewPayment={setNewPayment} 
+            users={users} 
+            campaigns={campaigns} 
+            refresh={refresh} 
+            supabase={supabase} 
+            success={success} 
+            toastError={toastError} 
+          />
         )}
+
         {activeTab === 'trash' && (
-          <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="bg-rose-50/50 p-6 rounded-[2.5rem] border border-rose-100 flex items-center gap-4">
-              <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-rose-600 shadow-sm">
-                <AlertTriangle className="h-6 w-6" />
-              </div>
-              <div>
-                <h3 className="text-lg font-black text-rose-900">Papelera de Reciclaje</h3>
-                <p className="text-sm text-rose-600/70 font-medium">Los elementos aquí listados pueden ser restaurados o eliminados permanentemente.</p>
-              </div>
-            </div>
-
-            {/* Deleted Content */}
-            <div className="space-y-6">
-              <div className="flex items-center justify-between px-2">
-                <h3 className="text-sm font-black text-gray-900 uppercase tracking-[0.2em] flex items-center gap-2">
-                  <Youtube className="h-4 w-4 text-indigo-500" /> Contenido Eliminado ({deletedContent.length})
-                </h3>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
-                {deletedContent.map(item => (
-                  <div 
-                    key={item.id} 
-                    onClick={() => setViewingDeleted({ type: 'content', item })} 
-                    className="group bg-white rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl hover:border-indigo-100 transition-all duration-300 overflow-hidden cursor-pointer relative"
-                  >
-                    <div className="aspect-video relative overflow-hidden bg-gray-100">
-                      {item.thumbnail ? (
-                        <img src={item.thumbnail} alt="" className="w-full h-full object-cover grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-300">
-                          <Youtube className="h-8 w-8" />
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-gray-900/60 to-transparent" />
-                      <div className="absolute top-4 left-4">
-                        <span className="px-2 py-1 bg-white/20 backdrop-blur-md rounded-lg text-[8px] font-black text-white uppercase tracking-widest border border-white/20">
-                          {item.platform}
-                        </span>
-                      </div>
-                      <div className="absolute bottom-4 left-4 right-4">
-                         <p className="text-white text-xs font-black truncate drop-shadow-sm">{item.title || 'Sin título'}</p>
-                      </div>
-                    </div>
-
-                    <div className="p-5 flex items-center justify-between">
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2 text-[8px] font-black text-rose-400 uppercase tracking-widest mb-1">
-                          <AlertTriangle className="h-2.5 w-2.5" /> Borrado el {item.deleted_at ? new Date(item.deleted_at).toLocaleDateString() : 'N/A'}
-                        </div>
-                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tight truncate">Campaña ID: {item.campaign_id.split('-')[0]}</p>
-                      </div>
-                      <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
-                        <button 
-                          onClick={async () => {
-                            const { error } = await supabase.from('content').update({ deleted_at: null }).eq('id', item.id);
-                            if (!error) { success("Contenido restaurado"); refresh(); }
-                          }}
-                          className="w-9 h-9 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition-all shadow-sm"
-                          title="Restaurar"
-                        >
-                          <RefreshCw className="h-4 w-4" />
-                        </button>
-                        <button 
-                          onClick={async () => {
-                            if (confirm("¿Eliminar permanentemente? Esta acción es irreversible.")) {
-                              const { error } = await supabase.from('content').delete().eq('id', item.id);
-                              if (!error) { success("Eliminado permanentemente"); refresh(); }
-                            }
-                          }}
-                          className="w-9 h-9 flex items-center justify-center bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-500 hover:text-white transition-all shadow-sm"
-                          title="Eliminar Permanente"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                {deletedContent.length === 0 && (
-                  <div className="col-span-full py-12 text-center bg-gray-50/50 rounded-[2.5rem] border border-dashed border-gray-200">
-                    <p className="text-sm text-gray-400 font-medium italic">No hay contenido en la papelera.</p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Deleted Campaigns */}
-            <div className="space-y-6">
-              <h3 className="text-sm font-black text-gray-900 uppercase tracking-[0.2em] flex items-center gap-2 px-2">
-                <List className="h-4 w-4 text-emerald-500" /> Campañas Eliminadas ({deletedCampaigns.length})
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
-                {deletedCampaigns.map(camp => (
-                  <div 
-                    key={camp.id} 
-                    onClick={() => setViewingDeleted({ type: 'campaign', item: camp })} 
-                    className="group bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl hover:border-emerald-100 transition-all duration-300 cursor-pointer flex items-center justify-between"
-                  >
-                    <div className="flex items-center gap-4 min-w-0">
-                      <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-100 transition-colors">
-                        <Target className="h-6 w-6 text-emerald-600" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-black text-gray-900 truncate leading-tight mb-1">{camp.name}</p>
-                        <div className="flex items-center gap-2 text-[8px] font-black text-rose-400 uppercase tracking-widest">
-                          <AlertTriangle className="h-2.5 w-2.5" /> {camp.deleted_at ? new Date(camp.deleted_at).toLocaleDateString() : 'N/A'}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 ml-4" onClick={e => e.stopPropagation()}>
-                      <button 
-                        onClick={async () => {
-                          const { error } = await supabase.from('campaigns').update({ deleted_at: null }).eq('id', camp.id);
-                          if (!error) { success("Campaña restaurada"); refresh(); }
-                        }}
-                        className="w-9 h-9 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition-all shadow-sm"
-                        title="Restaurar"
-                      >
-                        <RefreshCw className="h-4 w-4" />
-                      </button>
-                      <button 
-                        onClick={async () => {
-                          if (confirm("¿Eliminar permanentemente? Esta acción es irreversible.")) {
-                            const { error } = await supabase.from('campaigns').delete().eq('id', camp.id);
-                            if (!error) { success("Campaña eliminada"); refresh(); }
-                          }
-                        }}
-                        className="w-9 h-9 flex items-center justify-center bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-500 hover:text-white transition-all shadow-sm"
-                        title="Eliminar Permanente"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-                {deletedCampaigns.length === 0 && (
-                  <div className="col-span-full py-12 text-center bg-gray-50/50 rounded-[2.5rem] border border-dashed border-gray-200">
-                    <p className="text-sm text-gray-400 font-medium italic">No hay campañas en la papelera.</p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Deleted Users */}
-            <div className="space-y-6">
-              <h3 className="text-sm font-black text-gray-900 uppercase tracking-[0.2em] flex items-center gap-2 px-2">
-                <Users className="h-4 w-4 text-amber-500" /> Usuarios Eliminados ({deletedUsers.length})
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
-                {deletedUsers.map(u => (
-                  <div 
-                    key={u.id} 
-                    onClick={() => setViewingDeleted({ type: 'user', item: u })} 
-                    className="group bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl hover:border-amber-100 transition-all duration-300 cursor-pointer flex items-center justify-between"
-                  >
-                    <div className="flex items-center gap-4 min-w-0">
-                      <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:bg-amber-100 transition-colors">
-                        <Users className="h-6 w-6 text-amber-600" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-black text-gray-900 truncate leading-tight mb-1">{u.display_name || u.email}</p>
-                        <div className="flex items-center gap-2 text-[8px] font-black text-rose-400 uppercase tracking-widest">
-                          <AlertTriangle className="h-2.5 w-2.5" /> {u.deleted_at ? new Date(u.deleted_at).toLocaleDateString() : 'N/A'}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 ml-4" onClick={e => e.stopPropagation()}>
-                      <button 
-                        onClick={async () => {
-                          const { error } = await supabase.from('users').update({ deleted_at: null }).eq('id', u.id);
-                          if (!error) { success("Usuario restaurado"); refresh(); }
-                        }}
-                        className="w-9 h-9 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition-all shadow-sm"
-                        title="Restaurar"
-                      >
-                        <RefreshCw className="h-4 w-4" />
-                      </button>
-                      <button 
-                        onClick={async () => {
-                          if (confirm("¿Eliminar permanentemente? Esta acción es irreversible.")) {
-                            const { error } = await supabase.from('users').delete().eq('id', u.id);
-                            if (!error) { success("Usuario eliminado"); refresh(); }
-                          }
-                        }}
-                        className="w-9 h-9 flex items-center justify-center bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-500 hover:text-white transition-all shadow-sm"
-                        title="Eliminar Permanente"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-                {deletedUsers.length === 0 && (
-                  <div className="col-span-full py-12 text-center bg-gray-50/50 rounded-[2.5rem] border border-dashed border-gray-200">
-                    <p className="text-sm text-gray-400 font-medium italic">No hay usuarios en la papelera.</p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-          </div>
+          <TrashTab 
+            deletedContent={deletedContent} 
+            users={users} 
+            campaigns={campaigns} 
+            supabase={supabase} 
+            success={success} 
+            toastError={toastError} 
+            refresh={refresh} 
+          />
         )}
 
         {activeTab === 'activity' && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="flex items-center justify-between px-2 mb-8">
-              <div>
-                <h3 className="text-xl font-black text-gray-900 flex items-center gap-3">
-                  <Zap className="h-6 w-6 text-amber-500" /> Registro de Actividad ({auditLogs.length})
-                </h3>
-                <p className="text-sm text-gray-400 font-medium mt-1">Auditoría automática de acciones administrativas en tiempo real.</p>
-              </div>
-              <button 
-                onClick={() => refresh()} 
-                className="p-3 bg-white border border-gray-100 rounded-2xl text-gray-400 hover:text-indigo-600 hover:border-indigo-100 transition-all active:scale-95 shadow-sm"
-              >
-                <RefreshCw className="h-5 w-5" />
-              </button>
-            </div>
-
-            <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden min-h-[600px]">
-              <div className="p-8">
-                <div className="space-y-1">
-                  {auditLogs.map((log, index) => (
-                    <div key={log.id} className="relative pl-8 pb-8 group last:pb-0">
-                      {index !== auditLogs.length - 1 && (
-                        <div className="absolute left-[11px] top-6 bottom-0 w-[2px] bg-gray-50 group-hover:bg-indigo-50 transition-colors" />
-                      )}
-                      
-                      <div className={`absolute left-0 top-1 w-6 h-6 rounded-lg flex items-center justify-center z-10 shadow-sm ${
-                        log.action === 'SOFT_DELETE' ? 'bg-rose-50 text-rose-500' :
-                        log.action === 'RESTORE' ? 'bg-emerald-50 text-emerald-500' :
-                        log.action === 'CHANGE_ROLE' ? 'bg-amber-50 text-amber-500' :
-                        log.action === 'PAYMENT_REGISTERED' ? 'bg-indigo-50 text-indigo-500' :
-                        'bg-gray-50 text-gray-500'
-                      }`}>
-                        {log.action === 'SOFT_DELETE' && <Trash2 className="h-3 w-3" />}
-                        {log.action === 'RESTORE' && <RefreshCw className="h-3 w-3" />}
-                        {log.action === 'CHANGE_ROLE' && <ShieldCheck className="h-3 w-3" />}
-                        {log.action === 'PAYMENT_REGISTERED' && <DollarSign className="h-3 w-3" />}
-                        {log.action === 'HARD_DELETE' && <AlertTriangle className="h-3 w-3" />}
-                      </div>
-
-                      <div className="bg-gray-50/30 rounded-2xl p-5 border border-transparent hover:border-gray-100 hover:bg-white hover:shadow-xl transition-all">
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
-                          <p className="text-base font-bold text-gray-900">
-                            <span className="text-indigo-600">
-                              {log.admin?.display_name || log.admin?.email?.split('@')[0] || 'Sistema'}
-                            </span>
-                            {' '}
-                            <span className="text-gray-400 font-medium">
-                              {log.action === 'SOFT_DELETE' ? 'eliminó' :
-                               log.action === 'RESTORE' ? 'restauró' :
-                               log.action === 'CHANGE_ROLE' ? 'cambió el rol de' :
-                               log.action === 'PAYMENT_REGISTERED' ? 'registró un pago para' :
-                               'realizó una acción en'}
-                            </span>
-                            {' '}
-                            <span className="text-gray-900">{log.details?.name || 'un elemento'}</span>
-                          </p>
-                          <span className="text-xs font-black text-gray-400 uppercase tracking-widest whitespace-nowrap bg-white px-3 py-1 rounded-full border border-gray-50 shadow-sm">
-                            {new Date(log.created_at).toLocaleString()}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest bg-gray-100/50 px-2 py-0.5 rounded-md">
-                            Módulo: {log.target_type}
-                          </p>
-                          {log.target_id && (
-                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-                              ID: {log.target_id.split('-')[0]}...
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-
-                  {auditLogs.length === 0 && (
-                    <div className="py-40 text-center">
-                      <div className="w-24 h-24 bg-gray-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-6">
-                        <Zap className="h-10 w-10 text-gray-200" />
-                      </div>
-                      <h3 className="text-xl font-black text-gray-900 mb-2">Sin actividad</h3>
-                      <p className="text-sm font-medium text-gray-400 italic">No hay acciones registradas que mostrar hoy.</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
+          <ActivityTab 
+            groupedLogs={groupedLogs} 
+            auditLogs={auditLogs} 
+            refresh={refresh} 
+          />
         )}
+      </main>
 
-        {/* Modals */}
+      {/* Modals */}
         <UserHistoryModal 
           user={managingUser}
           onClose={() => setManagingUser(null)}
@@ -2080,45 +1007,6 @@ export default function AdminDashboard() {
         )}
 
         <AnimatePresence>
-          {isCalculatorOpen && (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" onClick={() => setIsCalculatorOpen(false)} />
-              <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="relative w-full max-w-sm bg-gradient-to-br from-indigo-500 to-purple-600 rounded-[2.5rem] p-8 shadow-2xl text-white overflow-hidden">
-                 <div className="absolute -right-12 -top-12 w-48 h-48 bg-white/10 rounded-full blur-3xl mix-blend-overlay pointer-events-none" />
-                 <div className="relative z-10 flex justify-between items-start mb-6">
-                   <h3 className="text-xl font-black flex items-center gap-2"><Calculator className="h-5 w-5 opacity-80" /> Founders (÷3)</h3>
-                   <button onClick={() => setIsCalculatorOpen(false)} className="p-2 bg-white/10 hover:bg-white/20 rounded-xl transition-colors"><X className="h-4 w-4" /></button>
-                 </div>
-                 
-                 <div className="relative mb-6">
-                   <span className="absolute left-4 top-1/2 -translate-y-1/2 font-black text-indigo-200 text-xl">$</span>
-                   <input
-                     type="text"
-                     inputMode="decimal"
-                     autoFocus
-                     placeholder="0.00"
-                     value={calculatorAmount}
-                     onChange={(e) => {
-                       const v = e.target.value;
-                       if (v === '' || /^[0-9]*\.?[0-9]*$/.test(v)) setCalculatorAmount(v);
-                     }}
-                     className="w-full bg-white/10 border border-white/20 rounded-2xl pl-10 pr-4 py-3 outline-none focus:bg-white/20 focus:border-white/40 transition-all font-black text-2xl text-white placeholder-indigo-200/50"
-                   />
-                 </div>
-                 
-                 <div className="bg-white/10 p-6 rounded-[2rem] border border-white/20 text-center backdrop-blur-md">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-200 mb-2">A cada uno</p>
-                    <span className="text-4xl font-black text-white drop-shadow-lg">
-                      ${calculatorAmount ? (Number(calculatorAmount) / 3).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
-                    </span>
-                 </div>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
-
-        {/* Deleted Item Details Modal */}
-        <AnimatePresence>
           {viewingDeleted && (
             <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
               <motion.div 
@@ -2235,37 +1123,36 @@ export default function AdminDashboard() {
             </div>
           )}
         </AnimatePresence>
-      </main>
 
-      {/* Mobile Bottom Navigation */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-6 pt-2 bg-gradient-to-t from-gray-50 via-gray-50 to-transparent pointer-events-none">
-        <div className="bg-white/80 backdrop-blur-xl border border-white shadow-2xl rounded-3xl p-2 flex items-center justify-between pointer-events-auto">
-          {sidebarItems.map(item => (
-            <button
-              key={item.id}
-              onClick={() => {
-                if (item.id === 'overview') {
-                  resetFilters({ tab: 'overview' } as any);
-                } else {
-                  setActiveTab(item.id);
-                }
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className={`flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-2xl transition-all ${
-                activeTab === item.id 
-                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' 
-                  : 'text-gray-400 hover:text-gray-600'
-              }`}
-            >
-              <item.icon className={`h-5 w-5 ${activeTab === item.id ? 'animate-in zoom-in-75 duration-300 mb-0.5' : 'mb-0.5'}`} />
-              <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-tighter mt-0.5 block w-full text-center truncate px-0.5">
-                {item.label}
-              </span>
-            </button>
-          ))}
+        {/* Mobile Bottom Navigation */}
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-6 pt-2 bg-gradient-to-t from-gray-50 via-gray-50 to-transparent pointer-events-none">
+          <div className="bg-white/80 backdrop-blur-xl border border-white shadow-2xl rounded-3xl p-2 flex items-center justify-between pointer-events-auto">
+            {sidebarItems.map(item => (
+              <button
+                key={item.id}
+                onClick={() => {
+                  if (item.id === 'overview') {
+                    resetFilters({ tab: 'overview' } as any);
+                  } else {
+                    setActiveTab(item.id);
+                  }
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className={`flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-2xl transition-all ${
+                  activeTab === item.id 
+                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' 
+                    : 'text-gray-400 hover:text-gray-600'
+                }`}
+              >
+                <item.icon className={`h-5 w-5 ${activeTab === item.id ? 'animate-in zoom-in-75 duration-300 mb-0.5' : 'mb-0.5'}`} />
+                <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-tighter mt-0.5 block w-full text-center truncate px-0.5">
+                  {item.label}
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
 }
 

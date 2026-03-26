@@ -12,6 +12,7 @@ export default function ClientDashboard() {
   const { error: toastError } = useToast();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [content, setContent] = useState<Content[]>([]);
+  const [payments, setPayments] = useState<any[]>([]);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCampaignReport, setSelectedCampaignReport] = useState<string | null>(null);
@@ -50,7 +51,16 @@ export default function ClientDashboard() {
         if (contentError) throw contentError;
         setContent(contentData || []);
 
-        // 3. Fetch all users to show in reports
+        // 3. Fetch payments for these campaigns to calculate budget spent
+        const { data: paymentsData, error: paymentsError } = await supabase
+          .from('payments')
+          .select('*')
+          .in('campaign_id', campaignIds);
+        
+        if (paymentsError) throw paymentsError;
+        setPayments(paymentsData || []);
+
+        // 4. Fetch all users to show in reports
         const { data: usersData, error: usersError } = await supabase
           .from('users')
           .select('*')
@@ -150,7 +160,34 @@ export default function ClientDashboard() {
               </div>
               
               <h3 className="text-xl font-bold text-gray-900 mb-2 leading-tight group-hover:text-indigo-600 transition-colors">{campaign.name}</h3>
-              <p className="text-sm text-gray-500 line-clamp-2 mb-8 min-h-[40px]">{campaign.description || 'Sin descripción.'}</p>
+              <p className="text-sm text-gray-500 line-clamp-2 mb-6 min-h-[40px]">{campaign.description || 'Sin descripción.'}</p>
+              
+              {/* Budget Info */}
+              <div className="bg-gray-50/50 rounded-2xl p-4 mb-8 border border-gray-100 flex flex-col gap-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Presupuesto Total</span>
+                  <span className="text-sm font-black text-gray-900">${(campaign.budget || 0).toLocaleString()}</span>
+                </div>
+                {campaign.budget ? (
+                  <>
+                    <div className="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full rounded-full transition-all duration-1000 ${
+                          (payments.filter(p => p.campaign_id === campaign.id).reduce((sum, p) => sum + (p.amount || 0), 0) / campaign.budget) > 0.9 
+                            ? 'bg-rose-500' : 'bg-indigo-500'
+                        }`}
+                        style={{ width: `${Math.min(100, (payments.filter(p => p.campaign_id === campaign.id).reduce((sum, p) => sum + (p.amount || 0), 0) / campaign.budget) * 100)}%` }} 
+                      />
+                    </div>
+                    <div className="flex justify-between items-center text-[9px] font-bold uppercase tracking-widest">
+                      <span className="text-indigo-600">Gastado: ${payments.filter(p => p.campaign_id === campaign.id).reduce((sum, p) => sum + (p.amount || 0), 0).toLocaleString()}</span>
+                      <span className="text-gray-400">Restante: ${(campaign.budget - payments.filter(p => p.campaign_id === campaign.id).reduce((sum, p) => sum + (p.amount || 0), 0)).toLocaleString()}</span>
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest text-center py-1">Sin presupuesto asignado</p>
+                )}
+              </div>
               
               <button 
                 onClick={() => setSelectedCampaignReport(campaign.id)}
