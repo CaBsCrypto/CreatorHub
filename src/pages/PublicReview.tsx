@@ -24,23 +24,27 @@ export default function PublicReview() {
   const lang = (searchParams.get('lang') as 'en' | 'es') || 'en';
 
   const setFilterPlatform = (val: string) => {
-    searchParams.set('platform', val);
-    setSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams);
+    params.set('platform', val);
+    setSearchParams(params);
   };
 
   const setFilterCreatorId = (val: string) => {
-    searchParams.set('creator', val);
-    setSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams);
+    params.set('creator', val);
+    setSearchParams(params);
   };
 
   const setActiveSection = (val: 'content' | 'creators') => {
-    searchParams.set('section', val);
-    setSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams);
+    params.set('section', val);
+    setSearchParams(params);
   };
 
   const setLang = (val: 'en' | 'es') => {
-    searchParams.set('lang', val);
-    setSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams);
+    params.set('lang', val);
+    setSearchParams(params);
   };
 
   const t = {
