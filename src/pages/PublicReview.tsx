@@ -477,7 +477,14 @@ export default function PublicReview() {
                           </div>
                           <span className="text-[10px] font-bold text-gray-500">{creator?.display_name || t.anonymous}</span>
                         </div>
-                        <span className="px-2 py-0.5 bg-gray-50 text-gray-400 rounded-lg text-[7px] font-black uppercase tracking-widest flex items-center gap-1 border border-gray-100">
+                        <span 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setFilterPlatform(item.platform || 'all');
+                          }}
+                          className="px-2 py-0.5 bg-gray-50 text-gray-400 rounded-lg text-[7px] font-black uppercase tracking-widest flex items-center gap-1 border border-gray-100 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-100 transition-colors cursor-pointer relative z-10"
+                        >
                           {getPlatformIcon(item.platform, "h-2.5 w-2.5")} {item.platform}
                         </span>
                       </div>
