@@ -18,31 +18,45 @@ export default function PublicReview() {
   const [error, setError] = useState<string | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   
-  const filterPlatform = searchParams.get('platform') || 'all';
-  const filterCreatorId = searchParams.get('creator') || 'all';
-  const activeSection = (searchParams.get('section') as 'content' | 'creators') || 'content';
-  const lang = (searchParams.get('lang') as 'en' | 'es') || 'en';
+  // Local state for immediate UI response
+  const [filterPlatform, setFilterPlatformLocal] = useState(searchParams.get('platform') || 'all');
+  const [filterCreatorId, setFilterCreatorIdLocal] = useState(searchParams.get('creator') || 'all');
+  const [activeSection, setActiveSectionLocal] = useState<'content' | 'creators'>((searchParams.get('section') as 'content' | 'creators') || 'content');
+  const [lang, setLangLocal] = useState<'en' | 'es'>((searchParams.get('lang') as 'en' | 'es') || 'en');
+
+  // Sync URL -> Local (e.g. Back button)
+  useEffect(() => {
+    setFilterPlatformLocal(searchParams.get('platform') || 'all');
+    setFilterCreatorIdLocal(searchParams.get('creator') || 'all');
+    setActiveSectionLocal((searchParams.get('section') as any) || 'content');
+    setLangLocal((searchParams.get('lang') as any) || 'en');
+  }, [searchParams]);
 
   const setFilterPlatform = (val: string) => {
-    console.log('Switching platform filter to:', val);
+    const cleanVal = val.trim().toLowerCase();
+    console.log('Switching platform filter to:', cleanVal);
+    setFilterPlatformLocal(cleanVal);
     const params = new URLSearchParams(searchParams);
-    params.set('platform', val);
+    params.set('platform', cleanVal);
     setSearchParams(params);
   };
 
   const setFilterCreatorId = (val: string) => {
+    setFilterCreatorIdLocal(val);
     const params = new URLSearchParams(searchParams);
     params.set('creator', val);
     setSearchParams(params);
   };
 
   const setActiveSection = (val: 'content' | 'creators') => {
+    setActiveSectionLocal(val);
     const params = new URLSearchParams(searchParams);
     params.set('section', val);
     setSearchParams(params);
   };
 
   const setLang = (val: 'en' | 'es') => {
+    setLangLocal(val);
     const params = new URLSearchParams(searchParams);
     params.set('lang', val);
     setSearchParams(params);
