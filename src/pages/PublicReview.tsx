@@ -249,7 +249,7 @@ export default function PublicReview() {
                 })}
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 animate-in fade-in slide-in-from-bottom-4">
                 {filteredContent.map(item => {
                   const creator = users.find(u => u.id === item.creator_id);
                   return (
@@ -273,22 +273,22 @@ export default function PublicReview() {
                         </span>
                       </div>
                     </div>
-                    <div className="p-6">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="w-6 h-6 rounded-full bg-indigo-50 flex items-center justify-center text-[10px] font-bold text-indigo-600">
+                    <div className="p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-5 h-5 rounded-full bg-indigo-50 flex items-center justify-center text-[9px] font-bold text-indigo-600">
                           {(creator?.display_name || 'C').charAt(0)}
                         </div>
-                        <span className="text-xs font-bold text-gray-500">{creator?.display_name || 'Creador de la Agencia'}</span>
+                        <span className="text-[10px] font-bold text-gray-500">{creator?.display_name || 'Creador de la Agencia'}</span>
                       </div>
-                      <h4 className="font-bold text-gray-900 mb-4 line-clamp-1">{item.title || 'Publicación de Campaña'}</h4>
-                      <div className="flex items-center justify-between pt-4 border-t border-gray-50">
+                      <h4 className="font-bold text-sm text-gray-900 mb-2 line-clamp-1">{item.title || 'Publicación de Campaña'}</h4>
+                      <div className="flex items-center justify-between pt-3 border-t border-gray-50">
                         <div className="flex items-center gap-4">
                           <div className="flex flex-col">
-                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Vistas</span>
-                            <span className="text-sm font-black text-gray-900">{item.views?.toLocaleString()}</span>
+                            <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Vistas</span>
+                            <span className="text-xs font-black text-gray-900">{item.views?.toLocaleString()}</span>
                           </div>
                         </div>
-                        <a href={item.url} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-gray-50 hover:bg-indigo-50 text-gray-400 hover:text-indigo-600 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all">Ver Link</a>
+                        <a href={item.url} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 bg-gray-50 hover:bg-indigo-50 text-gray-400 hover:text-indigo-600 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all">Ver Link</a>
                       </div>
                     </div>
                   </motion.div>
