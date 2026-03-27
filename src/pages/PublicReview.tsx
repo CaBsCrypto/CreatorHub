@@ -229,11 +229,7 @@ export default function PublicReview() {
     }
   };
 
-  useEffect(() => {
-    if (!loading && campaign) {
-      scrollToContent();
-    }
-  }, [filterPlatform, filterCreatorId, activeSection]);
+  // Removed automatic scroll on filter/section changes as per user request
 
   if (loading) return <LoadingSpinner message={t.loading} />;
   
