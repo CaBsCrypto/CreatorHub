@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { supabase, Campaign, Content, UserProfile } from '../supabase';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { 
@@ -16,10 +16,32 @@ export default function PublicReview() {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [project, setProject] = useState<UserProfile | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [filterPlatform, setFilterPlatform] = useState<string>('all');
-  const [filterCreatorId, setFilterCreatorId] = useState<string>('all');
-  const [activeSection, setActiveSection] = useState<'content' | 'creators'>('content');
-  const [lang, setLang] = useState<'en' | 'es'>('en');
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  const filterPlatform = searchParams.get('platform') || 'all';
+  const filterCreatorId = searchParams.get('creator') || 'all';
+  const activeSection = (searchParams.get('section') as 'content' | 'creators') || 'content';
+  const lang = (searchParams.get('lang') as 'en' | 'es') || 'en';
+
+  const setFilterPlatform = (val: string) => {
+    searchParams.set('platform', val);
+    setSearchParams(searchParams);
+  };
+
+  const setFilterCreatorId = (val: string) => {
+    searchParams.set('creator', val);
+    setSearchParams(searchParams);
+  };
+
+  const setActiveSection = (val: 'content' | 'creators') => {
+    searchParams.set('section', val);
+    setSearchParams(searchParams);
+  };
+
+  const setLang = (val: 'en' | 'es') => {
+    searchParams.set('lang', val);
+    setSearchParams(searchParams);
+  };
 
   const t = {
     en: {
