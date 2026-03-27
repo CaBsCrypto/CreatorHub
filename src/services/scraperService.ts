@@ -2,6 +2,8 @@ import axios from "axios";
 import { google } from "googleapis";
 import { logScraperAction } from "./scraperLogService.js";
 
+const USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36";
+
 export async function fetchTikTokData(url: string) {
   const start = Date.now();
   try {
@@ -9,7 +11,7 @@ export async function fetchTikTokData(url: string) {
     try {
       const oembedUrl = `https://www.tiktok.com/oembed?url=${encodeURIComponent(url)}`;
       const oembedRes = await axios.get(oembedUrl, {
-        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36" }
+        headers: { "User-Agent": USER_AGENT }
       });
       if (oembedRes.data.title) title = oembedRes.data.title;
       if (oembedRes.data.author_name) author = oembedRes.data.author_name;
@@ -19,7 +21,7 @@ export async function fetchTikTokData(url: string) {
     let views = 0, likes = 0, comments = 0;
     try {
       const pageRes = await axios.get(url, {
-        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36" },
+        headers: { "User-Agent": USER_AGENT },
         timeout: 5000
       });
       const html = pageRes.data;
@@ -48,6 +50,7 @@ export async function fetchTikTokData(url: string) {
 }
 
 export async function fetchXData(url: string) {
+  const start = Date.now();
   let title = "X (Twitter) Post", views = 0, likes = 0, comments = 0, author = "", thumbnail = "";
   try {
     const urlObj = new URL(url);
@@ -63,7 +66,12 @@ export async function fetchXData(url: string) {
       if (t.media?.all_media?.[0]?.url) thumbnail = t.media.all_media[0].url;
       else if (t.author?.avatar_url) thumbnail = t.author.avatar_url;
     }
-  } catch (err: any) { console.error("X API error:", err.message); }
+    const duration = Date.now() - start;
+    await logScraperAction('x', url, views === 0 ? 'error' : 'success', views === 0 ? 'X returned 0 views' : undefined, duration, { views, likes });
+  } catch (err: any) {
+    console.error("X API error:", err.message);
+    await logScraperAction('x', url, 'error', err.message, Date.now() - start);
+  }
   return { title: (author ? `${author} - ${title}` : title).substring(0, 100), views, likes, comments, thumbnail };
 }
 
@@ -108,7 +116,7 @@ export async function fetchInstagramData(url: string) {
       const pageRes = await axios.get(url, { headers: { "User-Agent": "Mozilla/5.0" }, timeout: 3000 });
       const thumbMatch = pageRes.data.match(/<meta property="og:image" content="([^"]+)"/);
       if (thumbMatch) thumbnail = thumbMatch[1];
-    } catch (e) {}
+    } catch (e) { /* thumbnail fetch optional */ }
 
     const postRes = await axios.get('https://instagram-looter2.p.rapidapi.com/post', {
       params: { url },
@@ -159,7 +167,7 @@ export async function fetchInstagramData(url: string) {
           if (reel.media.like_count > likes) likes = reel.media.like_count;
           if (reel.media.comment_count > comments) comments = reel.media.comment_count;
         }
-      } catch (e) {}
+      } catch (e) { /* reels fallback optional */ }
     }
 
     const duration = Date.now() - start;
@@ -176,8 +184,9 @@ export async function fetchInstagramData(url: string) {
 }
 
 export async function fetchCMCData(url: string) {
+  const start = Date.now();
   try {
-    const pageRes = await axios.get(url, { headers: { "User-Agent": "Mozilla/5.0" }, timeout: 5000 });
+    const pageRes = await axios.get(url, { headers: { "User-Agent": USER_AGENT }, timeout: 5000 });
     const html = pageRes.data;
     let thumbnail = "";
     const thumbMatch = html.match(/<meta property="og:image" content="([^"]+)"/);
@@ -192,8 +201,11 @@ export async function fetchCMCData(url: string) {
     const impRegex = new RegExp(`"gravityId"\\s*:\\s*"${postId}"[\\s\\S]*?"impressionCount"\\s*:\\s*"(\\d+)"`, 'i');
     const impMatch = html.match(impRegex);
     if (impMatch) views = parseInt(impMatch[1], 10);
+    const duration = Date.now() - start;
+    await logScraperAction('coinmarketcap', url, views === 0 ? 'error' : 'success', views === 0 ? 'CMC returned 0 views' : undefined, duration, { views, likes });
     return { title: "CoinMarketCap Post", views, likes, comments, thumbnail };
-  } catch (error) {
+  } catch (error: any) {
+    await logScraperAction('coinmarketcap', url, 'error', error.message, Date.now() - start);
     return { title: "CoinMarketCap Post", views: 0, likes: 0, comments: 0, thumbnail: "" };
   }
 }
@@ -205,7 +217,7 @@ export async function fetchTwitchProfile(username: string) {
     // Phase 1: Basic profile info from Twitch (image, description)
     const aboutUrl = `https://www.twitch.tv/${username}/about`;
     const aboutRes = await axios.get(aboutUrl, {
-      headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
+      headers: { "User-Agent": USER_AGENT },
       timeout: 5000
     });
     const html = aboutRes.data;
@@ -216,7 +228,7 @@ export async function fetchTwitchProfile(username: string) {
     // This provides accurate 30-day historical data
     const statsUrl = `https://twitchtracker.com/api/channels/summary/${username}`;
     const statsRes = await axios.get(statsUrl, {
-      headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
+      headers: { "User-Agent": USER_AGENT },
       timeout: 5000
     });
     

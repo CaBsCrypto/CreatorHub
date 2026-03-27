@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { supabase, UserRole, UserProfile } from '../supabase';
+import React, { useState } from 'react';
+import { supabase, UserRole, UserProfile, Campaign } from '../supabase';
 import { useToast } from './useToast';
 
-export function useAdminActions(refresh: () => Promise<void>, currentUser: any) {
+export function useAdminActions(refresh: () => Promise<void>, currentUser: UserProfile | { id: string } | null) {
   const { success, error: toastError } = useToast();
 
   // Modal & Form States
@@ -39,7 +39,7 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: any) 
     paid_at: new Date().toISOString().split('T')[0] 
   });
 
-  const [twitchStats, setTwitchStats] = useState<any>(null);
+  const [twitchStats, setTwitchStats] = useState<Record<string, unknown> | null>(null);
   const [twitchPreview, setTwitchPreview] = useState<string | null>(null);
 
   // Campaign Handlers
@@ -88,7 +88,7 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: any) 
     }
   };
 
-  const handleEditCampaign = (campaign: any) => {
+  const handleEditCampaign = (campaign: Campaign) => {
     setEditingCampaignId(campaign.id);
     setNewCampaign({
       name: campaign.name,
@@ -209,7 +209,7 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: any) 
     }
   };
 
-  const handleRemoveUser = async (managingUser: UserProfile | null, setManagingUser: (u: UserProfile | null) => void, setDeletedUserIds: (ids: any) => void) => {
+  const handleRemoveUser = async (managingUser: UserProfile | null, setManagingUser: (u: UserProfile | null) => void, setDeletedUserIds: React.Dispatch<React.SetStateAction<string[]>>) => {
     if (!managingUser) return;
     const confirmMsg = `¿Estás seguro de que quieres eliminar a ${managingUser.display_name || managingUser.email}? Esta acción también eliminará todo su contenido vinculado.`;
     if (!window.confirm(confirmMsg)) return;
@@ -225,7 +225,7 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: any) 
       const { error: userError } = await supabase.from('users').delete().eq('id', managingUser.id);
       if (userError) throw userError;
       
-      setDeletedUserIds((prev: any) => [...prev, managingUser.id]);
+      setDeletedUserIds((prev) => [...prev, managingUser.id]);
       success("Miembro eliminado correctamente");
       setManagingUser(null);
       await refresh();
