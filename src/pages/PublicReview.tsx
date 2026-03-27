@@ -98,6 +98,26 @@ export default function PublicReview() {
     });
   }, [content, filterPlatform, filterCreatorId]);
 
+  const scrollToContent = (immediate = false) => {
+    const element = document.getElementById('content-feed');
+    if (element) {
+      const headerOffset = 100;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: immediate ? 'auto' : 'smooth'
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (!loading && campaign) {
+      scrollToContent();
+    }
+  }, [filterPlatform, filterCreatorId, activeSection]);
+
   if (loading) return <LoadingSpinner message="Generando reporte..." />;
   
   if (error || !campaign) {
@@ -117,9 +137,6 @@ export default function PublicReview() {
 
   const progressPercentage = Math.min(100, Math.round((content.length / (campaign.target_posts || 1)) * 100));
 
-  const scrollToContent = () => {
-    document.getElementById('content-feed')?.scrollIntoView({ behavior: 'smooth' });
-  };
 
   return (
     <div className="min-h-screen bg-[#fafbfc] pb-20">
