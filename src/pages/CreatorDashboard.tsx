@@ -181,7 +181,6 @@ export default function CreatorDashboard() {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log("Tab changed to:", tab.id);
                 setActiveTab(tab.id);
               }}
               className={`flex-none flex items-center gap-2.5 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 pointer-events-auto cursor-pointer ${

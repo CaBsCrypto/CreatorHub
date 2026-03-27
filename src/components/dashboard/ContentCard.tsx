@@ -86,7 +86,6 @@ const ContentCard: React.FC<ContentCardProps> = ({ item, campaignName, onEdit, o
             onClick={(e) => { 
               e.preventDefault(); 
               e.stopPropagation(); 
-              console.log("Edit clicked for:", item.id);
               onEdit(item); 
             }} 
             className="p-2.5 rounded-xl bg-white shadow-xl text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-all pointer-events-auto cursor-pointer ring-1 ring-gray-100"

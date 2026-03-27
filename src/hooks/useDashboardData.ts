@@ -65,9 +65,6 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
       setContent(conts.data as Content[]);
       setUsers(usrs.data as UserProfile[]);
 
-      console.log('DEBUG [fetchData]: campaigns fetched:', camps.data?.length);
-      console.log('DEBUG [fetchData]: content fetched:', conts.data?.length);
-
       // Fetch payments and deleted items (admin-only)
       if (role === 'admin') {
         const [payRes, delCont, delCamp, delUsr] = await Promise.all([
@@ -142,12 +139,8 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
         }
       }
       
-      console.log('DEBUG [useDashboardData] filters:', filters);
-      console.log('DEBUG [useDashboardData] initial count:', role === 'creator' ? content.filter(c => c.creator_id === user?.id).length : content.length);
-      console.log('DEBUG [useDashboardData] filtered count:', result.length);
     }
-    
-    
+
     return result;
   }, [content, role, user, filters]);
 

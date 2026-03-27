@@ -45,9 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // 1. Fetch current session immediately
     const initializeAuth = async () => {
       try {
-        console.log("AuthContext: Starting initializeAuth...");
         const { data: { session }, error } = await supabase.auth.getSession();
-        console.log("AuthContext: getSession completed", { hasSession: !!session, error });
         if (error) throw error;
         handleSession(session);
       } catch (err) {
@@ -61,9 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // 2. Listen for auth changes
     let subscription: any;
     try {
-      console.log("AuthContext: Setting up onAuthStateChange listener...");
       const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-        console.log("AuthContext: auth state changed", { event: _event, hasSession: !!session });
         handleSession(session);
       });
       subscription = data.subscription;
@@ -77,10 +73,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const handleSession = async (session: Session | null) => {
-    console.log("AuthContext: handleSession", { hasUser: !!session?.user });
     if (session?.user) {
       setUser(session.user);
-      console.log("AuthContext: fetching profile for user", session.user.id);
       await fetchOrCreateProfile(session.user);
     } else {
       setUser(null);
@@ -108,7 +102,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           .single();
 
         if (emailData) {
-          console.log("Found pre-existing profile by email, linking to Auth ID...", emailData);
           // Link this profile to the current Auth ID and update metadata
           const { data: linkedData, error: linkError } = await supabase
             .from('users')
@@ -123,7 +116,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
           if (!linkError && linkedData) {
             data = linkedData;
-            console.log("Successfully linked pre-invited user.");
           } else {
             console.error("Failed to link user by email:", linkError);
           }
