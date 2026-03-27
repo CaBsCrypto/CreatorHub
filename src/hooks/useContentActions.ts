@@ -89,7 +89,6 @@ export function useContentActions(refresh: () => void) {
            const { data: existing } = await supabase.from('content').select('id').eq('campaign_id', data.campaign_id).eq('url', cleanUrl).is('deleted_at', null).neq('id', editingContent.id).limit(1);
            if (existing && existing.length > 0) {
               toastError("¡Ese enlace ya está vinculado a esta campaña!");
-              setIsProcessing(false);
               return false;
            }
         }
@@ -141,7 +140,6 @@ export function useContentActions(refresh: () => void) {
         const { data: existing } = await supabase.from('content').select('id').eq('campaign_id', data.campaign_id).eq('url', cleanUrl).is('deleted_at', null).limit(1);
         if (existing && existing.length > 0) {
             toastError("¡Este contenido ya se encuentra registrado en la campaña!");
-            setIsProcessing(false);
             return false;
         }
 

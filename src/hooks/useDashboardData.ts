@@ -101,7 +101,7 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
     } finally {
       setLoading(false);
     }
-  }, [toastError]);
+  }, [role, toastError]);
 
   useEffect(() => {
     if (!user) return;
@@ -142,7 +142,7 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
     }
 
     return result;
-  }, [content, role, user, filters]);
+  }, [content, role, user, filters?.platform, filters?.campaign, filters?.creator]);
 
   const metrics = useMemo(() => {
     const totalViews = filteredContent.reduce((acc, curr) => acc + (curr.views || 0), 0);
@@ -196,12 +196,10 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
       
       return {
         ...campaign,
-        stats: {
-          spent,
-          remaining,
-          total_views: views,
-          content_count: campaignContent.length
-        }
+        views,
+        contentCount: campaignContent.length,
+        spent,
+        remaining
       };
     });
   }, [campaigns, payments, content]);
