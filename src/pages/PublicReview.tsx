@@ -90,6 +90,14 @@ export default function PublicReview() {
     return { totalViews, totalLikes, totalComments, platforms };
   }, [campaign, content]);
 
+  const filteredContent = useMemo(() => {
+    return content.filter(item => {
+      const matchPlatform = filterPlatform === 'all' || item.platform === filterPlatform;
+      const matchCreator = filterCreatorId === 'all' || item.creator_id === filterCreatorId;
+      return matchPlatform && matchCreator;
+    });
+  }, [content, filterPlatform, filterCreatorId]);
+
   if (loading) return <LoadingSpinner message="Generando reporte..." />;
   
   if (error || !campaign) {
@@ -108,14 +116,6 @@ export default function PublicReview() {
   }
 
   const progressPercentage = Math.min(100, Math.round((content.length / (campaign.target_posts || 1)) * 100));
-
-  const filteredContent = useMemo(() => {
-    return content.filter(item => {
-      const matchPlatform = filterPlatform === 'all' || item.platform === filterPlatform;
-      const matchCreator = filterCreatorId === 'all' || item.creator_id === filterCreatorId;
-      return matchPlatform && matchCreator;
-    });
-  }, [content, filterPlatform, filterCreatorId]);
 
   const scrollToContent = () => {
     document.getElementById('content-feed')?.scrollIntoView({ behavior: 'smooth' });
