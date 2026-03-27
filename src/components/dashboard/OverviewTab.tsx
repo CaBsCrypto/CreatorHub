@@ -193,7 +193,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                 acc[p] = (acc[p] || 0) + (curr.views || 0);
                 return acc;
               }, {} as Record<string, number>)
-            ).sort((a, b) => b[1] - a[1]).map(([platform, views], i) => (
+            ).sort((a, b) => (b[1] as number) - (a[1] as number)).map(([platform, views], i) => (
               <button 
                 key={platform} 
                 onClick={() => {

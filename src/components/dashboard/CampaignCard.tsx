@@ -6,16 +6,24 @@ import { format } from 'date-fns';
 
 interface CampaignCardProps {
   campaign: Campaign;
+  totalViews?: number;
+  totalPosts?: number;
+  spent?: number;
+  remaining?: number;
+  onClick?: (id: string) => void;
   onDelete: (id: string) => void;
   onEdit: (id: string) => void;
   onViewReport?: (id: string, e: React.MouseEvent) => void;
   onCopyLink?: (token: string, e: React.MouseEvent, type: 'review' | 'slug') => void;
 }
 
-const CampaignCard: React.FC<CampaignCardProps> = ({ 
-  campaign, 
-  onDelete, 
+const CampaignCard: React.FC<CampaignCardProps> = ({
+  campaign,
+  totalViews = 0,
+  totalPosts = 0,
+  onDelete,
   onEdit,
+  onClick,
   onViewReport,
   onCopyLink
 }) => {
@@ -24,6 +32,8 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="group relative bg-white rounded-[2.5rem] p-8 shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-indigo-100 overflow-hidden"
+      onClick={() => onClick?.(campaign.id)}
+      style={{ cursor: onClick ? 'pointer' : 'default' }}
     >
       {/* Upper Actions */}
       <div className="absolute top-0 right-0 p-6 flex gap-2">
@@ -72,13 +82,13 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
         <div className="bg-gray-50/50 border border-gray-100 rounded-[2rem] p-5 text-center transition-all group-hover:bg-white group-hover:border-indigo-100 group-hover:shadow-lg group-hover:shadow-indigo-50/50">
           <span className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Vistas Totales</span>
           <span className="text-2xl font-black text-indigo-600 tabular-nums">
-            {campaign.stats?.total_views?.toLocaleString() || 0}
+            {totalViews.toLocaleString()}
           </span>
         </div>
         <div className="bg-gray-50/50 border border-gray-100 rounded-[2rem] p-5 text-center transition-all group-hover:bg-white group-hover:border-indigo-100 group-hover:shadow-lg group-hover:shadow-indigo-50/50">
           <span className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Contenidos</span>
           <span className="text-2xl font-black text-emerald-500 tabular-nums">
-            {campaign.stats?.content_count || 0}
+            {totalPosts}
           </span>
         </div>
       </div>
