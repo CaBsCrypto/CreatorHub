@@ -230,7 +230,7 @@ export default function PublicReview() {
     }
   }, [filterPlatform, filterCreatorId, activeSection]);
 
-  if (loading) return <LoadingSpinner message="Generando reporte..." />;
+  if (loading) return <LoadingSpinner message={t.loading} />;
   
   if (error || !campaign) {
     return (
@@ -239,9 +239,9 @@ export default function PublicReview() {
           <div className="w-24 h-24 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-8">
             <Globe className="h-12 w-12 text-rose-500" />
           </div>
-          <h2 className="text-3xl font-black text-gray-900 mb-4">Enlace no disponible</h2>
-          <p className="text-gray-500 mb-8 leading-relaxed">Este reporte no existe o el enlace ha caducado. Por favor, contacta con tu manager de campaña.</p>
-          <a href="/" className="px-8 py-4 bg-gray-900 text-white rounded-2xl font-bold hover:scale-105 transition-transform inline-block">Volver al inicio</a>
+          <h2 className="text-3xl font-black text-gray-900 mb-4">{t.notFound}</h2>
+          <p className="text-gray-500 mb-8 leading-relaxed">{t.notFoundDesc}</p>
+          <a href="/" className="px-8 py-4 bg-gray-900 text-white rounded-2xl font-bold hover:scale-105 transition-transform inline-block">{t.backHome}</a>
         </div>
       </div>
     );
