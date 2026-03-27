@@ -299,7 +299,7 @@ export default function PublicReview() {
                             <span className="text-xs font-black text-gray-900">{item.views?.toLocaleString()}</span>
                           </div>
                         </div>
-                        <span className="px-3 py-1.5 bg-gray-50/50 group-hover:bg-white/50 group-hover:text-blue-700 text-gray-400 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all">Ver Link</span>
+                        <span className="px-3 py-1.5 bg-gray-50/50 group-hover:bg-white/30 group-hover:text-blue-500 text-gray-400 rounded-lg text-[8px] font-bold uppercase tracking-widest transition-all">Ver Link</span>
                       </div>
                     </div>
                   </motion.a>
