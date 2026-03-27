@@ -203,10 +203,12 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
       
       return {
         ...campaign,
-        spent,
-        remaining,
-        views,
-        contentCount: campaignContent.length
+        stats: {
+          spent,
+          remaining,
+          total_views: views,
+          content_count: campaignContent.length
+        }
       };
     });
   }, [campaigns, payments, content]);
