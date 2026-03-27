@@ -274,7 +274,7 @@ export default function PublicReview() {
                       key={item.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden group hover:shadow-xl transition-all duration-500"
+                      className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden group hover:shadow-xl hover:bg-indigo-50/30 hover:border-indigo-100 transition-all duration-500"
                     >
                     <div className="p-4">
                       <div className="flex items-center justify-between mb-2">
