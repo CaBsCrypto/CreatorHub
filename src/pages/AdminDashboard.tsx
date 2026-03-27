@@ -165,12 +165,13 @@ export default function AdminDashboard() {
   }, [users, deletedUserIds, teamRole]);
 
   // ... groupedLogs logic kept here as it's purely for presentation in the tab ...
-  const handleCopyShareLink = async (token: string, e: React.MouseEvent) => {
+  const handleCopyShareLink = async (token: string, e: React.MouseEvent, type: 'review' | 'slug' = 'review') => {
     e.stopPropagation();
     try {
-      const url = `${window.location.origin}/review/${token}`;
+      const path = type === 'slug' ? `/v/${token}` : `/review/${token}`;
+      const url = `${window.location.origin}${path}`;
       await navigator.clipboard.writeText(url);
-      success("¡Enlace de reporte copiado!");
+      success(type === 'slug' ? "¡Enlace personalizado copiado!" : "¡Enlace de reporte copiado!");
     } catch (err) {
       toastError("No se pudo copiar el enlace.");
     }
@@ -394,7 +395,7 @@ export default function AdminDashboard() {
             setIsCreatingCampaign(false);
             setIsEditingCampaign(false);
             setEditingCampaignId(null);
-            setNewCampaign({ name: '', description: '', client_id: '', twitter_url: '', contact_info: '', budget: 0 });
+            setNewCampaign({ name: '', description: '', client_id: '', twitter_url: '', contact_info: '', budget: 0, slug: '' });
           }} 
           onSubmit={isEditingCampaign ? handleUpdateCampaign : handleCreateCampaign} 
           newCampaign={newCampaign} 

@@ -7,7 +7,7 @@ const CampaignsTab: React.FC<{
   onEdit: (campaign: any) => void;
   setFilters: (filters: any) => void;
   setSelectedCampaignReport: (id: string) => void;
-  onCopyLink: (token: string, e: React.MouseEvent) => void;
+  onCopyLink: (token: string, e: React.MouseEvent, type?: 'review' | 'slug') => void;
 }> = ({
   campaignStats,
   onDelete,

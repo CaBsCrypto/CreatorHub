@@ -40,6 +40,7 @@ export interface Campaign {
   contact_info?: string | null;
   budget?: number;
   share_token?: string;
+  slug?: string | null;
   created_by: string;
   deleted_at?: string | null;
   created_at: string;

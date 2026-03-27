@@ -96,6 +96,7 @@ export default function App() {
                     } 
                   />
                   <Route path="/review/:token" element={<PublicReview />} />
+                  <Route path="/v/:token" element={<PublicReview />} />
                 </Routes>
               </React.Suspense>
             </main>

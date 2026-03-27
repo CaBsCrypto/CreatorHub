@@ -18,9 +18,10 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: any) 
     name: '', 
     description: '', 
     client_id: '',
-    twitter_url: '',
-    contact_info: '',
-    budget: 0
+    twitter_url: '', 
+    contact_info: '', 
+    budget: 0,
+    slug: ''
   });
 
   const [newUser, setNewUser] = useState<{ email: string; role: UserRole; linked_campaign_id?: string }>({ 
@@ -53,8 +54,19 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: any) 
     }
   };
 
+  const generateSecureSlug = (name: string) => {
+    const base = name.toLowerCase().trim()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/[\s_-]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+    return `${base}-${randomSuffix}`;
+  };
+
   const handleCreateCampaign = async (e: React.FormEvent) => {
     e.preventDefault();
+    const finalSlug = newCampaign.slug || generateSecureSlug(newCampaign.name);
+    
     const { error } = await supabase.from('campaigns').insert([{ 
       name: newCampaign.name,
       description: newCampaign.description,
@@ -62,6 +74,7 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: any) 
       twitter_url: newCampaign.twitter_url || null,
       contact_info: newCampaign.contact_info || null,
       budget: newCampaign.budget || 0,
+      slug: finalSlug,
       status: 'active', 
       created_by: currentUser?.id 
     }]);
@@ -70,7 +83,7 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: any) 
     } else {
       success("Campaña creada con éxito");
       setIsCreatingCampaign(false);
-      setNewCampaign({ name: '', description: '', client_id: '', twitter_url: '', contact_info: '', budget: 0 });
+      setNewCampaign({ name: '', description: '', client_id: '', twitter_url: '', contact_info: '', budget: 0, slug: '' });
       refresh();
     }
   };
@@ -83,7 +96,8 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: any) 
       client_id: campaign.client_id || '',
       twitter_url: campaign.twitter_url || '',
       contact_info: campaign.contact_info || '',
-      budget: campaign.budget || 0
+      budget: campaign.budget || 0,
+      slug: campaign.slug || ''
     });
     setIsEditingCampaign(true);
   };
@@ -100,7 +114,8 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: any) 
         client_id: newCampaign.client_id || null,
         twitter_url: newCampaign.twitter_url || null,
         contact_info: newCampaign.contact_info || null,
-        budget: newCampaign.budget || 0
+        budget: newCampaign.budget || 0,
+        slug: newCampaign.slug || null
       })
       .eq('id', editingCampaignId);
 
@@ -110,7 +125,7 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: any) 
       success("Campaña actualizada con éxito");
       setIsEditingCampaign(false);
       setEditingCampaignId(null);
-      setNewCampaign({ name: '', description: '', client_id: '', twitter_url: '', contact_info: '', budget: 0 });
+      setNewCampaign({ name: '', description: '', client_id: '', twitter_url: '', contact_info: '', budget: 0, slug: '' });
       refresh();
     }
   };
@@ -145,7 +160,6 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: any) 
       }
 
       if (newUser.role === 'client') {
-        // ... (Email logic kept for simplicity, though ideally this would be a server-side trigger)
         const emailRes = await fetch('/api/send-email', {
           method: 'POST',
           headers: { 

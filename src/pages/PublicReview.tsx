@@ -122,11 +122,11 @@ export default function PublicReview() {
       try {
         setLoading(true);
         
-        // 1. Fetch Campaign by token
+        // 1. Fetch Campaign by token (UUID) OR slug (friendly name)
         const { data: campaignData, error: campaignError } = await supabase
           .from('campaigns')
           .select('*')
-          .eq('share_token', token)
+          .or(`share_token.eq.${token},slug.eq.${token}`)
           .single();
 
         if (campaignError || !campaignData) {

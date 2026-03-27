@@ -12,6 +12,7 @@ interface AddCampaignModalProps {
     twitter_url?: string | null;
     contact_info?: string | null;
     budget?: number;
+    slug?: string | null;
   };
   setNewCampaign: (campaign: any) => void;
   clients: any[];
@@ -32,24 +33,24 @@ const AddCampaignModal: React.FC<AddCampaignModalProps> = ({
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity" onClick={onClose}></div>
-      <div className="relative w-full max-w-lg rounded-[2.5rem] bg-white p-8 shadow-2xl ring-1 ring-gray-900/10 animate-in zoom-in-95 slide-in-from-bottom-8 duration-300">
+      <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-[2.5rem] bg-white p-8 shadow-2xl ring-1 ring-gray-900/10 animate-in zoom-in-95 slide-in-from-bottom-8 duration-300 scrollbar-thin scrollbar-thumb-gray-100 scrollbar-track-transparent">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-black text-gray-900 flex items-center gap-2">
             {isEditing ? <Target className="h-6 w-6 text-indigo-600" /> : <List className="h-6 w-6 text-indigo-600" />}
             {isEditing ? 'Editar Campaña' : 'Nueva Campaña'}
           </h2>
-          <button onClick={onClose} className="p-2 rounded-xl hover:bg-gray-100 text-gray-400">
+          <button onClick={onClose} className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-100 transition-all">
             <X className="h-6 w-6" />
           </button>
         </div>
         
-        <form onSubmit={onSubmit} className="space-y-6">
+        <form onSubmit={onSubmit} className="space-y-6 pb-2">
           <div>
             <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Nombre de Campaña</label>
             <input
               type="text"
               required
-              className="block w-full rounded-2xl border-gray-100 bg-gray-50/50 py-3 text-sm font-medium focus:ring-2 focus:ring-indigo-500 transition-all"
+              className="block w-full rounded-2xl border-gray-100 bg-gray-50/50 py-3 px-4 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all outline-none"
               placeholder="Ej: Lanzamiento Verano 2024"
               value={newCampaign.name}
               onChange={(e) => setNewCampaign({ ...newCampaign, name: e.target.value })}
@@ -59,7 +60,7 @@ const AddCampaignModal: React.FC<AddCampaignModalProps> = ({
           <div>
             <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Descripción</label>
             <textarea
-              className="block w-full rounded-2xl border-gray-100 bg-gray-50/50 py-3 text-sm font-medium focus:ring-2 focus:ring-indigo-500 transition-all"
+              className="block w-full rounded-2xl border-gray-100 bg-gray-50/50 py-3 px-4 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all outline-none resize-none"
               rows={3}
               placeholder="Detalles sobre los objetivos de la campaña..."
               value={newCampaign.description}
@@ -67,13 +68,12 @@ const AddCampaignModal: React.FC<AddCampaignModalProps> = ({
             />
           </div>
 
-
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Twitter / X</label>
               <input
                 type="text"
-                className="block w-full rounded-2xl border-gray-100 bg-gray-50/50 py-3 text-sm font-medium focus:ring-2 focus:ring-indigo-500 transition-all"
+                className="block w-full rounded-2xl border-gray-100 bg-gray-50/50 py-3 px-4 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all outline-none"
                 placeholder="@proyecto"
                 value={newCampaign.twitter_url || ''}
                 onChange={(e) => setNewCampaign({ ...newCampaign, twitter_url: e.target.value })}
@@ -83,7 +83,7 @@ const AddCampaignModal: React.FC<AddCampaignModalProps> = ({
               <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Contacto (Telegram)</label>
               <input
                 type="text"
-                className="block w-full rounded-2xl border-gray-100 bg-gray-50/50 py-3 text-sm font-medium focus:ring-2 focus:ring-indigo-500 transition-all"
+                className="block w-full rounded-2xl border-gray-100 bg-gray-50/50 py-3 px-4 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all outline-none"
                 placeholder="@usuario"
                 value={newCampaign.contact_info || ''}
                 onChange={(e) => setNewCampaign({ ...newCampaign, contact_info: e.target.value })}
@@ -96,14 +96,28 @@ const AddCampaignModal: React.FC<AddCampaignModalProps> = ({
             <input
               type="number"
               step="0.01"
-              className="block w-full rounded-2xl border-gray-100 bg-gray-50/50 py-3 text-sm font-medium focus:ring-2 focus:ring-indigo-500 transition-all"
+              className="block w-full rounded-2xl border-gray-100 bg-gray-50/50 py-3 px-4 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all outline-none"
               placeholder="0.00"
               value={newCampaign.budget || ''}
               onChange={(e) => setNewCampaign({ ...newCampaign, budget: parseFloat(e.target.value) || 0 })}
             />
           </div>
 
-          <div className="flex gap-4 pt-4">
+          <div className="bg-indigo-50/30 p-5 rounded-[2rem] border border-indigo-100/50">
+            <label className="block text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2">URL Amigable (Slug Premium)</label>
+            <input
+              type="text"
+              className="block w-full rounded-2xl border-white bg-white/80 py-3 px-4 text-sm font-bold text-indigo-600 focus:ring-2 focus:ring-indigo-500 transition-all outline-none shadow-sm"
+              placeholder="nombre-de-campana-1234"
+              value={newCampaign.slug || ''}
+              onChange={(e) => setNewCampaign({ ...newCampaign, slug: e.target.value })}
+            />
+            <p className="mt-2 text-[9px] text-indigo-400/80 font-bold leading-relaxed">
+              ⚡ Este es el enlace corto que verán tus clientes. Se genera automáticamente si lo dejas vacío.
+            </p>
+          </div>
+
+          <div className="flex gap-4 pt-4 sticky bottom-0 bg-white sm:static">
             <button
               type="button"
               onClick={onClose}
@@ -113,7 +127,7 @@ const AddCampaignModal: React.FC<AddCampaignModalProps> = ({
             </button>
             <button
               type="submit"
-              className="flex-2 px-8 py-3 rounded-2xl bg-indigo-600 text-white text-xs font-black uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-[0.98]"
+              className="flex-[2] px-8 py-3 rounded-2xl bg-indigo-600 text-white text-xs font-black uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-[0.98]"
             >
               {isEditing ? 'Guardar Cambios' : 'Crear Campaña'}
             </button>
