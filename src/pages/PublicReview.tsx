@@ -24,6 +24,7 @@ export default function PublicReview() {
   const lang = (searchParams.get('lang') as 'en' | 'es') || 'en';
 
   const setFilterPlatform = (val: string) => {
+    console.log('Switching platform filter to:', val);
     const params = new URLSearchParams(searchParams);
     params.set('platform', val);
     setSearchParams(params);
@@ -496,14 +497,16 @@ export default function PublicReview() {
               <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-6">{t.platformDistribution}</h3>
               <div className="space-y-4">
                 {Object.entries(stats?.platforms || {}).map(([platform, count]) => (
-                  <button 
-                    key={platform} 
+                  <button
+                    key={platform}
+                    type="button"
                     onClick={() => {
+                      console.log('Sidebar clicked for:', platform);
                       setFilterPlatform(platform);
                       setActiveSection('content');
                     }}
-                    className={`w-full flex items-center justify-between p-4 rounded-2xl group transition-all duration-300 border gap-3 ${
-                      filterPlatform === platform ? 'bg-indigo-600 border-transparent shadow-lg shadow-indigo-100' : 'bg-gray-50 border-transparent hover:bg-white hover:shadow-lg hover:border-gray-100'
+                    className={`w-full flex items-center justify-between p-4 rounded-2xl group transition-all duration-200 active:scale-95 border gap-3 ${
+                      filterPlatform === platform.toLowerCase() ? 'bg-indigo-600 border-transparent shadow-lg shadow-indigo-100' : 'bg-gray-50 border-transparent hover:bg-white hover:shadow-lg hover:border-gray-100'
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0 flex-1">
