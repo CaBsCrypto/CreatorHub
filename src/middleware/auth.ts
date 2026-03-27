@@ -3,6 +3,8 @@ import { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 dotenv.config();
 
+const SUPERADMIN_EMAIL = process.env.SUPERADMIN_EMAIL || 'cabscryptocontacto@gmail.com';
+
 const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || '';
 
@@ -57,7 +59,7 @@ export const authorize = (roles: string[]) => {
 
 export const isSuperadmin = (req: Request, res: Response, next: NextFunction) => {
   const profile = (req as any).userProfile;
-  if (!profile || profile.email !== 'cabscryptocontacto@gmail.com') {
+  if (!profile || profile.email !== SUPERADMIN_EMAIL) {
     return res.status(403).json({ error: 'Acceso restringido: Solo el Superadmin puede realizar esta acción' });
   }
   next();

@@ -17,7 +17,7 @@ export async function analyzePerformance(summaryData: any) {
     } catch (err: any) {
       lastError = err.message;
       if (err.message?.includes("404")) {
-        console.log(`Model ${modelName} not found, trying next...`);
+        // model not available, try next
         continue;
       }
       if (err.message?.includes("429")) {

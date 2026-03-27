@@ -365,12 +365,11 @@ export default function AdminDashboard() {
 
         {activeTab === 'trash' && (
           <TrashTab 
-            deletedContent={deletedContent} 
-            users={users} 
-            campaigns={campaigns} 
-            supabase={supabase} 
-            success={success} 
-            toastError={toastError} 
+            deletedContent={deletedContent}
+            users={users}
+            campaigns={campaigns}
+            success={success}
+            toastError={toastError}
             refresh={refresh} 
           />
         )}

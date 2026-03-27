@@ -1,11 +1,11 @@
 import React from 'react';
 import { Trash2, RotateCcw, Youtube, Clock, Users, Hash } from 'lucide-react';
+import { supabase } from '../../supabase';
 
 interface TrashTabProps {
   deletedContent: any[];
   users: any[];
   campaigns: any[];
-  supabase: any;
   success: (msg: string) => void;
   toastError: (msg: string) => void;
   refresh: () => void;
@@ -15,11 +15,23 @@ const TrashTab: React.FC<TrashTabProps> = ({
   deletedContent,
   users,
   campaigns,
-  supabase,
   success,
   toastError,
   refresh
 }) => {
+  const handleRestore = async (id: string) => {
+    const { error } = await supabase.from('content').update({ is_deleted: false, deleted_at: null }).eq('id', id);
+    if (error) toastError('Error: ' + error.message);
+    else { success('Contenido restaurado'); refresh(); }
+  };
+
+  const handlePermanentDelete = async (id: string) => {
+    if (!confirm('¿Eliminar permanentemente? Esta acción no se puede deshacer.')) return;
+    const { error } = await supabase.from('content').delete().eq('id', id);
+    if (error) toastError('Error: ' + error.message);
+    else { success('Eliminado permanentemente'); refresh(); }
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="bg-amber-50 border border-amber-100 p-6 rounded-[2.5rem] flex items-start gap-4 mb-8">
@@ -80,24 +92,15 @@ const TrashTab: React.FC<TrashTabProps> = ({
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <button 
-                        onClick={async () => {
-                          const { error } = await supabase.from('content').update({ is_deleted: false, deleted_at: null }).eq('id', item.id);
-                          if (error) toastError('Error: ' + error.message);
-                          else { success('Contenido restaurado'); refresh(); }
-                        }}
+                      <button
+                        onClick={() => handleRestore(item.id)}
                         className="p-2.5 text-emerald-500 hover:bg-emerald-50 rounded-xl transition-all active:scale-90"
                         title="Restaurar"
                       >
                         <RotateCcw className="h-4 w-4" />
                       </button>
-                      <button 
-                         onClick={async () => {
-                          if (!confirm('¿Eliminar permanentemente? Esta acción no se puede deshacer.')) return;
-                          const { error } = await supabase.from('content').delete().eq('id', item.id);
-                          if (error) toastError('Error: ' + error.message);
-                          else { success('Eliminado permanentemente'); refresh(); }
-                        }}
+                      <button
+                        onClick={() => handlePermanentDelete(item.id)}
                         className="p-2.5 text-rose-400 hover:bg-rose-50 rounded-xl transition-all active:scale-90"
                         title="Eliminar permanentemente"
                       >
