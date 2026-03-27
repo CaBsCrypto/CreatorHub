@@ -181,9 +181,9 @@ export default function PublicReview() {
         </div>
 
         {/* Distribution & Details */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8" id="content-feed">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8" id="content-feed">
           {/* Main Content Feed */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-3 space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
                <h3 className="text-sm font-black text-gray-900 uppercase tracking-[0.2em] flex items-center gap-2">
                  <Award className="h-4 w-4 text-indigo-500" /> 
@@ -249,7 +249,7 @@ export default function PublicReview() {
                 })}
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 animate-in fade-in slide-in-from-bottom-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-4 gap-4 animate-in fade-in slide-in-from-bottom-4">
                 {filteredContent.map(item => {
                   const creator = users.find(u => u.id === item.creator_id);
                   return (
