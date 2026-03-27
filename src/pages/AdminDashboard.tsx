@@ -168,8 +168,9 @@ export default function AdminDashboard() {
   const handleCopyShareLink = async (token: string, e: React.MouseEvent, type: 'review' | 'slug' = 'review') => {
     e.stopPropagation();
     try {
+      const BASE_URL = 'https://umbra-hub.vercel.app';
       const path = type === 'slug' ? `/v/${token}` : `/review/${token}`;
-      const url = `${window.location.origin}${path}`;
+      const url = `${BASE_URL}${path}`;
       await navigator.clipboard.writeText(url);
       success(type === 'slug' ? "¡Enlace personalizado copiado!" : "¡Enlace de reporte copiado!");
     } catch (err) {
