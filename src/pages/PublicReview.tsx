@@ -306,9 +306,14 @@ export default function PublicReview() {
               {(filterCreatorId !== 'all' || filterPlatform !== 'all' || activeSection !== 'content') && (
                 <button 
                   onClick={() => {
-                    setFilterCreatorId('all');
-                    setFilterPlatform('all');
-                    setActiveSection('content');
+                    setFilterCreatorIdLocal('all');
+                    setFilterPlatformLocal('all');
+                    setActiveSectionLocal('content');
+                    const params = new URLSearchParams(searchParams);
+                    params.set('creator', 'all');
+                    params.set('platform', 'all');
+                    params.set('section', 'content');
+                    setSearchParams(params);
                   }}
                   className="p-2 sm:p-3 bg-gray-50 rounded-xl sm:rounded-2xl text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all border border-gray-100 shadow-sm"
                   title="Volver"
@@ -469,8 +474,12 @@ export default function PublicReview() {
                     <button
                       key={user.id}
                       onClick={() => {
-                        setFilterCreatorId(user.id);
-                        setActiveSection('content');
+                        setFilterCreatorIdLocal(user.id);
+                        setActiveSectionLocal('content');
+                        const params = new URLSearchParams(searchParams);
+                        params.set('creator', user.id);
+                        params.set('section', 'content');
+                        setSearchParams(params);
                       }}
                       className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm text-left group hover:border-indigo-200 hover:shadow-lg transition-all"
                     >
