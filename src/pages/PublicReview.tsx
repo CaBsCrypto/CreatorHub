@@ -14,6 +14,7 @@ export default function PublicReview() {
   const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [content, setContent] = useState<Content[]>([]);
   const [users, setUsers] = useState<UserProfile[]>([]);
+  const [project, setProject] = useState<UserProfile | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [filterPlatform, setFilterPlatform] = useState<string>('all');
   const [filterCreatorId, setFilterCreatorId] = useState<string>('all');
@@ -114,6 +115,19 @@ export default function PublicReview() {
           setUsers(userData || []);
         }
 
+        // 4. Fetch Project (Client) if exists
+        if (campaignData.client_id) {
+          const { data: projectData, error: projectError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', campaignData.client_id)
+            .single();
+          
+          if (!projectError && projectData) {
+            setProject(projectData);
+          }
+        }
+
       } catch (err: any) {
         console.error('Error fetching public campaign:', err);
         setError(err.message);
@@ -204,7 +218,14 @@ export default function PublicReview() {
                 <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
                 <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">{t.live}</span>
               </div>
-              <h1 className="text-2xl font-black text-gray-900 tracking-tight uppercase">{campaign.title}</h1>
+              <h1 className="text-2xl font-black text-gray-900 tracking-tight uppercase line-clamp-1">
+                {project?.display_name || campaign.name}
+              </h1>
+              {project && (
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
+                  {campaign.name}
+                </p>
+              )}
             </div>
 
             {/* Language Toggle */}
