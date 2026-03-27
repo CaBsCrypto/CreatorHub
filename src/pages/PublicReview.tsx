@@ -2,9 +2,9 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { supabase, Campaign, Content, UserProfile } from '../supabase';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { 
-  Zap, Users, Music2, Instagram, Youtube, Twitter, Globe, 
-  TrendingUp, Target, BarChart3, Award, ArrowLeft, PieChart, LayoutGrid
+import {
+  Zap, Users, Music2, Instagram, Youtube, Twitter, Globe,
+  TrendingUp, BarChart3, Award, ArrowLeft, PieChart, LayoutGrid, X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -33,28 +33,21 @@ export default function PublicReview() {
     setLangLocal((searchParams.get('lang') as any) || 'en');
   }, [searchParams]);
 
-  const setFilterPlatform = (val: string) => {
-    const cleanVal = val.trim().toLowerCase();
-    console.log('Switching platform filter to:', cleanVal);
-    setFilterPlatformLocal(cleanVal);
+  // Single setSearchParams call to avoid race conditions when updating multiple filters
+  const setFilters = (updates: Partial<{ platform: string; creator: string; section: 'content' | 'creators' | 'stats' }>) => {
+    if (updates.platform !== undefined) setFilterPlatformLocal(updates.platform.trim().toLowerCase());
+    if (updates.creator !== undefined) setFilterCreatorIdLocal(updates.creator);
+    if (updates.section !== undefined) setActiveSectionLocal(updates.section);
     const params = new URLSearchParams(searchParams);
-    params.set('platform', cleanVal);
+    if (updates.platform !== undefined) params.set('platform', updates.platform.trim().toLowerCase());
+    if (updates.creator !== undefined) params.set('creator', updates.creator);
+    if (updates.section !== undefined) params.set('section', updates.section);
     setSearchParams(params);
   };
 
-  const setFilterCreatorId = (val: string) => {
-    setFilterCreatorIdLocal(val);
-    const params = new URLSearchParams(searchParams);
-    params.set('creator', val);
-    setSearchParams(params);
-  };
-
-  const setActiveSection = (val: 'content' | 'creators' | 'stats') => {
-    setActiveSectionLocal(val);
-    const params = new URLSearchParams(searchParams);
-    params.set('section', val);
-    setSearchParams(params);
-  };
+  const setFilterPlatform = (val: string) => setFilters({ platform: val });
+  const setFilterCreatorId = (val: string) => setFilters({ creator: val });
+  const setActiveSection = (val: 'content' | 'creators' | 'stats') => setFilters({ section: val });
 
   const setLang = (val: 'en' | 'es') => {
     setLangLocal(val);
@@ -251,7 +244,7 @@ export default function PublicReview() {
     });
 
     return { totalViews, totalLikes, totalComments, platforms };
-  }, [campaign, content]);
+  }, [content]);
 
   const filteredContent = useMemo(() => {
     return content.filter(item => {
@@ -261,21 +254,6 @@ export default function PublicReview() {
     });
   }, [content, filterPlatform, filterCreatorId]);
 
-  const scrollToContent = (immediate = false) => {
-    const element = document.getElementById('content-feed');
-    if (element) {
-      const headerOffset = 100;
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: immediate ? 'auto' : 'smooth'
-      });
-    }
-  };
-
-  // Removed automatic scroll on filter/section changes as per user request
 
   if (loading) return <LoadingSpinner message={t.loading} />;
   
@@ -305,16 +283,7 @@ export default function PublicReview() {
             <div className="flex items-center gap-3 sm:gap-6 flex-1 min-w-0">
               {(filterCreatorId !== 'all' || filterPlatform !== 'all' || activeSection !== 'content') && (
                 <button 
-                  onClick={() => {
-                    setFilterCreatorIdLocal('all');
-                    setFilterPlatformLocal('all');
-                    setActiveSectionLocal('content');
-                    const params = new URLSearchParams(searchParams);
-                    params.set('creator', 'all');
-                    params.set('platform', 'all');
-                    params.set('section', 'content');
-                    setSearchParams(params);
-                  }}
+                  onClick={() => setFilters({ creator: 'all', platform: 'all', section: 'content' })}
                   className="p-2 sm:p-3 bg-gray-50 rounded-xl sm:rounded-2xl text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all border border-gray-100 shadow-sm"
                   title="Volver"
                 >
@@ -382,11 +351,7 @@ export default function PublicReview() {
             title={t.posts}
             value={content.length.toString()}
             color="indigo"
-            onClick={() => {
-              setActiveSection('content');
-              setFilterPlatform('all');
-              setFilterCreatorId('all');
-            }}
+            onClick={() => setFilters({ section: 'content', platform: 'all', creator: 'all' })}
             t={t}
           />
           <MetricCard
@@ -432,10 +397,24 @@ export default function PublicReview() {
           {/* Main Content Feed */}
           <div className={`lg:col-span-3 space-y-8 ${activeSection === 'stats' ? 'hidden lg:block' : 'block'}`}>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-               <h3 className="text-sm font-black text-gray-900 uppercase tracking-[0.2em] flex items-center gap-2">
-                 <Award className="h-4 w-4 text-indigo-500" /> 
-                 {activeSection === 'content' ? t.publishedContent : t.creatorDirectory}
-               </h3>
+               <div className="flex items-center gap-2 flex-wrap">
+                 <h3 className="text-sm font-black text-gray-900 uppercase tracking-[0.2em] flex items-center gap-2">
+                   <Award className="h-4 w-4 text-indigo-500" />
+                   {activeSection === 'content' ? t.publishedContent : t.creatorDirectory}
+                 </h3>
+                 {filterCreatorId !== 'all' && (
+                   <span className="flex items-center gap-1 px-2.5 py-1 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-black uppercase tracking-widest">
+                     {users.find(u => u.id === filterCreatorId)?.display_name || t.anonymous}
+                     <button onClick={() => setFilters({ creator: 'all' })} className="hover:text-indigo-800 transition-colors"><X className="h-2.5 w-2.5" /></button>
+                   </span>
+                 )}
+                 {filterPlatform !== 'all' && (
+                   <span className="flex items-center gap-1 px-2.5 py-1 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-black uppercase tracking-widest">
+                     {filterPlatform}
+                     <button onClick={() => setFilters({ platform: 'all' })} className="hover:text-indigo-800 transition-colors"><X className="h-2.5 w-2.5" /></button>
+                   </span>
+                 )}
+               </div>
                
                <div className="flex items-center gap-2">
                  <select 
@@ -473,14 +452,7 @@ export default function PublicReview() {
                   return (
                     <button
                       key={user.id}
-                      onClick={() => {
-                        setFilterCreatorIdLocal(user.id);
-                        setActiveSectionLocal('content');
-                        const params = new URLSearchParams(searchParams);
-                        params.set('creator', user.id);
-                        params.set('section', 'content');
-                        setSearchParams(params);
-                      }}
+                      onClick={() => setFilters({ creator: user.id, section: 'content' })}
                       className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm text-left group hover:border-indigo-200 hover:shadow-lg transition-all"
                     >
                       <div className="flex items-center gap-4">
@@ -555,7 +527,7 @@ export default function PublicReview() {
                               <div className="flex items-center gap-4">
                               <div className="flex flex-col">
                                   <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{t.views}</span>
-                                  <span className="text-xs font-black text-gray-900">{item.views?.toLocaleString()}</span>
+                                  <span className="text-xs font-black text-gray-900">{(item.views ?? 0).toLocaleString()}</span>
                                 </div>
                               </div>
                             </div>
@@ -594,7 +566,7 @@ export default function PublicReview() {
                   onClick={() => setSelectedImage(null)}
                   className="absolute top-6 right-6 w-12 h-12 bg-white/20 backdrop-blur-md text-white rounded-full flex items-center justify-center hover:bg-white/40 transition-colors"
                 >
-                  <Globe className="h-6 w-6 rotate-45" />
+                  <X className="h-6 w-6" />
                 </button>
               </motion.div>
             </div>
@@ -626,7 +598,7 @@ export default function PublicReview() {
                       onClick={() => setShowPlatformsModal(false)}
                       className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 hover:text-gray-900 transition-colors"
                     >
-                      <Globe className="h-5 w-5 rotate-45" />
+                      <X className="h-5 w-5" />
                     </button>
                   </div>
 
@@ -636,8 +608,7 @@ export default function PublicReview() {
                         key={platform}
                         type="button"
                         onClick={() => {
-                          setFilterPlatform(platform);
-                          setActiveSection('content');
+                          setFilters({ platform, section: 'content' });
                           setShowPlatformsModal(false);
                         }}
                         className={`w-full flex items-center justify-between p-4 rounded-2xl group transition-all duration-200 active:scale-95 border gap-3 ${
@@ -689,10 +660,7 @@ export default function PublicReview() {
                   <button
                     key={platform}
                     type="button"
-                    onClick={() => {
-                      setFilterPlatform(platform);
-                      setActiveSection('content');
-                    }}
+                    onClick={() => setFilters({ platform, section: 'content' })}
                     className={`w-full flex items-center justify-between p-4 rounded-2xl group transition-all duration-200 active:scale-95 border gap-3 ${
                       filterPlatform === platform.toLowerCase() ? 'bg-indigo-600 border-transparent shadow-lg shadow-indigo-100' : 'bg-gray-50 border-transparent hover:bg-white hover:shadow-lg hover:border-gray-100'
                     }`}
@@ -753,7 +721,7 @@ function MetricCard({ title, value, icon, color, onClick, t }: { title: string, 
   );
 }
 
-function getPlatformIcon(platform: string, className = "h-4 w-4 sm:h-3.5 sm:w-3.5") {
+function getPlatformIcon(platform: string, className = "h-3.5 w-3.5 sm:h-4 sm:w-4") {
   switch (platform) {
     case 'tiktok': return <Music2 className={className} />;
     case 'instagram': return <Instagram className={className} />;
