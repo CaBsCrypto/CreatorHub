@@ -106,13 +106,48 @@ export default function PublicReview() {
         // 3. Fetch Users (Creators) involved
         const creatorIds = [...new Set(contentData?.map(c => c.creator_id).filter(Boolean))];
         if (creatorIds.length > 0) {
-          const { data: userData, error: userError } = await supabase
-            .from('users')
-            .select('*')
-            .in('id', creatorIds);
-          
-          if (userError) throw userError;
-          setUsers(userData || []);
+          try {
+            const { data: userData, error: userError } = await supabase
+              .from('users')
+              .select('*')
+              .in('id', creatorIds);
+            
+            if (userError) throw userError;
+            
+            // Merge fetched users with stubs for any missing ones (due to RLS or otherwise)
+            const fetchedUserIds = new Set(userData?.map(u => u.id) || []);
+            const missingStubs: UserProfile[] = creatorIds
+              .filter(id => id && !fetchedUserIds.has(id))
+              .map(id => ({
+                id,
+                role: 'creator',
+                email: '',
+                display_name: null,
+                photo_url: null,
+                payment_method: null,
+                binance_id: null,
+                wallet_address: null,
+                wallet_network: null,
+                created_at: new Date().toISOString()
+              }));
+
+            setUsers([...(userData || []), ...missingStubs]);
+          } catch (err) {
+            console.warn('Could not fetch user profiles (likely RLS), using stubs:', err);
+            const stubs: UserProfile[] = creatorIds.map(id => ({
+              id: id!,
+              role: 'creator',
+              email: '',
+              display_name: null,
+              photo_url: null,
+              payment_method: null,
+              binance_id: null,
+              wallet_address: null,
+              wallet_network: null,
+              created_at: new Date().toISOString()
+            }));
+            setUsers(stubs);
+          }
         }
 
         // 4. Fetch Project (Client) if exists
