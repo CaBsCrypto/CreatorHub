@@ -39,6 +39,7 @@ export interface Campaign {
   twitter_url?: string | null;
   contact_info?: string | null;
   budget?: number;
+  share_token?: string;
   created_by: string;
   deleted_at?: string | null;
   created_at: string;

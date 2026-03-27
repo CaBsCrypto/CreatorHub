@@ -14,6 +14,7 @@ interface PaymentsTabProps {
   supabase: any;
   success: (msg: string) => void;
   toastError: (msg: string) => void;
+  onSubmit: (e: React.FormEvent) => Promise<void>;
 }
 
 const PaymentsTab: React.FC<PaymentsTabProps> = ({
@@ -27,7 +28,8 @@ const PaymentsTab: React.FC<PaymentsTabProps> = ({
   refresh,
   supabase,
   success,
-  toastError
+  toastError,
+  onSubmit
 }) => {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -67,31 +69,7 @@ const PaymentsTab: React.FC<PaymentsTabProps> = ({
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               className="overflow-hidden"
-              onSubmit={async (e) => {
-                e.preventDefault();
-                const isGuest = newPayment.creator_id === 'guest';
-                if (isGuest && !newPayment.guest_name.trim()) {
-                  toastError('Debes ingresar el nombre del o la invitada');
-                  return;
-                }
-                const { error } = await supabase.from('payments').insert([{
-                  creator_id: isGuest ? null : newPayment.creator_id,
-                  guest_name: isGuest ? newPayment.guest_name.trim() : null,
-                  amount: parseFloat(newPayment.amount),
-                  currency: newPayment.currency,
-                  concept: newPayment.concept || null,
-                  campaign_id: newPayment.campaign_id || null,
-                  paid_at: newPayment.paid_at
-                }]);
-                if (error) {
-                  toastError('Error al registrar pago: ' + error.message);
-                } else {
-                  success('Pago registrado');
-                  setIsAddingPayment(false);
-                  setNewPayment({ creator_id: '', guest_name: '', amount: '', currency: 'USDT', concept: '', campaign_id: '', paid_at: new Date().toISOString().split('T')[0] });
-                  refresh();
-                }
-              }}
+              onSubmit={onSubmit}
             >
               <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-4">
                 <select required value={newPayment.creator_id} onChange={e => setNewPayment({...newPayment, creator_id: e.target.value})} className="px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500">

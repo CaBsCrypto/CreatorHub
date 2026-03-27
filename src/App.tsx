@@ -15,6 +15,7 @@ import { ToastProvider } from './context/ToastContext';
 const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
 const CreatorDashboard = React.lazy(() => import('./pages/CreatorDashboard'));
 const ClientDashboard = React.lazy(() => import('./pages/ClientDashboard'));
+const PublicReview = React.lazy(() => import('./pages/PublicReview'));
 
 const ProtectedRoute = ({ children, role }: { children: React.ReactNode, role?: 'admin' | 'creator' | 'client' }) => {
   const { user, profile, loading } = useAuth();
@@ -94,6 +95,7 @@ export default function App() {
                       </ProtectedRoute>
                     } 
                   />
+                  <Route path="/review/:token" element={<PublicReview />} />
                 </Routes>
               </React.Suspense>
             </main>

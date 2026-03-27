@@ -7,12 +7,14 @@ const CampaignsTab: React.FC<{
   onEdit: (campaign: any) => void;
   setFilters: (filters: any) => void;
   setSelectedCampaignReport: (id: string) => void;
+  onCopyLink: (token: string, e: React.MouseEvent) => void;
 }> = ({
   campaignStats,
   onDelete,
   onEdit,
   setFilters,
-  setSelectedCampaignReport
+  setSelectedCampaignReport,
+  onCopyLink
 }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -39,6 +41,7 @@ const CampaignsTab: React.FC<{
               e.stopPropagation();
               setSelectedCampaignReport(id);
             }}
+            onCopyLink={onCopyLink}
           />
         );
       })}

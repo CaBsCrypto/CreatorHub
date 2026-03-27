@@ -1,5 +1,5 @@
 import React from 'react';
-import { Target, Calendar, Trash2, Edit2, Play, CheckCircle2 } from 'lucide-react';
+import { Target, Calendar, Trash2, Edit2, Play, CheckCircle2, Link } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Campaign } from '../../supabase';
 import { format } from 'date-fns';
@@ -15,6 +15,7 @@ interface CampaignCardProps {
   spent?: number;
   remaining?: number;
   onViewReport?: (id: string, e: React.MouseEvent) => void;
+  onCopyLink?: (token: string, e: React.MouseEvent) => void;
 }
 
 const CampaignCard: React.FC<CampaignCardProps> = ({ 
@@ -27,7 +28,8 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
   totalPosts = 0, 
   spent = 0,
   remaining = 0,
-  onViewReport 
+  onViewReport,
+  onCopyLink
 }) => {
   const isCompleted = campaign.status === 'completed';
 
@@ -153,6 +155,15 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
                   className="text-[10px] font-black text-rose-500 hover:text-white hover:bg-rose-500 px-3 py-1.5 rounded-lg uppercase tracking-widest border border-rose-100 hover:border-transparent transition-all"
                 >
                   Reporte CSV
+                </button>
+              )}
+              {campaign.share_token && onCopyLink && (
+                <button 
+                  onClick={(e) => onCopyLink(campaign.share_token!, e)}
+                  title="Copiar Link de Invitado"
+                  className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all border border-indigo-100 hover:border-transparent flex items-center justify-center"
+                >
+                  <Link className="h-4 w-4" />
                 </button>
               )}
               <button className="text-[10px] font-black text-indigo-600 hover:underline uppercase tracking-widest">
