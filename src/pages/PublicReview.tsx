@@ -93,39 +93,27 @@ export default function PublicReview() {
 
         setCampaign(campaignData);
 
-        // 2. Fetch Content for this campaign with creator info join
+        // 2. Fetch Content for this campaign
         const { data: contentData, error: contentError } = await supabase
           .from('content')
-          .select('*, creator:users(id, display_name, photo_url)')
+          .select('*')
           .eq('campaign_id', campaignData.id)
           .eq('status', 'active');
 
         if (contentError) throw contentError;
         setContent(contentData || []);
 
-        // 3. Process Creators from content data (RLS bypass via join)
+        // 3. Fetch Users (Creators) involved
         const creatorIds = [...new Set(contentData?.map(c => c.creator_id).filter(Boolean))];
         
-        // Extract creator profiles from joined data (with type casting for Supabase join)
-        const joinedCreatorsMap = new Map<string, UserProfile>();
-        (contentData as any[])?.forEach(item => {
-          if (item.creator_id && item.creator) {
-            joinedCreatorsMap.set(item.creator_id, {
-              id: item.creator_id,
-              role: 'creator',
-              email: '',
-              display_name: item.creator.display_name,
-              photo_url: item.creator.photo_url,
-              payment_method: null,
-              binance_id: null,
-              wallet_address: null,
-              wallet_network: null,
-              created_at: new Date().toISOString()
-            } as UserProfile);
+        // Collect potential names from content entries (as RLS fallback)
+        const nameFallbackMap = new Map<string, string>();
+        contentData?.forEach(c => {
+          if (c.creator_id && (c as any).guest_name) {
+            nameFallbackMap.set(c.creator_id, (c as any).guest_name);
           }
         });
 
-        // Try direct fetch too (in case some aren't in content but linked, though unlikely here)
         if (creatorIds.length > 0) {
           try {
             const { data: userData, error: userError } = await supabase
@@ -133,38 +121,41 @@ export default function PublicReview() {
               .select('*')
               .in('id', creatorIds);
             
-            if (!userError && userData) {
-              // Direct fetch succeeded, merge with joined data (direct fetch is more complete)
-              const finalUsers = Array.from(joinedCreatorsMap.values());
-              userData.forEach(u => {
-                const existing = joinedCreatorsMap.get(u.id);
-                if (!existing) finalUsers.push(u);
-              });
-              setUsers(finalUsers);
-            } else {
-              setUsers(Array.from(joinedCreatorsMap.values()));
-            }
+            if (userError) throw userError;
+            
+            // Merge fetched users with stubs for any missing ones
+            const fetchedUserIds = new Set(userData?.map(u => u.id) || []);
+            const missingStubs: UserProfile[] = creatorIds
+              .filter(id => id && !fetchedUserIds.has(id))
+              .map(id => ({
+                id,
+                role: 'creator',
+                email: '',
+                display_name: nameFallbackMap.get(id!) || null,
+                photo_url: null,
+                payment_method: null,
+                binance_id: null,
+                wallet_address: null,
+                wallet_network: null,
+                created_at: new Date().toISOString()
+              }));
+
+            setUsers([...(userData || []), ...missingStubs]);
           } catch (err) {
-            console.warn('Direct user fetch failed, relying on joined content data:', err);
-            // Fallback: search for any creatorIds not in joinedCreatorsMap and add stubs
-            const finalUsers = Array.from(joinedCreatorsMap.values());
-            creatorIds.forEach(id => {
-              if (id && !joinedCreatorsMap.has(id)) {
-                finalUsers.push({
-                  id,
-                  role: 'creator',
-                  email: '',
-                  display_name: null,
-                  photo_url: null,
-                  payment_method: null,
-                  binance_id: null,
-                  wallet_address: null,
-                  wallet_network: null,
-                  created_at: new Date().toISOString()
-                } as UserProfile);
-              }
-            });
-            setUsers(finalUsers);
+            console.warn('Could not fetch user profiles (likely RLS), using stubs:', err);
+            const stubs: UserProfile[] = creatorIds.map(id => ({
+              id: id!,
+              role: 'creator',
+              email: '',
+              display_name: nameFallbackMap.get(id!) || null,
+              photo_url: null,
+              payment_method: null,
+              binance_id: null,
+              wallet_address: null,
+              wallet_network: null,
+              created_at: new Date().toISOString()
+            }));
+            setUsers(stubs);
           }
         }
 
