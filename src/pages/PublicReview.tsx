@@ -390,7 +390,7 @@ export default function PublicReview() {
                           {(user.display_name || '?').charAt(0)}
                         </div>
                         <div>
-                          <p className="font-black text-gray-900">{user.display_name || t.anonymous}</p>
+                          <p className="font-black text-gray-900">{(user as any).admin_alias || user.display_name || t.anonymous}</p>
                           <div className="flex items-center gap-3 mt-1">
                             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{userPosts.length} {t.posts}</span>
                             <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">{userViews.toLocaleString()} {t.views}</span>
