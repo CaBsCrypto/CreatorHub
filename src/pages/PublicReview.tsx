@@ -4,7 +4,7 @@ import { supabase, Campaign, Content, UserProfile } from '../supabase';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { 
   Zap, Users, Music2, Instagram, Youtube, Twitter, Globe, 
-  TrendingUp, Target, BarChart3, Award
+  TrendingUp, Target, BarChart3, Award, ArrowLeft
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -260,21 +260,35 @@ export default function PublicReview() {
       {/* Premium Header */}
       <div className="bg-white border-b border-gray-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-6">
-            <div>
-              <div className="flex items-center gap-3 mb-1">
-                <span className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-black uppercase tracking-widest">{t.clientReport}</span>
-                <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">{t.live}</span>
-              </div>
-              <h1 className="text-2xl font-black text-gray-900 tracking-tight uppercase line-clamp-1">
-                {project?.display_name || campaign.name}
-              </h1>
-              {project && (
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
-                  {campaign.name}
-                </p>
+            <div className="flex items-center gap-6">
+              {(filterCreatorId !== 'all' || filterPlatform !== 'all' || activeSection !== 'content') && (
+                <button 
+                  onClick={() => {
+                    setFilterCreatorId('all');
+                    setFilterPlatform('all');
+                    setActiveSection('content');
+                  }}
+                  className="p-3 bg-gray-50 rounded-2xl text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all border border-gray-100 shadow-sm"
+                  title="Volver"
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                </button>
               )}
+              <div>
+                <div className="flex items-center gap-3 mb-1">
+                  <span className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-black uppercase tracking-widest">{t.clientReport}</span>
+                  <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                  <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">{t.live}</span>
+                </div>
+                <h1 className="text-2xl font-black text-gray-900 tracking-tight uppercase line-clamp-1">
+                  {project?.display_name || campaign.name}
+                </h1>
+                {project && (
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
+                    {campaign.name}
+                  </p>
+                )}
+              </div>
             </div>
 
             {/* Language Toggle */}
@@ -307,7 +321,6 @@ export default function PublicReview() {
             </div>
           </div>
         </div>
-      </div>
 
       <div className="max-w-7xl mx-auto px-6 mt-10">
         {/* Key Metrics */}
