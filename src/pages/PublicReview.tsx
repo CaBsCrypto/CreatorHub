@@ -294,12 +294,12 @@ export default function PublicReview() {
                       <h4 className="font-bold text-xs text-gray-900 mb-3 line-clamp-1">{item.title || 'Publicación de Campaña'}</h4>
                       <div className="flex items-center justify-between pt-3 border-t border-gray-50">
                         <div className="flex items-center gap-4">
-                          <div className="flex flex-col">
+                        <div className="flex flex-col">
                             <span className="text-[7px] font-black text-gray-400 uppercase tracking-widest">Vistas</span>
                             <span className="text-xs font-black text-gray-900">{item.views?.toLocaleString()}</span>
                           </div>
                         </div>
-                        <span className="px-3 py-1.5 bg-gray-50 group-hover:bg-indigo-600 group-hover:text-white text-gray-400 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all">Ver Link</span>
+                        <span className="px-3 py-1.5 bg-gray-50/50 group-hover:bg-white/50 group-hover:text-blue-700 text-gray-400 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all">Ver Link</span>
                       </div>
                     </div>
                   </motion.a>
