@@ -123,11 +123,16 @@ export default function PublicReview() {
         setLoading(true);
         
         // 1. Fetch Campaign by token (UUID) OR slug (friendly name)
-        const { data: campaignData, error: campaignError } = await supabase
-          .from('campaigns')
-          .select('*')
-          .or(`share_token.eq.${token},slug.eq.${token}`)
-          .single();
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(token);
+        
+        const campaignQuery = supabase.from('campaigns').select('*');
+        if (isUUID) {
+          campaignQuery.or(`share_token.eq.${token},slug.eq.${token}`);
+        } else {
+          campaignQuery.eq('slug', token);
+        }
+
+        const { data: campaignData, error: campaignError } = await campaignQuery.single();
 
         if (campaignError || !campaignData) {
           throw new Error('Campaña no encontrada o enlace inválido.');
