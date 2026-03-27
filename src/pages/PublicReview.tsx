@@ -4,7 +4,7 @@ import { supabase, Campaign, Content, UserProfile } from '../supabase';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { 
   Zap, Users, Music2, Instagram, Youtube, Twitter, Globe, 
-  TrendingUp, Target, BarChart3, Award, ArrowLeft
+  TrendingUp, Target, BarChart3, Award, ArrowLeft, PieChart, LayoutGrid
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -22,10 +22,9 @@ export default function PublicReview() {
   // Local state for immediate UI response
   const [filterPlatform, setFilterPlatformLocal] = useState(searchParams.get('platform') || 'all');
   const [filterCreatorId, setFilterCreatorIdLocal] = useState(searchParams.get('creator') || 'all');
-  const [activeSection, setActiveSectionLocal] = useState<'content' | 'creators'>((searchParams.get('section') as 'content' | 'creators') || 'content');
+  const [activeSection, setActiveSectionLocal] = useState<'content' | 'creators' | 'stats'>('content');
   const [lang, setLangLocal] = useState<'en' | 'es'>((searchParams.get('lang') as 'en' | 'es') || 'en');
 
-  // Sync URL -> Local (e.g. Back button)
   useEffect(() => {
     setFilterPlatformLocal(searchParams.get('platform') || 'all');
     setFilterCreatorIdLocal(searchParams.get('creator') || 'all');
@@ -49,7 +48,7 @@ export default function PublicReview() {
     setSearchParams(params);
   };
 
-  const setActiveSection = (val: 'content' | 'creators') => {
+  const setActiveSection = (val: 'content' | 'creators' | 'stats') => {
     setActiveSectionLocal(val);
     const params = new URLSearchParams(searchParams);
     params.set('section', val);
@@ -301,8 +300,8 @@ export default function PublicReview() {
     <div className="min-h-screen bg-[#fafbfc] pb-20">
       {/* Premium Header */}
       <div className="bg-white border-b border-gray-100 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex items-center gap-6">
+        <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 sm:py-6 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3 sm:gap-6">
               {(filterCreatorId !== 'all' || filterPlatform !== 'all' || activeSection !== 'content') && (
                 <button 
                   onClick={() => {
@@ -310,68 +309,67 @@ export default function PublicReview() {
                     setFilterPlatform('all');
                     setActiveSection('content');
                   }}
-                  className="p-3 bg-gray-50 rounded-2xl text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all border border-gray-100 shadow-sm"
+                  className="p-2 sm:p-3 bg-gray-50 rounded-xl sm:rounded-2xl text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all border border-gray-100 shadow-sm"
                   title="Volver"
                 >
-                  <ArrowLeft className="h-5 w-5" />
+                  <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
                 </button>
               )}
               <div>
-                <div className="flex items-center gap-3 mb-1">
-                  <span className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-black uppercase tracking-widest">{t.clientReport}</span>
-                  <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                  <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">{t.live}</span>
+                <div className="flex items-center gap-2 sm:gap-3 mb-0.5 sm:mb-1">
+                  <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-indigo-50 text-indigo-600 rounded-full text-[8px] sm:text-[10px] font-black uppercase tracking-widest">{t.clientReport}</span>
+                  <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-emerald-500 rounded-full animate-pulse" />
+                  <span className="text-[8px] sm:text-[10px] font-black text-emerald-600 uppercase tracking-widest">{t.live}</span>
                 </div>
-                <h1 className="text-2xl font-black text-gray-900 tracking-tight uppercase line-clamp-1">
+                <h1 className="text-sm sm:text-2xl font-black text-gray-900 tracking-tight uppercase line-clamp-1 max-w-[150px] sm:max-w-none">
                   {project?.display_name || campaign.name}
                 </h1>
                 {project && (
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
+                  <p className="text-[7px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
                     {campaign.name}
                   </p>
                 )}
               </div>
             </div>
 
-            {/* Language Toggle */}
-            <div className="flex items-center bg-gray-50 p-1 rounded-xl border border-gray-100">
-              <button
-                onClick={() => setLang('en')}
-                className={`px-3 py-1.5 rounded-lg text-[10px] font-black transition-all ${lang === 'en' ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
-              >
-                EN
-              </button>
-              <button
-                onClick={() => setLang('es')}
-                className={`px-3 py-1.5 rounded-lg text-[10px] font-black transition-all ${lang === 'es' ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
-              >
-                ES
-              </button>
-            </div>
-          </div>
-          <div className="flex items-center gap-6">
-            <div className="text-right hidden sm:block">
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Última Actualización</p>
-              <p className="text-xs font-bold text-gray-900">{new Date().toLocaleDateString()} · {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-            </div>
-            <div className="h-10 w-[1px] bg-gray-100 hidden sm:block" />
-            <div className="flex flex-col items-center">
-               <div className="w-24 h-1 bg-gray-100 rounded-full overflow-hidden mb-1.5">
-                  <div className="h-full bg-indigo-500 transition-all duration-1000" style={{ width: `${progressPercentage}%` }} />
-               </div>
-               <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{progressPercentage}% Completado</span>
+            <div className="flex items-center gap-3 sm:gap-6">
+              {/* Language Toggle - Compact for mobile */}
+              <div className="flex items-center bg-gray-50 p-0.5 sm:p-1 rounded-lg sm:rounded-xl border border-gray-100">
+                <button
+                  onClick={() => setLang('en')}
+                  className={`px-2 py-1 sm:px-3 sm:py-1.5 rounded-md sm:rounded-lg text-[8px] sm:text-[10px] font-black transition-all ${lang === 'en' ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
+                >
+                  EN
+                </button>
+                <button
+                  onClick={() => setLang('es')}
+                  className={`px-2 py-1 sm:px-3 sm:py-1.5 rounded-md sm:rounded-lg text-[8px] sm:text-[10px] font-black transition-all ${lang === 'es' ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
+                >
+                  ES
+                </button>
+              </div>
+
+              <div className="h-8 w-[1px] bg-gray-100 hidden md:block" />
+              
+              <div className="flex flex-col items-end sm:items-center">
+                 <div className="w-16 sm:w-24 h-1 bg-gray-100 rounded-full overflow-hidden mb-1">
+                    <div className="h-full bg-indigo-500 transition-all duration-1000" style={{ width: `${progressPercentage}%` }} />
+                 </div>
+                 <span className="text-[7px] sm:text-[9px] font-black text-gray-400 uppercase tracking-widest">{progressPercentage}%</span>
+              </div>
             </div>
           </div>
         </div>
 
-      <div className="max-w-7xl mx-auto px-6 mt-10">
-        {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-6 sm:mt-10">
+        {/* Key Metrics - 2 columns on mobile */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-6 mb-8 sm:mb-10">
           <MetricCard
             icon={<Zap className="h-5 w-5" />}
             title={t.totalViews}
             value={stats?.totalViews.toLocaleString() || '0'}
             color="emerald"
+            t={t}
           />
           <MetricCard
             icon={<BarChart3 className="h-5 w-5" />}
@@ -383,6 +381,7 @@ export default function PublicReview() {
               setFilterPlatform('all');
               setFilterCreatorId('all');
             }}
+            t={t}
           />
           <MetricCard
             icon={<Users className="h-5 w-5" />}
@@ -390,13 +389,39 @@ export default function PublicReview() {
             value={users.length.toString()}
             color="purple"
             onClick={() => setActiveSection('creators')}
+            t={t}
           />
         </div>
 
+        {/* Mobile Navigation Tabs */}
+        <div className="lg:hidden flex items-center bg-white p-1 rounded-2xl border border-gray-100 shadow-sm mb-6 sticky top-[72px] z-40">
+           <button
+             onClick={() => setActiveSection('content')}
+             className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeSection === 'content' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-gray-400'}`}
+           >
+             <LayoutGrid className="h-3.5 w-3.5" />
+             {lang === 'en' ? 'Feed' : 'Contenido'}
+           </button>
+           <button
+             onClick={() => setActiveSection('stats')}
+             className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeSection === 'stats' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-gray-400'}`}
+           >
+             <PieChart className="h-3.5 w-3.5" />
+             {lang === 'en' ? 'Stats' : 'Datos'}
+           </button>
+           <button
+             onClick={() => setActiveSection('creators')}
+             className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeSection === 'creators' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-gray-400'}`}
+           >
+             <Users className="h-3.5 w-3.5" />
+             {lang === 'en' ? 'Creators' : 'Autores'}
+           </button>
+        </div>
+
         {/* Distribution & Details */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8" id="content-feed">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 sm:gap-12 items-start">
           {/* Main Content Feed */}
-          <div className="lg:col-span-3 space-y-6">
+          <div className={`lg:col-span-3 space-y-8 ${activeSection === 'stats' ? 'hidden lg:block' : 'block'}`}>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
                <h3 className="text-sm font-black text-gray-900 uppercase tracking-[0.2em] flex items-center gap-2">
                  <Award className="h-4 w-4 text-indigo-500" /> 
@@ -464,7 +489,7 @@ export default function PublicReview() {
             ) : activeSection === 'content' && filteredContent.length > 0 ? (
                 <div className="relative group/scroll">
                   <div 
-                    className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-4 gap-4 animate-in fade-in slide-in-from-bottom-4 transition-all duration-300 max-h-[75vh] overflow-y-auto pr-6 custom-scrollbar pb-16"
+                    className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 animate-in fade-in slide-in-from-bottom-4 transition-all duration-300 max-h-[75vh] overflow-y-auto pr-2 sm:pr-6 custom-scrollbar pb-16"
                   >
                     {filteredContent.map(item => {
                       const creator = users.find(u => u.id === item.creator_id);
@@ -563,17 +588,17 @@ export default function PublicReview() {
           )}
 
           {/* Sidebar Stats */}
-          <div className="space-y-8">
-            <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-8">
-              <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-6">{t.platformDistribution}</h3>
-              <div className="space-y-4">
+          <div className={`space-y-6 sm:space-y-8 ${activeSection === 'stats' ? 'block' : 'hidden lg:block'}`}>
+            <div className="bg-white rounded-[1.5rem] sm:rounded-[2.5rem] border border-gray-100 shadow-sm p-4 sm:p-8">
+              <h3 className="text-[10px] sm:text-xs font-black text-gray-400 uppercase tracking-widest mb-4 sm:mb-6">{t.platformDistribution}</h3>
+              <div className="flex sm:flex-col overflow-x-auto sm:overflow-x-visible pb-2 sm:pb-0 gap-2 sm:gap-4 custom-scrollbar no-scrollbar-on-mobile">
                 {filterPlatform !== 'all' && (
                   <button 
                     onClick={() => setFilterPlatform('all')}
-                    className="flex items-center gap-2 py-2 text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:underline transition-all duration-200 active:scale-95"
+                    className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-indigo-50 rounded-xl text-[8px] sm:text-[10px] font-black text-indigo-600 uppercase tracking-widest sm:hover:underline transition-all active:scale-95"
                   >
                     <ArrowLeft className="h-3 w-3" />
-                    {t.viewAllPlatforms}
+                    <span className="hidden sm:inline">{t.viewAllPlatforms}</span>
                   </button>
                 )}
 
@@ -582,34 +607,33 @@ export default function PublicReview() {
                     key={platform}
                     type="button"
                     onClick={() => {
-                      console.log('Sidebar clicked for:', platform);
                       setFilterPlatform(platform);
                       setActiveSection('content');
                     }}
-                    className={`w-full flex items-center justify-between p-4 rounded-2xl group transition-all duration-200 active:scale-95 border gap-3 ${
-                      filterPlatform === platform.toLowerCase() ? 'bg-indigo-600 border-transparent shadow-lg shadow-indigo-100' : 'bg-gray-50 border-transparent hover:bg-white hover:shadow-lg hover:border-gray-100'
+                    className={`flex-shrink-0 sm:w-full flex items-center justify-between p-2.5 sm:p-4 rounded-xl sm:rounded-2xl group transition-all duration-200 active:scale-95 border gap-2 sm:gap-3 ${
+                      filterPlatform === platform.toLowerCase() ? 'bg-indigo-600 border-transparent shadow-[0_10px_20px_-5px_rgba(79,70,229,0.3)] text-white' : 'bg-gray-50 border-transparent hover:bg-white hover:shadow-lg hover:border-gray-100'
                     }`}
                   >
-                    <div className="flex items-center gap-3 min-w-0 flex-1">
-                      <div className={`w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center ${filterPlatform === platform.toLowerCase() ? 'bg-white/20 text-white' : getPlatformColor(platform)}`}>
-                        {getPlatformIcon(platform, "h-5 w-5")}
+                    <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                      <div className={`w-7 h-7 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex-shrink-0 flex items-center justify-center ${filterPlatform === platform.toLowerCase() ? 'bg-white/20 text-white' : getPlatformColor(platform)}`}>
+                        {getPlatformIcon(platform, "h-3.5 w-3.5 sm:h-5 sm:w-5")}
                       </div>
-                      <span className={`text-sm font-black capitalize tracking-tight truncate ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-900'}`}>
+                      <span className={`text-[10px] sm:text-sm font-black capitalize tracking-tight truncate ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-900'}`}>
                         {platform.toLowerCase() === 'coinmarketcap' ? 'CMC' : platform}
                       </span>
                     </div>
-                    <span className={`text-lg font-black shrink-0 ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-900'}`}>{count}</span>
+                    <span className={`text-sm sm:text-lg font-black shrink-0 ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-900'}`}>{count}</span>
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-[2.5rem] p-8 text-white shadow-xl shadow-indigo-100 relative overflow-hidden group">
+            <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-[1.5rem] sm:rounded-[2.5rem] p-6 sm:p-8 text-white shadow-xl shadow-indigo-100 relative overflow-hidden group">
                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl group-hover:scale-150 transition-transform duration-1000" />
-               <TrendingUp className="h-10 w-10 mb-6 opacity-80" />
-               <h3 className="text-xl font-black mb-2 leading-tight">Umbra Creator Hub</h3>
-               <p className="text-indigo-100 text-sm font-medium opacity-90 leading-relaxed mb-6">{lang === 'en' ? 'Optimizing the connection between brands and creators with real-time metrics.' : 'Optimizando la conexión entre marcas y creadores con métricas en tiempo real.'}</p>
-               <div className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">© 2026 UMBRA AGENCY</div>
+               <TrendingUp className="h-8 w-8 sm:h-10 sm:w-10 mb-4 sm:mb-6 opacity-80" />
+               <h3 className="text-lg sm:text-xl font-black mb-1 sm:mb-2 leading-tight">Umbra Creator Hub</h3>
+               <p className="text-indigo-100 text-[10px] sm:text-sm font-medium opacity-90 leading-relaxed mb-4 sm:mb-6">{lang === 'en' ? 'Optimizing the connection between brands and creators with real-time metrics.' : 'Optimizando la conexión entre marcas y creadores con métricas en tiempo real.'}</p>
+               <div className="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] opacity-60">© 2026 UMBRA AGENCY</div>
             </div>
           </div>
         </div>
@@ -618,7 +642,7 @@ export default function PublicReview() {
   );
 }
 
-function MetricCard({ title, value, icon, color, onClick }: { title: string, value: string, icon: React.ReactNode, color: 'emerald' | 'indigo' | 'purple' | 'rose', onClick?: () => void }) {
+function MetricCard({ title, value, icon, color, onClick, t }: { title: string, value: string, icon: React.ReactNode, color: 'emerald' | 'indigo' | 'purple' | 'rose', onClick?: () => void, t: any }) {
   const colors = {
     emerald: 'bg-emerald-50 text-emerald-600',
     indigo: 'bg-indigo-50 text-indigo-600',
@@ -630,15 +654,17 @@ function MetricCard({ title, value, icon, color, onClick }: { title: string, val
     <button 
       onClick={onClick}
       disabled={!onClick}
-      className={`bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm relative overflow-hidden group text-left w-full transition-all ${onClick ? 'hover:shadow-xl hover:border-indigo-100 active:scale-95' : 'cursor-default'}`}
+      className={`bg-white p-4 sm:p-8 rounded-[1.5rem] sm:rounded-[2.5rem] border border-gray-100 shadow-sm relative overflow-hidden group text-left w-full transition-all ${onClick ? 'hover:shadow-xl hover:border-indigo-100 active:scale-95' : 'cursor-default'} ${title === t.activeCreators ? 'col-span-2 md:col-span-1' : ''}`}
     >
-      <div className={`absolute -right-4 -bottom-4 w-24 h-24 ${colors[color]} opacity-10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700`} />
+      <div className={`absolute -right-4 -bottom-4 w-16 sm:w-24 h-16 sm:h-24 ${colors[color]} opacity-10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700`} />
       <div className="flex flex-col relative z-10">
-        <div className={`w-12 h-12 rounded-2xl ${colors[color]} flex items-center justify-center mb-6 shadow-sm`}>
-          {icon}
+        <div className={`w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl ${colors[color]} flex items-center justify-center mb-3 sm:mb-6 shadow-sm`}>
+          <div className="h-4 w-4 sm:h-5 sm:w-5">
+            {icon}
+          </div>
         </div>
-        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{title}</p>
-        <span className="text-3xl font-black text-gray-900 tracking-tighter">{value}</span>
+        <p className="text-[8px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5 sm:mb-1">{title}</p>
+        <span className="text-xl sm:text-3xl font-black text-gray-900 tracking-tighter">{value}</span>
       </div>
     </button>
   );
