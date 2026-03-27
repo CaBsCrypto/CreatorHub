@@ -479,7 +479,7 @@ export default function PublicReview() {
                           animate={{ opacity: 1, y: 0 }}
                           className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden group hover:shadow-xl hover:bg-blue-100 hover:border-blue-200 transition-all duration-300 block cursor-pointer"
                         >
-                          {item.thumbnail && (
+                          {item.platform === 'twitch' && item.thumbnail && (
                             <div className="aspect-video w-full overflow-hidden border-b border-gray-50 bg-gray-100">
                               <img 
                                 src={item.thumbnail} 
