@@ -277,7 +277,7 @@ export default function PublicReview() {
                       rel="noopener noreferrer"
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden group hover:shadow-xl hover:bg-indigo-50/30 hover:border-indigo-100 transition-all duration-500 block cursor-pointer"
+                      className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden group hover:shadow-xl hover:bg-blue-50/50 hover:border-blue-200 transition-all duration-300 block cursor-pointer"
                     >
                     <div className="p-4">
                       <div className="flex items-center justify-between mb-2">
