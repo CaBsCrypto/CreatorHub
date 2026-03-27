@@ -123,8 +123,13 @@ export default function PublicReview() {
             
             if (userError) throw userError;
             
-            // Merge fetched users with stubs for any missing ones
-            const fetchedUserIds = new Set(userData?.map(u => u.id) || []);
+            // Merge fetched users with stubs and fill missing names from guest_name/alias
+            const finalUsers = (userData || []).map(u => ({
+              ...u,
+              display_name: (u as any).admin_alias || u.display_name || nameFallbackMap.get(u.id) || null
+            }));
+            
+            const fetchedUserIds = new Set(finalUsers.map(u => u.id));
             const missingStubs: UserProfile[] = creatorIds
               .filter(id => id && !fetchedUserIds.has(id))
               .map(id => ({
@@ -140,7 +145,7 @@ export default function PublicReview() {
                 created_at: new Date().toISOString()
               }));
 
-            setUsers([...(userData || []), ...missingStubs]);
+            setUsers([...finalUsers, ...missingStubs]);
           } catch (err) {
             console.warn('Could not fetch user profiles (likely RLS), using stubs:', err);
             const stubs: UserProfile[] = creatorIds.map(id => ({
@@ -365,7 +370,7 @@ export default function PublicReview() {
                  >
                    <option value="all">{t.allCreators}</option>
                    {users.map(u => (
-                     <option key={u.id} value={u.id}>{u.display_name || 'Sin nombre'}</option>
+                     <option key={u.id} value={u.id}>{u.display_name || t.anonymous}</option>
                    ))}
                  </select>
                </div>
@@ -419,9 +424,9 @@ export default function PublicReview() {
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <div className="w-5 h-5 rounded-full bg-indigo-50 flex items-center justify-center text-[9px] font-bold text-indigo-600">
-                            {(creator?.display_name || 'C').charAt(0)}
+                            {(creator?.display_name || '?').charAt(0)}
                           </div>
-                          <span className="text-[10px] font-bold text-gray-500">{creator?.display_name || t.agency}</span>
+                          <span className="text-[10px] font-bold text-gray-500">{creator?.display_name || t.anonymous}</span>
                         </div>
                         <span className="px-2 py-0.5 bg-gray-50 text-gray-400 rounded-lg text-[7px] font-black uppercase tracking-widest flex items-center gap-1 border border-gray-100">
                           {getPlatformIcon(item.platform, "h-2.5 w-2.5")} {item.platform}
