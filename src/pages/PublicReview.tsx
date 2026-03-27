@@ -16,6 +16,7 @@ export default function PublicReview() {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [project, setProject] = useState<UserProfile | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   
   // Local state for immediate UI response
@@ -465,13 +466,28 @@ export default function PublicReview() {
                       return (
                         <motion.a 
                           key={item.id}
-                          href={item.url}
-                          target="_blank"
+                          href={item.platform === 'twitch' ? '#' : item.url}
+                          onClick={(e) => {
+                            if (item.platform === 'twitch' && item.thumbnail) {
+                              e.preventDefault();
+                              setSelectedImage(item.thumbnail);
+                            }
+                          }}
+                          target={item.platform === 'twitch' ? undefined : "_blank"}
                           rel="noopener noreferrer"
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden group hover:shadow-xl hover:bg-blue-100 hover:border-blue-200 transition-all duration-300 block cursor-pointer"
                         >
+                          {item.thumbnail && (
+                            <div className="aspect-video w-full overflow-hidden border-b border-gray-50 bg-gray-100">
+                              <img 
+                                src={item.thumbnail} 
+                                alt={item.title || 'Thumbnail'} 
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                              />
+                            </div>
+                          )}
                           <div className="p-4">
                             <div className="flex items-center justify-between mb-2">
                               <div className="flex items-center gap-2">
@@ -516,6 +532,30 @@ export default function PublicReview() {
               ) : null
             }
           </div>
+
+          {/* Image Preview Modal */}
+          {selectedImage && (
+            <div 
+              className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-10 animate-in fade-in duration-300"
+              onClick={() => setSelectedImage(null)}
+            >
+              <div className="absolute inset-0 bg-gray-900/90 backdrop-blur-sm" />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="relative max-w-5xl w-full bg-white rounded-[3rem] overflow-hidden shadow-2xl z-10"
+                onClick={e => e.stopPropagation()}
+              >
+                <img src={selectedImage} alt="Preview" className="w-full h-auto max-h-[85vh] object-contain" />
+                <button 
+                  onClick={() => setSelectedImage(null)}
+                  className="absolute top-6 right-6 w-12 h-12 bg-white/20 backdrop-blur-md text-white rounded-full flex items-center justify-center hover:bg-white/40 transition-colors"
+                >
+                  <Globe className="h-6 w-6 rotate-45" />
+                </button>
+              </motion.div>
+            </div>
+          )}
 
           {/* Sidebar Stats */}
           <div className="space-y-8">
