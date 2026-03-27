@@ -67,21 +67,6 @@ const AddCampaignModal: React.FC<AddCampaignModalProps> = ({
             />
           </div>
 
-          <div>
-            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Cliente Responsable (Opcional)</label>
-            <select
-              className="block w-full rounded-2xl border-gray-100 bg-gray-50/50 py-3 px-4 text-sm font-medium focus:ring-2 focus:ring-indigo-500 transition-all outline-none appearance-none"
-              value={newCampaign.client_id || ''}
-              onChange={(e) => setNewCampaign({ ...newCampaign, client_id: e.target.value || null })}
-            >
-              <option value="">Sin cliente asignado</option>
-              {clients.map(c => (
-                <option key={c.id} value={c.id}>
-                  {c.display_name || c.email}
-                </option>
-              ))}
-            </select>
-          </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
