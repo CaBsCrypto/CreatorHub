@@ -270,11 +270,14 @@ export default function PublicReview() {
                 {filteredContent.map(item => {
                   const creator = users.find(u => u.id === item.creator_id);
                   return (
-                    <motion.div 
+                    <motion.a 
                       key={item.id}
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden group hover:shadow-xl hover:bg-indigo-50/30 hover:border-indigo-100 transition-all duration-500"
+                      className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden group hover:shadow-xl hover:bg-indigo-50/30 hover:border-indigo-100 transition-all duration-500 block cursor-pointer"
                     >
                     <div className="p-4">
                       <div className="flex items-center justify-between mb-2">
@@ -296,10 +299,10 @@ export default function PublicReview() {
                             <span className="text-xs font-black text-gray-900">{item.views?.toLocaleString()}</span>
                           </div>
                         </div>
-                        <a href={item.url} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 bg-gray-50 hover:bg-indigo-50 text-gray-400 hover:text-indigo-600 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all">Ver Link</a>
+                        <span className="px-3 py-1.5 bg-gray-50 group-hover:bg-indigo-600 group-hover:text-white text-gray-400 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all">Ver Link</span>
                       </div>
                     </div>
-                  </motion.div>
+                  </motion.a>
                 );
               })}
               </div>
