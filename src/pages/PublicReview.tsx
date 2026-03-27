@@ -221,21 +221,20 @@ export default function PublicReview() {
     const totalLikes = content.reduce((sum, c) => sum + (c.likes || 0), 0);
     const totalComments = content.reduce((sum, c) => sum + (c.comments || 0), 0);
     
-    const platforms = {
-      tiktok: content.filter(c => c.platform === 'tiktok').length,
-      instagram: content.filter(c => c.platform === 'instagram').length,
-      youtube: content.filter(c => c.platform === 'youtube').length,
-      x: content.filter(c => c.platform === 'x').length,
-      twitch: content.filter(c => c.platform === 'twitch').length,
-      coinmarketcap: content.filter(c => c.platform === 'coinmarketcap').length,
-    };
+    const platforms: Record<string, number> = {};
+    content.forEach(c => {
+      if (c.platform) {
+        const p = c.platform.toLowerCase();
+        platforms[p] = (platforms[p] || 0) + 1;
+      }
+    });
 
     return { totalViews, totalLikes, totalComments, platforms };
   }, [campaign, content]);
 
   const filteredContent = useMemo(() => {
     return content.filter(item => {
-      const matchPlatform = filterPlatform === 'all' || item.platform === filterPlatform;
+      const matchPlatform = filterPlatform === 'all' || item.platform?.toLowerCase() === filterPlatform.toLowerCase();
       const matchCreator = filterCreatorId === 'all' || item.creator_id === filterCreatorId;
       return matchPlatform && matchCreator;
     });
@@ -502,19 +501,20 @@ export default function PublicReview() {
                     onClick={() => {
                       setFilterPlatform(platform);
                       setActiveSection('content');
-                      scrollToContent();
                     }}
-                    className={`w-full flex items-center justify-between p-4 rounded-2xl group transition-all duration-300 border ${
+                    className={`w-full flex items-center justify-between p-4 rounded-2xl group transition-all duration-300 border gap-3 ${
                       filterPlatform === platform ? 'bg-indigo-600 border-transparent shadow-lg shadow-indigo-100' : 'bg-gray-50 border-transparent hover:bg-white hover:shadow-lg hover:border-gray-100'
                     }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${filterPlatform === platform ? 'bg-white/20 text-white' : getPlatformColor(platform)}`}>
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className={`w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center ${filterPlatform === platform ? 'bg-white/20 text-white' : getPlatformColor(platform)}`}>
                         {getPlatformIcon(platform, "h-5 w-5")}
                       </div>
-                      <span className={`text-sm font-black capitalize tracking-tight ${filterPlatform === platform ? 'text-white' : 'text-gray-900'}`}>{platform}</span>
+                      <span className={`text-sm font-black capitalize tracking-tight truncate ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-900'}`}>
+                        {platform.toLowerCase() === 'coinmarketcap' ? 'CMC' : platform}
+                      </span>
                     </div>
-                    <span className={`text-lg font-black ${filterPlatform === platform ? 'text-white' : 'text-gray-900'}`}>{count}</span>
+                    <span className={`text-lg font-black shrink-0 ${filterPlatform === platform ? 'text-white' : 'text-gray-900'}`}>{count}</span>
                   </button>
                 ))}
                 {filterPlatform !== 'all' && (
