@@ -276,32 +276,23 @@ export default function PublicReview() {
                       animate={{ opacity: 1, y: 0 }}
                       className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden group hover:shadow-xl transition-all duration-500"
                     >
-                    <div className="aspect-video relative overflow-hidden bg-gray-100">
-                      {item.thumbnail ? (
-                        <img src={item.thumbnail} alt={item.title || ''} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <Globe className="h-12 w-12 text-gray-200" />
+                    <div className="p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-5 h-5 rounded-full bg-indigo-50 flex items-center justify-center text-[9px] font-bold text-indigo-600">
+                            {(creator?.display_name || 'C').charAt(0)}
+                          </div>
+                          <span className="text-[10px] font-bold text-gray-500">{creator?.display_name || 'Agencia'}</span>
                         </div>
-                      )}
-                      <div className="absolute top-4 left-4">
-                        <span className="px-3 py-1.5 bg-black/60 backdrop-blur-md text-white rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 border border-white/20">
-                          {getPlatformIcon(item.platform)} {item.platform}
+                        <span className="px-2 py-0.5 bg-gray-50 text-gray-400 rounded-lg text-[7px] font-black uppercase tracking-widest flex items-center gap-1 border border-gray-100">
+                          {getPlatformIcon(item.platform, "h-2.5 w-2.5")} {item.platform}
                         </span>
                       </div>
-                    </div>
-                    <div className="p-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-5 h-5 rounded-full bg-indigo-50 flex items-center justify-center text-[9px] font-bold text-indigo-600">
-                          {(creator?.display_name || 'C').charAt(0)}
-                        </div>
-                        <span className="text-[10px] font-bold text-gray-500">{creator?.display_name || 'Creador de la Agencia'}</span>
-                      </div>
-                      <h4 className="font-bold text-sm text-gray-900 mb-2 line-clamp-1">{item.title || 'Publicación de Campaña'}</h4>
+                      <h4 className="font-bold text-xs text-gray-900 mb-3 line-clamp-1">{item.title || 'Publicación de Campaña'}</h4>
                       <div className="flex items-center justify-between pt-3 border-t border-gray-50">
                         <div className="flex items-center gap-4">
                           <div className="flex flex-col">
-                            <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Vistas</span>
+                            <span className="text-[7px] font-black text-gray-400 uppercase tracking-widest">Vistas</span>
                             <span className="text-xs font-black text-gray-900">{item.views?.toLocaleString()}</span>
                           </div>
                         </div>
