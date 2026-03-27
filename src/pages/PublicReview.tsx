@@ -455,61 +455,66 @@ export default function PublicReview() {
                   );
                 })}
               </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-4 gap-4 animate-in fade-in slide-in-from-bottom-4">
-                {filteredContent.map(item => {
-                  const creator = users.find(u => u.id === item.creator_id);
-                  return (
-                    <motion.a 
-                      key={item.id}
-                      href={item.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden group hover:shadow-xl hover:bg-blue-100 hover:border-blue-200 transition-all duration-300 block cursor-pointer"
-                    >
-                    <div className="p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-5 h-5 rounded-full bg-indigo-50 flex items-center justify-center text-[9px] font-bold text-indigo-600">
-                            {(creator?.display_name || '?').charAt(0)}
-                          </div>
-                          <span className="text-[10px] font-bold text-gray-500">{creator?.display_name || t.anonymous}</span>
-                        </div>
-                        <span 
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setFilterPlatform(item.platform || 'all');
-                          }}
-                          className="px-2 py-0.5 bg-gray-50 text-gray-400 rounded-lg text-[7px] font-black uppercase tracking-widest flex items-center gap-1 border border-gray-100 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-100 transition-colors cursor-pointer relative z-10"
+            ) : activeSection === 'content' && filteredContent.length > 0 ? (
+                <div className="relative group/scroll">
+                  <div 
+                    className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-4 gap-4 animate-in fade-in slide-in-from-bottom-4 transition-all duration-300 max-h-[75vh] overflow-y-auto pr-6 custom-scrollbar pb-16"
+                  >
+                    {filteredContent.map(item => {
+                      const creator = users.find(u => u.id === item.creator_id);
+                      return (
+                        <motion.a 
+                          key={item.id}
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden group hover:shadow-xl hover:bg-blue-100 hover:border-blue-200 transition-all duration-300 block cursor-pointer"
                         >
-                          {getPlatformIcon(item.platform, "h-2.5 w-2.5")} {item.platform}
-                        </span>
-                      </div>
-                      <h4 className="font-bold text-xs text-gray-900 mb-3 line-clamp-1">{item.title || t.publishedContent}</h4>
-                      <div className="flex items-center justify-between pt-3 border-t border-gray-50">
-                        <div className="flex items-center gap-4">
-                        <div className="flex flex-col">
-                            <span className="text-[7px] font-black text-gray-400 uppercase tracking-widest">{t.views}</span>
-                            <span className="text-xs font-black text-gray-900">{item.views?.toLocaleString()}</span>
+                          <div className="p-4">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                <div className="w-5 h-5 rounded-full bg-indigo-50 flex items-center justify-center text-[9px] font-bold text-indigo-600">
+                                  {(creator?.display_name || '?').charAt(0)}
+                                </div>
+                                <span className="text-[10px] font-bold text-gray-500">{creator?.display_name || t.anonymous}</span>
+                              </div>
+                              <span 
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  setFilterPlatform(item.platform || 'all');
+                                }}
+                                className="px-2 py-0.5 bg-gray-50 text-gray-400 rounded-lg text-[7px] font-black uppercase tracking-widest flex items-center gap-1 border border-gray-100 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-100 transition-colors cursor-pointer relative z-10"
+                              >
+                                {getPlatformIcon(item.platform, "h-2.5 w-2.5")} {item.platform}
+                              </span>
+                            </div>
+                            <h4 className="font-bold text-xs text-gray-900 mb-3 line-clamp-1">{item.title || t.publishedContent}</h4>
+                            <div className="flex items-center justify-between pt-3 border-t border-gray-50">
+                              <div className="flex items-center gap-4">
+                              <div className="flex flex-col">
+                                  <span className="text-[7px] font-black text-gray-400 uppercase tracking-widest">{t.views}</span>
+                                  <span className="text-xs font-black text-gray-900">{item.views?.toLocaleString()}</span>
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      </div>
-                    </div>
-                  </motion.a>
-                );
-              })}
-              </div>
-            )}
-
-            {activeSection === 'content' && filteredContent.length === 0 && (
-              <div className="bg-white rounded-[3rem] p-20 text-center border border-dashed border-gray-200">
-                <Globe className="h-16 w-16 text-gray-100 mx-auto mb-6" />
-                <p className="text-gray-400 font-bold uppercase tracking-widest">{t.noResults}</p>
-              </div>
-            )}
+                        </motion.a>
+                      );
+                    })}
+                  </div>
+                  {/* Bottom Fade Effect */}
+                  <div className="absolute bottom-0 left-0 right-6 h-12 bg-gradient-to-t from-gray-50 to-transparent pointer-events-none z-20 rounded-b-[3rem]" />
+                </div>
+              ) : activeSection === 'content' && filteredContent.length === 0 ? (
+                <div className="bg-white rounded-[3rem] p-20 text-center border border-dashed border-gray-200">
+                  <Globe className="h-16 w-16 text-gray-100 mx-auto mb-6" />
+                  <p className="text-gray-400 font-bold uppercase tracking-widest">{t.noResults}</p>
+                </div>
+              ) : null
+            }
           </div>
 
           {/* Sidebar Stats */}
