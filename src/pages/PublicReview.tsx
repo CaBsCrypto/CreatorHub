@@ -18,6 +18,60 @@ export default function PublicReview() {
   const [filterPlatform, setFilterPlatform] = useState<string>('all');
   const [filterCreatorId, setFilterCreatorId] = useState<string>('all');
   const [activeSection, setActiveSection] = useState<'content' | 'creators'>('content');
+  const [lang, setLang] = useState<'en' | 'es'>('en');
+
+  const t = {
+    en: {
+      clientReport: "Client Report",
+      live: "Live",
+      posts: "Posts",
+      totalViews: "Total Views",
+      creators: "Creators",
+      activeCreators: "Active Creators",
+      filterByPlatform: "FILTER BY PLATFORM",
+      allPlatforms: "ALL PLATFORMS",
+      creatorDirectory: "CREATOR DIRECTORY",
+      allCreators: "ALL CREATORS",
+      publishedContent: "PUBLISHED CONTENT",
+      views: "Views",
+      loading: "Generating report...",
+      notFound: "Report not found",
+      notFoundDesc: "This report doesn't exist or the link has expired. Please contact your campaign manager.",
+      backHome: "Back to Home",
+      individualPerf: "View individual performance...",
+      anonymous: "Anonymous Creator",
+      agency: "Agency",
+      searchCreators: "Search creators...",
+      platformDistribution: "Platform Distribution",
+      noResults: "No content matches the filters",
+      viewAllPlatforms: "View all platforms"
+    },
+    es: {
+      clientReport: "Reporte de Cliente",
+      live: "En Vivo",
+      posts: "Posteos",
+      totalViews: "Vistas Totales",
+      creators: "Creadores",
+      activeCreators: "Participantes",
+      filterByPlatform: "FILTRAR POR RED",
+      allPlatforms: "TODAS LAS REDES",
+      creatorDirectory: "DIRECTORIO DE CREADORES",
+      allCreators: "TODOS LOS CREADORES",
+      publishedContent: "CONTENIDO PUBLICADO",
+      views: "Vistas",
+      loading: "Generando reporte...",
+      notFound: "Enlace no disponible",
+      notFoundDesc: "Este reporte no existe o el enlace ha caducado. Por favor, contacta con tu manager de campaña.",
+      backHome: "Volver al inicio",
+      individualPerf: "Vea el desempeño individual...",
+      anonymous: "Creador Anónimo",
+      agency: "Agencia",
+      searchCreators: "Buscar creadores...",
+      platformDistribution: "Distribución por Red",
+      noResults: "No hay contenido que coincida con los filtros",
+      viewAllPlatforms: "Ver todas las redes"
+    }
+  }[lang];
 
   useEffect(() => {
     async function fetchPublicData() {
@@ -143,13 +197,31 @@ export default function PublicReview() {
       {/* Premium Header */}
       <div className="bg-white border-b border-gray-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-3 mb-1">
-              <span className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-black uppercase tracking-widest">Reporte de Cliente</span>
-              <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-              <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">En Vivo</span>
+          <div className="flex items-center gap-6">
+            <div>
+              <div className="flex items-center gap-3 mb-1">
+                <span className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-black uppercase tracking-widest">{t.clientReport}</span>
+                <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">{t.live}</span>
+              </div>
+              <h1 className="text-2xl font-black text-gray-900 tracking-tight uppercase">{campaign.title}</h1>
             </div>
-            <h1 className="text-3xl font-black text-gray-900 tracking-tight">{campaign.name}</h1>
+
+            {/* Language Toggle */}
+            <div className="flex items-center bg-gray-50 p-1 rounded-xl border border-gray-100">
+              <button
+                onClick={() => setLang('en')}
+                className={`px-3 py-1.5 rounded-lg text-[10px] font-black transition-all ${lang === 'en' ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
+              >
+                EN
+              </button>
+              <button
+                onClick={() => setLang('es')}
+                className={`px-3 py-1.5 rounded-lg text-[10px] font-black transition-all ${lang === 'es' ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
+              >
+                ES
+              </button>
+            </div>
           </div>
           <div className="flex items-center gap-6">
             <div className="text-right hidden sm:block">
@@ -170,29 +242,28 @@ export default function PublicReview() {
       <div className="max-w-7xl mx-auto px-6 mt-10">
         {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          <MetricCard 
-            title="Vistas Totales" 
-            value={stats?.totalViews.toLocaleString() || '0'} 
-            icon={<Zap className="h-5 w-5" />} 
-            color="emerald" 
+          <MetricCard
+            icon={<Zap className="h-5 w-5" />}
+            title={t.totalViews}
+            value={stats?.totalViews.toLocaleString() || '0'}
+            color="emerald"
           />
-          <MetricCard 
-            title="Posteos Realizados" 
-            value={content.length.toString()} 
-            icon={<BarChart3 className="h-5 w-5" />} 
-            color="indigo" 
+          <MetricCard
+            icon={<BarChart3 className="h-5 w-5" />}
+            title={t.posts}
+            value={content.length.toString()}
+            color="indigo"
             onClick={() => {
+              setActiveSection('content');
               setFilterPlatform('all');
               setFilterCreatorId('all');
-              setActiveSection('content');
-              scrollToContent();
             }}
           />
-          <MetricCard 
-            title="Creadores Activos" 
-            value={users.length.toString()} 
-            icon={<Users className="h-5 w-5" />} 
-            color="purple" 
+          <MetricCard
+            icon={<Users className="h-5 w-5" />}
+            title={t.activeCreators}
+            value={users.length.toString()}
+            color="purple"
             onClick={() => setActiveSection('creators')}
           />
         </div>
@@ -204,7 +275,7 @@ export default function PublicReview() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
                <h3 className="text-sm font-black text-gray-900 uppercase tracking-[0.2em] flex items-center gap-2">
                  <Award className="h-4 w-4 text-indigo-500" /> 
-                 {activeSection === 'content' ? 'Contenido Publicado' : 'Directorio de Creadores'}
+                 {activeSection === 'content' ? t.publishedContent : t.creatorDirectory}
                </h3>
                
                <div className="flex items-center gap-2">
@@ -213,7 +284,7 @@ export default function PublicReview() {
                    onChange={(e) => setFilterPlatform(e.target.value)}
                    className="px-4 py-2 bg-white border border-gray-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-gray-500 outline-none focus:ring-2 focus:ring-indigo-500"
                  >
-                   <option value="all">Todas las Redes</option>
+                   <option value="all">{t.allPlatforms}</option>
                    <option value="tiktok">TikTok</option>
                    <option value="instagram">Instagram</option>
                    <option value="youtube">YouTube</option>
@@ -227,7 +298,7 @@ export default function PublicReview() {
                    onChange={(e) => setFilterCreatorId(e.target.value)}
                    className="px-4 py-2 bg-white border border-gray-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-gray-500 outline-none focus:ring-2 focus:ring-indigo-500"
                  >
-                   <option value="all">Todos los Creadores</option>
+                   <option value="all">{t.allCreators}</option>
                    {users.map(u => (
                      <option key={u.id} value={u.id}>{u.display_name || 'Sin nombre'}</option>
                    ))}
@@ -254,10 +325,10 @@ export default function PublicReview() {
                           {(user.display_name || '?').charAt(0)}
                         </div>
                         <div>
-                          <p className="font-black text-gray-900">{user.display_name || 'Creador Anónimo'}</p>
+                          <p className="font-black text-gray-900">{user.display_name || t.anonymous}</p>
                           <div className="flex items-center gap-3 mt-1">
-                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{userPosts.length} Posts</span>
-                            <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">{userViews.toLocaleString()} Vistas</span>
+                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{userPosts.length} {t.posts}</span>
+                            <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">{userViews.toLocaleString()} {t.views}</span>
                           </div>
                         </div>
                       </div>
@@ -285,17 +356,17 @@ export default function PublicReview() {
                           <div className="w-5 h-5 rounded-full bg-indigo-50 flex items-center justify-center text-[9px] font-bold text-indigo-600">
                             {(creator?.display_name || 'C').charAt(0)}
                           </div>
-                          <span className="text-[10px] font-bold text-gray-500">{creator?.display_name || 'Agencia'}</span>
+                          <span className="text-[10px] font-bold text-gray-500">{creator?.display_name || t.agency}</span>
                         </div>
                         <span className="px-2 py-0.5 bg-gray-50 text-gray-400 rounded-lg text-[7px] font-black uppercase tracking-widest flex items-center gap-1 border border-gray-100">
                           {getPlatformIcon(item.platform, "h-2.5 w-2.5")} {item.platform}
                         </span>
                       </div>
-                      <h4 className="font-bold text-xs text-gray-900 mb-3 line-clamp-1">{item.title || 'Publicación de Campaña'}</h4>
+                      <h4 className="font-bold text-xs text-gray-900 mb-3 line-clamp-1">{item.title || t.publishedContent}</h4>
                       <div className="flex items-center justify-between pt-3 border-t border-gray-50">
                         <div className="flex items-center gap-4">
                         <div className="flex flex-col">
-                            <span className="text-[7px] font-black text-gray-400 uppercase tracking-widest">Vistas</span>
+                            <span className="text-[7px] font-black text-gray-400 uppercase tracking-widest">{t.views}</span>
                             <span className="text-xs font-black text-gray-900">{item.views?.toLocaleString()}</span>
                           </div>
                         </div>
@@ -310,7 +381,7 @@ export default function PublicReview() {
             {activeSection === 'content' && filteredContent.length === 0 && (
               <div className="bg-white rounded-[3rem] p-20 text-center border border-dashed border-gray-200">
                 <Globe className="h-16 w-16 text-gray-100 mx-auto mb-6" />
-                <p className="text-gray-400 font-bold uppercase tracking-widest">No hay contenido que coincida con los filtros</p>
+                <p className="text-gray-400 font-bold uppercase tracking-widest">{t.noResults}</p>
               </div>
             )}
           </div>
@@ -318,7 +389,7 @@ export default function PublicReview() {
           {/* Sidebar Stats */}
           <div className="space-y-8">
             <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-8">
-              <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-6">Distribución por Red</h3>
+              <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-6">{t.platformDistribution}</h3>
               <div className="space-y-4">
                 {Object.entries(stats?.platforms || {}).map(([platform, count]) => (
                   <button 
@@ -346,7 +417,7 @@ export default function PublicReview() {
                     onClick={() => setFilterPlatform('all')}
                     className="w-full py-3 text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:underline"
                   >
-                    Ver todas las redes
+                    {t.viewAllPlatforms}
                   </button>
                 )}
               </div>
@@ -356,7 +427,7 @@ export default function PublicReview() {
                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl group-hover:scale-150 transition-transform duration-1000" />
                <TrendingUp className="h-10 w-10 mb-6 opacity-80" />
                <h3 className="text-xl font-black mb-2 leading-tight">Umbra Creator Hub</h3>
-               <p className="text-indigo-100 text-sm font-medium opacity-90 leading-relaxed mb-6">Optimizando la conexión entre marcas y creadores con métricas en tiempo real.</p>
+               <p className="text-indigo-100 text-sm font-medium opacity-90 leading-relaxed mb-6">{lang === 'en' ? 'Optimizing the connection between brands and creators with real-time metrics.' : 'Optimizando la conexión entre marcas y creadores con métricas en tiempo real.'}</p>
                <div className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">© 2026 UMBRA AGENCY</div>
             </div>
           </div>
