@@ -2,10 +2,11 @@ import React from 'react';
 import { Search, LayoutGrid, ImageIcon, List as ListIcon, Plus, RefreshCw, Youtube, List, Users, TrendingUp, Edit2, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ContentCard from './ContentCard';
+import { supabase } from '../../supabase';
 
 interface ContentTabProps {
   searchTerm: string;
-  setFilter: (key: string, value: any) => void;
+  setFilter: (key: string, value: string) => void;
   viewMode: string;
   isCompactView: boolean;
   setEditingContent: (val: any) => void;
@@ -24,7 +25,6 @@ interface ContentTabProps {
   users: any[];
   setManagingUser: (val: any) => void;
   setDeletedContentIds: React.Dispatch<React.SetStateAction<string[]>>;
-  supabase: any;
   resetFilters: () => void;
   filterCampaign: string;
   filterPlatform: string;
@@ -52,12 +52,71 @@ const ContentTab: React.FC<ContentTabProps> = ({
   users,
   setManagingUser,
   setDeletedContentIds,
-  supabase,
   resetFilters,
   filterCampaign,
   filterPlatform,
   filterCreator
 }) => {
+  const handleRefreshAll = async () => {
+    if (content.length === 0) return info("No hay contenido para sincronizar");
+    setIsRefreshing(true);
+    info("Sincronizando todas las métricas...");
+    try {
+      const data = content.map(c => ({ id: c.id, url: c.url, platform: c.platform }));
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await fetch('/api/refresh-metrics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+        body: JSON.stringify({ items: data })
+      });
+      const result = await response.json();
+      if (result.success && result.results) {
+        let updatedCount = 0;
+        for (const r of result.results) {
+          try {
+            const { error: updateErr } = await supabase.from('content').update({
+              title: r.title, views: r.views, likes: r.likes, comments: r.comments, thumbnail: r.thumbnail
+            }).eq('id', r.id);
+            if (!updateErr) updatedCount++;
+          } catch (e) {
+            console.error(`Error updating item ${r.id}:`, e);
+          }
+        }
+        await refresh();
+        success(`${updatedCount} de ${result.results.length} videos sincronizados correctamente`);
+      } else {
+        throw new Error(result.error || "Fallo en la sincronización masiva");
+      }
+    } catch (e: any) {
+      toastError("Error: " + e.message);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  const handleRefreshItem = async (item: any) => {
+    info("Sincronizando video...");
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch('/api/fetch-metadata', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+        body: JSON.stringify({ url: item.url, platform: item.platform })
+      });
+      if (!res.ok) throw new Error("Error al obtener metadata");
+      const metadata = await res.json();
+      const { error } = await supabase.from('content').update({
+        title: metadata.title, views: metadata.views, likes: metadata.likes,
+        comments: metadata.comments, thumbnail: metadata.thumbnail
+      }).eq('id', item.id);
+      if (error) throw error;
+      success("Video actualizado");
+      refresh();
+    } catch (e: any) {
+      toastError("Error: " + e.message);
+    }
+  };
+
   return (
     <div id="content-section" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="bg-white p-4 md:p-6 rounded-[2.5rem] border border-gray-100 shadow-sm space-y-4 md:space-y-0">
@@ -107,50 +166,8 @@ const ContentTab: React.FC<ContentTabProps> = ({
             >
               <Plus className="h-4 w-4" /> Nuevo Contenido
             </button>
-            <button 
-              onClick={async () => {
-                if (content.length === 0) return info("No hay contenido para sincronizar");
-                setIsRefreshing(true);
-                info("Sincronizando todas las métricas...");
-                try {
-                  const data = content.map(c => ({ id: c.id, url: c.url, platform: c.platform }));
-                  const { data: { session } } = await supabase.auth.getSession();
-                  const response = await fetch('/api/refresh-metrics', {
-                    method: 'POST',
-                    headers: { 
-                      'Content-Type': 'application/json',
-                      'Authorization': `Bearer ${session?.access_token}`
-                    },
-                    body: JSON.stringify({ items: data })
-                  });
-                  const result = await response.json();
-                  if (result.success && result.results) {
-                    let updatedCount = 0;
-                    for (const r of result.results) {
-                      try {
-                        const { error: updateErr } = await supabase.from('content').update({
-                          title: r.title,
-                          views: r.views,
-                          likes: r.likes,
-                          comments: r.comments,
-                          thumbnail: r.thumbnail
-                        }).eq('id', r.id);
-                        if (!updateErr) updatedCount++;
-                      } catch (e) {
-                        console.error(`Error updating item ${r.id}:`, e);
-                      }
-                    }
-                    await refresh();
-                    success(`${updatedCount} de ${result.results.length} videos sincronizados correctamente`);
-                  } else {
-                    throw new Error(result.error || "Fallo en la sincronización masiva");
-                  }
-                } catch (e: any) {
-                  toastError("Error: " + e.message);
-                } finally {
-                  setIsRefreshing(false);
-                }
-              }}
+            <button
+              onClick={handleRefreshAll}
               className={`flex items-center justify-center p-3 rounded-2xl transition-all ${isRefreshing ? 'bg-gray-100 text-gray-400' : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100 active:scale-95'}`}
               title="Sincronizar todo"
             >
@@ -320,37 +337,8 @@ const ContentTab: React.FC<ContentTabProps> = ({
                 </div>
 
                 <div className="flex items-center gap-3 shrink-0">
-                  <button 
-                    onClick={async (e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      info("Sincronizando video...");
-                      try {
-                        const { data: { session } } = await supabase.auth.getSession();
-                        const res = await fetch('/api/fetch-metadata', {
-                          method: 'POST',
-                          headers: { 
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${session?.access_token}`
-                          },
-                          body: JSON.stringify({ url: item.url, platform: item.platform })
-                        });
-                        if (!res.ok) throw new Error("Error al obtener metadata");
-                        const metadata = await res.json();
-                        const { error } = await supabase.from('content').update({
-                          title: metadata.title,
-                          views: metadata.views,
-                          likes: metadata.likes,
-                          comments: metadata.comments,
-                          thumbnail: metadata.thumbnail
-                        }).eq('id', item.id);
-                        if (error) throw error;
-                        success("Video actualizado");
-                        refresh();
-                      } catch (e: any) {
-                        toastError("Error: " + e.message);
-                      }
-                    }}
+                  <button
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleRefreshItem(item); }}
                     className="p-2.5 text-indigo-500 hover:text-indigo-700 hover:bg-indigo-50 rounded-xl transition-all active:scale-90"
                     title="Sincronizar"
                   >

@@ -80,7 +80,7 @@ const ActivityTab: React.FC<ActivityTabProps> = ({ groupedLogs, auditLogs, refre
                             
                             <div className="flex flex-wrap items-center gap-3 mt-3">
                               <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest bg-white px-2 py-1 rounded-lg border border-gray-50 shadow-sm">
-                                {new Date(log.created_at).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                                {log.created_at ? new Date(log.created_at).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) : '—'}
                               </span>
                               <span className="text-[9px] font-black text-indigo-400 opacity-60 uppercase tracking-widest">
                                 Módulo: {log.target_type}

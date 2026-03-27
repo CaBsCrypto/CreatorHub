@@ -5,7 +5,7 @@ import CreatorCard from './CreatorCard';
 interface CreatorsTabProps {
   creatorStats: any[];
   searchTerm: string;
-  setFilter: (key: string, value: any) => void;
+  setFilter: (key: string, value: string) => void;
   deletedUserIds: string[];
   users: any[];
   setManagingUser: (user: any) => void;

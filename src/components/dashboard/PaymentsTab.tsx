@@ -1,6 +1,7 @@
 import React from 'react';
 import { DollarSign, Plus, Wallet, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '../../supabase';
 
 interface PaymentsTabProps {
   filteredPayments: any[];
@@ -11,7 +12,6 @@ interface PaymentsTabProps {
   users: any[];
   campaigns: any[];
   refresh: () => void;
-  supabase: any;
   success: (msg: string) => void;
   toastError: (msg: string) => void;
   onSubmit: (e: React.FormEvent) => Promise<void>;
@@ -26,7 +26,6 @@ const PaymentsTab: React.FC<PaymentsTabProps> = ({
   users,
   campaigns,
   refresh,
-  supabase,
   success,
   toastError,
   onSubmit
@@ -82,7 +81,7 @@ const PaymentsTab: React.FC<PaymentsTabProps> = ({
                 {newPayment.creator_id === 'guest' && (
                   <input required type="text" placeholder="Nombre Invitado *" value={newPayment.guest_name} onChange={e => setNewPayment({...newPayment, guest_name: e.target.value})} className="px-4 py-3 bg-indigo-50/50 border border-indigo-100 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500" />
                 )}
-                <input required type="text" inputMode="decimal" placeholder="Monto *" value={newPayment.amount} onChange={e => { const v = e.target.value; if (v === '' || /^[0-9]*\.?[0-9]*$/.test(v)) setNewPayment({...newPayment, amount: v}); }} className="px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500" />
+                <input required type="text" inputMode="decimal" placeholder="Monto *" value={newPayment.amount} onChange={e => { const v = e.target.value; if (v === '' || /^\d*\.?\d{0,2}$/.test(v)) setNewPayment({...newPayment, amount: v}); }} className="px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500" />
                 <select value={newPayment.currency} onChange={e => setNewPayment({...newPayment, currency: e.target.value})} className="px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500">
                   <option value="USDT">USDT</option>
                   <option value="BNB">BNB</option>

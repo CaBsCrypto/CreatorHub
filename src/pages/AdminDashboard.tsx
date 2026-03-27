@@ -1,20 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { supabase, UserProfile } from '../supabase';
 import { useAuth } from '../AuthContext';
-import { 
-  Sparkles, TrendingUp, AlertTriangle, Target,
-  BarChart3, Award, Zap, Trophy,
-  DollarSign, Calendar, Calculator, X, Image as ImageIcon
-} from 'lucide-react';
-import { BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { motion, AnimatePresence } from 'framer-motion';
-
-import { UserRole } from '../supabase';
 
 // Custom Hooks
 import { useDashboardData, getAgencyRank, AGENCY_TIERS } from '../hooks/useDashboardData';
 import { useToast } from '../hooks/useToast';
-import { useTabNavigation, useFilterParams } from '../hooks/useTabNavigation';
+import { useFilterParams } from '../hooks/useTabNavigation';
 import { useContentActions } from '../hooks/useContentActions';
 import { useAdminActions } from '../hooks/useAdminActions';
 
@@ -208,6 +199,47 @@ export default function AdminDashboard() {
   }, [auditLogs]);
 
 
+  const handleUpdateAlias = async (alias: string) => {
+    if (!managingUser) return;
+    try {
+      const { error } = await supabase
+        .from('users')
+        .update({ admin_alias: alias || null })
+        .eq('id', managingUser.id);
+      if (error) throw error;
+      success("Apodo guardado correctamente");
+      refresh();
+      setManagingUser({ ...managingUser, admin_alias: alias || null });
+    } catch (err: any) {
+      toastError("Error al guardar apodo: " + err.message);
+    }
+  };
+
+  const handleRestore = async (table: 'content' | 'campaign' | 'user', item: any) => {
+    const tableName = table === 'content' ? 'content' : table === 'campaign' ? 'campaigns' : 'users';
+    const { error } = await supabase.from(tableName).update({ deleted_at: null }).eq('id', item.id);
+    if (!error) {
+      success("Restaurado correctamente");
+      setViewingDeleted(null);
+      refresh();
+    } else {
+      toastError("Error al restaurar");
+    }
+  };
+
+  const handlePermanentDelete = async (table: 'content' | 'campaign' | 'user', item: any) => {
+    if (confirm("¿Estás seguro de eliminar permanentemente? Esta acción es irreversible.")) {
+      const tableName = table === 'content' ? 'content' : table === 'campaign' ? 'campaigns' : 'users';
+      const { error } = await supabase.from(tableName).delete().eq('id', item.id);
+      if (!error) {
+        success("Eliminado permanentemente");
+        setViewingDeleted(null);
+        refresh();
+      } else {
+        toastError("Error al eliminar");
+      }
+    }
+  };
 
   return (
     <div className="flex min-h-screen bg-slate-50">
@@ -300,7 +332,6 @@ export default function AdminDashboard() {
             users={users}
             setManagingUser={setManagingUser}
             setDeletedContentIds={setDeletedContentIds}
-            supabase={supabase}
             resetFilters={resetFilters}
             filterCampaign={filterCampaign}
             filterPlatform={filterPlatform}
@@ -325,10 +356,9 @@ export default function AdminDashboard() {
             setNewPayment={setNewPayment} 
             users={users} 
             campaigns={campaigns} 
-            refresh={refresh} 
-            supabase={supabase} 
-            success={success} 
-            toastError={toastError} 
+            refresh={refresh}
+            success={success}
+            toastError={toastError}
             onSubmit={handleCreatePayment}
           />
         )}
@@ -361,21 +391,7 @@ export default function AdminDashboard() {
           userPayments={payments.filter(p => p.creator_id === managingUser?.id)}
           onUpdateRole={(role) => handleUpdateUserRole(managingUser, role, setManagingUser)}
           onRemoveUser={() => handleRemoveUser(managingUser, setManagingUser, setDeletedUserIds)}
-          onUpdateAlias={async (alias) => {
-            if (!managingUser) return;
-            try {
-              const { error } = await supabase
-                .from('users')
-                .update({ admin_alias: alias || null })
-                .eq('id', managingUser.id);
-              if (error) throw error;
-              success("Apodo guardado correctamente");
-              refresh();
-              setManagingUser({ ...managingUser, admin_alias: alias || null });
-            } catch (err: any) {
-              toastError("Error al guardar apodo: " + err.message);
-            }
-          }}
+          onUpdateAlias={handleUpdateAlias}
           onRegisterPayment={(creatorId) => {
             setManagingUser(null);
             setNewPayment(prev => ({ ...prev, creator_id: creatorId }));
@@ -460,30 +476,8 @@ export default function AdminDashboard() {
         <DeletedItemModal 
           viewingDeleted={viewingDeleted}
           onClose={() => setViewingDeleted(null)}
-          onRestore={async (table, item) => {
-            const tableName = table === 'content' ? 'content' : table === 'campaign' ? 'campaigns' : 'users';
-            const { error } = await supabase.from(tableName).update({ deleted_at: null }).eq('id', item.id);
-            if (!error) {
-              success("Restaurado correctamente");
-              setViewingDeleted(null);
-              refresh();
-            } else {
-              toastError("Error al restaurar");
-            }
-          }}
-          onPermanentDelete={async (table, item) => {
-            if (confirm("¿Estás seguro de eliminar permanentemente? Esta acción es irreversible.")) {
-              const tableName = table === 'content' ? 'content' : table === 'campaign' ? 'campaigns' : 'users';
-              const { error } = await supabase.from(tableName).delete().eq('id', item.id);
-              if (!error) {
-                success("Eliminado permanentemente");
-                setViewingDeleted(null);
-                refresh();
-              } else {
-                toastError("Error al eliminar");
-              }
-            }
-          }}
+          onRestore={handleRestore}
+          onPermanentDelete={handlePermanentDelete}
         />
       </main>
     </div>

@@ -20,6 +20,8 @@ import { createClient } from "@supabase/supabase-js";
 
 dotenv.config();
 
+const SUPERADMIN_EMAIL = process.env.SUPERADMIN_EMAIL || 'cabscryptocontacto@gmail.com';
+
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
@@ -36,6 +38,7 @@ app.use(helmet());
 const allowedOrigins = [
   'https://creator-hub-three-lake.vercel.app',
   'https://creator-hub-three-lake-cabs-projects.vercel.app',
+  'https://umbra-hub.vercel.app',
   'http://localhost:5173',
   'http://localhost:3000'
 ];
@@ -192,7 +195,7 @@ app.post("/api/invite-user", authenticate, authorize(['admin']), validate(Invite
     // HIERARCHICAL SECURITY: Only Superadmin can create other Admins
     if (role === 'admin') {
       const profile = (req as any).userProfile;
-      if (profile?.email !== 'cabscryptocontacto@gmail.com') {
+      if (profile?.email !== SUPERADMIN_EMAIL) {
         return res.status(403).json({ error: 'Solo el Superadmin puede invitar a otros Administradores.' });
       }
     }
@@ -243,19 +246,8 @@ app.post("/api/invite-user", authenticate, authorize(['admin']), validate(Invite
 });
 
 app.use((err: any, req: any, res: any, next: any) => {
-  console.error("CRITICAL_ERROR:", err);
+  console.error("SERVER_ERROR:", err);
   res.status(500).json({ error: "SERVER_ERROR", message: err.message });
-});
-
-// FINAL GLOBAL ERROR CATCH-ALL (MUST BE LAST)
-app.use((err: any, req: any, res: any, next: any) => {
-  console.error("CRASH FINAL:", err);
-  res.status(500).json({ 
-    error: "Crash Global", 
-    message: err.message, 
-    stack: err.stack,
-    path: req.path 
-  });
 });
 
 export default app;

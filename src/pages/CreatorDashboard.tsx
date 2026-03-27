@@ -14,7 +14,6 @@ import { normalizeUrl } from '../utils/urlParser';
 // Custom Hooks
 import { useDashboardData, getAgencyRank, AGENCY_TIERS } from '../hooks/useDashboardData';
 import { useToast } from '../hooks/useToast';
-import { useSearchParams } from 'react-router-dom';
 import { useFilterParams } from '../hooks/useTabNavigation';
 
 // Modular Components
@@ -30,27 +29,10 @@ import ContentDetailModal from '../components/dashboard/ContentDetailModal';
 export default function CreatorDashboard() {
   const { user, profile } = useAuth();
   const { success, error: toastError, info } = useToast();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTabState] = useState<string>(searchParams.get('tab') || 'overview');
-  const [filters, setFilter, setFilters, resetFilters] = useFilterParams<{ campaign: string }>({ campaign: 'all' });
-  const { campaigns, content, filteredContent, metrics, refresh } = useDashboardData('creator', { ...filters, tab: activeTab } as any);
-
-  // Sync state with URL manually to ensure it works even if hook fails
-  const setActiveTab = (tab: string) => {
-    setActiveTabState(tab);
-    setSearchParams(prev => {
-      const next = new URLSearchParams(prev);
-      if (tab === 'overview') next.delete('tab');
-      else next.set('tab', tab);
-      return next;
-    });
-  };
-
-  // Listen for URL changes (back button)
-  React.useEffect(() => {
-    const tab = searchParams.get('tab') || 'overview';
-    if (tab !== activeTab) setActiveTabState(tab);
-  }, [searchParams]);
+  const [filters, setFilter, setFilters, resetFilters] = useFilterParams({ campaign: 'all', tab: 'overview' });
+  const activeTab = filters.tab || 'overview';
+  const setActiveTab = (tab: string) => setFilter('tab', tab);
+  const { campaigns, content, filteredContent, metrics, refresh } = useDashboardData('creator', { campaign: filters.campaign });
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
@@ -388,7 +370,7 @@ export default function CreatorDashboard() {
                   <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto px-1 sm:px-0">
                     <div className="flex items-center gap-8">
                       <div className="flex flex-col items-end">
-                        <span className="text-base font-black text-gray-900 leading-none">{item.views?.toLocaleString() || 0}</span>
+                        <span className="text-base font-black text-gray-900 leading-none">{(item.views ?? 0).toLocaleString()}</span>
                         <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest mt-0.5">Vistas</span>
                       </div>
                       <div className="flex flex-col items-end">
@@ -586,7 +568,6 @@ export default function CreatorDashboard() {
               const { data: existing } = await supabase.from('content').select('id').eq('campaign_id', data.campaign_id).eq('url', cleanUrl).is('deleted_at', null).limit(1);
               if (existing && existing.length > 0) {
                   toastError("¡Este contenido ya se encuentra registrado en la campaña!");
-                  setIsProcessingContent(false);
                   return;
               }
 
