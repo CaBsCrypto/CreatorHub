@@ -302,7 +302,7 @@ export default function PublicReview() {
       {/* Premium Header */}
       <div className="bg-white border-b border-gray-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 sm:py-6 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3 sm:gap-6">
+            <div className="flex items-center gap-3 sm:gap-6 flex-1 min-w-0">
               {(filterCreatorId !== 'all' || filterPlatform !== 'all' || activeSection !== 'content') && (
                 <button 
                   onClick={() => {
@@ -318,11 +318,11 @@ export default function PublicReview() {
               )}
               <div>
                 <div className="flex items-center gap-2 sm:gap-3 mb-0.5 sm:mb-1">
-                  <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-indigo-50 text-indigo-600 rounded-full text-[8px] sm:text-[10px] font-black uppercase tracking-widest">{t.clientReport}</span>
+                  <span className="hidden sm:inline-flex px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-black uppercase tracking-widest">{t.clientReport}</span>
                   <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-emerald-500 rounded-full animate-pulse" />
                   <span className="text-[8px] sm:text-[10px] font-black text-emerald-600 uppercase tracking-widest">{t.live}</span>
                 </div>
-                <h1 className="text-sm sm:text-2xl font-black text-gray-900 tracking-tight uppercase line-clamp-1 max-w-[150px] sm:max-w-none">
+                <h1 className="text-base sm:text-2xl font-black text-gray-900 tracking-tight uppercase truncate">
                   {project?.display_name || campaign.name}
                 </h1>
                 {project && (
@@ -338,13 +338,13 @@ export default function PublicReview() {
               <div className="flex items-center bg-gray-50 p-0.5 sm:p-1 rounded-lg sm:rounded-xl border border-gray-100">
                 <button
                   onClick={() => setLang('en')}
-                  className={`px-2 py-1 sm:px-3 sm:py-1.5 rounded-md sm:rounded-lg text-[8px] sm:text-[10px] font-black transition-all ${lang === 'en' ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
+                  className={`px-2 py-1 sm:px-3 sm:py-1.5 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-black transition-all ${lang === 'en' ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                   EN
                 </button>
                 <button
                   onClick={() => setLang('es')}
-                  className={`px-2 py-1 sm:px-3 sm:py-1.5 rounded-md sm:rounded-lg text-[8px] sm:text-[10px] font-black transition-all ${lang === 'es' ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
+                  className={`px-2 py-1 sm:px-3 sm:py-1.5 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-black transition-all ${lang === 'es' ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                   ES
                 </button>
@@ -352,11 +352,11 @@ export default function PublicReview() {
 
               <div className="h-8 w-[1px] bg-gray-100 hidden md:block" />
               
-              <div className="flex flex-col items-end sm:items-center">
-                 <div className="w-16 sm:w-24 h-1 bg-gray-100 rounded-full overflow-hidden mb-1">
+              <div className="hidden sm:flex flex-col items-center">
+                 <div className="w-24 h-1 bg-gray-100 rounded-full overflow-hidden mb-1">
                     <div className="h-full bg-indigo-500 transition-all duration-1000" style={{ width: `${progressPercentage}%` }} />
                  </div>
-                 <span className="text-[7px] sm:text-[9px] font-black text-gray-400 uppercase tracking-widest">{progressPercentage}%</span>
+                  <span className="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest">{progressPercentage}%</span>
               </div>
             </div>
           </div>
@@ -395,7 +395,7 @@ export default function PublicReview() {
         </div>
 
         {/* Mobile Navigation Tabs - Compact Feed/Creators */}
-        <div className="lg:hidden flex items-center gap-3 mb-6 sticky top-[72px] z-40">
+        <div className="lg:hidden flex items-center gap-3 mb-6 sticky top-[68px] sm:top-[88px] z-40">
            <div className="flex-1 flex items-center bg-white p-1 rounded-2xl border border-gray-100 shadow-sm">
              <button
                onClick={() => setActiveSection('content')}
@@ -415,10 +415,10 @@ export default function PublicReview() {
            
            <button
              onClick={() => setShowPlatformsModal(true)}
-             className="w-12 h-12 flex items-center justify-center bg-white rounded-2xl border border-gray-100 shadow-sm text-indigo-600 hover:bg-indigo-50 transition-all active:scale-95"
+             className="w-14 h-14 flex items-center justify-center bg-white rounded-2xl border border-indigo-100 shadow-lg shadow-indigo-100/50 text-indigo-600 hover:bg-indigo-50 transition-all active:scale-95"
              title={t.platformDistribution}
            >
-             <PieChart className="h-5 w-5" />
+             <PieChart className="h-6 w-6" />
            </button>
         </div>
 
@@ -493,7 +493,7 @@ export default function PublicReview() {
             ) : activeSection === 'content' && filteredContent.length > 0 ? (
                 <div className="relative group/scroll">
                   <div 
-                    className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 animate-in fade-in slide-in-from-bottom-4 transition-all duration-300 max-h-[75vh] overflow-y-auto pr-2 sm:pr-6 custom-scrollbar pb-16"
+                    className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 animate-in fade-in slide-in-from-bottom-4 transition-all duration-300 max-h-[75vh] overflow-y-auto pr-2 sm:pr-6 custom-scrollbar pb-16"
                   >
                     {filteredContent.map(item => {
                       const creator = users.find(u => u.id === item.creator_id);
@@ -528,7 +528,7 @@ export default function PublicReview() {
                                 <div className="w-5 h-5 rounded-full bg-indigo-50 flex items-center justify-center text-[9px] font-bold text-indigo-600">
                                   {(creator?.display_name || '?').charAt(0)}
                                 </div>
-                                <span className="text-[10px] font-bold text-gray-500">{creator?.display_name || t.anonymous}</span>
+                                <span className="text-xs font-bold text-gray-500">{creator?.display_name || t.anonymous}</span>
                               </div>
                               <span 
                                 onClick={(e) => {
@@ -536,7 +536,7 @@ export default function PublicReview() {
                                   e.stopPropagation();
                                   setFilterPlatform(item.platform || 'all');
                                 }}
-                                className="px-2 py-0.5 bg-gray-50 text-gray-400 rounded-lg text-[7px] font-black uppercase tracking-widest flex items-center gap-1 border border-gray-100 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-100 transition-colors cursor-pointer relative z-10"
+                                className="px-2 py-0.5 bg-gray-50 text-gray-400 rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-1 border border-gray-100 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-100 transition-colors cursor-pointer relative z-10"
                               >
                                 {getPlatformIcon(item.platform, "h-2.5 w-2.5")} {item.platform}
                               </span>
@@ -545,7 +545,7 @@ export default function PublicReview() {
                             <div className="flex items-center justify-between pt-3 border-t border-gray-50">
                               <div className="flex items-center gap-4">
                               <div className="flex flex-col">
-                                  <span className="text-[7px] font-black text-gray-400 uppercase tracking-widest">{t.views}</span>
+                                  <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{t.views}</span>
                                   <span className="text-xs font-black text-gray-900">{item.views?.toLocaleString()}</span>
                                 </div>
                               </div>
@@ -639,11 +639,11 @@ export default function PublicReview() {
                           <div className={`w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center ${filterPlatform === platform.toLowerCase() ? 'bg-white/20 text-white' : getPlatformColor(platform)}`}>
                             {getPlatformIcon(platform, "h-5 w-5")}
                           </div>
-                          <span className={`text-sm font-black capitalize tracking-tight truncate ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-900'}`}>
+                          <span className={`text-base font-black capitalize tracking-tight truncate ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-900'}`}>
                             {platform.toLowerCase() === 'coinmarketcap' ? 'CMC' : platform}
                           </span>
                         </div>
-                        <span className={`text-lg font-black shrink-0 ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-900'}`}>{count}</span>
+                        <span className={`text-xl font-black shrink-0 ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-900'}`}>{count}</span>
                       </button>
                     ))}
                   </div>
@@ -728,7 +728,7 @@ function MetricCard({ title, value, icon, color, onClick, t }: { title: string, 
     <button 
       onClick={onClick}
       disabled={!onClick}
-      className={`bg-white p-4 sm:p-8 rounded-[1.5rem] sm:rounded-[2.5rem] border border-gray-100 shadow-sm relative overflow-hidden group text-left w-full transition-all ${onClick ? 'hover:shadow-xl hover:border-indigo-100 active:scale-95' : 'cursor-default'} ${title === t.activeCreators ? 'col-span-2 md:col-span-1' : ''}`}
+      className={`bg-white p-5 sm:p-8 rounded-[2rem] sm:rounded-[3rem] border border-gray-100 shadow-sm relative overflow-hidden group text-left w-full transition-all ${onClick ? 'hover:shadow-xl hover:border-indigo-100 active:scale-95' : 'cursor-default'} ${title === t.activeCreators ? 'col-span-2 md:col-span-1' : ''}`}
     >
       <div className={`absolute -right-4 -bottom-4 w-16 sm:w-24 h-16 sm:h-24 ${colors[color]} opacity-10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700`} />
       <div className="flex flex-col relative z-10">
@@ -744,7 +744,7 @@ function MetricCard({ title, value, icon, color, onClick, t }: { title: string, 
   );
 }
 
-function getPlatformIcon(platform: string, className = "h-3.5 w-3.5") {
+function getPlatformIcon(platform: string, className = "h-4 w-4 sm:h-3.5 sm:w-3.5") {
   switch (platform) {
     case 'tiktok': return <Music2 className={className} />;
     case 'instagram': return <Instagram className={className} />;
