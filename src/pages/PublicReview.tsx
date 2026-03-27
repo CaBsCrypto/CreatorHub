@@ -522,6 +522,22 @@ export default function PublicReview() {
             <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-8">
               <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-6">{t.platformDistribution}</h3>
               <div className="space-y-4">
+                <button 
+                  onClick={() => setFilterPlatform('all')}
+                  className={`w-full flex items-center justify-between p-4 rounded-2xl group transition-all duration-200 active:scale-95 border gap-3 mb-2 ${
+                    filterPlatform === 'all' ? 'bg-indigo-600 border-transparent shadow-lg shadow-indigo-100' : 'bg-gray-50 border-transparent hover:bg-white hover:shadow-lg hover:border-gray-100'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className={`w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center ${filterPlatform === 'all' ? 'bg-white/20 text-white' : 'bg-indigo-50 text-indigo-600'}`}>
+                      <Globe className="h-5 w-5" />
+                    </div>
+                    <span className={`text-sm font-black uppercase tracking-tight truncate ${filterPlatform === 'all' ? 'text-white' : 'text-gray-900'}`}>
+                      {t.allPlatforms}
+                    </span>
+                  </div>
+                </button>
+
                 {Object.entries(stats?.platforms || {}).map(([platform, count]) => (
                   <button
                     key={platform}
@@ -536,24 +552,16 @@ export default function PublicReview() {
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0 flex-1">
-                      <div className={`w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center ${filterPlatform === platform ? 'bg-white/20 text-white' : getPlatformColor(platform)}`}>
+                      <div className={`w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center ${filterPlatform === platform.toLowerCase() ? 'bg-white/20 text-white' : getPlatformColor(platform)}`}>
                         {getPlatformIcon(platform, "h-5 w-5")}
                       </div>
                       <span className={`text-sm font-black capitalize tracking-tight truncate ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-900'}`}>
                         {platform.toLowerCase() === 'coinmarketcap' ? 'CMC' : platform}
                       </span>
                     </div>
-                    <span className={`text-lg font-black shrink-0 ${filterPlatform === platform ? 'text-white' : 'text-gray-900'}`}>{count}</span>
+                    <span className={`text-lg font-black shrink-0 ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-900'}`}>{count}</span>
                   </button>
                 ))}
-                {filterPlatform !== 'all' && (
-                  <button 
-                    onClick={() => setFilterPlatform('all')}
-                    className="w-full py-3 text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:underline"
-                  >
-                    {t.viewAllPlatforms}
-                  </button>
-                )}
               </div>
             </div>
 
