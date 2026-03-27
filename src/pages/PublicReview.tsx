@@ -6,7 +6,7 @@ import {
   Zap, Users, Music2, Instagram, Youtube, Twitter, Globe, 
   TrendingUp, Target, BarChart3, Award, ArrowLeft, PieChart, LayoutGrid
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function PublicReview() {
   const { token } = useParams<{ token: string }>();
@@ -23,6 +23,7 @@ export default function PublicReview() {
   const [filterPlatform, setFilterPlatformLocal] = useState(searchParams.get('platform') || 'all');
   const [filterCreatorId, setFilterCreatorIdLocal] = useState(searchParams.get('creator') || 'all');
   const [activeSection, setActiveSectionLocal] = useState<'content' | 'creators' | 'stats'>('content');
+  const [showPlatformsModal, setShowPlatformsModal] = useState(false);
   const [lang, setLangLocal] = useState<'en' | 'es'>((searchParams.get('lang') as 'en' | 'es') || 'en');
 
   useEffect(() => {
@@ -393,28 +394,31 @@ export default function PublicReview() {
           />
         </div>
 
-        {/* Mobile Navigation Tabs */}
-        <div className="lg:hidden flex items-center bg-white p-1 rounded-2xl border border-gray-100 shadow-sm mb-6 sticky top-[72px] z-40">
+        {/* Mobile Navigation Tabs - Compact Feed/Creators */}
+        <div className="lg:hidden flex items-center gap-3 mb-6 sticky top-[72px] z-40">
+           <div className="flex-1 flex items-center bg-white p-1 rounded-2xl border border-gray-100 shadow-sm">
+             <button
+               onClick={() => setActiveSection('content')}
+               className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeSection === 'content' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-gray-400'}`}
+             >
+               <LayoutGrid className="h-3.5 w-3.5" />
+               {lang === 'en' ? 'Feed' : 'Contenido'}
+             </button>
+             <button
+               onClick={() => setActiveSection('creators')}
+               className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeSection === 'creators' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-gray-400'}`}
+             >
+               <Users className="h-3.5 w-3.5" />
+               {lang === 'en' ? 'Creators' : 'Autores'}
+             </button>
+           </div>
+           
            <button
-             onClick={() => setActiveSection('content')}
-             className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeSection === 'content' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-gray-400'}`}
+             onClick={() => setShowPlatformsModal(true)}
+             className="w-12 h-12 flex items-center justify-center bg-white rounded-2xl border border-gray-100 shadow-sm text-indigo-600 hover:bg-indigo-50 transition-all active:scale-95"
+             title={t.platformDistribution}
            >
-             <LayoutGrid className="h-3.5 w-3.5" />
-             {lang === 'en' ? 'Feed' : 'Contenido'}
-           </button>
-           <button
-             onClick={() => setActiveSection('stats')}
-             className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeSection === 'stats' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-gray-400'}`}
-           >
-             <PieChart className="h-3.5 w-3.5" />
-             {lang === 'en' ? 'Stats' : 'Datos'}
-           </button>
-           <button
-             onClick={() => setActiveSection('creators')}
-             className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeSection === 'creators' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-gray-400'}`}
-           >
-             <Users className="h-3.5 w-3.5" />
-             {lang === 'en' ? 'Creators' : 'Autores'}
+             <PieChart className="h-5 w-5" />
            </button>
         </div>
 
@@ -587,18 +591,88 @@ export default function PublicReview() {
             </div>
           )}
 
-          {/* Sidebar Stats */}
-          <div className={`space-y-6 sm:space-y-8 ${activeSection === 'stats' ? 'block' : 'hidden lg:block'}`}>
-            <div className="bg-white rounded-[1.5rem] sm:rounded-[2.5rem] border border-gray-100 shadow-sm p-4 sm:p-8">
-              <h3 className="text-[10px] sm:text-xs font-black text-gray-400 uppercase tracking-widest mb-4 sm:mb-6">{t.platformDistribution}</h3>
-              <div className="flex sm:flex-col overflow-x-auto sm:overflow-x-visible pb-2 sm:pb-0 gap-2 sm:gap-4 custom-scrollbar no-scrollbar-on-mobile">
+          {/* Platforms Modal (Mobile Only) */}
+          <AnimatePresence>
+            {showPlatformsModal && (
+              <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4">
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setShowPlatformsModal(false)}
+                  className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm"
+                />
+                <motion.div 
+                  initial={{ opacity: 0, y: 100 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 100 }}
+                  className="relative w-full max-w-lg bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] overflow-hidden shadow-2xl p-6 sm:p-10"
+                >
+                  <div className="flex items-center justify-between mb-8">
+                    <div>
+                      <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">{t.platformDistribution}</h3>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{campaign.name}</p>
+                    </div>
+                    <button 
+                      onClick={() => setShowPlatformsModal(false)}
+                      className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 hover:text-gray-900 transition-colors"
+                    >
+                      <Globe className="h-5 w-5 rotate-45" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                    {Object.entries(stats?.platforms || {}).map(([platform, count]) => (
+                      <button
+                        key={platform}
+                        type="button"
+                        onClick={() => {
+                          setFilterPlatform(platform);
+                          setActiveSection('content');
+                          setShowPlatformsModal(false);
+                        }}
+                        className={`w-full flex items-center justify-between p-4 rounded-2xl group transition-all duration-200 active:scale-95 border gap-3 ${
+                          filterPlatform === platform.toLowerCase() ? 'bg-indigo-600 border-transparent shadow-lg shadow-indigo-100 text-white' : 'bg-gray-50 border-transparent hover:bg-white hover:shadow-lg hover:border-gray-100'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                          <div className={`w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center ${filterPlatform === platform.toLowerCase() ? 'bg-white/20 text-white' : getPlatformColor(platform)}`}>
+                            {getPlatformIcon(platform, "h-5 w-5")}
+                          </div>
+                          <span className={`text-sm font-black capitalize tracking-tight truncate ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-900'}`}>
+                            {platform.toLowerCase() === 'coinmarketcap' ? 'CMC' : platform}
+                          </span>
+                        </div>
+                        <span className={`text-lg font-black shrink-0 ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-900'}`}>{count}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="mt-8 pt-8 border-t border-gray-50">
+                    <button
+                      onClick={() => setShowPlatformsModal(false)}
+                      className="w-full py-4 bg-gray-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-gray-800 transition-all active:scale-95"
+                    >
+                      {lang === 'en' ? 'Close' : 'Cerrar'}
+                    </button>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>
+
+          {/* Sidebar Stats (Desktop Only) */}
+          <div className="hidden lg:block space-y-8">
+            <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-8">
+              <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-6">{t.platformDistribution}</h3>
+              <div className="space-y-4">
                 {filterPlatform !== 'all' && (
                   <button 
                     onClick={() => setFilterPlatform('all')}
-                    className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-indigo-50 rounded-xl text-[8px] sm:text-[10px] font-black text-indigo-600 uppercase tracking-widest sm:hover:underline transition-all active:scale-95"
+                    className="flex items-center gap-2 py-2 text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:underline transition-all duration-200 active:scale-95"
                   >
                     <ArrowLeft className="h-3 w-3" />
-                    <span className="hidden sm:inline">{t.viewAllPlatforms}</span>
+                    {t.viewAllPlatforms}
                   </button>
                 )}
 
@@ -610,30 +684,30 @@ export default function PublicReview() {
                       setFilterPlatform(platform);
                       setActiveSection('content');
                     }}
-                    className={`flex-shrink-0 sm:w-full flex items-center justify-between p-2.5 sm:p-4 rounded-xl sm:rounded-2xl group transition-all duration-200 active:scale-95 border gap-2 sm:gap-3 ${
-                      filterPlatform === platform.toLowerCase() ? 'bg-indigo-600 border-transparent shadow-[0_10px_20px_-5px_rgba(79,70,229,0.3)] text-white' : 'bg-gray-50 border-transparent hover:bg-white hover:shadow-lg hover:border-gray-100'
+                    className={`w-full flex items-center justify-between p-4 rounded-2xl group transition-all duration-200 active:scale-95 border gap-3 ${
+                      filterPlatform === platform.toLowerCase() ? 'bg-indigo-600 border-transparent shadow-lg shadow-indigo-100' : 'bg-gray-50 border-transparent hover:bg-white hover:shadow-lg hover:border-gray-100'
                     }`}
                   >
-                    <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-                      <div className={`w-7 h-7 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex-shrink-0 flex items-center justify-center ${filterPlatform === platform.toLowerCase() ? 'bg-white/20 text-white' : getPlatformColor(platform)}`}>
-                        {getPlatformIcon(platform, "h-3.5 w-3.5 sm:h-5 sm:w-5")}
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className={`w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center ${filterPlatform === platform.toLowerCase() ? 'bg-white/20 text-white' : getPlatformColor(platform)}`}>
+                        {getPlatformIcon(platform, "h-5 w-5")}
                       </div>
-                      <span className={`text-[10px] sm:text-sm font-black capitalize tracking-tight truncate ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-900'}`}>
+                      <span className={`text-sm font-black capitalize tracking-tight truncate ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-900'}`}>
                         {platform.toLowerCase() === 'coinmarketcap' ? 'CMC' : platform}
                       </span>
                     </div>
-                    <span className={`text-sm sm:text-lg font-black shrink-0 ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-900'}`}>{count}</span>
+                    <span className={`text-lg font-black shrink-0 ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-900'}`}>{count}</span>
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-[1.5rem] sm:rounded-[2.5rem] p-6 sm:p-8 text-white shadow-xl shadow-indigo-100 relative overflow-hidden group">
+            <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-[2.5rem] p-8 text-white shadow-xl shadow-indigo-100 relative overflow-hidden group">
                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl group-hover:scale-150 transition-transform duration-1000" />
-               <TrendingUp className="h-8 w-8 sm:h-10 sm:w-10 mb-4 sm:mb-6 opacity-80" />
-               <h3 className="text-lg sm:text-xl font-black mb-1 sm:mb-2 leading-tight">Umbra Creator Hub</h3>
-               <p className="text-indigo-100 text-[10px] sm:text-sm font-medium opacity-90 leading-relaxed mb-4 sm:mb-6">{lang === 'en' ? 'Optimizing the connection between brands and creators with real-time metrics.' : 'Optimizando la conexión entre marcas y creadores con métricas en tiempo real.'}</p>
-               <div className="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] opacity-60">© 2026 UMBRA AGENCY</div>
+               <TrendingUp className="h-10 w-10 mb-6 opacity-80" />
+               <h3 className="text-xl font-black mb-2 leading-tight">Umbra Creator Hub</h3>
+               <p className="text-indigo-100 text-sm font-medium opacity-90 leading-relaxed mb-6">{lang === 'en' ? 'Optimizing the connection between brands and creators with real-time metrics.' : 'Optimizando la conexión entre marcas y creadores con métricas en tiempo real.'}</p>
+               <div className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">© 2026 UMBRA AGENCY</div>
             </div>
           </div>
         </div>
