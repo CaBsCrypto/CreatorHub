@@ -219,7 +219,7 @@ export default function PublicReview() {
             </div>
 
             {activeSection === 'creators' ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-in fade-in slide-in-from-bottom-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 animate-in fade-in slide-in-from-bottom-4">
                 {users.map(user => {
                   const userPosts = content.filter(c => c.creator_id === user.id);
                   const userViews = userPosts.reduce((sum, c) => sum + (c.views || 0), 0);
