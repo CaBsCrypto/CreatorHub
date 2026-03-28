@@ -29,16 +29,22 @@ import AdminSidebar from '../components/dashboard/AdminSidebar';
 import AdminHeader from '../components/dashboard/AdminHeader';
 import DeletedItemModal from '../components/dashboard/DeletedItemModal';
 
-// Modular Tab Components
-import OverviewTab from '../components/dashboard/OverviewTab';
-import CampaignsTab from '../components/dashboard/CampaignsTab';
-import CreatorsTab from '../components/dashboard/CreatorsTab';
-import ContentTab from '../components/dashboard/ContentTab';
-import TeamTab from '../components/dashboard/TeamTab';
-import PaymentsTab from '../components/dashboard/PaymentsTab';
-import TrashTab from '../components/dashboard/TrashTab';
-import ActivityTab from '../components/dashboard/ActivityTab';
-import ClientsTab from '../components/dashboard/ClientsTab';
+// Modular Tab Components — lazy loaded so each tab only downloads when first opened
+const OverviewTab = React.lazy(() => import('../components/dashboard/OverviewTab'));
+const CampaignsTab = React.lazy(() => import('../components/dashboard/CampaignsTab'));
+const CreatorsTab = React.lazy(() => import('../components/dashboard/CreatorsTab'));
+const ContentTab = React.lazy(() => import('../components/dashboard/ContentTab'));
+const TeamTab = React.lazy(() => import('../components/dashboard/TeamTab'));
+const PaymentsTab = React.lazy(() => import('../components/dashboard/PaymentsTab'));
+const TrashTab = React.lazy(() => import('../components/dashboard/TrashTab'));
+const ActivityTab = React.lazy(() => import('../components/dashboard/ActivityTab'));
+const ClientsTab = React.lazy(() => import('../components/dashboard/ClientsTab'));
+
+const TabLoader = () => (
+  <div className="flex items-center justify-center py-20">
+    <div className="w-8 h-8 rounded-full border-2 border-indigo-200 border-t-indigo-600 animate-spin" />
+  </div>
+);
 
 const PLATFORM_COLORS: Record<string, string> = {
   tiktok: '#0f172a', // Dark Slate/Black
@@ -266,69 +272,70 @@ export default function AdminDashboard() {
           setIsAddingUser={setIsAddingUser}
         />
 
+        <React.Suspense fallback={<TabLoader />}>
         {activeTab === 'clients' && (
-          <ClientsTab 
-            users={users} 
-            campaigns={campaigns} 
-            content={content} 
-            PLATFORM_COLORS={PLATFORM_COLORS} 
-            setSelectedCampaignReport={setSelectedCampaignReport} 
-            info={info} 
+          <ClientsTab
+            users={users}
+            campaigns={campaigns}
+            content={content}
+            PLATFORM_COLORS={PLATFORM_COLORS}
+            setSelectedCampaignReport={setSelectedCampaignReport}
+            info={info}
           />
         )}
 
         {activeTab === 'overview' && (
-          <OverviewTab 
-            metrics={metrics} 
-            campaigns={campaigns} 
-            filteredContent={filteredContent} 
-            PLATFORM_COLORS={PLATFORM_COLORS} 
-            setActiveTab={setActiveTab} 
-            setFilter={setFilter} 
+          <OverviewTab
+            metrics={metrics}
+            campaigns={campaigns}
+            filteredContent={filteredContent}
+            PLATFORM_COLORS={PLATFORM_COLORS}
+            setActiveTab={setActiveTab}
+            setFilter={setFilter}
           />
         )}
 
         {activeTab === 'campaigns' && (
-          <CampaignsTab 
-            campaignStats={campaignStats} 
-            onDelete={handleDeleteCampaign} 
-            onEdit={handleEditCampaign} 
-            setFilters={setFilters} 
-            setSelectedCampaignReport={setSelectedCampaignReport} 
+          <CampaignsTab
+            campaignStats={campaignStats}
+            onDelete={handleDeleteCampaign}
+            onEdit={handleEditCampaign}
+            setFilters={setFilters}
+            setSelectedCampaignReport={setSelectedCampaignReport}
             onCopyLink={handleCopyShareLink}
           />
         )}
 
         {activeTab === 'creators' && (
-          <CreatorsTab 
-            creatorStats={creatorStats} 
-            users={users} 
-            deletedUserIds={deletedUserIds} 
-            searchTerm={searchTerm} 
-            setFilter={setFilter} 
-            setManagingUser={setManagingUser} 
-            setEditingAudienceUser={setEditingAudienceUser} 
+          <CreatorsTab
+            creatorStats={creatorStats}
+            users={users}
+            deletedUserIds={deletedUserIds}
+            searchTerm={searchTerm}
+            setFilter={setFilter}
+            setManagingUser={setManagingUser}
+            setEditingAudienceUser={setEditingAudienceUser}
           />
         )}
 
         {activeTab === 'content' && (
-          <ContentTab 
-            filteredContent={filteredContent} 
-            deletedContentIds={deletedContentIds} 
-            searchTerm={searchTerm} 
-            setFilter={setFilter} 
+          <ContentTab
+            filteredContent={filteredContent}
+            deletedContentIds={deletedContentIds}
+            searchTerm={searchTerm}
+            setFilter={setFilter}
             viewMode={viewMode}
             isCompactView={isCompactView}
-            setEditingContent={setEditingContent} 
-            setIsContentModalOpen={setIsContentModalOpen} 
+            setEditingContent={setEditingContent}
+            setIsContentModalOpen={setIsContentModalOpen}
             content={content}
             setIsRefreshing={setIsRefreshing}
             isRefreshing={isRefreshing}
-            info={info} 
-            success={success} 
-            toastError={toastError} 
-            refresh={refresh} 
-            campaigns={campaigns} 
+            info={info}
+            success={success}
+            toastError={toastError}
+            refresh={refresh}
+            campaigns={campaigns}
             users={users}
             setManagingUser={setManagingUser}
             setDeletedContentIds={setDeletedContentIds}
@@ -336,26 +343,26 @@ export default function AdminDashboard() {
             filterCampaign={filterCampaign}
             filterPlatform={filterPlatform}
             filterCreator={filterCreator}
-            setViewingContent={setViewingContent} 
+            setViewingContent={setViewingContent}
           />
         )}
 
         {activeTab === 'team' && (
-          <TeamTab 
-            filteredUsers={filteredUsers} 
-            setManagingUser={setManagingUser} 
+          <TeamTab
+            filteredUsers={filteredUsers}
+            setManagingUser={setManagingUser}
           />
         )}
 
         {activeTab === 'payments' && (
-          <PaymentsTab 
-            filteredPayments={filteredPayments} 
-            isAddingPayment={isAddingPayment} 
-            setIsAddingPayment={setIsAddingPayment} 
-            newPayment={newPayment} 
-            setNewPayment={setNewPayment} 
-            users={users} 
-            campaigns={campaigns} 
+          <PaymentsTab
+            filteredPayments={filteredPayments}
+            isAddingPayment={isAddingPayment}
+            setIsAddingPayment={setIsAddingPayment}
+            newPayment={newPayment}
+            setNewPayment={setNewPayment}
+            users={users}
+            campaigns={campaigns}
             refresh={refresh}
             success={success}
             toastError={toastError}
@@ -375,12 +382,13 @@ export default function AdminDashboard() {
         )}
 
         {activeTab === 'activity' && (
-          <ActivityTab 
-            groupedLogs={groupedLogs} 
-            auditLogs={auditLogs} 
-            refresh={refresh} 
+          <ActivityTab
+            groupedLogs={groupedLogs}
+            auditLogs={auditLogs}
+            refresh={refresh}
           />
         )}
+        </React.Suspense>
 
       {/* Modals */}
         <UserHistoryModal 
