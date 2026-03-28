@@ -30,6 +30,9 @@ const PaymentsTab: React.FC<PaymentsTabProps> = ({
   toastError,
   onSubmit
 }) => {
+  const usersById = React.useMemo(() => Object.fromEntries(users.map(u => [u.id, u])), [users]);
+  const campaignsById = React.useMemo(() => Object.fromEntries(campaigns.map(c => [c.id, c])), [campaigns]);
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Payment Stats */}
@@ -121,8 +124,8 @@ const PaymentsTab: React.FC<PaymentsTabProps> = ({
             </thead>
             <tbody className="divide-y divide-gray-50">
               {filteredPayments.map(p => {
-                const creator = users.find(u => u.id === p.creator_id);
-                const camp = campaigns.find(c => c.id === p.campaign_id);
+                const creator = usersById[p.creator_id];
+                const camp = campaignsById[p.campaign_id];
                 return (
                   <tr key={p.id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="px-6 py-4">

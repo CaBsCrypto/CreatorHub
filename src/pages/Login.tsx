@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 export default function Login() {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
+  const [loginError, setLoginError] = React.useState('');
 
   React.useEffect(() => {
     if (user && profile) {
@@ -19,10 +20,12 @@ export default function Login() {
   }, [user, profile, navigate]);
 
   const handleLogin = async () => {
+    setLoginError('');
     try {
       await loginWithGoogle();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login failed", error);
+      setLoginError(error?.message || 'Error al iniciar sesión. Intenta de nuevo.');
     }
   };
 
@@ -114,6 +117,10 @@ export default function Login() {
                 </div>
                 <ArrowRight className="h-4 w-4 text-white group-hover/btn:translate-x-1 transition-transform" />
               </button>
+
+              {loginError && (
+                <p className="text-sm text-rose-600 font-medium text-center bg-rose-50 rounded-xl px-4 py-2.5">{loginError}</p>
+              )}
 
               <div className="relative">
                 <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200"></div></div>

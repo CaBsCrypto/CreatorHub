@@ -53,7 +53,7 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
     try {
       const [camps, conts, usrs] = await Promise.all([
         supabase.from('campaigns').select('*').is('deleted_at', null).order('created_at', { ascending: false }),
-        supabase.from('content').select('*').is('deleted_at', null).order('created_at', { ascending: false }),
+        supabase.from('content').select('*').is('deleted_at', null).order('created_at', { ascending: false }).limit(1000),
         supabase.from('users').select('*').is('deleted_at', null)
       ]);
 

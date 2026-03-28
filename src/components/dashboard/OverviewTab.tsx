@@ -18,14 +18,35 @@ interface OverviewTabProps {
   PLATFORM_COLORS: Record<string, string>;
 }
 
-const OverviewTab: React.FC<OverviewTabProps> = ({ 
-  metrics, 
-  campaigns, 
-  filteredContent, 
-  setActiveTab, 
-  setFilter, 
-  PLATFORM_COLORS 
+const OverviewTab: React.FC<OverviewTabProps> = ({
+  metrics,
+  campaigns,
+  filteredContent,
+  setActiveTab,
+  setFilter,
+  PLATFORM_COLORS
 }) => {
+  const platformCount = React.useMemo(() => [
+    { name: 'Youtube', id: 'youtube', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'youtube').length },
+    { name: 'Instagram', id: 'instagram', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'instagram').length },
+    { name: 'TikTok', id: 'tiktok', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'tiktok').length },
+    { name: 'X', id: 'x', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'x').length },
+    { name: 'Stream', id: 'twitch', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'twitch').length },
+    { name: 'CMC', id: 'coinmarketcap', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'coinmarketcap').length }
+  ].filter(d => d.value > 0), [filteredContent]);
+
+  const platformViews = React.useMemo(() => Object.entries(
+    filteredContent.reduce((acc, curr) => {
+      const p = curr.platform?.toLowerCase() || 'other';
+      acc[p] = (acc[p] || 0) + (curr.views || 0);
+      return acc;
+    }, {} as Record<string, number>)
+  ).map(([name, value]) => ({
+    name: name.charAt(0).toUpperCase() + name.slice(1),
+    id: name,
+    value: value as number
+  })), [filteredContent]);
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-6">
@@ -74,15 +95,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie 
-                  data={[
-                    { name: 'Youtube', id: 'youtube', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'youtube').length },
-                    { name: 'Instagram', id: 'instagram', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'instagram').length },
-                    { name: 'TikTok', id: 'tiktok', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'tiktok').length },
-                    { name: 'X', id: 'x', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'x').length },
-                    { name: 'Stream', id: 'twitch', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'twitch').length },
-                    { name: 'CMC', id: 'coinmarketcap', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'coinmarketcap').length }
-                  ].filter(d => d.value > 0)} 
+                <Pie
+                  data={platformCount}
                   innerRadius={80} 
                   outerRadius={100} 
                   paddingAngle={5} 
@@ -94,14 +108,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                     }
                   }}
                 >
-                  {[
-                    { id: 'youtube' },
-                    { id: 'instagram' },
-                    { id: 'tiktok' },
-                    { id: 'x' },
-                    { id: 'twitch' },
-                    { id: 'coinmarketcap' }
-                  ].filter(d => filteredContent.filter(c => c.platform === d.id).length > 0).map((entry, i) => (
+                  {platformCount.map((entry, i) => (
                     <Cell key={i} fill={PLATFORM_COLORS[entry.id]} className="cursor-pointer hover:opacity-80 transition-opacity" />
                   ))}
                 </Pie>
@@ -112,14 +119,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
           </div>
 
           <div className="mt-8 space-y-3">
-            {[
-              { name: 'Youtube', id: 'youtube', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'youtube').length },
-              { name: 'Instagram', id: 'instagram', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'instagram').length },
-              { name: 'TikTok', id: 'tiktok', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'tiktok').length },
-              { name: 'X', id: 'x', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'x').length },
-              { name: 'Stream', id: 'twitch', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'twitch').length },
-              { name: 'CMC', id: 'coinmarketcap', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'coinmarketcap').length }
-            ].filter(d => d.value > 0).sort((a, b) => b.value - a.value).map((item) => (
+            {[...platformCount].sort((a, b) => b.value - a.value).map((item) => (
               <button 
                 key={item.id} 
                 onClick={() => {
@@ -144,18 +144,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
           <div className="h-[300px] relative z-10">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie 
-                  data={Object.entries(
-                    filteredContent.reduce((acc, curr) => {
-                      const p = curr.platform?.toLowerCase() || 'other';
-                      acc[p] = (acc[p] || 0) + (curr.views || 0);
-                      return acc;
-                    }, {} as Record<string, number>)
-                  ).map(([name, value]) => ({ 
-                    name: name.charAt(0).toUpperCase() + name.slice(1), 
-                    id: name,
-                    value 
-                  }))} 
+                <Pie
+                  data={platformViews}
                   innerRadius={80} 
                   outerRadius={100} 
                   paddingAngle={5} 
@@ -167,14 +157,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                     }
                   }}
                 >
-                  {Object.entries(
-                    filteredContent.reduce((acc, curr) => {
-                      const p = curr.platform?.toLowerCase() || 'other';
-                      acc[p] = (acc[p] || 0) + (curr.views || 0);
-                      return acc;
-                    }, {} as Record<string, number>)
-                  ).map(([name], i) => (
-                    <Cell key={i} fill={PLATFORM_COLORS[name] || '#cbd5e1'} className="cursor-pointer hover:opacity-80 transition-opacity" />
+                  {platformViews.map((entry, i) => (
+                    <Cell key={i} fill={PLATFORM_COLORS[entry.id] || '#cbd5e1'} className="cursor-pointer hover:opacity-80 transition-opacity" />
                   ))}
                 </Pie>
                 <Tooltip 
@@ -187,13 +171,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
           </div>
 
           <div className="mt-8 space-y-3 relative z-10">
-            {Object.entries(
-              filteredContent.reduce((acc, curr) => {
-                const p = curr.platform?.toLowerCase() || 'other';
-                acc[p] = (acc[p] || 0) + (curr.views || 0);
-                return acc;
-              }, {} as Record<string, number>)
-            ).sort((a, b) => (b[1] as number) - (a[1] as number)).map(([platform, views], i) => (
+            {[...platformViews].sort((a, b) => b.value - a.value).map(({ id: platform, value: views }) => (
               <button 
                 key={platform} 
                 onClick={() => {

@@ -10,16 +10,38 @@ interface PaymentModalProps {
   isSaving: boolean;
 }
 
+const EVM_NETWORKS = ['BSC', 'Polygon', 'Ethereum', 'Arbitrum'];
+
 const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, profile, onSave, isSaving }) => {
   const [payment_method, setPaymentMethod] = React.useState<'binance' | 'wallet'>(profile?.payment_method || 'binance');
   const [binance_id, setBinanceId] = React.useState(profile?.binance_id || '');
   const [wallet_address, setWalletAddress] = React.useState(profile?.wallet_address || '');
   const [wallet_network, setWalletNetwork] = React.useState(profile?.wallet_network || 'BSC');
+  const [validationError, setValidationError] = React.useState('');
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setValidationError('');
+
+    if (payment_method === 'binance') {
+      if (!/^[a-zA-Z0-9]{6,20}$/.test(binance_id.trim())) {
+        setValidationError('El Binance Pay ID debe tener 6-20 caracteres alfanuméricos.');
+        return;
+      }
+    } else {
+      if (EVM_NETWORKS.includes(wallet_network)) {
+        if (!/^0x[a-fA-F0-9]{40}$/.test(wallet_address.trim())) {
+          setValidationError('La dirección EVM debe empezar con 0x y tener 42 caracteres en total.');
+          return;
+        }
+      } else if (wallet_address.trim().length < 32) {
+        setValidationError('La dirección de wallet parece demasiado corta.');
+        return;
+      }
+    }
+
     onSave({ payment_method, binance_id, wallet_address, wallet_network });
   };
 
@@ -113,6 +135,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, profile, o
                   </div>
                 )}
 
+                {validationError && (
+                  <p className="text-sm text-rose-600 font-medium bg-rose-50 rounded-xl px-4 py-2.5">{validationError}</p>
+                )}
                 <div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
                   <button
                     type="submit"

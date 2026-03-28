@@ -11,6 +11,18 @@ const TeamTab: React.FC<TeamTabProps> = ({
   filteredUsers,
   setManagingUser
 }) => {
+  if (filteredUsers.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-32 animate-in fade-in duration-500">
+        <div className="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center mb-4">
+          <Users className="h-8 w-8 text-gray-200" />
+        </div>
+        <h3 className="text-lg font-black text-gray-900">No hay usuarios</h3>
+        <p className="text-sm text-gray-400">No se encontraron usuarios con los filtros actuales.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
