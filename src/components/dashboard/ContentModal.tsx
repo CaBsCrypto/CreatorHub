@@ -36,45 +36,45 @@ const ContentModal: React.FC<ContentModalProps> = ({
 }) => {
   const { error: toastError } = useToast();
   const [formData, setFormData] = React.useState({
-    campaign_id: editingContent?.campaign_id || '',
-    creator_id: editingContent?.creator_id || '',
-    platform: editingContent?.platform || 'youtube',
-    url: editingContent?.url || '',
-    title: editingContent?.title || '',
-    views: editingContent?.views || 0,
-    likes: editingContent?.likes || 0,
-    comments: editingContent?.comments || 0,
-    peek_viewers: editingContent?.peek_viewers || 0,
-    duration_minutes: editingContent?.duration_minutes || 0,
-    average_viewers: editingContent?.average_viewers || 0,
-    unique_chatters: editingContent?.unique_chatters || 0,
-    unique_viewers: editingContent?.unique_viewers || 0,
-    followers: editingContent?.followers || 0,
-    new_subscriptions: editingContent?.new_subscriptions || 0,
-    guest_name: editingContent?.guest_name || ''
+    campaign_id: '',
+    creator_id: '',
+    platform: 'youtube',
+    url: '',
+    title: '',
+    views: 0,
+    likes: 0,
+    comments: 0,
+    peek_viewers: 0,
+    duration_minutes: 0,
+    average_viewers: 0,
+    unique_chatters: 0,
+    unique_viewers: 0,
+    followers: 0,
+    new_subscriptions: 0,
+    guest_name: ''
   });
   const [twitchFile, setTwitchFile] = React.useState<File | null>(null);
   const [twitchPreview, setTwitchPreview] = React.useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = React.useState(false);
   const [streamPlatform, setStreamPlatform] = React.useState<'twitch' | 'tiktok'>('twitch');
 
-  // Detect initial stream platform when editing
+  // Single effect: reset form + detect stream platform atomically
   React.useEffect(() => {
-    if (editingContent?.platform === 'tiktok' && editingContent.duration_minutes > 0) {
-      setStreamPlatform('tiktok');
-      setFormData(prev => ({ ...prev, platform: 'stream' as any }));
-    } else if (editingContent?.platform === 'twitch') {
-      setStreamPlatform('twitch');
-      setFormData(prev => ({ ...prev, platform: 'stream' as any }));
-    }
-  }, [editingContent]);
+    setTwitchFile(null);
+    setTwitchPreview(null);
 
-  React.useEffect(() => {
     if (editingContent) {
+      const isStream = editingContent.platform === 'twitch' ||
+        (editingContent.platform === 'tiktok' && (editingContent.duration_minutes || 0) > 0);
+
+      if (isStream) {
+        setStreamPlatform(editingContent.platform === 'tiktok' ? 'tiktok' : 'twitch');
+      }
+
       setFormData({
         campaign_id: editingContent.campaign_id || '',
         creator_id: editingContent.creator_id || '',
-        platform: editingContent.platform || 'youtube',
+        platform: isStream ? ('stream' as any) : (editingContent.platform || 'youtube'),
         url: editingContent.url || '',
         title: editingContent.title || '',
         views: editingContent.views || 0,
@@ -90,6 +90,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
         guest_name: editingContent.guest_name || ''
       });
     } else {
+      setStreamPlatform('twitch');
       setFormData({
         campaign_id: campaigns[0]?.id || '',
         creator_id: '',
