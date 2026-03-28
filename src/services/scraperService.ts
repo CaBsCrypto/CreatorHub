@@ -109,7 +109,7 @@ export async function fetchYouTubeData(url: string) {
 
 export async function fetchInstagramData(url: string) {
   let title = "Instagram Post", views = 0, likes = 0, comments = 0, ownerId = "", shortcode = "", thumbnail = "";
-  const apiKey = process.env.RAPIDAPI_KEY || '1e492088c3msh36ba0d59dedf5a7p1b7467jsnc6a3c896dd38';
+  const apiKey = process.env.RAPIDAPI_KEY;
   const start = Date.now();
   try {
     try {
@@ -256,7 +256,7 @@ export async function fetchTwitchProfile(username: string) {
 }
 
 export async function fetchInstagramProfile(username: string) {
-  const apiKey = process.env.RAPIDAPI_KEY || '1e492088c3msh36ba0d59dedf5a7p1b7467jsnc6a3c896dd38';
+  const apiKey = process.env.RAPIDAPI_KEY;
   try {
     const res = await axios.get('https://instagram-looter2.p.rapidapi.com/user', {
       params: { username },

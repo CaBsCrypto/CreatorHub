@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import { authenticate, authorize, isSuperadmin } from "../src/middleware/auth.js";
 import { 
   validate, 
@@ -53,13 +54,37 @@ app.use(cors({
   }
 }));
 
-// INCREASE PAYLOAD LIMIT
 app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+// Rate limiting for expensive endpoints
+const metadataLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 15,
+  message: { error: 'Demasiadas solicitudes. Intenta en un minuto.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const aiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 5,
+  message: { error: 'Demasiadas solicitudes de análisis. Intenta en un minuto.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const refreshLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 3,
+  message: { error: 'Sincronización masiva limitada a 3 veces por minuto.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 
-app.post("/api/fetch-metadata", authenticate, validate(FetchMetadataSchema), async (req, res) => {
+app.post("/api/fetch-metadata", authenticate, metadataLimiter, validate(FetchMetadataSchema), async (req, res) => {
   try {
     const { url, platform } = req.body;
     if (!url) return res.status(400).json({ error: "URL is required" });
@@ -81,7 +106,7 @@ app.post("/api/fetch-metadata", authenticate, validate(FetchMetadataSchema), asy
   }
 });
 
-app.post("/api/refresh-metrics", authenticate, authorize(['admin']), validate(RefreshMetricsSchema), async (req, res) => {
+app.post("/api/refresh-metrics", authenticate, authorize(['admin']), refreshLimiter, validate(RefreshMetricsSchema), async (req, res) => {
   try {
     const { items } = req.body;
     if (!items || !Array.isArray(items)) {
@@ -114,7 +139,7 @@ app.post("/api/refresh-metrics", authenticate, authorize(['admin']), validate(Re
   }
 });
 
-app.post("/api/analyze-twitch", authenticate, async (req, res) => {
+app.post("/api/analyze-twitch", authenticate, aiLimiter, async (req, res) => {
   const startTime = Date.now();
   try {
     const { image } = req.body;
@@ -144,7 +169,7 @@ app.post("/api/analyze-twitch", authenticate, async (req, res) => {
   }
 });
 
-app.post("/api/analyze-performance", authenticate, async (req, res) => {
+app.post("/api/analyze-performance", authenticate, aiLimiter, async (req, res) => {
   try {
     const { summaryData } = req.body;
     const analysis = await aiService.analyzePerformance(summaryData);
@@ -154,7 +179,7 @@ app.post("/api/analyze-performance", authenticate, async (req, res) => {
   }
 });
 
-app.post("/api/analyze-creator", authenticate, validate(AnalyzeCreatorSchema), async (req, res) => {
+app.post("/api/analyze-creator", authenticate, aiLimiter, validate(AnalyzeCreatorSchema), async (req, res) => {
   try {
     const { username, platform } = req.body;
     if (!username || !platform) {
