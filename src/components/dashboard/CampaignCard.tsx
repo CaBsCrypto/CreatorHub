@@ -110,27 +110,30 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
             )}
 
             {campaign.share_token && onCopyLink && (
-              <div className="flex items-center gap-0.5 p-1 bg-gray-50 rounded-xl border border-gray-100 flex-shrink-0">
+              <>
+                {/* Link UUID */}
                 <button
                   onClick={(e) => { e.stopPropagation(); onCopyLink(campaign.share_token!, e, 'review'); }}
-                  title="ID Seguro (UUID)"
-                  className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-white hover:shadow-sm rounded-lg transition-all"
+                  title="Copiar link seguro (UUID)"
+                  className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all flex-shrink-0"
                 >
                   <Link className="h-3.5 w-3.5" />
                 </button>
+
+                {/* Slug — Pretty URL ⚡ */}
                 <button
-                  onClick={(e) => { e.stopPropagation(); onCopyLink(campaign.slug || '', e, 'slug'); }}
-                  title={campaign.slug ? 'Pretty URL (Rayo ⚡)' : 'Edita para generar Slug'}
+                  onClick={(e) => { e.stopPropagation(); if (campaign.slug) onCopyLink(campaign.slug, e, 'slug'); }}
+                  title={campaign.slug ? `Copiar Pretty URL: /${campaign.slug}` : 'Sin slug — edita la campaña para añadir uno'}
                   disabled={!campaign.slug}
-                  className={`p-1.5 rounded-lg transition-all ${
+                  className={`p-2 rounded-xl transition-all flex-shrink-0 ${
                     campaign.slug
-                      ? 'text-amber-500 hover:text-amber-600 hover:bg-white hover:shadow-sm'
-                      : 'text-gray-200 cursor-not-allowed'
+                      ? 'text-amber-500 hover:text-amber-600 hover:bg-amber-50'
+                      : 'text-gray-300 cursor-not-allowed'
                   }`}
                 >
                   <Zap className={`h-3.5 w-3.5 ${campaign.slug ? 'fill-current' : ''}`} />
                 </button>
-              </div>
+              </>
             )}
           </div>
 
