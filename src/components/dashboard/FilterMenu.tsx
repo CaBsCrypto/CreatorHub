@@ -56,7 +56,7 @@ const FilterMenu: React.FC<FilterMenuProps> = ({
                   <option value="tiktok">TikTok</option>
                   <option value="instagram">Instagram</option>
                   <option value="youtube">YouTube</option>
-                   <option value="twitch">Stream</option>
+                   <option value="stream">Streams</option>
                   <option value="x">X / Twitter</option>
                   <option value="coinmarketcap">CoinMarketCap</option>
                 </select>

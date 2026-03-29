@@ -123,7 +123,15 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
       // Improved defensive filtering
       if (filters.platform && filters.platform !== 'all' && filters.platform !== '') {
         const pFilter = filters.platform.toLowerCase().trim();
-        result = result.filter(c => c.platform?.toLowerCase().trim() === pFilter);
+        if (pFilter === 'stream') {
+          // "Streams" filter: atrapa Twitch + TikTok lives (duration_minutes > 0)
+          result = result.filter(c =>
+            c.platform?.toLowerCase().trim() === 'twitch' ||
+            (c.platform?.toLowerCase().trim() === 'tiktok' && (c.duration_minutes || 0) > 0)
+          );
+        } else {
+          result = result.filter(c => c.platform?.toLowerCase().trim() === pFilter);
+        }
       }
       if (filters.campaign && filters.campaign !== 'all' && filters.campaign !== '') {
         const targetId = String(filters.campaign);
