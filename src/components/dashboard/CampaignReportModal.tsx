@@ -120,6 +120,41 @@ export default function CampaignReportModal({
     }
   };
 
+  const handleDownloadCSV = () => {
+    if (!campaign || campaignContent.length === 0) return;
+
+    const mappedContent = campaignContent.map(item => {
+      const creator = users.find(u => u.id === item.creator_id);
+      const name = creator?.admin_alias || creator?.display_name || creator?.email?.split('@')[0] || 'Desconocido';
+      const p = item.platform as string;
+      let platformLabel = p.toUpperCase();
+      if (p === 'x' || p === 'x_video') platformLabel = 'X';
+      if (p === 'coinmarketcap') platformLabel = 'CMC';
+      const escape = (v: string | number) => `"${String(v).replace(/"/g, '""')}"`;
+      return [
+        escape(name),
+        escape(platformLabel),
+        escape(item.title || ''),
+        escape(item.url || ''),
+        item.views || 0,
+        item.likes || 0,
+        item.comments || 0,
+        escape(item.created_at ? new Date(item.created_at).toLocaleDateString() : ''),
+      ].join(',');
+    });
+
+    const headers = ['Creador', 'Plataforma', 'Título', 'URL', 'Vistas', 'Likes', 'Comentarios', 'Fecha'].join(',');
+    const csv = [headers, ...mappedContent].join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${campaign.name.replace(/\s+/g, '_')}_reporte.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    success('CSV descargado');
+  };
+
   const handleCopyBreakdown = async () => {
     try {
       if (!campaign || stats.creatorStats.length === 0) return;
@@ -257,12 +292,19 @@ export default function CampaignReportModal({
                 <option value="twitch">Twitch</option>
                 <option value="coinmarketcap">CoinMarketCap</option>
               </select>
-              <button 
+              <button
+                onClick={handleDownloadCSV}
+                disabled={campaignContent.length === 0}
+                className="flex items-center gap-2 px-5 py-3 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50"
+              >
+                <Download className="h-4 w-4" /> Descargar CSV
+              </button>
+              <button
                 onClick={handleCopyToClipboard}
                 disabled={campaignContent.length === 0}
                 className="flex items-center gap-2 px-5 py-3 bg-emerald-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-emerald-100 hover:bg-emerald-700 transition-all active:scale-95 disabled:opacity-50"
               >
-                <FileSpreadsheet className="h-4 w-4" /> Copiar para Sheets
+                <FileSpreadsheet className="h-4 w-4" /> Copiar Sheets
               </button>
               <button onClick={onClose} className="p-3 rounded-2xl hover:bg-gray-50 text-gray-400 transition-all hover:rotate-90">
                 <X className="h-6 w-6" />
