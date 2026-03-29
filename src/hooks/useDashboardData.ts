@@ -62,7 +62,11 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
       if (usrs.error) throw usrs.error;
 
       setCampaigns(camps.data as Campaign[]);
-      setContent(conts.data as Content[]);
+      // Normalize: 'stream' → 'twitch' para que todos los checks existentes funcionen
+      setContent((conts.data as Content[]).map(c => ({
+        ...c,
+        platform: (c.platform === 'stream' ? 'twitch' : c.platform) as Content['platform']
+      })));
       setUsers(usrs.data as UserProfile[]);
 
       // Fetch payments and deleted items (admin-only)
