@@ -4,11 +4,13 @@ import dotenv from "dotenv";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { authenticate, authorize, isSuperadmin } from "../src/middleware/auth.js";
-import { 
-  validate, 
-  FetchMetadataSchema, 
-  RefreshMetricsSchema, 
-  AnalyzeCreatorSchema, 
+import {
+  validate,
+  FetchMetadataSchema,
+  RefreshMetricsSchema,
+  AnalyzeTwitchSchema,
+  AnalyzePerformanceSchema,
+  AnalyzeCreatorSchema,
   SendEmailSchema,
   InviteUserSchema
 } from "../src/middleware/validation.js";
@@ -139,7 +141,7 @@ app.post("/api/refresh-metrics", authenticate, authorize(['admin']), refreshLimi
   }
 });
 
-app.post("/api/analyze-twitch", authenticate, aiLimiter, async (req, res) => {
+app.post("/api/analyze-twitch", authenticate, aiLimiter, validate(AnalyzeTwitchSchema), async (req, res) => {
   const startTime = Date.now();
   try {
     const { image } = req.body;
@@ -169,7 +171,7 @@ app.post("/api/analyze-twitch", authenticate, aiLimiter, async (req, res) => {
   }
 });
 
-app.post("/api/analyze-performance", authenticate, aiLimiter, async (req, res) => {
+app.post("/api/analyze-performance", authenticate, aiLimiter, validate(AnalyzePerformanceSchema), async (req, res) => {
   try {
     const { summaryData } = req.body;
     const analysis = await aiService.analyzePerformance(summaryData);

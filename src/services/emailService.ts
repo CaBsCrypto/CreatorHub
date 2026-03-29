@@ -29,7 +29,6 @@ export async function sendNotificationEmail(subject: string, html: string, to?: 
       throw new Error(error.message || "Resend failed to send email");
     }
 
-    console.log("Email sent successfully to:", recipients, "Data:", data);
     return { success: true, data };
   } catch (err: any) {
     console.error("Notification Service Error:", err.message);

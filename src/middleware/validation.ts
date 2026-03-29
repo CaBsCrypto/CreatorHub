@@ -24,6 +24,10 @@ export const AnalyzeTwitchSchema = z.object({
   image: z.string().min(100, "La imagen es demasiado pequeña o inválida"), // Base64 check roughly
 });
 
+export const AnalyzePerformanceSchema = z.object({
+  summaryData: z.record(z.string(), z.unknown()),
+});
+
 export const AnalyzeCreatorSchema = z.object({
   username: z.string().min(1),
   platform: z.enum(['twitch', 'youtube', 'instagram', 'tiktok']),
