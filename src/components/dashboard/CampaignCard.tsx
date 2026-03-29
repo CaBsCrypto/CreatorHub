@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, Trash2, Edit2, Link, Zap, BarChart3 } from 'lucide-react';
+import { Calendar, Trash2, Edit2, Link, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Campaign } from '../../supabase';
 import { format } from 'date-fns';
@@ -54,21 +54,46 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
       {/* Body */}
       <div className="flex flex-col flex-1 p-6">
 
-        {/* Status + Date */}
-        <div className="flex items-center justify-between mb-4 pr-16">
-          <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
+        {/* Row 1: Status + ⚡ Slug pill */}
+        <div className="flex items-center gap-2 mb-3 pr-16 flex-wrap">
+          {/* Status badge */}
+          <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest flex-shrink-0 ${
             campaign.status === 'active'
               ? 'bg-indigo-50 text-indigo-600'
               : 'bg-gray-100 text-gray-400'
           }`}>
             {campaign.status === 'active' ? 'Active' : 'Draft'}
           </span>
-          <div className="flex items-center gap-1.5 text-gray-300">
-            <Calendar className="h-3 w-3 flex-shrink-0" />
-            <span className="text-[9px] font-bold uppercase tracking-wide whitespace-nowrap">
-              {format(new Date(campaign.created_at), 'MMM d, yyyy')}
-            </span>
-          </div>
+
+          {/* ⚡ Pretty URL pill — siempre visible */}
+          {onCopyLink && (
+            campaign.slug ? (
+              <button
+                onClick={(e) => { e.stopPropagation(); onCopyLink(campaign.slug!, e, 'slug'); }}
+                title={`Copiar Pretty URL: /${campaign.slug}`}
+                className="flex items-center gap-1 px-2.5 py-1 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-full text-[9px] font-black text-amber-600 uppercase tracking-wide transition-all flex-shrink-0"
+              >
+                <Zap className="h-3 w-3 fill-current" />
+                {campaign.slug}
+              </button>
+            ) : (
+              <span
+                title="Sin slug — edita la campaña para añadir uno"
+                className="flex items-center gap-1 px-2.5 py-1 bg-gray-50 border border-gray-100 rounded-full text-[9px] font-bold text-gray-300 uppercase tracking-wide flex-shrink-0"
+              >
+                <Zap className="h-3 w-3" />
+                Sin slug
+              </span>
+            )
+          )}
+        </div>
+
+        {/* Row 2: Date */}
+        <div className="flex items-center gap-1.5 text-gray-300 mb-4">
+          <Calendar className="h-3 w-3 flex-shrink-0" />
+          <span className="text-[9px] font-bold uppercase tracking-wide whitespace-nowrap">
+            {format(new Date(campaign.created_at), 'MMM d, yyyy')}
+          </span>
         </div>
 
         {/* Title + Description */}
@@ -98,49 +123,32 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
         {/* Footer Actions */}
         <div className="pt-4 border-t border-gray-100 flex items-center justify-between gap-2">
 
-          {/* Left: Reporte + Copy links */}
-          <div className="flex items-center gap-1.5 min-w-0">
+          {/* Left: Reporte + UUID link */}
+          <div className="flex items-center gap-1.5">
             {onViewReport && (
               <button
                 onClick={(e) => { e.stopPropagation(); onViewReport(campaign.id, e); }}
-                className="px-3 py-1.5 bg-rose-50 hover:bg-rose-500 hover:text-white text-rose-500 text-[9px] font-black uppercase tracking-wide rounded-xl border border-rose-100 transition-all whitespace-nowrap flex-shrink-0"
+                className="px-3 py-1.5 bg-rose-50 hover:bg-rose-500 hover:text-white text-rose-500 text-[9px] font-black uppercase tracking-wide rounded-xl border border-rose-100 transition-all whitespace-nowrap"
               >
                 Reporte
               </button>
             )}
 
             {campaign.share_token && onCopyLink && (
-              <>
-                {/* Link UUID */}
-                <button
-                  onClick={(e) => { e.stopPropagation(); onCopyLink(campaign.share_token!, e, 'review'); }}
-                  title="Copiar link seguro (UUID)"
-                  className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all flex-shrink-0"
-                >
-                  <Link className="h-3.5 w-3.5" />
-                </button>
-
-                {/* Slug — Pretty URL ⚡ */}
-                <button
-                  onClick={(e) => { e.stopPropagation(); if (campaign.slug) onCopyLink(campaign.slug, e, 'slug'); }}
-                  title={campaign.slug ? `Copiar Pretty URL: /${campaign.slug}` : 'Sin slug — edita la campaña para añadir uno'}
-                  disabled={!campaign.slug}
-                  className={`p-2 rounded-xl transition-all flex-shrink-0 ${
-                    campaign.slug
-                      ? 'text-amber-500 hover:text-amber-600 hover:bg-amber-50'
-                      : 'text-gray-300 cursor-not-allowed'
-                  }`}
-                >
-                  <Zap className={`h-3.5 w-3.5 ${campaign.slug ? 'fill-current' : ''}`} />
-                </button>
-              </>
+              <button
+                onClick={(e) => { e.stopPropagation(); onCopyLink(campaign.share_token!, e, 'review'); }}
+                title="Copiar link seguro (UUID)"
+                className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
+              >
+                <Link className="h-3.5 w-3.5" />
+              </button>
             )}
           </div>
 
           {/* Right: Ver Detalle */}
           <button
             onClick={(e) => { e.stopPropagation(); onEdit(campaign.id); }}
-            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-[9px] font-black uppercase tracking-wide rounded-xl transition-all shadow-md shadow-indigo-100 whitespace-nowrap flex-shrink-0"
+            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-[9px] font-black uppercase tracking-wide rounded-xl transition-all shadow-md shadow-indigo-100 whitespace-nowrap"
           >
             Ver Detalle
           </button>
