@@ -25,6 +25,10 @@ dotenv.config();
 
 const SUPERADMIN_EMAIL = process.env.SUPERADMIN_EMAIL || 'cabscryptocontacto@gmail.com';
 
+const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, { auth: { autoRefreshToken: false, persistSession: false } });
+
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
@@ -84,6 +88,15 @@ const refreshLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+const creatorRefreshLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 1, // 1 vez por 15 minutos
+  message: { error: 'Los creadores solo pueden sincronizar sus métricas manualmente 1 vez cada 15 minutos.' },
+  skip: (req: any) => req.userProfile?.role === 'admin' || req.userProfile?.email === SUPERADMIN_EMAIL,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 
 app.post("/api/fetch-metadata", authenticate, metadataLimiter, validate(FetchMetadataSchema), async (req, res) => {
@@ -108,16 +121,29 @@ app.post("/api/fetch-metadata", authenticate, metadataLimiter, validate(FetchMet
   }
 });
 
-app.post("/api/refresh-metrics", authenticate, authorize(['admin']), refreshLimiter, validate(RefreshMetricsSchema), async (req, res) => {
+app.post("/api/refresh-metrics", authenticate, authorize(['admin', 'creator']), refreshLimiter, creatorRefreshLimiter, validate(RefreshMetricsSchema), async (req, res) => {
   try {
     const { items } = req.body;
     if (!items || !Array.isArray(items)) {
       return res.status(400).json({ error: "Items array is required" });
     }
 
+    const userProfile = (req as any).userProfile;
+    const userId = (req as any).user?.id;
+
     const results = [];
     for (const item of items) {
       if (!item.id || !item.url || !item.platform) continue;
+      
+      // HIERARCHICAL SECURITY: Verify ownership if user is a creator
+      if (userProfile?.role === 'creator') {
+         const { data: dbItem } = await supabaseAdmin.from('content').select('creator_id').eq('id', item.id).single();
+         if (!dbItem || dbItem.creator_id !== userId) {
+            console.warn(`[Security] Creator ${userId} tried to refresh item ${item.id} belonging to another user. Blocked.`);
+            continue; // Skip this item silently
+         }
+      }
+
       try {
         let data;
         switch(item.platform) {
@@ -234,8 +260,6 @@ app.post("/api/invite-user", authenticate, authorize(['admin']), validate(Invite
       console.error("Missing SUPABASE_SERVICE_ROLE_KEY in environment");
       return res.status(500).json({ error: "Configuración del servidor incompleta (Missing Service Key)" });
     }
-
-    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, { auth: { autoRefreshToken: false, persistSession: false } });
 
     // 1. Create the user in Auth
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
