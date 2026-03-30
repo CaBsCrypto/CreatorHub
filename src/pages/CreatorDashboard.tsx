@@ -526,14 +526,6 @@ export default function CreatorDashboard() {
             setIsContentModalOpen(false);
             refresh();
 
-            fetch('/api/send-email', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                subject: '📺 Nueva Captura de Stream',
-                html: `<p>El creador <strong>${profile?.display_name || user?.email}</strong> ha subido una captura de stream${title ? `: <em>${title}</em>` : ''}.</p>`
-              })
-            }).catch(e => console.warn("Email alert failed:", e));
 
           } catch (err: any) {
             toastError("Fallo en la subida: " + (err.message || "Error desconocido"));
