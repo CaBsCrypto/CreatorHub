@@ -35,7 +35,7 @@ const CreatorsTab: React.FC<CreatorsTabProps> = ({
           />
         </div>
       </div>
-      <div className="grid grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
         {creatorStats
           .filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()))
           .filter(c => !deletedUserIds.includes(c.creator_id))

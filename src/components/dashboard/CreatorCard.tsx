@@ -36,28 +36,28 @@ const CreatorCard: React.FC<CreatorCardProps> = ({ creator, index, userRole, onE
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.03 }}
       onClick={onViewProfile}
-      className={`group bg-white rounded-[2.5rem] border ${borderClass} p-6 hover:shadow-2xl hover:border-indigo-100 transition-all duration-500 relative overflow-hidden cursor-pointer hover:scale-[1.01] active:scale-95`}
+      className={`group bg-white rounded-3xl border ${borderClass} p-4 sm:p-5 hover:shadow-xl hover:border-indigo-100 transition-all duration-300 relative overflow-hidden cursor-pointer hover:scale-[1.01] active:scale-95`}
     >
-      <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${creator.rank.color} opacity-5 group-hover:opacity-10 rounded-full -mr-8 -mt-8 transition-opacity duration-500`} />
+      <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${creator.rank.color} opacity-5 group-hover:opacity-10 rounded-full -mr-6 -mt-6 transition-opacity duration-500`} />
 
-      <div className="flex flex-col sm:flex-row items-center gap-6 relative z-10">
+      <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5 relative z-10">
         {/* Avatar & Rank */}
         <div className="relative shrink-0">
-          <div className={`w-20 h-20 rounded-3xl bg-gradient-to-br ${creator.rank.color} p-1 shadow-lg`}>
-            <div className="w-full h-full bg-white rounded-[1.25rem] flex items-center justify-center overflow-hidden">
-              <User className="h-10 w-10 text-gray-200" />
+          <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${creator.rank.color} p-[2px] shadow-md`}>
+            <div className="w-full h-full bg-white rounded-xl flex items-center justify-center overflow-hidden">
+              <User className="h-6 w-6 text-gray-200" />
             </div>
           </div>
-          <div className={`absolute -bottom-2 -right-2 w-8 h-8 rounded-xl bg-gradient-to-br ${creator.rank.color} flex items-center justify-center border-2 border-white shadow-md`}>
-            <RankIcon className="h-4 w-4 text-white" />
+          <div className={`absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-lg bg-gradient-to-br ${creator.rank.color} flex items-center justify-center border-2 border-white shadow-sm`}>
+            <RankIcon className="h-3 w-3 text-white" />
           </div>
         </div>
 
         {/* Info */}
-        <div className="flex-1 text-center sm:text-left">
+        <div className="flex-1 text-center sm:text-left flex flex-col justify-center h-full pt-1">
           <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1">
-            <h3 className="text-xl font-black text-gray-900 group-hover:text-indigo-600 transition-colors">{creator.name}</h3>
-            <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest bg-gradient-to-r ${creator.rank.color} text-white`}>
+            <h3 className="text-lg font-black text-gray-900 group-hover:text-indigo-600 transition-colors leading-none">{creator.name}</h3>
+            <span className={`px-2 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-widest bg-gradient-to-r ${creator.rank.color} text-white`}>
               {creator.rank.name}
             </span>
           </div>
