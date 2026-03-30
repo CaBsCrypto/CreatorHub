@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Search, LayoutGrid, ImageIcon, List as ListIcon, Plus, RefreshCw, Youtube, List, Users, TrendingUp, Edit2, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ContentCard from './ContentCard';
 import { supabase } from '../../supabase';
+import ViewsTrendModal from './ViewsTrendModal';
 
 interface ContentTabProps {
   searchTerm: string;
@@ -57,6 +58,8 @@ const ContentTab: React.FC<ContentTabProps> = ({
   filterPlatform,
   filterCreator
 }) => {
+  const [isViewsModalOpen, setIsViewsModalOpen] = useState(false);
+
   const handleRefreshAll = async () => {
     if (content.length === 0) return info("No hay contenido para sincronizar");
     setIsRefreshing(true);
@@ -224,9 +227,12 @@ const ContentTab: React.FC<ContentTabProps> = ({
             {filteredContent.filter(item => !deletedContentIds.includes(item.id)).length}
           </span>
         </div>
-        <div className="bg-white/50 backdrop-blur-sm p-4 md:p-5 rounded-[2rem] border border-gray-100 flex flex-col group hover:bg-white hover:shadow-xl hover:shadow-emerald-100/20 transition-all duration-500">
+        <div 
+          onClick={() => setIsViewsModalOpen(true)}
+          className="bg-white/50 backdrop-blur-sm p-4 md:p-5 rounded-[2rem] border border-gray-100 flex flex-col group hover:bg-white hover:shadow-xl hover:shadow-emerald-100/20 transition-all duration-500 cursor-pointer"
+        >
           <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
-            <TrendingUp className="h-3 w-3 text-emerald-400" /> Vistas
+            <TrendingUp className="h-3 w-3 text-emerald-400" /> Vistas (Clic para ver historial)
           </span>
           <span className="text-xl md:text-2xl font-black text-emerald-600 group-hover:text-emerald-700 transition-colors">
             {filteredContent.filter(item => !deletedContentIds.includes(item.id)).reduce((sum, item) => sum + (item.views || 0), 0).toLocaleString()}
@@ -409,6 +415,12 @@ const ContentTab: React.FC<ContentTabProps> = ({
           </div>
         )}
       </div>
+
+      <ViewsTrendModal 
+        isOpen={isViewsModalOpen} 
+        onClose={() => setIsViewsModalOpen(false)} 
+        content={filteredContent.filter(item => !deletedContentIds.includes(item.id))} 
+      />
     </div>
   );
 };
