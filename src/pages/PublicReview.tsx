@@ -427,7 +427,7 @@ export default function PublicReview() {
                    <option value="instagram">Instagram</option>
                    <option value="youtube">YouTube</option>
                    <option value="x">X / Twitter</option>
-                   <option value="twitch">Twitch</option>
+                   <option value="twitch">Stream</option>
                    <option value="coinmarketcap">CMC</option>
                  </select>
 
@@ -519,7 +519,7 @@ export default function PublicReview() {
                                 }}
                                 className="px-2 py-0.5 bg-gray-50 text-gray-400 rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-1 border border-gray-100 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-100 transition-colors cursor-pointer relative z-10"
                               >
-                                {getPlatformIcon(item.platform, "h-2.5 w-2.5")} {item.platform}
+                                {getPlatformIcon(item.platform, "h-2.5 w-2.5")} {item.platform === 'twitch' ? 'stream' : item.platform}
                               </span>
                             </div>
                             <h4 className="font-bold text-xs text-gray-900 mb-3 line-clamp-1">{item.title || t.publishedContent}</h4>
@@ -620,7 +620,7 @@ export default function PublicReview() {
                             {getPlatformIcon(platform, "h-5 w-5")}
                           </div>
                           <span className={`text-base font-black capitalize tracking-tight truncate ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-900'}`}>
-                            {platform.toLowerCase() === 'coinmarketcap' ? 'CMC' : platform}
+                            {platform.toLowerCase() === 'coinmarketcap' ? 'CMC' : platform.toLowerCase() === 'twitch' ? 'Stream' : platform}
                           </span>
                         </div>
                         <span className={`text-xl font-black shrink-0 ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-900'}`}>{count}</span>
@@ -670,7 +670,7 @@ export default function PublicReview() {
                         {getPlatformIcon(platform, "h-5 w-5")}
                       </div>
                       <span className={`text-sm font-black capitalize tracking-tight truncate ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-900'}`}>
-                        {platform.toLowerCase() === 'coinmarketcap' ? 'CMC' : platform}
+                        {platform.toLowerCase() === 'coinmarketcap' ? 'CMC' : platform.toLowerCase() === 'twitch' ? 'Stream' : platform}
                       </span>
                     </div>
                     <span className={`text-lg font-black shrink-0 ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-900'}`}>{count}</span>
