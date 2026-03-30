@@ -474,70 +474,119 @@ export default function PublicReview() {
             ) : activeSection === 'content' && filteredContent.length > 0 ? (
                 <div className="relative group/scroll">
                   <div 
-                    className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 animate-in fade-in slide-in-from-bottom-4 transition-all duration-300 max-h-[75vh] overflow-y-auto pr-2 sm:pr-6 custom-scrollbar pb-16"
+                    className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-2.5 animate-in fade-in slide-in-from-bottom-4 transition-all duration-300 max-h-[75vh] overflow-y-auto pr-2 sm:pr-4 custom-scrollbar pb-16"
                   >
-                    {filteredContent.map(item => {
+                    {filteredContent.map((item, i) => {
                       const creator = users.find(u => u.id === item.creator_id);
+                      const isStream = item.platform === 'twitch';
+                      const platformColors: Record<string, string> = {
+                        youtube: 'bg-rose-500', instagram: 'bg-pink-500',
+                        tiktok: 'bg-gray-900', x: 'bg-sky-500',
+                        twitch: 'bg-violet-600', coinmarketcap: 'bg-amber-500',
+                      };
+                      const accentColor = platformColors[item.platform] || 'bg-indigo-500';
+
                       return (
                         <motion.a 
                           key={item.id}
-                          href={item.platform === 'twitch' ? '#' : item.url}
+                          href={isStream ? '#' : item.url}
                           onClick={(e) => {
-                            if (item.platform === 'twitch' && item.thumbnail) {
+                            if (isStream && item.thumbnail) {
                               e.preventDefault();
                               setSelectedImage(item.thumbnail);
                             }
                           }}
-                          target={item.platform === 'twitch' ? undefined : "_blank"}
+                          target={isStream ? undefined : "_blank"}
                           rel="noopener noreferrer"
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden group hover:shadow-xl hover:bg-blue-100 hover:border-blue-200 transition-all duration-300 block cursor-pointer"
+                          transition={{ delay: i * 0.03 }}
+                          className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden group hover:shadow-md hover:border-gray-200 transition-all duration-200 block cursor-pointer flex flex-col"
                         >
-                          {item.platform === 'twitch' && item.thumbnail && (
-                            <div className="aspect-video w-full overflow-hidden border-b border-gray-50 bg-gray-100">
+                          {/* Stream card: compact thumbnail hero */}
+                          {isStream && item.thumbnail ? (
+                            <div className="relative h-24 w-full overflow-hidden bg-gray-900">
                               <img 
                                 src={item.thumbnail} 
-                                alt={item.title || 'Thumbnail'} 
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                alt={item.title || 'Stream'} 
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-85"
                               />
+                              <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/30 to-transparent" />
+                              {/* STREAM badge */}
+                              <div className="absolute top-1.5 right-1.5">
+                                <span className="px-1.5 py-0.5 bg-violet-600 text-white rounded text-[7px] font-black uppercase tracking-wider">
+                                  Stream
+                                </span>
+                              </div>
+                              {/* Stats over image */}
+                              <div className="absolute bottom-0 left-0 right-0 px-2.5 pb-2 flex items-end justify-between">
+                                <div>
+                                  <p className="text-[7px] font-black text-white/50 uppercase tracking-widest leading-none">Views</p>
+                                  <p className="text-xs font-black text-white leading-tight">{(item.views || 0).toLocaleString()}</p>
+                                </div>
+                                {(item.peek_viewers || 0) > 0 && (
+                                  <div className="text-right">
+                                    <p className="text-[7px] font-black text-white/50 uppercase tracking-widest leading-none">Peak</p>
+                                    <p className="text-xs font-black text-white leading-tight">{(item.peek_viewers || 0).toLocaleString()}</p>
+                                  </div>
+                                )}
+                              </div>
                             </div>
+                          ) : (
+                            <div className={`h-0.5 w-full ${accentColor}`} />
                           )}
-                          <div className="p-4">
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center gap-2">
-                                <div className="w-5 h-5 rounded-full bg-indigo-50 flex items-center justify-center text-[9px] font-bold text-indigo-600">
-                                  {(creator?.display_name || '?').charAt(0)}
+
+                          <div className="p-2.5 flex-1 flex flex-col gap-1.5">
+                            {/* Creator + platform */}
+                            <div className="flex items-center justify-between gap-1">
+                              <div className="flex items-center gap-1.5 min-w-0">
+                                <div className="w-5 h-5 rounded-full bg-indigo-600 flex items-center justify-center text-[8px] font-black text-white shrink-0">
+                                  {(creator?.display_name || '?').charAt(0).toUpperCase()}
                                 </div>
-                                <span className="text-xs font-bold text-gray-500">{creator?.display_name || t.anonymous}</span>
+                                <span className="text-[9px] font-bold text-gray-500 truncate">{creator?.display_name || t.anonymous}</span>
                               </div>
-                              <span 
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  setFilterPlatform(item.platform || 'all');
-                                }}
-                                className="px-2 py-0.5 bg-gray-50 text-gray-400 rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-1 border border-gray-100 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-100 transition-colors cursor-pointer relative z-10"
-                              >
-                                {getPlatformIcon(item.platform, "h-2.5 w-2.5")} {item.platform === 'twitch' ? 'stream' : item.platform}
-                              </span>
+                              {!isStream && (
+                                <span 
+                                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setFilterPlatform(item.platform || 'all'); }}
+                                  className="px-1.5 py-0.5 bg-gray-50 text-gray-400 rounded text-[7px] font-black uppercase tracking-wider flex items-center gap-0.5 border border-gray-100 hover:bg-indigo-50 hover:text-indigo-600 transition-colors cursor-pointer shrink-0"
+                                >
+                                  {getPlatformIcon(item.platform, "h-2 w-2")} {item.platform === 'coinmarketcap' ? 'CMC' : item.platform}
+                                </span>
+                              )}
                             </div>
-                            <h4 className="font-bold text-xs text-gray-900 mb-3 line-clamp-1">{item.title || t.publishedContent}</h4>
-                            <div className="flex items-center justify-between pt-3 border-t border-gray-50">
-                              <div className="flex items-center gap-4">
-                              <div className="flex flex-col">
-                                  <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{t.views}</span>
-                                  <span className="text-xs font-black text-gray-900">{(item.views ?? 0).toLocaleString()}</span>
-                                </div>
+
+                            {/* Title */}
+                            <p className="text-[10px] font-bold text-gray-800 line-clamp-2 leading-snug flex-1">
+                              {item.title || (isStream ? `Stream · ${new Date(item.uploaded_at || item.created_at).toLocaleDateString()}` : '—')}
+                            </p>
+
+                            {/* Stats */}
+                            <div className="flex items-center gap-3 pt-1.5 border-t border-gray-50">
+                              <div>
+                                <p className="text-[7px] font-black text-gray-400 uppercase tracking-widest">{t.views}</p>
+                                <p className="text-[10px] font-black text-gray-900">{(item.views ?? 0).toLocaleString()}</p>
                               </div>
+                              {!isStream && (item.likes || 0) > 0 && (
+                                <div>
+                                  <p className="text-[7px] font-black text-gray-400 uppercase tracking-widest">Likes</p>
+                                  <p className="text-[10px] font-black text-gray-900">{(item.likes || 0).toLocaleString()}</p>
+                                </div>
+                              )}
+                              {isStream && (item.average_viewers || 0) > 0 && (
+                                <div>
+                                  <p className="text-[7px] font-black text-gray-400 uppercase tracking-widest">Avg</p>
+                                  <p className="text-[10px] font-black text-gray-900">{(item.average_viewers || 0).toLocaleString()}</p>
+                                </div>
+                              )}
                             </div>
                           </div>
                         </motion.a>
                       );
                     })}
                   </div>
-                  {/* Bottom Fade Effect */}
-                  <div className="absolute bottom-0 left-0 right-6 h-12 bg-gradient-to-t from-gray-50 to-transparent pointer-events-none z-20 rounded-b-[3rem]" />
+                  {/* Bottom Fade */}
+                  <div className="absolute bottom-0 left-0 right-4 h-10 bg-gradient-to-t from-gray-50 to-transparent pointer-events-none z-20" />
+
                 </div>
               ) : activeSection === 'content' && filteredContent.length === 0 ? (
                 <div className="bg-white rounded-[3rem] p-20 text-center border border-dashed border-gray-200">
