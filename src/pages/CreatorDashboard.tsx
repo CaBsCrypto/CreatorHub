@@ -481,10 +481,11 @@ export default function CreatorDashboard() {
         campaigns={campaigns} 
         editingContent={editingContent}
         isProcessing={isProcessingContent}
-        onTwitchUpload={async (file, explicitCreatorId, dCount, aCount, pCount, uvCount, uChatters, vCount, fCount, sCount) => {
+        onTwitchUpload={async (file, explicitCreatorId, dCount, aCount, pCount, uvCount, uChatters, vCount, fCount, sCount, title, campaign_id, platform) => {
           setIsProcessingContent(true);
           try {
-            const currentCampaignId = filters.campaign === 'all' ? (campaigns[0]?.id || '') : filters.campaign;
+            const currentCampaignId = campaign_id || (filters.campaign === 'all' ? (campaigns[0]?.id || '') : filters.campaign);
+            const finalPlatform = platform || 'twitch';
             const fileName = `${explicitCreatorId || user?.id}/${Date.now()}-${file.name}`;
             
             const { error: uploadError } = await supabase.storage
@@ -502,8 +503,9 @@ export default function CreatorDashboard() {
 
             const { error: dbError } = await supabase.from('content').insert([{
               campaign_id: currentCampaignId,
-              platform: 'twitch',
+              platform: finalPlatform,
               url: 'https://twitch.tv/stats-' + Date.now(),
+              title: title || null,
               thumbnail: publicUrl,
               creator_id: explicitCreatorId || user?.id,
               status: 'active',
@@ -528,8 +530,8 @@ export default function CreatorDashboard() {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                subject: '📺 Nueva Captura de Twitch',
-                html: `<p>El creador <strong>${profile?.display_name || user?.email}</strong> ha subido una captura de Twitch.</p>`
+                subject: '📺 Nueva Captura de Stream',
+                html: `<p>El creador <strong>${profile?.display_name || user?.email}</strong> ha subido una captura de stream${title ? `: <em>${title}</em>` : ''}.</p>`
               })
             }).catch(e => console.warn("Email alert failed:", e));
 
