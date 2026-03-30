@@ -11,7 +11,7 @@ interface ContentModalProps {
   users?: UserProfile[];
   editingContent: Content | null;
   onSubmit: (data: any) => Promise<void>;
-  onTwitchUpload: (file: File, creator_id?: string, dCount?: number, aCount?: number, pCount?: number, uvCount?: number, uChatters?: number, vCount?: number, fCount?: number, sCount?: number) => Promise<void>;
+  onTwitchUpload: (file: File, creator_id?: string, dCount?: number, aCount?: number, pCount?: number, uvCount?: number, uChatters?: number, vCount?: number, fCount?: number, sCount?: number, title?: string, campaign_id?: string, platform?: 'twitch' | 'tiktok') => Promise<void>;
   isProcessing: boolean;
 }
 
@@ -144,7 +144,10 @@ const ContentModal: React.FC<ContentModalProps> = ({
         formData.unique_chatters,
         formData.views,
         formData.followers,
-        formData.new_subscriptions
+        formData.new_subscriptions,
+        formData.title,
+        formData.campaign_id,
+        streamPlatform
       );
     } else {
       onSubmit(finalData);

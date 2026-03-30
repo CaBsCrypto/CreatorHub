@@ -20,7 +20,10 @@ export function useContentActions(refresh: () => void) {
     uChatters?: number, 
     vCount?: number, 
     fCount?: number, 
-    sCount?: number
+    sCount?: number,
+    title?: string,
+    campaign_id?: string,
+    platform?: 'twitch' | 'tiktok'
   ) => {
     setIsProcessing(true);
     try {
@@ -40,10 +43,14 @@ export function useContentActions(refresh: () => void) {
         .from('content-attachments')
         .getPublicUrl(fileName);
 
+      const finalCampaignId = campaign_id || editingContent?.campaign_id || campaigns[0]?.id || '';
+      const finalPlatform = platform || 'twitch';
+
       const { error: dbError } = await supabase.from('content').insert([{
-        campaign_id: editingContent?.campaign_id || (campaigns[0]?.id || ''),
-        platform: 'twitch',
+        campaign_id: finalCampaignId,
+        platform: finalPlatform,
         url: 'https://twitch.tv/stats-' + Date.now(),
+        title: title || null,
         thumbnail: publicUrl,
         creator_id: activeCreatorId,
         status: 'active',
