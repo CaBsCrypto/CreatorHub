@@ -414,7 +414,7 @@ export default function PublicReview() {
               </div>
             ) : filteredContent.length > 0 ? (
               <div className="relative">
-                <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2.5 max-h-[78vh] overflow-y-auto pr-1 pb-12" style={{ scrollbarWidth: 'thin', scrollbarColor: '#1e1e2e transparent' }}>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2.5 max-h-[78vh] overflow-y-auto pr-1 pb-12" style={{ scrollbarWidth: 'thin', scrollbarColor: '#1e1e2e transparent' }}>
                   {filteredContent.map((item, i) => {
                     const creator = users.find(u => u.id === item.creator_id);
                     const isStream = item.platform === 'twitch';
@@ -435,81 +435,61 @@ export default function PublicReview() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.025 }}
-                        className="bg-white border border-gray-100 rounded-2xl overflow-hidden group hover:border-indigo-100 hover:shadow-2xl hover:shadow-indigo-500/5 transition-all duration-300 flex flex-col cursor-pointer"
+                        className="bg-white border border-gray-100 rounded-xl overflow-hidden group hover:border-indigo-100 hover:shadow-2xl hover:shadow-indigo-500/5 transition-all duration-300 flex flex-col cursor-pointer"
                       >
                         {/* Thumbnail / Color Bar */}
                         {isStream && item.thumbnail ? (
-                          <div className="relative h-20 overflow-hidden flex-shrink-0 bg-gray-100">
+                          <div className="relative h-16 overflow-hidden flex-shrink-0 bg-gray-100">
                             <img src={item.thumbnail} alt={item.title || 'Stream'} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500" />
                             <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent" />
-                            <span className="absolute top-2 right-2 px-1.5 py-0.5 bg-indigo-600 text-white text-[7px] font-black uppercase tracking-wider rounded">STREAM</span>
-                            <div className="absolute bottom-2 left-2 right-2 flex items-end justify-between">
+                            <span className="absolute top-1.5 right-1.5 px-1 py-0.5 bg-indigo-600 text-white text-[6px] font-black uppercase tracking-wider rounded">STREAM</span>
+                            <div className="absolute bottom-1.5 left-1.5 right-1.5 flex items-end justify-between">
                               <div>
-                                <p className="text-[7px] font-black text-white/70 uppercase">Views</p>
-                                <p className="text-xs font-black text-white leading-none">{(item.views || 0).toLocaleString()}</p>
+                                <p className="text-[6px] font-black text-white/70 uppercase">Views</p>
+                                <p className="text-[10px] font-black text-white leading-none">{(item.views || 0).toLocaleString()}</p>
                               </div>
-                              {(item.peek_viewers || 0) > 0 && (
-                                <div className="text-right">
-                                  <p className="text-[7px] font-black text-white/40 uppercase">Peak</p>
-                                  <p className="text-xs font-black text-white leading-none">{(item.peek_viewers || 0).toLocaleString()}</p>
-                                </div>
-                              )}
                             </div>
                           </div>
                         ) : item.thumbnail ? (
-                          <div className="relative h-16 overflow-hidden flex-shrink-0 bg-gray-50">
+                          <div className="relative h-14 overflow-hidden flex-shrink-0 bg-gray-50">
                             <img src={item.thumbnail} alt={item.title || ''} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500" />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                           </div>
                         ) : (
-                          <div className={`h-1.5 w-full bg-gradient-to-r ${gradient} flex-shrink-0`} />
+                          <div className={`h-1 w-full bg-gradient-to-r ${gradient} flex-shrink-0`} />
                         )}
 
-                        <div className="p-2.5 flex flex-col gap-1.5 flex-1">
+                        <div className="p-2 flex flex-col gap-1 flex-1">
                           {/* Creator + platform row */}
                           <div className="flex items-center justify-between gap-1">
-                            <div className="flex items-center gap-1.5 min-w-0">
-                              <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-black text-white overflow-hidden flex-shrink-0 ${!creator?.photo_url ? `bg-gradient-to-br ${gradient}` : ''}`}>
+                            <div className="flex items-center gap-1 min-w-0">
+                              <div className={`w-4 h-4 rounded-full flex items-center justify-center text-[7px] font-black text-white overflow-hidden flex-shrink-0 ${!creator?.photo_url ? `bg-gradient-to-br ${gradient}` : ''}`}>
                                 {creator?.photo_url
                                   ? <img src={creator.photo_url} alt="" className="w-full h-full object-cover" />
                                   : (creator?.display_name || '?').charAt(0).toUpperCase()
                                 }
                               </div>
-                              <span className="text-[9px] font-bold text-slate-500 truncate">{creator?.display_name || t.anonymous}</span>
+                              <span className="text-[8px] font-bold text-slate-500 truncate">{creator?.display_name || t.anonymous}</span>
                             </div>
-                            {!isStream && (
-                              <span
-                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setFilterPlatform(item.platform || 'all'); }}
-                                className="px-1.5 py-0.5 bg-gray-50 border border-gray-100 text-gray-400 hover:text-indigo-600 hover:border-indigo-100 rounded text-[7px] font-black uppercase cursor-pointer transition-colors flex-shrink-0 flex items-center gap-0.5"
-                              >
-                                {getPlatformIcon(item.platform, 'h-2 w-2')} {item.platform === 'coinmarketcap' ? 'CMC' : item.platform}
-                              </span>
-                            )}
                           </div>
                           {/* Title */}
-                          <p className="text-[10px] font-bold text-slate-800 line-clamp-2 leading-snug flex-1">
+                          <p className="text-[9px] font-bold text-slate-800 line-clamp-2 leading-tight flex-1">
                             {item.title || (isStream ? `Stream · ${new Date(item.uploaded_at || item.created_at).toLocaleDateString()}` : '—')}
                           </p>
 
                           {/* Stats row */}
-                          <div className="flex items-center gap-3 pt-1.5 border-t border-gray-50">
+                          <div className="flex items-center gap-2 pt-1 border-t border-gray-50">
                             <div className="flex items-center gap-1">
-                              <Eye className="h-2.5 w-2.5 text-gray-300" />
-                              <span className="text-[9px] font-black text-slate-900">{(item.views ?? 0).toLocaleString()}</span>
+                              <Eye className="h-2 w-2 text-gray-300" />
+                              <span className="text-[8px] font-black text-slate-900">{(item.views ?? 0).toLocaleString()}</span>
                             </div>
                             {!isStream && (item.likes || 0) > 0 && (
                               <div className="flex items-center gap-1">
-                                <Heart className="h-2.5 w-2.5 text-gray-300" />
-                                <span className="text-[9px] font-black text-gray-500">{(item.likes || 0).toLocaleString()}</span>
+                                <Heart className="h-2 w-2 text-gray-300" />
+                                <span className="text-[8px] font-black text-gray-500">{(item.likes || 0).toLocaleString()}</span>
                               </div>
                             )}
-                            {isStream && (item.average_viewers || 0) > 0 && (
-                              <div className="flex items-center gap-1">
-                                <Users className="h-2.5 w-2.5 text-gray-300" />
-                                <span className="text-[9px] font-black text-gray-500">{(item.average_viewers || 0).toLocaleString()}</span>
-                              </div>
-                            )}
-                            <ExternalLink className="h-2.5 w-2.5 text-gray-200 ml-auto group-hover:text-indigo-400 transition-colors" />
+                            <ExternalLink className="h-2 w-2 text-gray-200 ml-auto group-hover:text-indigo-400 transition-colors" />
                           </div>
                         </div>
                       </motion.a>
