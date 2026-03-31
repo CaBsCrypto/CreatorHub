@@ -114,15 +114,6 @@ const CreatorCard: React.FC<CreatorCardProps> = ({ creator, index, userRole, onE
             </span>
           </div>
 
-          {/* ROI Est. */}
-          <div className="flex flex-col">
-            <span className="text-xl font-black text-emerald-600 leading-none">
-              ${creator.estimatedValue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-            </span>
-            <span className="text-[10px] font-extrabold text-gray-400 uppercase mt-1.5 tracking-[0.1em]">
-              ROI Est.
-            </span>
-          </div>
 
           {/* Pagado - Conditional */}
           {creator.totalPaid !== undefined && creator.totalPaid > 0 && (
