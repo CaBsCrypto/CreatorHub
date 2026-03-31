@@ -258,7 +258,7 @@ export default function PublicReview() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Hero Stats — Glassmorphism cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-8 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mt-8 mb-8">
           <HeroStatCard
             icon={<Eye className="h-5 w-5" />}
             label={t.totalViews}
@@ -279,12 +279,6 @@ export default function PublicReview() {
             value={animatedCreators.toString()}
             color="emerald"
             onClick={() => setActiveSection('creators')}
-          />
-          <HeroStatCard
-            icon={<Heart className="h-5 w-5" />}
-            label={t.engagement}
-            value={animatedEngagement.toLocaleString()}
-            color="rose"
           />
         </div>
 
