@@ -38,7 +38,6 @@ const TeamTab = React.lazy(() => import('../components/dashboard/TeamTab'));
 const PaymentsTab = React.lazy(() => import('../components/dashboard/PaymentsTab'));
 const TrashTab = React.lazy(() => import('../components/dashboard/TrashTab'));
 const ActivityTab = React.lazy(() => import('../components/dashboard/ActivityTab'));
-const ClientsTab = React.lazy(() => import('../components/dashboard/ClientsTab'));
 
 const TabLoader = () => (
   <div className="flex items-center justify-center py-20">
@@ -55,7 +54,7 @@ const PLATFORM_COLORS: Record<string, string> = {
   coinmarketcap: '#0d3efd' // Blue
 };
 
-const ADMIN_TABS = ['overview', 'campaigns', 'clients', 'content', 'creators', 'payments', 'team', 'activity', 'trash'] as const;
+const ADMIN_TABS = ['overview', 'campaigns', 'content', 'creators', 'payments', 'team', 'activity', 'trash'] as const;
 type AdminTab = typeof ADMIN_TABS[number];
 
 export default function AdminDashboard() {
@@ -273,16 +272,7 @@ export default function AdminDashboard() {
         />
 
         <React.Suspense fallback={<TabLoader />}>
-        {activeTab === 'clients' && (
-          <ClientsTab
-            users={users}
-            campaigns={campaigns}
-            content={content}
-            PLATFORM_COLORS={PLATFORM_COLORS}
-            setSelectedCampaignReport={setSelectedCampaignReport}
-            info={info}
-          />
-        )}
+
 
         {activeTab === 'overview' && (
           <OverviewTab

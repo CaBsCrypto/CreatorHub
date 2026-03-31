@@ -1,6 +1,6 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { authenticate, authorize, isSuperadmin } from "../src/middleware/auth.js";
@@ -21,13 +21,24 @@ import * as aiService from "../src/services/aiService.js";
 import * as emailService from "../src/services/emailService.js";
 import { createClient } from "@supabase/supabase-js";
 
-dotenv.config();
+// dotenv.config(); - Removed, now using import 'dotenv/config'
+
 
 const SUPERADMIN_EMAIL = process.env.SUPERADMIN_EMAIL || 'cabscryptocontacto@gmail.com';
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, { auth: { autoRefreshToken: false, persistSession: false } });
+
+// Safely initialize supabaseAdmin
+let supabaseAdmin: any = null;
+if (supabaseUrl && supabaseServiceKey) {
+  supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, { 
+    auth: { autoRefreshToken: false, persistSession: false } 
+  });
+} else {
+  console.error("❌ API Entry: Supabase configuration missing in environment!");
+}
+
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);

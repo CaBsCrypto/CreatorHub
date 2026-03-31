@@ -1,6 +1,6 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import helmet from "helmet";
 import { rateLimit } from "express-rate-limit";
 import {
@@ -26,7 +26,8 @@ import {
 } from "./src/middleware/validation.js";
 import { analyzeTwitchScreenshot } from "./src/services/aiService.js";
 
-dotenv.config();
+// dotenv.config(); - Removed, now using import 'dotenv/config'
+
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);

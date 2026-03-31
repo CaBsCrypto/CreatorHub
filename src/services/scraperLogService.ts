@@ -1,10 +1,24 @@
 import { createClient } from '@supabase/supabase-js';
 import { sendNotificationEmail } from './emailService.js';
 
-const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || '';
+// Supabase client is initialized lazily to ensure environment variables are loaded
+let supabaseClient: any = null;
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+function getSupabase() {
+  if (supabaseClient) return supabaseClient;
+  
+  const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || '';
+
+  if (!supabaseUrl || !supabaseKey) {
+    console.error("❌ ScraperLogService: Missing Supabase configuration", { hasUrl: !!supabaseUrl, hasKey: !!supabaseKey });
+    return null;
+  }
+
+  supabaseClient = createClient(supabaseUrl, supabaseKey);
+  return supabaseClient;
+}
+
 
 export async function logScraperAction(
   platform: string, 
@@ -15,6 +29,9 @@ export async function logScraperAction(
   metadata?: any
 ) {
   try {
+    const supabase = getSupabase();
+    if (!supabase) return;
+
     // 1. Log to database
     const { error } = await supabase.from('scraper_logs').insert([{
       platform,

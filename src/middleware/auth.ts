@@ -5,20 +5,28 @@ dotenv.config();
 
 const SUPERADMIN_EMAIL = process.env.SUPERADMIN_EMAIL || 'cabscryptocontacto@gmail.com';
 
-const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || '';
+let supabaseAdminClient: any = null;
 
-if (!supabaseUrl || !supabaseServiceKey) {
-  console.error('❌ Supabase Auth Middleware: Falta configuración (URL o Key)');
+function getSupabaseAdmin() {
+  if (supabaseAdminClient) return supabaseAdminClient;
+
+  const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || '';
+
+  if (!supabaseUrl || !supabaseServiceKey) {
+    console.error('❌ Supabase Auth Middleware: Falta configuración (URL o Key)');
+    return null;
+  }
+
+  supabaseAdminClient = createClient(supabaseUrl, supabaseServiceKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  });
+  return supabaseAdminClient;
 }
 
-// We need a service role client to check roles and perform admin actions
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
-  }
-});
 
 export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
@@ -27,6 +35,11 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
   }
 
   const token = authHeader.split(' ')[1];
+  const supabaseAdmin = getSupabaseAdmin();
+  if (!supabaseAdmin) {
+    return res.status(500).json({ error: 'Servidor no configurado correctamente' });
+  }
+
   const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
 
   if (error || !user) {

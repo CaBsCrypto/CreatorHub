@@ -4,7 +4,6 @@ import { LayoutDashboard, List, Youtube, Users, Wallet, ShieldCheck, Zap, Trash2
 export const sidebarItems = [
   { id: 'overview', label: 'Resumen', icon: LayoutDashboard },
   { id: 'campaigns', label: 'Campañas', icon: List },
-  { id: 'clients', label: 'Clientes', icon: Briefcase },
   { id: 'content', label: 'Contenido', icon: Youtube },
   { id: 'creators', label: 'Creadores', icon: Users },
   { id: 'payments', label: 'Pagos', icon: Wallet },
