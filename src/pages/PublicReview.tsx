@@ -41,6 +41,7 @@ export default function PublicReview() {
   const [activeSection, setActiveSectionLocal] = useState<'content' | 'creators' | 'stats'>('content');
   const [showPlatformsModal, setShowPlatformsModal] = useState(false);
   const [showTop5Modal, setShowTop5Modal] = useState(false);
+  const [modalLimit, setModalLimit] = useState<'5'|'10'|'all'>('10');
   const [lang, setLangLocal] = useState<'en' | 'es'>((searchParams.get('lang') as 'en' | 'es') || 'en');
 
   useEffect(() => {
@@ -84,7 +85,7 @@ export default function PublicReview() {
       backHome: "Back to Home", anonymous: "Anonymous Creator",
       searchCreators: "Search creators...", platformDistribution: "Platforms",
       noResults: "No content matches the filters", viewAllPlatforms: "View all",
-      engagement: "Engagement", top5Content: "Top 5 Content"
+      engagement: "Engagement", top5Content: "Content Ranking"
     },
     es: {
       clientReport: "Reporte de Campaña", live: "En Vivo", posts: "Posts",
@@ -97,7 +98,7 @@ export default function PublicReview() {
       backHome: "Volver al inicio", anonymous: "Creador Anónimo",
       searchCreators: "Buscar creadores...", platformDistribution: "Plataformas",
       noResults: "Sin contenido para los filtros seleccionados", viewAllPlatforms: "Ver todo",
-      engagement: "Engagement", top5Content: "Top 5 Contenidos"
+      engagement: "Engagement", top5Content: "Ranking de Contenido"
     }
   }[lang];
 
@@ -174,9 +175,11 @@ export default function PublicReview() {
     return arr.sort((a, b) => (b.views || 0) - (a.views || 0));
   }, [content, filterPlatform, filterCreatorId]);
 
-  const top5Content = useMemo(() => {
-    return [...content].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 5);
-  }, [content]);
+  const rankingContent = useMemo(() => {
+    if (modalLimit === '5') return filteredContent.slice(0, 5);
+    if (modalLimit === '10') return filteredContent.slice(0, 10);
+    return filteredContent;
+  }, [filteredContent, modalLimit]);
 
   const animatedViews = useCountUp(stats?.totalViews || 0);
   const animatedPosts = useCountUp(content.length);
@@ -660,12 +663,23 @@ export default function PublicReview() {
                   </div>
                   <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">{t.top5Content}</h3>
                 </div>
-                <button onClick={() => setShowTop5Modal(false)} className="w-8 h-8 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
-                  <X className="h-4 w-4" />
-                </button>
+                <div className="flex items-center gap-3">
+                  <select
+                    value={modalLimit}
+                    onChange={(e: any) => setModalLimit(e.target.value)}
+                    className="px-3 py-1.5 bg-gray-50 border border-gray-100 rounded-xl text-[10px] font-black uppercase text-gray-500 outline-none focus:border-indigo-400 transition-colors cursor-pointer"
+                  >
+                    <option value="5">Top 5</option>
+                    <option value="10">Top 10</option>
+                    <option value="all">{lang === 'en' ? 'All Content' : 'Todos'}</option>
+                  </select>
+                  <button onClick={() => setShowTop5Modal(false)} className="w-8 h-8 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
-              <div className="space-y-3">
-                {top5Content.map((item, index) => {
+              <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-2" style={{ scrollbarWidth: 'thin', scrollbarColor: '#e2e8f0 transparent' }}>
+                {rankingContent.map((item, index) => {
                   const creator = users.find(u => u.id === item.creator_id);
                   const isStream = item.platform === 'twitch';
                   return (
