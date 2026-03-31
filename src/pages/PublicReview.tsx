@@ -40,6 +40,7 @@ export default function PublicReview() {
   const [filterCreatorId, setFilterCreatorIdLocal] = useState(searchParams.get('creator') || 'all');
   const [activeSection, setActiveSectionLocal] = useState<'content' | 'creators' | 'stats'>('content');
   const [showPlatformsModal, setShowPlatformsModal] = useState(false);
+  const [showTop5Modal, setShowTop5Modal] = useState(false);
   const [lang, setLangLocal] = useState<'en' | 'es'>((searchParams.get('lang') as 'en' | 'es') || 'en');
 
   useEffect(() => {
@@ -83,7 +84,7 @@ export default function PublicReview() {
       backHome: "Back to Home", anonymous: "Anonymous Creator",
       searchCreators: "Search creators...", platformDistribution: "Platforms",
       noResults: "No content matches the filters", viewAllPlatforms: "View all",
-      engagement: "Engagement"
+      engagement: "Engagement", top5Content: "Top 5 Content"
     },
     es: {
       clientReport: "Reporte de Campaña", live: "En Vivo", posts: "Posts",
@@ -96,7 +97,7 @@ export default function PublicReview() {
       backHome: "Volver al inicio", anonymous: "Creador Anónimo",
       searchCreators: "Buscar creadores...", platformDistribution: "Plataformas",
       noResults: "Sin contenido para los filtros seleccionados", viewAllPlatforms: "Ver todo",
-      engagement: "Engagement"
+      engagement: "Engagement", top5Content: "Top 5 Contenidos"
     }
   }[lang];
 
@@ -164,11 +165,18 @@ export default function PublicReview() {
     return { totalViews, totalEngagement, platforms };
   }, [content]);
 
-  const filteredContent = useMemo(() => content.filter(item => {
-    const matchPlatform = filterPlatform === 'all' || item.platform?.toLowerCase() === filterPlatform.toLowerCase();
-    const matchCreator = filterCreatorId === 'all' || item.creator_id === filterCreatorId;
-    return matchPlatform && matchCreator;
-  }), [content, filterPlatform, filterCreatorId]);
+  const filteredContent = useMemo(() => {
+    const arr = content.filter(item => {
+      const matchPlatform = filterPlatform === 'all' || item.platform?.toLowerCase() === filterPlatform.toLowerCase();
+      const matchCreator = filterCreatorId === 'all' || item.creator_id === filterCreatorId;
+      return matchPlatform && matchCreator;
+    });
+    return arr.sort((a, b) => (b.views || 0) - (a.views || 0));
+  }, [content, filterPlatform, filterCreatorId]);
+
+  const top5Content = useMemo(() => {
+    return [...content].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 5);
+  }, [content]);
 
   const animatedViews = useCountUp(stats?.totalViews || 0);
   const animatedPosts = useCountUp(content.length);
@@ -264,7 +272,7 @@ export default function PublicReview() {
             label={t.totalViews}
             value={animatedViews.toLocaleString()}
             color="indigo"
-            onClick={() => setFilters({ section: 'content', platform: 'all', creator: 'all' })}
+            onClick={() => setShowTop5Modal(true)}
           />
           <HeroStatCard
             icon={<BarChart3 className="h-5 w-5" />}
@@ -625,6 +633,71 @@ export default function PublicReview() {
               </div>
               <button onClick={() => setShowPlatformsModal(false)}
                 className="w-full mt-5 py-4 bg-gray-50 border border-gray-100 text-gray-400 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-gray-100"
+              >
+                {lang === 'en' ? 'Close' : 'Cerrar'}
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Top 5 Modal */}
+      <AnimatePresence>
+        {showTop5Modal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setShowTop5Modal(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              className="relative w-full max-w-lg bg-white border border-gray-100 rounded-[2.5rem] p-6 shadow-2xl"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center">
+                    <Award className="h-5 w-5" />
+                  </div>
+                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">{t.top5Content}</h3>
+                </div>
+                <button onClick={() => setShowTop5Modal(false)} className="w-8 h-8 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="space-y-3">
+                {top5Content.map((item, index) => {
+                  const creator = users.find(u => u.id === item.creator_id);
+                  const isStream = item.platform === 'twitch';
+                  return (
+                    <a
+                      key={item.id || index}
+                      href={isStream ? '#' : item.url}
+                      target={isStream ? undefined : '_blank'}
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-4 p-3 rounded-2xl border border-gray-100 hover:border-indigo-100 hover:shadow-lg transition-all group"
+                    >
+                      <div className="w-10 h-10 flex-shrink-0 bg-gray-50 rounded-xl flex items-center justify-center text-lg font-black text-slate-300 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                        #{index + 1}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-slate-900 truncate mb-1">{item.title || (isStream ? `Stream · ${new Date(item.uploaded_at || item.created_at).toLocaleDateString()}` : '—')}</p>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-bold text-gray-500">{creator?.display_name || t.anonymous}</span>
+                          <span className="w-1 h-1 bg-gray-300 rounded-full" />
+                          <span className="text-[10px] font-black text-indigo-600 flex items-center gap-1">
+                            <Eye className="h-3 w-3" /> {(item.views || 0).toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors text-gray-400">
+                         {getPlatformIcon(item.platform || '', 'h-4 w-4')}
+                      </div>
+                    </a>
+                  )
+                })}
+              </div>
+              <button onClick={() => setShowTop5Modal(false)}
+                className="w-full mt-6 py-4 bg-gray-50 border border-gray-100 text-gray-500 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-gray-100"
               >
                 {lang === 'en' ? 'Close' : 'Cerrar'}
               </button>
