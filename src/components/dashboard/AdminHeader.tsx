@@ -44,19 +44,18 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({
         <p className="text-base font-bold text-gray-400 max-w-md">Gestiona la agencia, creadores y campañas activas.</p>
       </div>
       
-      <div className="grid grid-cols-2 md:grid-cols-4 xl:flex items-center gap-3 md:gap-4 w-full lg:w-auto animate-in fade-in slide-in-from-right-4 duration-700 relative">
-        <div className="relative col-span-1 md:col-span-1 xl:col-auto">
+      <div className="flex flex-wrap items-center justify-start lg:justify-end gap-3 w-full lg:w-auto animate-in fade-in slide-in-from-right-4 duration-700 relative">
+        <div className="relative w-full sm:w-auto">
           <button 
             onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)} 
-            className={`w-full flex items-center justify-center gap-2 px-4 md:px-6 py-3.5 rounded-2xl md:rounded-[1.25rem] text-[10px] md:text-[11px] font-black uppercase tracking-[0.15em] transition-all active:scale-95 border-2 ${
+            className={`w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-wider transition-all active:scale-95 border-2 whitespace-nowrap ${
               isFilterMenuOpen || activeFiltersCount > 0
                 ? 'bg-indigo-600 text-white border-indigo-600 shadow-xl shadow-indigo-100' 
                 : 'bg-white text-gray-900 border-slate-100 shadow-sm hover:bg-slate-50 hover:border-slate-200'
             }`}
           >
             <Filter className="h-4 w-4" /> 
-            <span className="hidden sm:inline">Filtros</span>
-            <span className="sm:hidden">Filtrar</span>
+            <span>Filtros</span>
             {activeFiltersCount > 0 && (
               <span className="ml-1 w-5 h-5 bg-rose-500 text-white text-[10px] rounded-full flex items-center justify-center flex-shrink-0">
                 {activeFiltersCount}
@@ -80,21 +79,21 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({
 
         <button 
           onClick={() => setIsAnalyzingCreator(true)} 
-          className="col-span-1 md:col-span-1 xl:col-auto w-full flex items-center justify-center gap-2 px-4 md:px-6 py-3.5 bg-indigo-50/50 text-indigo-600 rounded-2xl md:rounded-[1.25rem] text-[10px] md:text-[11px] font-black uppercase tracking-[0.15em] hover:bg-indigo-100/50 transition-all active:scale-95 border-2 border-indigo-100/50"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 bg-indigo-50/50 text-indigo-600 rounded-2xl text-[11px] font-black uppercase tracking-wider hover:bg-indigo-100/50 transition-all active:scale-95 border-2 border-indigo-100/50 whitespace-nowrap"
         >
           <Search className="h-4 w-4" /> Analizar
         </button>
         
         <button 
           onClick={() => setIsCreatingCampaign(true)} 
-          className="col-span-2 md:col-span-1 xl:col-auto w-full flex items-center justify-center gap-2 px-4 md:px-7 py-3.5 bg-indigo-600 text-white rounded-2xl md:rounded-[1.25rem] text-[10px] md:text-[11px] font-black uppercase tracking-[0.15em] shadow-[0_10px_25px_-5px_rgba(79,70,229,0.4)] hover:bg-indigo-700 hover:shadow-indigo-200 transition-all active:scale-95 border-2 border-indigo-600"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 bg-indigo-600 text-white rounded-2xl text-[11px] font-black uppercase tracking-wider shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all active:scale-95 border-2 border-indigo-600 whitespace-nowrap"
         >
           <Plus className="h-4 w-4" /> Nueva Campaña
         </button>
         
         <button 
           onClick={() => setIsAddingUser(true)} 
-          className="col-span-2 md:col-span-1 xl:col-auto w-full flex items-center justify-center gap-2 px-4 md:px-6 py-3.5 bg-white text-gray-900 rounded-2xl md:rounded-[1.25rem] text-[10px] md:text-[11px] font-black uppercase tracking-[0.15em] shadow-sm border-2 border-slate-100 hover:bg-slate-50 hover:border-slate-200 transition-all active:scale-95"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 bg-white text-gray-900 rounded-2xl text-[11px] font-black uppercase tracking-wider shadow-sm border-2 border-slate-100 hover:bg-slate-50 hover:border-slate-200 transition-all active:scale-95 whitespace-nowrap"
         >
           <Users className="h-4 w-4" /> Añadir Miembro
         </button>
