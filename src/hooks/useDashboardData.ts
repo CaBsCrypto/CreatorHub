@@ -222,6 +222,9 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
     const statsContent = role === 'admin' ? content : filteredContent;
     
     statsContent.forEach(c => {
+      // Skip orphaned content or content without a valid creator linked
+      if (!c.creator_id || c.creator_id === 'null' || c.creator_id === 'undefined') return;
+      
       if (!stats[c.creator_id]) stats[c.creator_id] = { views: 0, engagement: 0, contentCount: 0, estimatedValue: 0 };
       const views = c.views || 0;
       stats[c.creator_id].views += views;
