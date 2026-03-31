@@ -10,6 +10,7 @@ import {
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
 import { normalizeUrl } from '../utils/urlParser';
+import { ContentMetricsHistory } from '../supabase';
 
 // Custom Hooks
 import { useDashboardData, getAgencyRank, AGENCY_TIERS } from '../hooks/useDashboardData';
@@ -25,6 +26,7 @@ import ContentCard, { ContentItem } from '../components/dashboard/ContentCard';
 import PaymentModal from '../components/dashboard/PaymentModal';
 import ContentModal from '../components/dashboard/ContentModal';
 import ContentDetailModal from '../components/dashboard/ContentDetailModal';
+import { HistoryChart } from '../components/dashboard/HistoryChart';
 
 export default function CreatorDashboard() {
   const { user, profile } = useAuth();
@@ -32,7 +34,8 @@ export default function CreatorDashboard() {
   const [filters, setFilter, setFilters, resetFilters] = useFilterParams({ campaign: 'all', tab: 'overview' });
   const activeTab = filters.tab || 'overview';
   const setActiveTab = (tab: string) => setFilter('tab', tab);
-  const { campaigns, content, filteredContent, metrics, refresh } = useDashboardData('creator', { campaign: filters.campaign });
+  const effectiveRole = ['admin', 'manager'].includes(profile?.role || '') ? 'admin' : 'creator';
+  const { campaigns, content, filteredContent, metrics, refresh } = useDashboardData(effectiveRole, { campaign: filters.campaign });
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
@@ -43,6 +46,8 @@ export default function CreatorDashboard() {
   const [editingContent, setEditingContent] = useState<any>(null);
   const [viewingContent, setViewingContent] = useState<ContentItem | null>(null);
   const [isCompactView, setIsCompactView] = useState(false);
+  const [historyData, setHistoryData] = useState<ContentMetricsHistory[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
 
   // Derived state
   const currentRankIndex = useMemo(() => {
@@ -51,6 +56,61 @@ export default function CreatorDashboard() {
     }
     return 0;
   }, [metrics]);
+
+  React.useEffect(() => {
+    const loadHistory = async () => {
+      setLoadingHistory(true);
+      try {
+        const contentIds = filteredContent.map(c => c.id);
+        if (contentIds.length === 0) {
+          setHistoryData([]);
+          return;
+        }
+        
+        // Fetch history data. Max chunk size safely.
+        // If contentIds > 500 we can chunk, but usually it's fine for now
+        const { data, error } = await supabase
+          .from('content_metrics_history')
+          .select('*')
+          .in('content_id', contentIds.slice(0, 500))
+          .order('recorded_at', { ascending: true });
+          
+        if (error) throw error;
+        
+        const aggregated = (data as ContentMetricsHistory[]).reduce((acc: Record<string, any>, curr) => {
+          const timestamp = curr.recorded_at.substring(0, 13);
+          if (!acc[timestamp]) {
+            acc[timestamp] = {
+              id: curr.id,
+              content_id: 'creator-agg',
+              recorded_at: curr.recorded_at,
+              views: 0,
+              likes: 0,
+              comments: 0,
+              unique_chatters: 0
+            };
+          }
+          acc[timestamp].views += (curr.views || 0);
+          acc[timestamp].likes += (curr.likes || 0);
+          acc[timestamp].comments += (curr.comments || 0);
+          acc[timestamp].unique_chatters += (curr.unique_chatters || 0);
+          return acc;
+        }, {});
+        
+        setHistoryData(Object.values(aggregated));
+      } catch (err) {
+        console.error("Error loading creator history:", err);
+      } finally {
+        setLoadingHistory(false);
+      }
+    };
+    
+    if (activeTab === 'overview' && filteredContent.length > 0) {
+      loadHistory();
+    } else if (activeTab === 'overview' && filteredContent.length === 0) {
+      setHistoryData([]);
+    }
+  }, [activeTab, filteredContent]);
 
   const myRank = AGENCY_TIERS[currentRankIndex];
 
@@ -196,6 +256,15 @@ export default function CreatorDashboard() {
               iconColor="text-teal-600" 
             />
           </div>
+
+          {historyData.length > 0 && (
+            <div className="bg-[#0f172a]/95 backdrop-blur-3xl p-6 rounded-[2.5rem] shadow-xl border border-white/10 mt-6 relative overflow-hidden group">
+              <div className="absolute -left-12 -top-12 w-48 h-48 bg-indigo-500/20 rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-opacity" />
+              <div className="relative z-10">
+                <HistoryChart data={historyData} height={250} showOtherMetrics={true} />
+              </div>
+            </div>
+          )}
 
           <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden relative group">
             <div className="absolute -right-12 -top-12 w-48 h-48 bg-indigo-50 rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-opacity" />
