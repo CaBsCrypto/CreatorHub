@@ -64,45 +64,56 @@ export default function App() {
     <ToastProvider>
       <AuthProvider>
         <Router>
-          <div className="min-h-screen bg-gray-50">
-            <Navbar />
-            <main className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 py-6 pb-10">
-              <React.Suspense fallback={<LoadingSpinner message="Cargando panel..." />}>
-                <Routes>
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/" element={<HomeRedirect />} />
-                  <Route 
-                    path="/admin/*" 
-                    element={
-                      <ProtectedRoute role="admin">
-                        <AdminDashboard />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  <Route 
-                    path="/creator/*" 
-                    element={
-                      <ProtectedRoute role="creator">
-                        <CreatorDashboard />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  <Route 
-                    path="/client/*" 
-                    element={
-                      <ProtectedRoute role="client">
-                        <ClientDashboard />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  <Route path="/review/:token" element={<PublicReview />} />
-                  <Route path="/v/:token" element={<PublicReview />} />
-                </Routes>
-              </React.Suspense>
-            </main>
+          <div className="min-h-screen bg-white">
+            <AppContent />
           </div>
         </Router>
       </AuthProvider>
     </ToastProvider>
+  );
+}
+
+function AppContent() {
+  const { pathname } = window.location;
+  const isPublicRoute = pathname.startsWith('/review/') || pathname.startsWith('/v/');
+
+  return (
+    <>
+      {!isPublicRoute && <Navbar />}
+      <main className={!isPublicRoute ? "mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 py-6 pb-10" : ""}>
+        <React.Suspense fallback={<LoadingSpinner message="Cargando panel..." />}>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/" element={<HomeRedirect />} />
+            <Route 
+              path="/admin/*" 
+              element={
+                <ProtectedRoute role="admin">
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/creator/*" 
+              element={
+                <ProtectedRoute role="creator">
+                  <CreatorDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/client/*" 
+              element={
+                <ProtectedRoute role="client">
+                  <ClientDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route path="/review/:token" element={<PublicReview />} />
+            <Route path="/v/:token" element={<PublicReview />} />
+          </Routes>
+        </React.Suspense>
+      </main>
+    </>
   );
 }

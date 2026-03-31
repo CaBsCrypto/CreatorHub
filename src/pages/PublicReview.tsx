@@ -128,14 +128,14 @@ export default function PublicReview() {
             const finalUsers = (userData || []).map(u => ({ ...u, display_name: (u as any).admin_alias || u.display_name || nameFallbackMap.get(u.id) || null }));
             const fetchedIds = new Set(finalUsers.map(u => u.id));
             const stubs: UserProfile[] = creatorIds.filter(id => id && !fetchedIds.has(id)).map(id => ({
-              id: id!, role: 'creator', email: '', display_name: nameFallbackMap.get(id!) || null,
+              id: id as string, role: 'creator', email: '', display_name: nameFallbackMap.get(id as string) || null,
               photo_url: null, payment_method: null, binance_id: null, wallet_address: null,
               wallet_network: null, created_at: new Date().toISOString()
             }));
             setUsers([...finalUsers, ...stubs]);
           } catch {
             setUsers(creatorIds.map(id => ({
-              id: id!, role: 'creator', email: '', display_name: nameFallbackMap.get(id!) || null,
+              id: id as string, role: 'creator', email: '', display_name: nameFallbackMap.get(id as string) || null,
               photo_url: null, payment_method: null, binance_id: null, wallet_address: null,
               wallet_network: null, created_at: new Date().toISOString()
             })));
@@ -179,14 +179,14 @@ export default function PublicReview() {
 
   if (error || !campaign) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-950 p-6">
-        <div className="bg-gray-900/80 backdrop-blur-xl border border-gray-800 p-12 rounded-[3rem] shadow-2xl text-center max-w-lg">
-          <div className="w-24 h-24 bg-rose-900/30 border border-rose-800/50 rounded-full flex items-center justify-center mx-auto mb-8">
-            <Globe className="h-12 w-12 text-rose-400" />
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
+        <div className="bg-white border border-gray-100 p-12 rounded-[3.5rem] shadow-xl text-center max-w-lg">
+          <div className="w-24 h-24 bg-rose-50 border border-rose-100 rounded-full flex items-center justify-center mx-auto mb-8">
+            <Globe className="h-12 w-12 text-rose-500" />
           </div>
-          <h2 className="text-3xl font-black text-white mb-4">{t.notFound}</h2>
-          <p className="text-gray-400 mb-8 leading-relaxed">{t.notFoundDesc}</p>
-          <a href="/" className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-500 transition-all inline-block">{t.backHome}</a>
+          <h2 className="text-3xl font-black text-slate-900 mb-4">{t.notFound}</h2>
+          <p className="text-gray-500 mb-8 leading-relaxed font-medium">{t.notFoundDesc}</p>
+          <a href="/" className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 inline-block">{t.backHome}</a>
         </div>
       </div>
     );
@@ -195,18 +195,18 @@ export default function PublicReview() {
   const progressPercentage = Math.min(100, Math.round((content.length / (campaign.target_posts || 1)) * 100));
 
   return (
-    <div className="min-h-screen bg-[#0a0b0f] pb-20">
-      {/* Premium Dark Header */}
-      <div className="relative bg-gradient-to-b from-gray-950 via-[#0d0f1a] to-[#0a0b0f] border-b border-white/5 sticky top-0 z-50 backdrop-blur-xl">
-        {/* Subtle gradient top accent */}
-        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent" />
+    <div className="min-h-screen bg-[#fafafc] pb-20 selection:bg-indigo-100 selection:text-indigo-900">
+      {/* Premium Light Header */}
+      <div className="relative bg-white/70 border-b border-gray-100 sticky top-0 z-50 backdrop-blur-xl">
+        {/* Subtle indigo top accent */}
+        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent" />
 
         <div className="max-w-7xl mx-auto px-4 py-4 sm:py-5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 sm:gap-5 flex-1 min-w-0">
             {(filterCreatorId !== 'all' || filterPlatform !== 'all') && (
               <button
                 onClick={() => setFilters({ creator: 'all', platform: 'all', section: 'content' })}
-                className="p-2 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-all border border-white/10"
+                className="p-2 bg-gray-50 hover:bg-gray-100 rounded-xl text-gray-400 hover:text-indigo-600 transition-all border border-gray-200"
               >
                 <ArrowLeft className="h-4 w-4" />
               </button>
@@ -215,42 +215,42 @@ export default function PublicReview() {
             {/* Logo/Brand area */}
             <div className="flex items-center gap-3 min-w-0">
               {project?.photo_url ? (
-                <img src={project.photo_url} alt="" className="w-9 h-9 rounded-xl object-cover ring-1 ring-white/10 flex-shrink-0" />
+                <img src={project.photo_url} alt="" className="w-10 h-10 rounded-2xl object-cover ring-4 ring-indigo-50 flex-shrink-0" />
               ) : (
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-700 flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-900/50">
-                  <BarChart3 className="h-4 w-4 text-white" />
+                <div className="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-100">
+                  <BarChart3 className="h-5 w-5 text-white" />
                 </div>
               )}
               <div className="min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
-                  <span className="hidden sm:inline-flex px-2 py-0.5 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-full text-[9px] font-black uppercase tracking-widest">{t.clientReport}</span>
-                  <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.6)]" />
-                  <span className="text-[9px] sm:text-[10px] font-black text-emerald-400 uppercase tracking-widest">{t.live}</span>
+                  <span className="hidden sm:inline-flex px-2 py-0.5 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-full text-[9px] font-black uppercase tracking-widest">{t.clientReport}</span>
+                  <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
+                  <span className="text-[9px] sm:text-[10px] font-black text-emerald-600 uppercase tracking-widest">{t.live}</span>
                 </div>
-                <h1 className="text-sm sm:text-lg font-black text-white tracking-tight truncate">
+                <h1 className="text-sm sm:text-lg font-black text-slate-900 tracking-tight truncate">
                   {project?.display_name || campaign.name}
                 </h1>
-                {project && <p className="text-[9px] sm:text-[10px] font-bold text-gray-500 uppercase tracking-widest truncate">{campaign.name}</p>}
+                {project && <p className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest truncate">{campaign.name}</p>}
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             {/* Language Toggle */}
-            <div className="flex items-center bg-white/5 p-0.5 rounded-lg border border-white/10">
+            <div className="flex items-center bg-gray-50 p-0.5 rounded-xl border border-gray-200">
               {(['en', 'es'] as const).map(l => (
                 <button key={l} onClick={() => setLang(l)}
-                  className={`px-2.5 py-1.5 rounded-md text-[10px] font-black transition-all ${lang === l ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-300'}`}
+                  className={`px-3 py-1.5 rounded-lg text-[10px] font-black transition-all ${lang === l ? 'bg-white text-indigo-600 shadow-sm border border-gray-100' : 'text-gray-400 hover:text-gray-600'}`}
                 >{l.toUpperCase()}</button>
               ))}
             </div>
 
             {/* Progress Ring (desktop) */}
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-xl border border-white/10">
-              <div className="w-20 h-1 bg-white/10 rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-1000 rounded-full" style={{ width: `${progressPercentage}%` }} />
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-xl border border-gray-100">
+              <div className="w-20 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                <div className="h-full bg-indigo-600 transition-all duration-1000 rounded-full" style={{ width: `${progressPercentage}%` }} />
               </div>
-              <span className="text-[10px] font-black text-gray-400">{progressPercentage}%</span>
+              <span className="text-[10px] font-black text-indigo-600">{progressPercentage}%</span>
             </div>
           </div>
         </div>
@@ -322,26 +322,26 @@ export default function PublicReview() {
             {/* Section Header + Filters */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
               <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-xs font-black text-gray-400 uppercase tracking-[0.15em] flex items-center gap-2">
+                <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.15em] flex items-center gap-2">
                   <Award className="h-3.5 w-3.5 text-indigo-500" />
                   {activeSection === 'content' ? t.publishedContent : t.creatorDirectory}
                 </h3>
                 {filterCreatorId !== 'all' && (
-                  <span className="flex items-center gap-1 px-2.5 py-1 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-full text-[9px] font-black uppercase">
+                  <span className="flex items-center gap-1 px-2.5 py-1 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-full text-[9px] font-black uppercase">
                     {users.find(u => u.id === filterCreatorId)?.display_name || t.anonymous}
-                    <button onClick={() => setFilters({ creator: 'all' })} className="hover:text-indigo-200"><X className="h-2.5 w-2.5" /></button>
+                    <button onClick={() => setFilters({ creator: 'all' })} className="hover:text-indigo-800"><X className="h-2.5 w-2.5" /></button>
                   </span>
                 )}
                 {filterPlatform !== 'all' && (
-                  <span className="flex items-center gap-1 px-2.5 py-1 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-full text-[9px] font-black uppercase">
+                  <span className="flex items-center gap-1 px-2.5 py-1 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-full text-[9px] font-black uppercase">
                     {filterPlatform}
-                    <button onClick={() => setFilters({ platform: 'all' })} className="hover:text-indigo-200"><X className="h-2.5 w-2.5" /></button>
+                    <button onClick={() => setFilters({ platform: 'all' })} className="hover:text-indigo-800"><X className="h-2.5 w-2.5" /></button>
                   </span>
                 )}
               </div>
               <div className="flex items-center gap-2">
                 <select value={filterPlatform} onChange={e => setFilterPlatform(e.target.value)}
-                  className="px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase text-gray-400 outline-none focus:border-indigo-500/50 transition-colors cursor-pointer"
+                  className="px-3 py-2 bg-white border border-gray-200 rounded-xl text-[10px] font-black uppercase text-gray-500 outline-none focus:border-indigo-400 transition-colors cursor-pointer shadow-sm"
                 >
                   <option value="all">{t.allPlatforms}</option>
                   <option value="tiktok">TikTok</option>
@@ -352,7 +352,7 @@ export default function PublicReview() {
                   <option value="coinmarketcap">CMC</option>
                 </select>
                 <select value={filterCreatorId} onChange={e => setFilterCreatorId(e.target.value)}
-                  className="px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase text-gray-400 outline-none focus:border-indigo-500/50 transition-colors cursor-pointer"
+                  className="px-3 py-2 bg-white border border-gray-200 rounded-xl text-[10px] font-black uppercase text-gray-500 outline-none focus:border-indigo-400 transition-colors cursor-pointer shadow-sm"
                 >
                   <option value="all">{t.allCreators}</option>
                   {users.map(u => (
@@ -378,14 +378,14 @@ export default function PublicReview() {
                       onClick={() => setFilters({ creator: isFiltered ? 'all' : u.id, section: 'content' })}
                       className={`p-5 rounded-[1.75rem] border text-left group transition-all duration-300 ${
                         isFiltered
-                          ? 'bg-indigo-600/20 border-indigo-500/40 shadow-lg shadow-indigo-900/30'
-                          : 'bg-white/[0.03] border-white/10 hover:bg-white/[0.06] hover:border-white/20'
+                          ? 'bg-indigo-50 border-indigo-200 shadow-md'
+                          : 'bg-white border-gray-100 hover:border-indigo-100 hover:shadow-lg hover:shadow-indigo-500/5'
                       }`}
                     >
                       <div className="flex flex-col items-center text-center gap-3">
                         <div className="relative">
                           <div className={`w-14 h-14 rounded-2xl overflow-hidden flex items-center justify-center text-white font-black text-xl shadow-lg ${
-                            !u.photo_url ? 'bg-gradient-to-br from-indigo-600 to-purple-700' : ''
+                            !u.photo_url ? 'bg-indigo-600' : ''
                           }`}>
                             {u.photo_url
                               ? <img src={u.photo_url} alt={u.display_name || ''} className="w-full h-full object-cover" />
@@ -393,20 +393,20 @@ export default function PublicReview() {
                             }
                           </div>
                           {isFiltered && (
-                            <div className="absolute -top-1 -right-1 w-5 h-5 bg-indigo-500 rounded-full flex items-center justify-center">
+                            <div className="absolute -top-1 -right-1 w-5 h-5 bg-indigo-600 rounded-full flex items-center justify-center border-2 border-white">
                               <X className="h-3 w-3 text-white" />
                             </div>
                           )}
                         </div>
                         <div>
-                          <p className="font-black text-white text-sm leading-tight">{u.display_name || t.anonymous}</p>
+                          <p className="font-black text-slate-800 text-sm leading-tight">{u.display_name || t.anonymous}</p>
                           <div className="flex items-center justify-center gap-2 mt-1.5">
-                            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">{posts.length} {t.posts}</span>
-                            <span className="w-0.5 h-3 bg-gray-700 rounded-full" />
-                            <span className="text-[9px] font-bold text-indigo-400 uppercase tracking-widest">{views.toLocaleString()}</span>
+                            <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{posts.length} {t.posts}</span>
+                            <span className="w-0.5 h-3 bg-gray-200 rounded-full" />
+                            <span className="text-[9px] font-bold text-indigo-600 uppercase tracking-widest">{views.toLocaleString()}</span>
                           </div>
                         </div>
-                        <ChevronRight className={`h-3.5 w-3.5 text-gray-600 group-hover:text-indigo-400 transition-colors ${isFiltered ? 'rotate-90' : ''}`} />
+                        <ChevronRight className={`h-3.5 w-3.5 text-gray-300 group-hover:text-indigo-400 transition-colors ${isFiltered ? 'rotate-90' : ''}`} />
                       </div>
                     </motion.button>
                   );
@@ -435,17 +435,17 @@ export default function PublicReview() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.025 }}
-                        className="bg-white/[0.03] border border-white/10 rounded-2xl overflow-hidden group hover:bg-white/[0.06] hover:border-white/20 hover:shadow-2xl hover:shadow-black/50 transition-all duration-300 flex flex-col cursor-pointer"
+                        className="bg-white border border-gray-100 rounded-2xl overflow-hidden group hover:border-indigo-100 hover:shadow-2xl hover:shadow-indigo-500/5 transition-all duration-300 flex flex-col cursor-pointer"
                       >
                         {/* Thumbnail / Color Bar */}
                         {isStream && item.thumbnail ? (
-                          <div className="relative h-28 overflow-hidden flex-shrink-0 bg-gray-950">
-                            <img src={item.thumbnail} alt={item.title || 'Stream'} className="w-full h-full object-cover opacity-70 group-hover:opacity-90 group-hover:scale-105 transition-all duration-500" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/40 to-transparent" />
-                            <span className="absolute top-2 right-2 px-1.5 py-0.5 bg-violet-600 text-white text-[7px] font-black uppercase tracking-wider rounded">STREAM</span>
+                          <div className="relative h-20 overflow-hidden flex-shrink-0 bg-gray-100">
+                            <img src={item.thumbnail} alt={item.title || 'Stream'} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent" />
+                            <span className="absolute top-2 right-2 px-1.5 py-0.5 bg-indigo-600 text-white text-[7px] font-black uppercase tracking-wider rounded">STREAM</span>
                             <div className="absolute bottom-2 left-2 right-2 flex items-end justify-between">
                               <div>
-                                <p className="text-[7px] font-black text-white/40 uppercase">Views</p>
+                                <p className="text-[7px] font-black text-white/70 uppercase">Views</p>
                                 <p className="text-xs font-black text-white leading-none">{(item.views || 0).toLocaleString()}</p>
                               </div>
                               {(item.peek_viewers || 0) > 0 && (
@@ -457,12 +457,12 @@ export default function PublicReview() {
                             </div>
                           </div>
                         ) : item.thumbnail ? (
-                          <div className="relative h-24 overflow-hidden flex-shrink-0 bg-gray-950">
-                            <img src={item.thumbnail} alt={item.title || ''} className="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-105 transition-all duration-500" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-gray-950/80 to-transparent" />
+                          <div className="relative h-16 overflow-hidden flex-shrink-0 bg-gray-50">
+                            <img src={item.thumbnail} alt={item.title || ''} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                           </div>
                         ) : (
-                          <div className={`h-1 w-full bg-gradient-to-r ${gradient} flex-shrink-0`} />
+                          <div className={`h-1.5 w-full bg-gradient-to-r ${gradient} flex-shrink-0`} />
                         )}
 
                         <div className="p-2.5 flex flex-col gap-1.5 flex-1">
@@ -475,54 +475,53 @@ export default function PublicReview() {
                                   : (creator?.display_name || '?').charAt(0).toUpperCase()
                                 }
                               </div>
-                              <span className="text-[9px] font-bold text-gray-400 truncate">{creator?.display_name || t.anonymous}</span>
+                              <span className="text-[9px] font-bold text-slate-500 truncate">{creator?.display_name || t.anonymous}</span>
                             </div>
                             {!isStream && (
                               <span
                                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); setFilterPlatform(item.platform || 'all'); }}
-                                className="px-1.5 py-0.5 bg-white/5 border border-white/10 text-gray-500 hover:text-indigo-400 hover:border-indigo-500/30 rounded text-[7px] font-black uppercase cursor-pointer transition-colors flex-shrink-0 flex items-center gap-0.5"
+                                className="px-1.5 py-0.5 bg-gray-50 border border-gray-100 text-gray-400 hover:text-indigo-600 hover:border-indigo-100 rounded text-[7px] font-black uppercase cursor-pointer transition-colors flex-shrink-0 flex items-center gap-0.5"
                               >
                                 {getPlatformIcon(item.platform, 'h-2 w-2')} {item.platform === 'coinmarketcap' ? 'CMC' : item.platform}
                               </span>
                             )}
                           </div>
-
                           {/* Title */}
-                          <p className="text-[10px] font-bold text-gray-200 line-clamp-2 leading-snug flex-1">
+                          <p className="text-[10px] font-bold text-slate-800 line-clamp-2 leading-snug flex-1">
                             {item.title || (isStream ? `Stream · ${new Date(item.uploaded_at || item.created_at).toLocaleDateString()}` : '—')}
                           </p>
 
                           {/* Stats row */}
-                          <div className="flex items-center gap-3 pt-1.5 border-t border-white/5">
+                          <div className="flex items-center gap-3 pt-1.5 border-t border-gray-50">
                             <div className="flex items-center gap-1">
-                              <Eye className="h-2.5 w-2.5 text-gray-600" />
-                              <span className="text-[9px] font-black text-gray-300">{(item.views ?? 0).toLocaleString()}</span>
+                              <Eye className="h-2.5 w-2.5 text-gray-300" />
+                              <span className="text-[9px] font-black text-slate-900">{(item.views ?? 0).toLocaleString()}</span>
                             </div>
                             {!isStream && (item.likes || 0) > 0 && (
                               <div className="flex items-center gap-1">
-                                <Heart className="h-2.5 w-2.5 text-gray-600" />
-                                <span className="text-[9px] font-black text-gray-400">{(item.likes || 0).toLocaleString()}</span>
+                                <Heart className="h-2.5 w-2.5 text-gray-300" />
+                                <span className="text-[9px] font-black text-gray-500">{(item.likes || 0).toLocaleString()}</span>
                               </div>
                             )}
                             {isStream && (item.average_viewers || 0) > 0 && (
                               <div className="flex items-center gap-1">
-                                <Users className="h-2.5 w-2.5 text-gray-600" />
-                                <span className="text-[9px] font-black text-gray-400">{(item.average_viewers || 0).toLocaleString()}</span>
+                                <Users className="h-2.5 w-2.5 text-gray-300" />
+                                <span className="text-[9px] font-black text-gray-500">{(item.average_viewers || 0).toLocaleString()}</span>
                               </div>
                             )}
-                            <ExternalLink className="h-2.5 w-2.5 text-gray-700 ml-auto group-hover:text-indigo-400 transition-colors" />
+                            <ExternalLink className="h-2.5 w-2.5 text-gray-200 ml-auto group-hover:text-indigo-400 transition-colors" />
                           </div>
                         </div>
                       </motion.a>
                     );
                   })}
                 </div>
-                <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-[#0a0b0f] to-transparent pointer-events-none" />
+                <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white to-transparent pointer-events-none" />
               </div>
             ) : (
-              <div className="bg-white/[0.02] border border-white/5 rounded-[3rem] p-20 text-center">
-                <Globe className="h-12 w-12 text-gray-800 mx-auto mb-4" />
-                <p className="text-gray-600 font-bold uppercase tracking-widest text-sm">{t.noResults}</p>
+              <div className="bg-white border border-gray-100 rounded-[3rem] p-20 text-center shadow-sm">
+                <Globe className="h-12 w-12 text-gray-200 mx-auto mb-4" />
+                <p className="text-gray-400 font-bold uppercase tracking-widest text-sm">{t.noResults}</p>
               </div>
             )}
           </div>
@@ -530,12 +529,12 @@ export default function PublicReview() {
           {/* Sidebar — Platforms + Brand */}
           <div className="hidden lg:flex flex-col gap-6">
             {/* Platform Filter Panel */}
-            <div className="bg-white/[0.03] border border-white/10 rounded-[2rem] p-6">
-              <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-5">{t.platformDistribution}</h3>
+            <div className="bg-white border border-gray-100 rounded-[2rem] p-6 shadow-sm">
+              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-5">{t.platformDistribution}</h3>
               <div className="space-y-2">
                 {filterPlatform !== 'all' && (
                   <button onClick={() => setFilterPlatform('all')}
-                    className="flex items-center gap-1.5 py-2 text-[10px] font-black text-indigo-400 hover:text-indigo-300 uppercase tracking-widest transition-colors"
+                    className="flex items-center gap-1.5 py-2 text-[10px] font-black text-indigo-600 hover:text-indigo-800 uppercase tracking-widest transition-colors"
                   >
                     <ArrowLeft className="h-3 w-3" /> {t.viewAllPlatforms}
                   </button>
@@ -544,8 +543,8 @@ export default function PublicReview() {
                   <button key={platform} onClick={() => setFilters({ platform, section: 'content' })}
                     className={`w-full flex items-center justify-between p-3.5 rounded-2xl transition-all duration-200 border gap-3 ${
                       filterPlatform === platform.toLowerCase()
-                        ? 'bg-indigo-600 border-indigo-500 shadow-lg shadow-indigo-900/50'
-                        : 'bg-white/[0.02] border-white/5 hover:bg-white/[0.05] hover:border-white/10'
+                        ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-100'
+                        : 'bg-white border-gray-50 hover:bg-gray-50 hover:border-gray-200'
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
@@ -554,30 +553,30 @@ export default function PublicReview() {
                       }`}>
                         {getPlatformIcon(platform, 'h-4 w-4')}
                       </div>
-                      <span className={`text-sm font-black capitalize ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-300'}`}>
+                      <span className={`text-sm font-black capitalize ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-slate-700'}`}>
                         {platform.toLowerCase() === 'coinmarketcap' ? 'CMC' : platform.toLowerCase() === 'twitch' ? 'Stream' : platform}
                       </span>
                     </div>
-                    <span className={`text-base font-black ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-400'}`}>{count}</span>
+                    <span className={`text-base font-black ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-slate-400'}`}>{count}</span>
                   </button>
                 ))}
               </div>
             </div>
 
             {/* Brand Card */}
-            <div className="relative bg-gradient-to-br from-indigo-600/20 via-purple-700/10 to-transparent border border-indigo-500/20 rounded-[2rem] p-6 overflow-hidden">
-              <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-600/10 rounded-full blur-3xl -mr-10 -mt-10" />
+            <div className="relative bg-white border border-gray-100 rounded-[2rem] p-6 overflow-hidden shadow-sm">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-50 rounded-full blur-3xl -mr-10 -mt-10" />
               <div className="relative z-10">
-                <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-indigo-900/50">
+                <div className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-indigo-100">
                   <TrendingUp className="h-5 w-5 text-white" />
                 </div>
-                <h3 className="text-lg font-black text-white mb-2 leading-tight">Umbra Creator Hub</h3>
+                <h3 className="text-lg font-black text-slate-900 mb-2 leading-tight">Umbra Creator Hub</h3>
                 <p className="text-gray-500 text-xs font-medium leading-relaxed mb-4">
                   {lang === 'en'
                     ? 'Real-time campaign metrics connecting brands with top creators.'
                     : 'Métricas de campaña en tiempo real.'}
                 </p>
-                <div className="text-[9px] font-black text-gray-700 uppercase tracking-[0.2em]">© 2026 UMBRA AGENCY</div>
+                <div className="text-[9px] font-black text-gray-300 uppercase tracking-[0.2em]">© 2026 UMBRA AGENCY</div>
               </div>
             </div>
           </div>
@@ -619,12 +618,12 @@ export default function PublicReview() {
             />
             <motion.div
               initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 100, opacity: 0 }}
-              className="relative w-full max-w-lg bg-[#0f1117] border-t border-white/10 rounded-t-[2.5rem] p-6 shadow-2xl"
+              className="relative w-full max-w-lg bg-white border-t border-gray-100 rounded-t-[2.5rem] p-6 shadow-2xl"
             >
-              <div className="w-12 h-1 bg-white/10 rounded-full mx-auto mb-6" />
+              <div className="w-12 h-1 bg-gray-100 rounded-full mx-auto mb-6" />
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-sm font-black text-white uppercase tracking-widest">{t.platformDistribution}</h3>
-                <button onClick={() => setShowPlatformsModal(false)} className="w-8 h-8 bg-white/5 rounded-xl flex items-center justify-center text-gray-400">
+                <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">{t.platformDistribution}</h3>
+                <button onClick={() => setShowPlatformsModal(false)} className="w-8 h-8 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400">
                   <X className="h-4 w-4" />
                 </button>
               </div>
@@ -634,24 +633,24 @@ export default function PublicReview() {
                     onClick={() => { setFilters({ platform, section: 'content' }); setShowPlatformsModal(false); }}
                     className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all active:scale-95 ${
                       filterPlatform === platform.toLowerCase()
-                        ? 'bg-indigo-600 border-indigo-500 text-white'
-                        : 'bg-white/[0.03] border-white/10 hover:border-white/20'
+                        ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-100'
+                        : 'bg-white border-gray-100 hover:border-indigo-100'
                     }`}
                   >
                     <div className="flex items-center gap-3">
                       <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${filterPlatform === platform.toLowerCase() ? 'bg-white/20 text-white' : getPlatformColor(platform)}`}>
                         {getPlatformIcon(platform, 'h-4 w-4')}
                       </div>
-                      <span className={`font-black capitalize ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-200'}`}>
+                      <span className={`font-black capitalize ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-slate-700'}`}>
                         {platform.toLowerCase() === 'coinmarketcap' ? 'CMC' : platform.toLowerCase() === 'twitch' ? 'Stream' : platform}
                       </span>
                     </div>
-                    <span className={`text-xl font-black ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-400'}`}>{count}</span>
+                    <span className={`text-xl font-black ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-slate-400'}`}>{count}</span>
                   </button>
                 ))}
               </div>
               <button onClick={() => setShowPlatformsModal(false)}
-                className="w-full mt-5 py-4 bg-white/5 border border-white/10 text-gray-400 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-white/10"
+                className="w-full mt-5 py-4 bg-gray-50 border border-gray-100 text-gray-400 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-gray-100"
               >
                 {lang === 'en' ? 'Close' : 'Cerrar'}
               </button>
@@ -668,25 +667,25 @@ function HeroStatCard({ icon, label, value, color, onClick }: {
   color: 'indigo' | 'purple' | 'emerald' | 'rose'; onClick?: () => void;
 }) {
   const colors = {
-    indigo: { bg: 'from-indigo-600/10 to-indigo-600/5', border: 'border-indigo-500/20', icon: 'bg-indigo-600/20 text-indigo-400', text: 'text-indigo-400' },
-    purple: { bg: 'from-purple-600/10 to-purple-600/5', border: 'border-purple-500/20', icon: 'bg-purple-600/20 text-purple-400', text: 'text-purple-400' },
-    emerald: { bg: 'from-emerald-600/10 to-emerald-600/5', border: 'border-emerald-500/20', icon: 'bg-emerald-600/20 text-emerald-400', text: 'text-emerald-400' },
-    rose: { bg: 'from-rose-600/10 to-rose-600/5', border: 'border-rose-500/20', icon: 'bg-rose-600/20 text-rose-400', text: 'text-rose-400' },
+    indigo: { bg: 'bg-white hover:bg-gray-50', border: 'border-gray-100 hover:border-indigo-100', icon: 'bg-indigo-50 text-indigo-600', text: 'text-indigo-600' },
+    purple: { bg: 'bg-white hover:bg-gray-50', border: 'border-gray-100 hover:border-purple-100', icon: 'bg-purple-50 text-purple-600', text: 'text-purple-600' },
+    emerald: { bg: 'bg-white hover:bg-gray-50', border: 'border-gray-100 hover:border-emerald-100', icon: 'bg-emerald-50 text-emerald-600', text: 'text-emerald-600' },
+    rose: { bg: 'bg-white hover:bg-gray-50', border: 'border-gray-100 hover:border-rose-100', icon: 'bg-rose-50 text-rose-600', text: 'text-rose-600' },
   }[color];
 
   return (
     <motion.button
-      whileHover={{ y: -2 }}
+      whileHover={{ y: -4, boxShadow: "0 25px 50px -12px rgba(79, 70, 229, 0.1)" }}
       onClick={onClick}
       disabled={!onClick}
-      className={`relative bg-gradient-to-br ${colors.bg} border ${colors.border} rounded-[2rem] p-5 sm:p-6 text-left w-full overflow-hidden group transition-all ${onClick ? 'cursor-pointer hover:shadow-2xl hover:shadow-black/50' : 'cursor-default'}`}
+      className={`relative ${colors.bg} border ${colors.border} rounded-[2.5rem] p-5 sm:p-6 text-left w-full overflow-hidden group transition-all duration-300 shadow-sm ${onClick ? 'cursor-pointer' : 'cursor-default'}`}
     >
-      <div className="absolute -right-6 -bottom-6 w-20 h-20 bg-white/[0.02] rounded-full blur-xl group-hover:scale-150 transition-transform duration-700" />
-      <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl ${colors.icon} flex items-center justify-center mb-4 relative z-10`}>
+      <div className="absolute -right-6 -bottom-6 w-20 h-20 bg-gray-50 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700" />
+      <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-2xl ${colors.icon} flex items-center justify-center mb-4 relative z-10 shadow-sm`}>
         <div className="h-4 w-4 sm:h-5 sm:w-5">{icon}</div>
       </div>
-      <p className="text-[8px] sm:text-[9px] font-black text-gray-600 uppercase tracking-widest mb-1 relative z-10">{label}</p>
-      <span className="text-2xl sm:text-3xl font-black text-white tracking-tighter relative z-10">{value}</span>
+      <p className="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 relative z-10">{label}</p>
+      <span className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tighter relative z-10">{value}</span>
     </motion.button>
   );
 }
@@ -705,12 +704,12 @@ function getPlatformIcon(platform: string, className = 'h-4 w-4') {
 
 function getPlatformColor(platform: string) {
   switch (platform) {
-    case 'tiktok': return 'bg-gray-800 text-white';
-    case 'instagram': return 'bg-pink-900/30 text-pink-400';
-    case 'youtube': return 'bg-red-900/30 text-red-400';
-    case 'x': return 'bg-sky-900/30 text-sky-400';
-    case 'twitch': return 'bg-violet-900/30 text-violet-400';
-    case 'coinmarketcap': return 'bg-amber-900/30 text-amber-400';
-    default: return 'bg-gray-800 text-gray-400';
+    case 'tiktok': return 'bg-slate-900 text-white';
+    case 'instagram': return 'bg-pink-50 text-pink-600';
+    case 'youtube': return 'bg-red-50 text-red-600';
+    case 'x': return 'bg-sky-50 text-sky-600';
+    case 'twitch': return 'bg-indigo-50 text-indigo-600';
+    case 'coinmarketcap': return 'bg-amber-50 text-amber-600';
+    default: return 'bg-gray-50 text-gray-400';
   }
 }

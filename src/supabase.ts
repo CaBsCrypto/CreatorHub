@@ -5,10 +5,32 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn("Supabase URL or Anon Key is missing. Check your .env file.");
+  console.warn("⚠️ Supabase URL or Anon Key is missing. Check your .env file or Vercel environment variables.");
 }
 
-export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '');
+// Only create the client if we have a valid URL to avoid crashing the whole bundle
+let supabaseClient: any = null;
+
+export const getSupabase = () => {
+  if (supabaseClient) return supabaseClient;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    if (typeof window === 'undefined') {
+      console.error("❌ ScraperLogService: Missing Supabase configuration (Backend context)");
+    }
+    return null;
+  }
+
+  try {
+    supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+    return supabaseClient;
+  } catch (err: any) {
+    console.error("❌ ScraperLogService: Failed to initialize Supabase client", err.message);
+    return null;
+  }
+};
+
+export const supabase = getSupabase();
 
 // Helper types matching our database schema
 export type UserRole = 'creator' | 'manager' | 'admin' | 'client';

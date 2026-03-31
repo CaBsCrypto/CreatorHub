@@ -11,12 +11,19 @@ function getSupabase() {
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || '';
 
   if (!supabaseUrl || !supabaseKey) {
-    console.error("❌ ScraperLogService: Missing Supabase configuration", { hasUrl: !!supabaseUrl, hasKey: !!supabaseKey });
+    if (typeof window === 'undefined') {
+      console.error("❌ ScraperLogService: Missing Supabase configuration (Backend context)");
+    }
     return null;
   }
 
-  supabaseClient = createClient(supabaseUrl, supabaseKey);
-  return supabaseClient;
+  try {
+    supabaseClient = createClient(supabaseUrl, supabaseKey);
+    return supabaseClient;
+  } catch (err: any) {
+    console.error("❌ ScraperLogService: Failed to initialize Supabase client", err.message);
+    return null;
+  }
 }
 
 

@@ -18,13 +18,18 @@ function getSupabaseAdmin() {
     return null;
   }
 
-  supabaseAdminClient = createClient(supabaseUrl, supabaseServiceKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  });
-  return supabaseAdminClient;
+  try {
+    supabaseAdminClient = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    });
+    return supabaseAdminClient;
+  } catch (err: any) {
+    console.error('❌ Supabase Auth Middleware: Error al inicializar cliente', err.message);
+    return null;
+  }
 }
 
 
