@@ -15,6 +15,7 @@ interface PaymentsTabProps {
   success: (msg: string) => void;
   toastError: (msg: string) => void;
   onSubmit: (e: React.FormEvent) => Promise<void>;
+  onViewProfile?: (userId: string) => void;
 }
 
 const PaymentsTab: React.FC<PaymentsTabProps> = ({
@@ -28,7 +29,8 @@ const PaymentsTab: React.FC<PaymentsTabProps> = ({
   refresh,
   success,
   toastError,
-  onSubmit
+  onSubmit,
+  onViewProfile
 }) => {
   const usersById = React.useMemo(() => Object.fromEntries(users.map(u => [u.id, u])), [users]);
   const campaignsById = React.useMemo(() => Object.fromEntries(campaigns.map(c => [c.id, c])), [campaigns]);
@@ -126,20 +128,51 @@ const PaymentsTab: React.FC<PaymentsTabProps> = ({
               {filteredPayments.map(p => {
                 const creator = usersById[p.creator_id];
                 const camp = campaignsById[p.campaign_id];
+                const canViewProfile = !!creator && !!onViewProfile;
+
                 return (
-                  <tr key={p.id} className="hover:bg-gray-50/50 transition-colors">
+                  <tr key={p.id} className="hover:bg-gray-50/50 transition-colors group/row">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs overflow-hidden ${!p.creator_id ? 'bg-amber-50 text-amber-600' : 'bg-indigo-50 text-indigo-600'}`}>
-                          {creator?.photo_url ? <img src={creator.photo_url} alt="" className="w-full h-full object-cover" /> : (!p.creator_id ? (p.guest_name?.charAt(0) || '?') : (creator?.display_name?.charAt(0) || '?'))}
-                        </div>
-                        <span className="text-sm font-bold text-gray-900">
-                          {!p.creator_id ? (
-                            <>{p.guest_name} <span className="ml-2 text-[9px] font-black text-amber-500 uppercase tracking-widest bg-amber-50 px-2 py-0.5 rounded-md border border-amber-100">Externo</span></>
+                        {/* Interactive Avatar */}
+                        <div 
+                          onClick={() => canViewProfile && onViewProfile(p.creator_id)}
+                          className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs overflow-hidden transition-all duration-300 ${
+                            canViewProfile 
+                              ? 'cursor-pointer hover:scale-110 hover:ring-2 hover:ring-indigo-200 ring-0 ring-offset-2 ring-offset-white' 
+                              : ''
+                          } ${!p.creator_id ? 'bg-amber-50 text-amber-600' : 'bg-indigo-50 text-indigo-600'}`}
+                        >
+                          {creator?.photo_url ? (
+                            <img src={creator.photo_url} alt="" className="w-full h-full object-cover" />
                           ) : (
-                            creator?.admin_alias || creator?.display_name || creator?.email || 'Desconocido'
+                            !p.creator_id ? (p.guest_name?.charAt(0) || '?') : (creator?.display_name?.charAt(0) || '?')
                           )}
-                        </span>
+                        </div>
+
+                        {/* Interactive Name */}
+                        <div className="flex flex-col">
+                          <span 
+                            onClick={() => canViewProfile && onViewProfile(p.creator_id)}
+                            className={`text-sm font-bold text-gray-900 transition-colors ${
+                              canViewProfile ? 'cursor-pointer hover:text-indigo-600' : ''
+                            }`}
+                          >
+                            {!p.creator_id ? (
+                              <>
+                                {p.guest_name} 
+                                <span className="ml-2 text-[9px] font-black text-amber-500 uppercase tracking-widest bg-amber-50 px-2 py-0.5 rounded-md border border-amber-100">Externo</span>
+                              </>
+                            ) : (
+                              creator?.admin_alias || creator?.display_name || creator?.email || 'Desconocido'
+                            )}
+                          </span>
+                          {creator?.role && (
+                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-tight leading-none mt-0.5">
+                              {creator.role}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm font-black text-emerald-600">${Number(p.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>

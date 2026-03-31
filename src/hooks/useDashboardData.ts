@@ -69,7 +69,7 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
       })));
       setUsers(usrs.data as UserProfile[]);
 
-      // Fetch payments and deleted items (admin-only)
+      // Fetch payments
       if (role === 'admin') {
         const [payRes, delCont, delCamp, delUsr] = await Promise.all([
           supabase.from('payments').select('*').order('paid_at', { ascending: false }),
@@ -98,6 +98,14 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
         
         if (logsError) throw logsError;
         setAuditLogs(logs || []);
+      } else if (role === 'creator' && user) {
+        // Creators can see their own payments
+        const { data: myPayments } = await supabase
+          .from('payments')
+          .select('*')
+          .eq('creator_id', user.id)
+          .order('paid_at', { ascending: false });
+        if (myPayments) setPayments(myPayments as Payment[]);
       }
     } catch (err: any) {
       console.error("Dashboard data fetch error:", err);

@@ -357,6 +357,10 @@ export default function AdminDashboard() {
             success={success}
             toastError={toastError}
             onSubmit={handleCreatePayment}
+            onViewProfile={(userId) => {
+              const userObj = users.find(u => u.id === userId);
+              if (userObj) setManagingUser(userObj);
+            }}
           />
         )}
 

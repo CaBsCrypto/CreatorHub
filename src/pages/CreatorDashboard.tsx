@@ -5,7 +5,7 @@ import {
   Sparkles, Youtube, Instagram, Globe, 
   ExternalLink, TrendingUp, Zap, Trophy, Flame, CheckCircle2,
   LayoutDashboard, Upload, Wallet, Plus, RefreshCw, BarChart3, List as ListIcon, LayoutGrid, Award,
-  AlertCircle, CheckCircle, Rocket, X
+  AlertCircle, CheckCircle, Rocket, X, DollarSign, Copy, ArrowUpRight, Clock
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -32,7 +32,7 @@ export default function CreatorDashboard() {
   const [filters, setFilter, setFilters, resetFilters] = useFilterParams({ campaign: 'all', tab: 'overview' });
   const activeTab = filters.tab || 'overview';
   const setActiveTab = (tab: string) => setFilter('tab', tab);
-  const { campaigns, content, filteredContent, metrics, refresh } = useDashboardData('creator', { campaign: filters.campaign });
+  const { campaigns, content, filteredContent, metrics, payments, refresh } = useDashboardData('creator', { campaign: filters.campaign });
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
@@ -156,6 +156,7 @@ export default function CreatorDashboard() {
             { id: 'overview', label: 'Resumen', icon: LayoutDashboard },
             { id: 'campaigns', label: 'Campañas', icon: Rocket },
             { id: 'content', label: 'Mi Contenido', icon: ListIcon },
+            { id: 'payments', label: 'Mis Pagos', icon: DollarSign },
             { id: 'journey', label: 'Mi Camino', icon: Trophy }
           ].map(tab => (
             <button
@@ -173,6 +174,9 @@ export default function CreatorDashboard() {
             >
               <tab.icon className={`h-4 w-4 ${activeTab === tab.id ? 'text-indigo-600' : 'text-gray-400'}`} />
               {tab.label}
+              {tab.id === 'payments' && payments.length > 0 && (
+                <span className="ml-0.5 inline-flex items-center justify-center w-4 h-4 rounded-full bg-emerald-100 text-emerald-600 text-[8px] font-black">{payments.length}</span>
+              )}
             </button>
           ))}
         </div>
@@ -460,6 +464,166 @@ export default function CreatorDashboard() {
               <h3 className="text-xl font-black text-gray-900">No hay campañas activas</h3>
             </div>
           )}
+        </div>
+      )}
+
+      {activeTab === 'payments' && (
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          {/* Payment Summary Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm relative overflow-hidden group">
+              <div className="absolute -right-4 -bottom-4 w-20 h-20 bg-emerald-50 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
+              <p className="relative z-10 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Total Recibido</p>
+              <span className="relative z-10 text-3xl font-black text-emerald-600">
+                ${payments.reduce((s, p) => s + Number(p.amount), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+              </span>
+            </div>
+            <div className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm">
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Pagos Registrados</p>
+              <span className="text-3xl font-black text-gray-900">{payments.length}</span>
+            </div>
+            <div className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm">
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Último Pago</p>
+              <span className="text-lg font-black text-gray-900">
+                {payments.length > 0 ? new Date(payments[0].paid_at).toLocaleDateString() : '—'}
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Payment History */}
+            <div className="lg:col-span-2 bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden">
+              <div className="px-8 py-6 border-b border-gray-50 flex items-center gap-3">
+                <Clock className="h-4 w-4 text-indigo-500" />
+                <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">Historial de Pagos</h3>
+              </div>
+              <div className="divide-y divide-gray-50">
+                {payments.length > 0 ? payments.map((p, i) => {
+                  const camp = campaigns.find(c => c.id === p.campaign_id);
+                  return (
+                    <motion.div
+                      key={p.id}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.04 }}
+                      className="px-8 py-5 flex items-center justify-between hover:bg-gray-50/50 transition-colors"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                          <DollarSign className="h-5 w-5 text-emerald-500" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-black text-gray-900">
+                            {p.concept || 'Pago recibido'}
+                          </p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                              {new Date(p.paid_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
+                            </span>
+                            {camp && (
+                              <span className="px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-lg text-[9px] font-black uppercase">
+                                {camp.name}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-lg font-black text-emerald-600">
+                          +${Number(p.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        </span>
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">{p.currency}</p>
+                      </div>
+                    </motion.div>
+                  );
+                }) : (
+                  <div className="py-20 text-center">
+                    <div className="w-16 h-16 bg-gray-50 rounded-3xl flex items-center justify-center mx-auto mb-4">
+                      <Wallet className="h-7 w-7 text-gray-200" />
+                    </div>
+                    <h3 className="text-base font-black text-gray-900">Sin pagos aún</h3>
+                    <p className="text-sm text-gray-400 mt-1">Tus cobros aparecerán aquí cuando el equipo los registre.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Payment Method Config */}
+            <div className="space-y-4">
+              {!profile?.payment_method ? (
+                <div className="bg-gradient-to-br from-rose-500 via-pink-500 to-orange-500 p-6 rounded-[2rem] shadow-xl shadow-rose-100 relative overflow-hidden group">
+                  <div className="absolute -right-6 -top-6 w-24 h-24 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
+                  <div className="relative z-10">
+                    <div className="flex items-center gap-2 text-white/80 mb-3">
+                      <AlertCircle className="h-4 w-4 text-amber-300 animate-pulse" />
+                      <span className="text-[9px] font-black uppercase tracking-[0.2em]">Acción requerida</span>
+                    </div>
+                    <h3 className="text-xl font-black text-white mb-2 leading-tight">Configura tu método de cobro</h3>
+                    <p className="text-white/70 text-xs font-medium mb-5">Sin un método activo, no podremos procesarte los pagos.</p>
+                    <button 
+                      onClick={() => setIsPaymentModalOpen(true)}
+                      className="w-full py-3 bg-white text-rose-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 transition-all shadow-lg active:scale-95"
+                    >
+                      Configurar Ahora
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm">
+                  <div className="flex items-center justify-between mb-5">
+                    <h3 className="text-sm font-black text-gray-900 flex items-center gap-2">
+                      <Wallet className="h-4 w-4 text-indigo-500" /> Método de Cobro
+                    </h3>
+                    <span className="p-1.5 bg-emerald-50 rounded-lg">
+                      <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />
+                    </span>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="p-3 bg-gray-50 rounded-2xl border border-gray-100">
+                      <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Método Activo</p>
+                      <p className="text-sm font-black text-gray-900 uppercase">
+                        {profile.payment_method === 'binance' ? '🟡 Binance Pay' : '🔷 Crypto Wallet'}
+                      </p>
+                    </div>
+                    <div className="p-3 bg-gray-50 rounded-2xl border border-gray-100 group/copy cursor-pointer"
+                      onClick={() => {
+                        const id = profile.payment_method === 'binance' ? profile.binance_id : profile.wallet_address;
+                        if (id) { navigator.clipboard.writeText(id); success('ID copiado al portapapeles'); }
+                      }}
+                    >
+                      <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Identificador</p>
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-xs font-medium text-gray-900 truncate flex-1">
+                          {profile.payment_method === 'binance' ? profile.binance_id : profile.wallet_address}
+                        </p>
+                        <Copy className="h-3.5 w-3.5 text-gray-300 group-hover/copy:text-indigo-500 transition-colors flex-shrink-0" />
+                      </div>
+                    </div>
+                    {profile.payment_method === 'wallet' && profile.wallet_network && (
+                      <div className="p-3 bg-gray-50 rounded-2xl border border-gray-100">
+                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Red</p>
+                        <p className="text-sm font-black text-gray-900">{profile.wallet_network}</p>
+                      </div>
+                    )}
+                  </div>
+                  <button 
+                    onClick={() => setIsPaymentModalOpen(true)}
+                    className="w-full mt-4 py-3 bg-gray-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all active:scale-95"
+                  >
+                    Cambiar Método
+                  </button>
+                </div>
+              )}
+
+              {/* Tip Card */}
+              <div className="bg-indigo-50 p-5 rounded-[2rem] border border-indigo-100">
+                <p className="text-[9px] font-black text-indigo-500 uppercase tracking-widest mb-2">💡 Consejo</p>
+                <p className="text-xs font-medium text-indigo-700 leading-relaxed">
+                  Mantén tu método de pago actualizado para recibir tus compensaciones sin retrasos. El equipo de Umbra procesa los pagos según el acuerdo de tu campaña.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
