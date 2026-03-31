@@ -154,7 +154,6 @@ export default function CreatorDashboard() {
         >
           {[
             { id: 'overview', label: 'Resumen', icon: LayoutDashboard },
-            { id: 'campaigns', label: 'Campañas', icon: Rocket },
             { id: 'content', label: 'Mi Contenido', icon: ListIcon },
             { id: 'journey', label: 'Mi Camino', icon: Trophy }
           ].map(tab => (
@@ -381,45 +380,6 @@ export default function CreatorDashboard() {
               <span className="text-xs font-black uppercase tracking-widest">Añadir Contenido</span>
             </button>
           </div>
-        </div>
-      )}
-      
-      {activeTab === 'campaigns' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in duration-500">
-          {campaigns.filter(c => c.status === 'active').map((campaign, i) => (
-            <div key={campaign.id} className="relative group bg-white border border-gray-100 rounded-[2.5rem] p-8 hover:shadow-2xl hover:border-indigo-100 transition-all duration-500 overflow-hidden">
-               <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-indigo-50 opacity-0 group-hover:opacity-100 rounded-full transition-opacity" />
-               <div className="relative z-10">
-                 <div className="flex justify-between items-start mb-6">
-                   <div className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-indigo-50 text-indigo-600 border border-indigo-100">
-                     {campaign.status}
-                   </div>
-                   <div className="p-2 bg-gray-50 rounded-xl text-indigo-500 font-black text-[10px]">
-                     +{campaign.target_posts}XP
-                   </div>
-                 </div>
-                 <h3 className="text-xl font-bold text-gray-900 mb-2 leading-tight group-hover:text-indigo-600 transition-colors">{campaign.name}</h3>
-                 <p className="text-sm text-gray-500 line-clamp-2 mb-6 min-h-[40px]">{campaign.description || 'Sin descripción.'}</p>
-                 <div className="pt-6 border-t border-gray-50 flex items-center justify-between">
-                     <button 
-                       onClick={() => {
-                         setFilter('campaign', campaign.id);
-                         setActiveTab('content');
-                       }} 
-                       className="w-full py-3 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all"
-                     >
-                       Ver Posts
-                     </button>
-                 </div>
-               </div>
-            </div>
-          ))}
-          {campaigns.filter(c => c.status === 'active').length === 0 && (
-            <div className="col-span-full py-20 text-center">
-              <Rocket className="h-12 w-12 text-gray-200 mx-auto mb-4" />
-              <h3 className="text-xl font-black text-gray-900">No hay campañas activas</h3>
-            </div>
-          )}
         </div>
       )}
 
