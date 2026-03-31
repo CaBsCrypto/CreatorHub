@@ -55,13 +55,13 @@ export default function Login() {
 
           <div className="space-y-4">
             <h1 className="text-6xl font-black text-slate-900 leading-tight tracking-tight">
-              Potencia tu <br />
+              Mide y Multiplica tu <br />
               <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 bg-clip-text text-transparent">
-                Carrera Viral.
+                Impacto.
               </span>
             </h1>
             <p className="text-xl text-slate-500 font-medium max-w-lg leading-relaxed">
-              La plataforma definitiva para creadores de élite. Gestiona campañas, analiza tu rendimiento y escala tu impacto global.
+              Todas tus campañas y métricas en un solo lugar. Analiza tu rendimiento en tiempo real, demuestra tu valor a las marcas y lleva tu contenido al siguiente nivel.
             </p>
           </div>
 
