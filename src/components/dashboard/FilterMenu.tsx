@@ -37,7 +37,7 @@ const FilterMenu: React.FC<FilterMenuProps> = ({
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="absolute right-0 top-full mt-3 w-[320px] bg-white rounded-[2rem] shadow-2xl border border-gray-100 p-6 z-50 space-y-6"
+            className="absolute left-0 top-full mt-3 w-[320px] bg-white rounded-[2rem] shadow-2xl border border-gray-100 p-6 z-50 space-y-6"
           >
             <div className="flex items-center justify-between mb-2">
               <h4 className="text-xs font-black text-gray-900 uppercase tracking-widest">Ajustar Vista</h4>
