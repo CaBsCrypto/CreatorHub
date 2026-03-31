@@ -47,7 +47,7 @@ const CreatorCard: React.FC<CreatorCardProps> = ({ creator, index, userRole, onE
       {/* Decorative gradient blob */}
       <div className={`absolute -top-12 -right-12 w-40 h-40 bg-gradient-to-br ${creator.rank.color} opacity-[0.03] group-hover:opacity-10 rounded-full transition-opacity duration-700 blur-2xl`} />
 
-      <div className="relative z-10 flex flex-col h-full">
+      <div className="relative z-10 flex flex-col">
         {/* Header Section */}
         <div className="flex items-start justify-between mb-8">
           <div className="flex items-center gap-4">
@@ -99,7 +99,7 @@ const CreatorCard: React.FC<CreatorCardProps> = ({ creator, index, userRole, onE
         </div>
 
         {/* Metrics Section - Vertical Stack matching screenshot */}
-        <div className="flex flex-col gap-5 flex-1">
+        <div className="flex flex-col gap-6">
           {/* Main Metric: Views */}
           <div className="flex flex-col">
             <span className="text-2xl font-black text-gray-900 leading-none tracking-tight">
@@ -133,11 +133,6 @@ const CreatorCard: React.FC<CreatorCardProps> = ({ creator, index, userRole, onE
               </div>
             )}
           </div>
-        </div>
-
-        {/* Bottom Action Hint */}
-        <div className="mt-8 flex items-center gap-2 text-[10px] font-black text-indigo-600 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 duration-300">
-           Ver Perfil completo <ExternalLink className="h-3.5 w-3.5" />
         </div>
       </div>
     </motion.div>
