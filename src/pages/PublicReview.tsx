@@ -4,9 +4,26 @@ import { supabase, Campaign, Content, UserProfile } from '../supabase';
 import LoadingSpinner from '../components/LoadingSpinner';
 import {
   Zap, Users, Music2, Instagram, Youtube, Twitter, Globe,
-  TrendingUp, BarChart3, Award, ArrowLeft, PieChart, LayoutGrid, X
+  TrendingUp, BarChart3, Award, ArrowLeft, PieChart, LayoutGrid, X,
+  Eye, Heart, MessageCircle, ExternalLink, ChevronRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+function useCountUp(target: number, duration = 1200) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (target === 0) return;
+    let start = 0;
+    const step = target / (duration / 16);
+    const timer = setInterval(() => {
+      start += step;
+      if (start >= target) { setCount(target); clearInterval(timer); }
+      else setCount(Math.floor(start));
+    }, 16);
+    return () => clearInterval(timer);
+  }, [target, duration]);
+  return count;
+}
 
 export default function PublicReview() {
   const { token } = useParams<{ token: string }>();
@@ -19,7 +36,6 @@ export default function PublicReview() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   
-  // Local state for immediate UI response
   const [filterPlatform, setFilterPlatformLocal] = useState(searchParams.get('platform') || 'all');
   const [filterCreatorId, setFilterCreatorIdLocal] = useState(searchParams.get('creator') || 'all');
   const [activeSection, setActiveSectionLocal] = useState<'content' | 'creators' | 'stats'>('content');
@@ -33,7 +49,6 @@ export default function PublicReview() {
     setLangLocal((searchParams.get('lang') as any) || 'en');
   }, [searchParams]);
 
-  // Single setSearchParams call to avoid race conditions when updating multiple filters
   const setFilters = (updates: Partial<{ platform: string; creator: string; section: 'content' | 'creators' | 'stats' }>) => {
     if (updates.platform !== undefined) setFilterPlatformLocal(updates.platform.trim().toLowerCase());
     if (updates.creator !== undefined) setFilterCreatorIdLocal(updates.creator);
@@ -58,54 +73,30 @@ export default function PublicReview() {
 
   const t = {
     en: {
-      clientReport: "Client Report",
-      live: "Live",
-      posts: "Posts",
-      totalViews: "Total Views",
-      creators: "Creators",
-      activeCreators: "Active Creators",
-      filterByPlatform: "FILTER BY PLATFORM",
-      allPlatforms: "ALL PLATFORMS",
-      creatorDirectory: "CREATOR DIRECTORY",
-      allCreators: "ALL CREATORS",
-      publishedContent: "PUBLISHED CONTENT",
-      views: "Views",
-      loading: "Generating report...",
-      notFound: "Report not found",
-      notFoundDesc: "This report doesn't exist or the link has expired. Please contact your campaign manager.",
-      backHome: "Back to Home",
-      individualPerf: "View individual performance...",
-      anonymous: "Anonymous Creator",
-      agency: "Agency",
-      searchCreators: "Search creators...",
-      platformDistribution: "Platform Distribution",
-      noResults: "No content matches the filters",
-      viewAllPlatforms: "View all platforms"
+      clientReport: "Campaign Report", live: "Live", posts: "Posts",
+      totalViews: "Total Views", creators: "Creators", activeCreators: "Creators",
+      filterByPlatform: "FILTER BY PLATFORM", allPlatforms: "ALL PLATFORMS",
+      creatorDirectory: "CREATOR DIRECTORY", allCreators: "ALL CREATORS",
+      publishedContent: "PUBLISHED CONTENT", views: "Views",
+      loading: "Generating report...", notFound: "Report not found",
+      notFoundDesc: "This report doesn't exist or the link has expired.",
+      backHome: "Back to Home", anonymous: "Anonymous Creator",
+      searchCreators: "Search creators...", platformDistribution: "Platforms",
+      noResults: "No content matches the filters", viewAllPlatforms: "View all",
+      engagement: "Engagement"
     },
     es: {
-      clientReport: "Reporte de Cliente",
-      live: "En Vivo",
-      posts: "Posteos",
-      totalViews: "Vistas Totales",
-      creators: "Creadores",
-      activeCreators: "Participantes",
-      filterByPlatform: "FILTRAR POR RED",
-      allPlatforms: "TODAS LAS REDES",
-      creatorDirectory: "DIRECTORIO DE CREADORES",
-      allCreators: "TODOS LOS CREADORES",
-      publishedContent: "CONTENIDO PUBLICADO",
-      views: "Vistas",
-      loading: "Generando reporte...",
-      notFound: "Enlace no disponible",
-      notFoundDesc: "Este reporte no existe o el enlace ha caducado. Por favor, contacta con tu manager de campaña.",
-      backHome: "Volver al inicio",
-      individualPerf: "Vea el desempeño individual...",
-      anonymous: "Creador Anónimo",
-      agency: "Agencia",
-      searchCreators: "Buscar creadores...",
-      platformDistribution: "Distribución por Red",
-      noResults: "No hay contenido que coincida con los filtros",
-      viewAllPlatforms: "Ver todas las redes"
+      clientReport: "Reporte de Campaña", live: "En Vivo", posts: "Posts",
+      totalViews: "Vistas Totales", creators: "Creadores", activeCreators: "Creadores",
+      filterByPlatform: "FILTRAR POR RED", allPlatforms: "TODAS LAS REDES",
+      creatorDirectory: "DIRECTORIO DE CREADORES", allCreators: "TODOS",
+      publishedContent: "CONTENIDO PUBLICADO", views: "Vistas",
+      loading: "Generando reporte...", notFound: "Enlace no disponible",
+      notFoundDesc: "Este reporte no existe o el enlace ha caducado.",
+      backHome: "Volver al inicio", anonymous: "Creador Anónimo",
+      searchCreators: "Buscar creadores...", platformDistribution: "Plataformas",
+      noResults: "Sin contenido para los filtros seleccionados", viewAllPlatforms: "Ver todo",
+      engagement: "Engagement"
     }
   }[lang];
 
@@ -114,159 +105,88 @@ export default function PublicReview() {
       if (!token) return;
       try {
         setLoading(true);
-        
-        // 1. Fetch Campaign by token (UUID) OR slug (friendly name)
         const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(token);
-        
         const campaignQuery = supabase.from('campaigns').select('*');
-        if (isUUID) {
-          campaignQuery.or(`share_token.eq.${token},slug.eq.${token}`);
-        } else {
-          campaignQuery.eq('slug', token);
-        }
-
+        if (isUUID) { campaignQuery.or(`share_token.eq.${token},slug.eq.${token}`); }
+        else { campaignQuery.eq('slug', token); }
         const { data: campaignData, error: campaignError } = await campaignQuery.single();
-
-        if (campaignError || !campaignData) {
-          throw new Error('Campaña no encontrada o enlace inválido.');
-        }
-
+        if (campaignError || !campaignData) throw new Error('Campaña no encontrada.');
         setCampaign(campaignData);
 
-        // 2. Fetch Content for this campaign
         const { data: contentData, error: contentError } = await supabase
-          .from('content')
-          .select('*')
-          .eq('campaign_id', campaignData.id)
-          .eq('status', 'active');
-
+          .from('content').select('*').eq('campaign_id', campaignData.id).eq('status', 'active');
         if (contentError) throw contentError;
         setContent(contentData || []);
 
-        // 3. Fetch Users (Creators) involved
         const creatorIds = [...new Set(contentData?.map(c => c.creator_id).filter(Boolean))];
-        
-        // Collect potential names from content entries (as RLS fallback)
         const nameFallbackMap = new Map<string, string>();
-        contentData?.forEach(c => {
-          if (c.creator_id && (c as any).guest_name) {
-            nameFallbackMap.set(c.creator_id, (c as any).guest_name);
-          }
-        });
+        contentData?.forEach(c => { if (c.creator_id && (c as any).guest_name) nameFallbackMap.set(c.creator_id, (c as any).guest_name); });
 
         if (creatorIds.length > 0) {
           try {
-            const { data: userData, error: userError } = await supabase
-              .from('users')
-              .select('*')
-              .in('id', creatorIds);
-            
-            if (userError) throw userError;
-            
-            // Merge fetched users with stubs and fill missing names from guest_name/alias
-            const finalUsers = (userData || []).map(u => ({
-              ...u,
-              display_name: (u as any).admin_alias || u.display_name || nameFallbackMap.get(u.id) || null
+            const { data: userData } = await supabase.from('users').select('*').in('id', creatorIds);
+            const finalUsers = (userData || []).map(u => ({ ...u, display_name: (u as any).admin_alias || u.display_name || nameFallbackMap.get(u.id) || null }));
+            const fetchedIds = new Set(finalUsers.map(u => u.id));
+            const stubs: UserProfile[] = creatorIds.filter(id => id && !fetchedIds.has(id)).map(id => ({
+              id: id!, role: 'creator', email: '', display_name: nameFallbackMap.get(id!) || null,
+              photo_url: null, payment_method: null, binance_id: null, wallet_address: null,
+              wallet_network: null, created_at: new Date().toISOString()
             }));
-            
-            const fetchedUserIds = new Set(finalUsers.map(u => u.id));
-            const missingStubs: UserProfile[] = creatorIds
-              .filter(id => id && !fetchedUserIds.has(id))
-              .map(id => ({
-                id,
-                role: 'creator',
-                email: '',
-                display_name: nameFallbackMap.get(id!) || null,
-                photo_url: null,
-                payment_method: null,
-                binance_id: null,
-                wallet_address: null,
-                wallet_network: null,
-                created_at: new Date().toISOString()
-              }));
-
-            setUsers([...finalUsers, ...missingStubs]);
-          } catch (err) {
-            console.warn('Could not fetch user profiles (likely RLS), using stubs:', err);
-            const stubs: UserProfile[] = creatorIds.map(id => ({
-              id: id!,
-              role: 'creator',
-              email: '',
-              display_name: nameFallbackMap.get(id!) || null,
-              photo_url: null,
-              payment_method: null,
-              binance_id: null,
-              wallet_address: null,
-              wallet_network: null,
-              created_at: new Date().toISOString()
-            }));
-            setUsers(stubs);
+            setUsers([...finalUsers, ...stubs]);
+          } catch {
+            setUsers(creatorIds.map(id => ({
+              id: id!, role: 'creator', email: '', display_name: nameFallbackMap.get(id!) || null,
+              photo_url: null, payment_method: null, binance_id: null, wallet_address: null,
+              wallet_network: null, created_at: new Date().toISOString()
+            })));
           }
         }
 
-        // 4. Fetch Project (Client) if exists
         if (campaignData.client_id) {
-          const { data: projectData, error: projectError } = await supabase
-            .from('users')
-            .select('*')
-            .eq('id', campaignData.client_id)
-            .single();
-          
-          if (!projectError && projectData) {
-            setProject(projectData);
-          }
+          const { data: projectData } = await supabase.from('users').select('*').eq('id', campaignData.client_id).single();
+          if (projectData) setProject(projectData);
         }
-
       } catch (err: any) {
-        console.error('Error fetching public campaign:', err);
         setError(err.message);
       } finally {
         setLoading(false);
       }
     }
-
     fetchPublicData();
   }, [token]);
 
   const stats = useMemo(() => {
     if (!campaign) return null;
-    
-    const totalViews = content.reduce((sum, c) => sum + (c.views || 0), 0);
-    const totalLikes = content.reduce((sum, c) => sum + (c.likes || 0), 0);
-    const totalComments = content.reduce((sum, c) => sum + (c.comments || 0), 0);
-    
+    const totalViews = content.reduce((s, c) => s + (c.views || 0), 0);
+    const totalEngagement = content.reduce((s, c) => s + (c.likes || 0) + (c.comments || 0), 0);
     const platforms: Record<string, number> = {};
-    content.forEach(c => {
-      if (c.platform) {
-        const p = c.platform.toLowerCase();
-        platforms[p] = (platforms[p] || 0) + 1;
-      }
-    });
-
-    return { totalViews, totalLikes, totalComments, platforms };
+    content.forEach(c => { if (c.platform) { const p = c.platform.toLowerCase(); platforms[p] = (platforms[p] || 0) + 1; } });
+    return { totalViews, totalEngagement, platforms };
   }, [content]);
 
-  const filteredContent = useMemo(() => {
-    return content.filter(item => {
-      const matchPlatform = filterPlatform === 'all' || item.platform?.toLowerCase() === filterPlatform.toLowerCase();
-      const matchCreator = filterCreatorId === 'all' || item.creator_id === filterCreatorId;
-      return matchPlatform && matchCreator;
-    });
-  }, [content, filterPlatform, filterCreatorId]);
+  const filteredContent = useMemo(() => content.filter(item => {
+    const matchPlatform = filterPlatform === 'all' || item.platform?.toLowerCase() === filterPlatform.toLowerCase();
+    const matchCreator = filterCreatorId === 'all' || item.creator_id === filterCreatorId;
+    return matchPlatform && matchCreator;
+  }), [content, filterPlatform, filterCreatorId]);
 
+  const animatedViews = useCountUp(stats?.totalViews || 0);
+  const animatedPosts = useCountUp(content.length);
+  const animatedCreators = useCountUp(users.length);
+  const animatedEngagement = useCountUp(stats?.totalEngagement || 0);
 
   if (loading) return <LoadingSpinner message={t.loading} />;
-  
+
   if (error || !campaign) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
-        <div className="bg-white p-12 rounded-[3rem] shadow-2xl border border-gray-100 text-center max-w-lg">
-          <div className="w-24 h-24 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-8">
-            <Globe className="h-12 w-12 text-rose-500" />
+      <div className="min-h-screen flex items-center justify-center bg-gray-950 p-6">
+        <div className="bg-gray-900/80 backdrop-blur-xl border border-gray-800 p-12 rounded-[3rem] shadow-2xl text-center max-w-lg">
+          <div className="w-24 h-24 bg-rose-900/30 border border-rose-800/50 rounded-full flex items-center justify-center mx-auto mb-8">
+            <Globe className="h-12 w-12 text-rose-400" />
           </div>
-          <h2 className="text-3xl font-black text-gray-900 mb-4">{t.notFound}</h2>
-          <p className="text-gray-500 mb-8 leading-relaxed">{t.notFoundDesc}</p>
-          <a href="/" className="px-8 py-4 bg-gray-900 text-white rounded-2xl font-bold hover:scale-105 transition-transform inline-block">{t.backHome}</a>
+          <h2 className="text-3xl font-black text-white mb-4">{t.notFound}</h2>
+          <p className="text-gray-400 mb-8 leading-relaxed">{t.notFoundDesc}</p>
+          <a href="/" className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-500 transition-all inline-block">{t.backHome}</a>
         </div>
       </div>
     );
@@ -274,522 +194,523 @@ export default function PublicReview() {
 
   const progressPercentage = Math.min(100, Math.round((content.length / (campaign.target_posts || 1)) * 100));
 
-
   return (
-    <div className="min-h-screen bg-[#fafbfc] pb-20">
-      {/* Premium Header */}
-      <div className="bg-white border-b border-gray-100 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 sm:py-6 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3 sm:gap-6 flex-1 min-w-0">
-              {(filterCreatorId !== 'all' || filterPlatform !== 'all' || activeSection !== 'content') && (
-                <button 
-                  onClick={() => setFilters({ creator: 'all', platform: 'all', section: 'content' })}
-                  className="p-2 sm:p-3 bg-gray-50 rounded-xl sm:rounded-2xl text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all border border-gray-100 shadow-sm"
-                  title="Volver"
-                >
-                  <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
-                </button>
-              )}
-              <div>
-                <div className="flex items-center gap-2 sm:gap-3 mb-0.5 sm:mb-1">
-                  <span className="hidden sm:inline-flex px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-black uppercase tracking-widest">{t.clientReport}</span>
-                  <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-emerald-500 rounded-full animate-pulse" />
-                  <span className="text-[8px] sm:text-[10px] font-black text-emerald-600 uppercase tracking-widest">{t.live}</span>
+    <div className="min-h-screen bg-[#0a0b0f] pb-20">
+      {/* Premium Dark Header */}
+      <div className="relative bg-gradient-to-b from-gray-950 via-[#0d0f1a] to-[#0a0b0f] border-b border-white/5 sticky top-0 z-50 backdrop-blur-xl">
+        {/* Subtle gradient top accent */}
+        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent" />
+
+        <div className="max-w-7xl mx-auto px-4 py-4 sm:py-5 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 sm:gap-5 flex-1 min-w-0">
+            {(filterCreatorId !== 'all' || filterPlatform !== 'all') && (
+              <button
+                onClick={() => setFilters({ creator: 'all', platform: 'all', section: 'content' })}
+                className="p-2 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-all border border-white/10"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </button>
+            )}
+
+            {/* Logo/Brand area */}
+            <div className="flex items-center gap-3 min-w-0">
+              {project?.photo_url ? (
+                <img src={project.photo_url} alt="" className="w-9 h-9 rounded-xl object-cover ring-1 ring-white/10 flex-shrink-0" />
+              ) : (
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-700 flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-900/50">
+                  <BarChart3 className="h-4 w-4 text-white" />
                 </div>
-                <h1 className="text-base sm:text-2xl font-black text-gray-900 tracking-tight uppercase truncate">
+              )}
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <span className="hidden sm:inline-flex px-2 py-0.5 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-full text-[9px] font-black uppercase tracking-widest">{t.clientReport}</span>
+                  <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.6)]" />
+                  <span className="text-[9px] sm:text-[10px] font-black text-emerald-400 uppercase tracking-widest">{t.live}</span>
+                </div>
+                <h1 className="text-sm sm:text-lg font-black text-white tracking-tight truncate">
                   {project?.display_name || campaign.name}
                 </h1>
-                {project && (
-                  <p className="text-[7px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
-                    {campaign.name}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 sm:gap-6">
-              {/* Language Toggle - Compact for mobile */}
-              <div className="flex items-center bg-gray-50 p-0.5 sm:p-1 rounded-lg sm:rounded-xl border border-gray-100">
-                <button
-                  onClick={() => setLang('en')}
-                  className={`px-2 py-1 sm:px-3 sm:py-1.5 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-black transition-all ${lang === 'en' ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
-                >
-                  EN
-                </button>
-                <button
-                  onClick={() => setLang('es')}
-                  className={`px-2 py-1 sm:px-3 sm:py-1.5 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-black transition-all ${lang === 'es' ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
-                >
-                  ES
-                </button>
-              </div>
-
-              <div className="h-8 w-[1px] bg-gray-100 hidden md:block" />
-              
-              <div className="hidden sm:flex flex-col items-center">
-                 <div className="w-24 h-1 bg-gray-100 rounded-full overflow-hidden mb-1">
-                    <div className="h-full bg-indigo-500 transition-all duration-1000" style={{ width: `${progressPercentage}%` }} />
-                 </div>
-                  <span className="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest">{progressPercentage}%</span>
+                {project && <p className="text-[9px] sm:text-[10px] font-bold text-gray-500 uppercase tracking-widest truncate">{campaign.name}</p>}
               </div>
             </div>
           </div>
-        </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-6 sm:mt-10">
-        {/* Key Metrics - 2 columns on mobile */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-6 mb-8 sm:mb-10">
-          <MetricCard
-            icon={<Zap className="h-5 w-5" />}
-            title={t.totalViews}
-            value={stats?.totalViews.toLocaleString() || '0'}
-            color="emerald"
-            t={t}
-          />
-          <MetricCard
-            icon={<BarChart3 className="h-5 w-5" />}
-            title={t.posts}
-            value={content.length.toString()}
-            color="indigo"
-            onClick={() => setFilters({ section: 'content', platform: 'all', creator: 'all' })}
-            t={t}
-          />
-          <MetricCard
-            icon={<Users className="h-5 w-5" />}
-            title={t.activeCreators}
-            value={users.length.toString()}
-            color="purple"
-            onClick={() => setActiveSection('creators')}
-            t={t}
-          />
-        </div>
-
-        {/* Mobile Navigation Tabs - Compact Feed/Creators */}
-        <div className="lg:hidden flex items-center gap-3 mb-6 sticky top-[68px] sm:top-[88px] z-40">
-           <div className="flex-1 flex items-center bg-white p-1 rounded-2xl border border-gray-100 shadow-sm">
-             <button
-               onClick={() => setActiveSection('content')}
-               className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeSection === 'content' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-gray-400'}`}
-             >
-               <LayoutGrid className="h-3.5 w-3.5" />
-               {lang === 'en' ? 'Feed' : 'Contenido'}
-             </button>
-             <button
-               onClick={() => setActiveSection('creators')}
-               className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeSection === 'creators' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-gray-400'}`}
-             >
-               <Users className="h-3.5 w-3.5" />
-               {lang === 'en' ? 'Creators' : 'Autores'}
-             </button>
-           </div>
-           
-           <button
-             onClick={() => setShowPlatformsModal(true)}
-             className="w-14 h-14 flex items-center justify-center bg-white rounded-2xl border border-indigo-100 shadow-lg shadow-indigo-100/50 text-indigo-600 hover:bg-indigo-50 transition-all active:scale-95"
-             title={t.platformDistribution}
-           >
-             <PieChart className="h-6 w-6" />
-           </button>
-        </div>
-
-        {/* Distribution & Details */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 sm:gap-12 items-start">
-          {/* Main Content Feed */}
-          <div className={`lg:col-span-3 space-y-8 ${activeSection === 'stats' ? 'hidden lg:block' : 'block'}`}>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-               <div className="flex items-center gap-2 flex-wrap">
-                 <h3 className="text-sm font-black text-gray-900 uppercase tracking-[0.2em] flex items-center gap-2">
-                   <Award className="h-4 w-4 text-indigo-500" />
-                   {activeSection === 'content' ? t.publishedContent : t.creatorDirectory}
-                 </h3>
-                 {filterCreatorId !== 'all' && (
-                   <span className="flex items-center gap-1 px-2.5 py-1 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-black uppercase tracking-widest">
-                     {users.find(u => u.id === filterCreatorId)?.display_name || t.anonymous}
-                     <button onClick={() => setFilters({ creator: 'all' })} className="hover:text-indigo-800 transition-colors"><X className="h-2.5 w-2.5" /></button>
-                   </span>
-                 )}
-                 {filterPlatform !== 'all' && (
-                   <span className="flex items-center gap-1 px-2.5 py-1 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-black uppercase tracking-widest">
-                     {filterPlatform}
-                     <button onClick={() => setFilters({ platform: 'all' })} className="hover:text-indigo-800 transition-colors"><X className="h-2.5 w-2.5" /></button>
-                   </span>
-                 )}
-               </div>
-               
-               <div className="flex items-center gap-2">
-                 <select 
-                   value={filterPlatform}
-                   onChange={(e) => setFilterPlatform(e.target.value)}
-                   className="px-4 py-2 bg-white border border-gray-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-gray-500 outline-none focus:ring-2 focus:ring-indigo-500"
-                 >
-                   <option value="all">{t.allPlatforms}</option>
-                   <option value="tiktok">TikTok</option>
-                   <option value="instagram">Instagram</option>
-                   <option value="youtube">YouTube</option>
-                   <option value="x">X / Twitter</option>
-                   <option value="twitch">Stream</option>
-                   <option value="coinmarketcap">CMC</option>
-                 </select>
-
-                 <select 
-                   value={filterCreatorId}
-                   onChange={(e) => setFilterCreatorId(e.target.value)}
-                   className="px-4 py-2 bg-white border border-gray-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-gray-500 outline-none focus:ring-2 focus:ring-indigo-500"
-                 >
-                   <option value="all">{t.allCreators}</option>
-                   {users.map(u => (
-                     <option key={u.id} value={u.id}>{u.display_name || t.anonymous}</option>
-                   ))}
-                 </select>
-               </div>
+          <div className="flex items-center gap-3">
+            {/* Language Toggle */}
+            <div className="flex items-center bg-white/5 p-0.5 rounded-lg border border-white/10">
+              {(['en', 'es'] as const).map(l => (
+                <button key={l} onClick={() => setLang(l)}
+                  className={`px-2.5 py-1.5 rounded-md text-[10px] font-black transition-all ${lang === l ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-300'}`}
+                >{l.toUpperCase()}</button>
+              ))}
             </div>
 
+            {/* Progress Ring (desktop) */}
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-xl border border-white/10">
+              <div className="w-20 h-1 bg-white/10 rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-1000 rounded-full" style={{ width: `${progressPercentage}%` }} />
+              </div>
+              <span className="text-[10px] font-black text-gray-400">{progressPercentage}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        {/* Hero Stats — Glassmorphism cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-8 mb-8">
+          <HeroStatCard
+            icon={<Eye className="h-5 w-5" />}
+            label={t.totalViews}
+            value={animatedViews.toLocaleString()}
+            color="indigo"
+            onClick={() => setFilters({ section: 'content', platform: 'all', creator: 'all' })}
+          />
+          <HeroStatCard
+            icon={<BarChart3 className="h-5 w-5" />}
+            label={t.posts}
+            value={animatedPosts.toString()}
+            color="purple"
+            onClick={() => setFilters({ section: 'content', platform: 'all', creator: 'all' })}
+          />
+          <HeroStatCard
+            icon={<Users className="h-5 w-5" />}
+            label={t.activeCreators}
+            value={animatedCreators.toString()}
+            color="emerald"
+            onClick={() => setActiveSection('creators')}
+          />
+          <HeroStatCard
+            icon={<Heart className="h-5 w-5" />}
+            label={t.engagement}
+            value={animatedEngagement.toLocaleString()}
+            color="rose"
+          />
+        </div>
+
+        {/* Mobile Nav Tabs */}
+        <div className="lg:hidden flex items-center gap-2 mb-6">
+          <div className="flex-1 flex items-center bg-white/5 border border-white/10 p-1 rounded-2xl">
+            {[
+              { id: 'content', label: lang === 'en' ? 'Feed' : 'Contenido', icon: LayoutGrid },
+              { id: 'creators', label: lang === 'en' ? 'Creators' : 'Autores', icon: Users }
+            ].map(tab => (
+              <button key={tab.id}
+                onClick={() => setActiveSection(tab.id as any)}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                  activeSection === tab.id
+                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/50'
+                    : 'text-gray-500 hover:text-gray-300'
+                }`}
+              >
+                <tab.icon className="h-3.5 w-3.5" /> {tab.label}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() => setShowPlatformsModal(true)}
+            className="w-12 h-12 flex items-center justify-center bg-white/5 rounded-2xl border border-white/10 text-gray-400 hover:text-indigo-400 hover:border-indigo-500/30 transition-all"
+          >
+            <PieChart className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Main Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8 items-start">
+          {/* Content / Creators Area */}
+          <div className={`lg:col-span-3 ${activeSection === 'stats' ? 'hidden lg:block' : 'block'}`}>
+            {/* Section Header + Filters */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-xs font-black text-gray-400 uppercase tracking-[0.15em] flex items-center gap-2">
+                  <Award className="h-3.5 w-3.5 text-indigo-500" />
+                  {activeSection === 'content' ? t.publishedContent : t.creatorDirectory}
+                </h3>
+                {filterCreatorId !== 'all' && (
+                  <span className="flex items-center gap-1 px-2.5 py-1 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-full text-[9px] font-black uppercase">
+                    {users.find(u => u.id === filterCreatorId)?.display_name || t.anonymous}
+                    <button onClick={() => setFilters({ creator: 'all' })} className="hover:text-indigo-200"><X className="h-2.5 w-2.5" /></button>
+                  </span>
+                )}
+                {filterPlatform !== 'all' && (
+                  <span className="flex items-center gap-1 px-2.5 py-1 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-full text-[9px] font-black uppercase">
+                    {filterPlatform}
+                    <button onClick={() => setFilters({ platform: 'all' })} className="hover:text-indigo-200"><X className="h-2.5 w-2.5" /></button>
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <select value={filterPlatform} onChange={e => setFilterPlatform(e.target.value)}
+                  className="px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase text-gray-400 outline-none focus:border-indigo-500/50 transition-colors cursor-pointer"
+                >
+                  <option value="all">{t.allPlatforms}</option>
+                  <option value="tiktok">TikTok</option>
+                  <option value="instagram">Instagram</option>
+                  <option value="youtube">YouTube</option>
+                  <option value="x">X / Twitter</option>
+                  <option value="twitch">Stream</option>
+                  <option value="coinmarketcap">CMC</option>
+                </select>
+                <select value={filterCreatorId} onChange={e => setFilterCreatorId(e.target.value)}
+                  className="px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase text-gray-400 outline-none focus:border-indigo-500/50 transition-colors cursor-pointer"
+                >
+                  <option value="all">{t.allCreators}</option>
+                  {users.map(u => (
+                    <option key={u.id} value={u.id}>{u.display_name || t.anonymous}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Creators Grid */}
             {activeSection === 'creators' ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 animate-in fade-in slide-in-from-bottom-4">
-                {users.map(user => {
-                  const userPosts = content.filter(c => c.creator_id === user.id);
-                  const userViews = userPosts.reduce((sum, c) => sum + (c.views || 0), 0);
+              <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 animate-in fade-in slide-in-from-bottom-4">
+                {users.map((u, i) => {
+                  const posts = content.filter(c => c.creator_id === u.id);
+                  const views = posts.reduce((s, c) => s + (c.views || 0), 0);
+                  const isFiltered = filterCreatorId === u.id;
                   return (
-                    <button
-                      key={user.id}
-                      onClick={() => setFilters({ creator: user.id, section: 'content' })}
-                      className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm text-left group hover:border-indigo-200 hover:shadow-lg transition-all"
+                    <motion.button
+                      key={u.id}
+                      initial={{ opacity: 0, y: 16 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                      onClick={() => setFilters({ creator: isFiltered ? 'all' : u.id, section: 'content' })}
+                      className={`p-5 rounded-[1.75rem] border text-left group transition-all duration-300 ${
+                        isFiltered
+                          ? 'bg-indigo-600/20 border-indigo-500/40 shadow-lg shadow-indigo-900/30'
+                          : 'bg-white/[0.03] border-white/10 hover:bg-white/[0.06] hover:border-white/20'
+                      }`}
                     >
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 font-black text-xl">
-                          {(user.display_name || '?').charAt(0)}
+                      <div className="flex flex-col items-center text-center gap-3">
+                        <div className="relative">
+                          <div className={`w-14 h-14 rounded-2xl overflow-hidden flex items-center justify-center text-white font-black text-xl shadow-lg ${
+                            !u.photo_url ? 'bg-gradient-to-br from-indigo-600 to-purple-700' : ''
+                          }`}>
+                            {u.photo_url
+                              ? <img src={u.photo_url} alt={u.display_name || ''} className="w-full h-full object-cover" />
+                              : (u.display_name || '?').charAt(0).toUpperCase()
+                            }
+                          </div>
+                          {isFiltered && (
+                            <div className="absolute -top-1 -right-1 w-5 h-5 bg-indigo-500 rounded-full flex items-center justify-center">
+                              <X className="h-3 w-3 text-white" />
+                            </div>
+                          )}
                         </div>
                         <div>
-                          <p className="font-black text-gray-900">{(user as any).admin_alias || user.display_name || t.anonymous}</p>
-                          <div className="flex items-center gap-3 mt-1">
-                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{userPosts.length} {t.posts}</span>
-                            <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">{userViews.toLocaleString()} {t.views}</span>
+                          <p className="font-black text-white text-sm leading-tight">{u.display_name || t.anonymous}</p>
+                          <div className="flex items-center justify-center gap-2 mt-1.5">
+                            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">{posts.length} {t.posts}</span>
+                            <span className="w-0.5 h-3 bg-gray-700 rounded-full" />
+                            <span className="text-[9px] font-bold text-indigo-400 uppercase tracking-widest">{views.toLocaleString()}</span>
                           </div>
                         </div>
+                        <ChevronRight className={`h-3.5 w-3.5 text-gray-600 group-hover:text-indigo-400 transition-colors ${isFiltered ? 'rotate-90' : ''}`} />
                       </div>
-                    </button>
+                    </motion.button>
                   );
                 })}
               </div>
-            ) : activeSection === 'content' && filteredContent.length > 0 ? (
-                <div className="relative group/scroll">
-                  <div 
-                    className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-2.5 animate-in fade-in slide-in-from-bottom-4 transition-all duration-300 max-h-[75vh] overflow-y-auto pr-2 sm:pr-4 custom-scrollbar pb-16"
-                  >
-                    {filteredContent.map((item, i) => {
-                      const creator = users.find(u => u.id === item.creator_id);
-                      const isStream = item.platform === 'twitch';
-                      const platformColors: Record<string, string> = {
-                        youtube: 'bg-rose-500', instagram: 'bg-pink-500',
-                        tiktok: 'bg-gray-900', x: 'bg-sky-500',
-                        twitch: 'bg-violet-600', coinmarketcap: 'bg-amber-500',
-                      };
-                      const accentColor = platformColors[item.platform] || 'bg-indigo-500';
+            ) : filteredContent.length > 0 ? (
+              <div className="relative">
+                <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2.5 max-h-[78vh] overflow-y-auto pr-1 pb-12" style={{ scrollbarWidth: 'thin', scrollbarColor: '#1e1e2e transparent' }}>
+                  {filteredContent.map((item, i) => {
+                    const creator = users.find(u => u.id === item.creator_id);
+                    const isStream = item.platform === 'twitch';
+                    const platformColors: Record<string, string> = {
+                      youtube: 'from-rose-600 to-red-700', instagram: 'from-pink-600 to-rose-600',
+                      tiktok: 'from-gray-800 to-gray-900', x: 'from-sky-600 to-blue-700',
+                      twitch: 'from-violet-700 to-purple-800', coinmarketcap: 'from-amber-600 to-orange-600',
+                    };
+                    const gradient = platformColors[item.platform] || 'from-indigo-600 to-blue-700';
 
-                      return (
-                        <motion.a 
-                          key={item.id}
-                          href={isStream ? '#' : item.url}
-                          onClick={(e) => {
-                            if (isStream && item.thumbnail) {
-                              e.preventDefault();
-                              setSelectedImage(item.thumbnail);
-                            }
-                          }}
-                          target={isStream ? undefined : "_blank"}
-                          rel="noopener noreferrer"
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: i * 0.03 }}
-                          className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden group hover:shadow-md hover:border-gray-200 transition-all duration-200 block cursor-pointer flex flex-col"
-                        >
-                          {/* Stream card: compact thumbnail hero */}
-                          {isStream && item.thumbnail ? (
-                            <div className="relative h-24 w-full overflow-hidden bg-gray-900">
-                              <img 
-                                src={item.thumbnail} 
-                                alt={item.title || 'Stream'} 
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-85"
-                              />
-                              <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/30 to-transparent" />
-                              {/* STREAM badge */}
-                              <div className="absolute top-1.5 right-1.5">
-                                <span className="px-1.5 py-0.5 bg-violet-600 text-white rounded text-[7px] font-black uppercase tracking-wider">
-                                  Stream
-                                </span>
-                              </div>
-                              {/* Stats over image */}
-                              <div className="absolute bottom-0 left-0 right-0 px-2.5 pb-2 flex items-end justify-between">
-                                <div>
-                                  <p className="text-[7px] font-black text-white/50 uppercase tracking-widest leading-none">Views</p>
-                                  <p className="text-xs font-black text-white leading-tight">{(item.views || 0).toLocaleString()}</p>
-                                </div>
-                                {(item.peek_viewers || 0) > 0 && (
-                                  <div className="text-right">
-                                    <p className="text-[7px] font-black text-white/50 uppercase tracking-widest leading-none">Peak</p>
-                                    <p className="text-xs font-black text-white leading-tight">{(item.peek_viewers || 0).toLocaleString()}</p>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          ) : (
-                            <div className={`h-0.5 w-full ${accentColor}`} />
-                          )}
-
-                          <div className="p-2.5 flex-1 flex flex-col gap-1.5">
-                            {/* Creator + platform */}
-                            <div className="flex items-center justify-between gap-1">
-                              <div className="flex items-center gap-1.5 min-w-0">
-                                <div className="w-5 h-5 rounded-full bg-indigo-600 flex items-center justify-center text-[8px] font-black text-white shrink-0">
-                                  {(creator?.display_name || '?').charAt(0).toUpperCase()}
-                                </div>
-                                <span className="text-[9px] font-bold text-gray-500 truncate">{creator?.display_name || t.anonymous}</span>
-                              </div>
-                              {!isStream && (
-                                <span 
-                                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setFilterPlatform(item.platform || 'all'); }}
-                                  className="px-1.5 py-0.5 bg-gray-50 text-gray-400 rounded text-[7px] font-black uppercase tracking-wider flex items-center gap-0.5 border border-gray-100 hover:bg-indigo-50 hover:text-indigo-600 transition-colors cursor-pointer shrink-0"
-                                >
-                                  {getPlatformIcon(item.platform, "h-2 w-2")} {item.platform === 'coinmarketcap' ? 'CMC' : item.platform}
-                                </span>
-                              )}
-                            </div>
-
-                            {/* Title */}
-                            <p className="text-[10px] font-bold text-gray-800 line-clamp-2 leading-snug flex-1">
-                              {item.title || (isStream ? `Stream · ${new Date(item.uploaded_at || item.created_at).toLocaleDateString()}` : '—')}
-                            </p>
-
-                            {/* Stats */}
-                            <div className="flex items-center gap-3 pt-1.5 border-t border-gray-50">
-                              <div>
-                                <p className="text-[7px] font-black text-gray-400 uppercase tracking-widest">{t.views}</p>
-                                <p className="text-[10px] font-black text-gray-900">{(item.views ?? 0).toLocaleString()}</p>
-                              </div>
-                              {!isStream && (item.likes || 0) > 0 && (
-                                <div>
-                                  <p className="text-[7px] font-black text-gray-400 uppercase tracking-widest">Likes</p>
-                                  <p className="text-[10px] font-black text-gray-900">{(item.likes || 0).toLocaleString()}</p>
-                                </div>
-                              )}
-                              {isStream && (item.average_viewers || 0) > 0 && (
-                                <div>
-                                  <p className="text-[7px] font-black text-gray-400 uppercase tracking-widest">Avg</p>
-                                  <p className="text-[10px] font-black text-gray-900">{(item.average_viewers || 0).toLocaleString()}</p>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </motion.a>
-                      );
-                    })}
-                  </div>
-                  {/* Bottom Fade */}
-                  <div className="absolute bottom-0 left-0 right-4 h-10 bg-gradient-to-t from-gray-50 to-transparent pointer-events-none z-20" />
-
-                </div>
-              ) : activeSection === 'content' && filteredContent.length === 0 ? (
-                <div className="bg-white rounded-[3rem] p-20 text-center border border-dashed border-gray-200">
-                  <Globe className="h-16 w-16 text-gray-100 mx-auto mb-6" />
-                  <p className="text-gray-400 font-bold uppercase tracking-widest">{t.noResults}</p>
-                </div>
-              ) : null
-            }
-          </div>
-
-          {/* Image Preview Modal */}
-          {selectedImage && (
-            <div 
-              className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-10 animate-in fade-in duration-300"
-              onClick={() => setSelectedImage(null)}
-            >
-              <div className="absolute inset-0 bg-gray-900/90 backdrop-blur-sm" />
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="relative max-w-5xl w-full bg-white rounded-[3rem] overflow-hidden shadow-2xl z-10"
-                onClick={e => e.stopPropagation()}
-              >
-                <img src={selectedImage} alt="Preview" className="w-full h-auto max-h-[85vh] object-contain" />
-                <button 
-                  onClick={() => setSelectedImage(null)}
-                  className="absolute top-6 right-6 w-12 h-12 bg-white/20 backdrop-blur-md text-white rounded-full flex items-center justify-center hover:bg-white/40 transition-colors"
-                >
-                  <X className="h-6 w-6" />
-                </button>
-              </motion.div>
-            </div>
-          )}
-
-          {/* Platforms Modal (Mobile Only) */}
-          <AnimatePresence>
-            {showPlatformsModal && (
-              <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4">
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  onClick={() => setShowPlatformsModal(false)}
-                  className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm"
-                />
-                <motion.div 
-                  initial={{ opacity: 0, y: 100 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 100 }}
-                  className="relative w-full max-w-lg bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] overflow-hidden shadow-2xl p-6 sm:p-10"
-                >
-                  <div className="flex items-center justify-between mb-8">
-                    <div>
-                      <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">{t.platformDistribution}</h3>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{campaign.name}</p>
-                    </div>
-                    <button 
-                      onClick={() => setShowPlatformsModal(false)}
-                      className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 hover:text-gray-900 transition-colors"
-                    >
-                      <X className="h-5 w-5" />
-                    </button>
-                  </div>
-
-                  <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
-                    {Object.entries(stats?.platforms || {}).map(([platform, count]) => (
-                      <button
-                        key={platform}
-                        type="button"
-                        onClick={() => {
-                          setFilters({ platform, section: 'content' });
-                          setShowPlatformsModal(false);
-                        }}
-                        className={`w-full flex items-center justify-between p-4 rounded-2xl group transition-all duration-200 active:scale-95 border gap-3 ${
-                          filterPlatform === platform.toLowerCase() ? 'bg-indigo-600 border-transparent shadow-lg shadow-indigo-100 text-white' : 'bg-gray-50 border-transparent hover:bg-white hover:shadow-lg hover:border-gray-100'
-                        }`}
+                    return (
+                      <motion.a
+                        key={item.id}
+                        href={isStream ? '#' : item.url}
+                        onClick={(e) => { if (isStream && item.thumbnail) { e.preventDefault(); setSelectedImage(item.thumbnail); } }}
+                        target={isStream ? undefined : '_blank'}
+                        rel="noopener noreferrer"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.025 }}
+                        className="bg-white/[0.03] border border-white/10 rounded-2xl overflow-hidden group hover:bg-white/[0.06] hover:border-white/20 hover:shadow-2xl hover:shadow-black/50 transition-all duration-300 flex flex-col cursor-pointer"
                       >
-                        <div className="flex items-center gap-3 min-w-0 flex-1">
-                          <div className={`w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center ${filterPlatform === platform.toLowerCase() ? 'bg-white/20 text-white' : getPlatformColor(platform)}`}>
-                            {getPlatformIcon(platform, "h-5 w-5")}
+                        {/* Thumbnail / Color Bar */}
+                        {isStream && item.thumbnail ? (
+                          <div className="relative h-28 overflow-hidden flex-shrink-0 bg-gray-950">
+                            <img src={item.thumbnail} alt={item.title || 'Stream'} className="w-full h-full object-cover opacity-70 group-hover:opacity-90 group-hover:scale-105 transition-all duration-500" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/40 to-transparent" />
+                            <span className="absolute top-2 right-2 px-1.5 py-0.5 bg-violet-600 text-white text-[7px] font-black uppercase tracking-wider rounded">STREAM</span>
+                            <div className="absolute bottom-2 left-2 right-2 flex items-end justify-between">
+                              <div>
+                                <p className="text-[7px] font-black text-white/40 uppercase">Views</p>
+                                <p className="text-xs font-black text-white leading-none">{(item.views || 0).toLocaleString()}</p>
+                              </div>
+                              {(item.peek_viewers || 0) > 0 && (
+                                <div className="text-right">
+                                  <p className="text-[7px] font-black text-white/40 uppercase">Peak</p>
+                                  <p className="text-xs font-black text-white leading-none">{(item.peek_viewers || 0).toLocaleString()}</p>
+                                </div>
+                              )}
+                            </div>
                           </div>
-                          <span className={`text-base font-black capitalize tracking-tight truncate ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-900'}`}>
-                            {platform.toLowerCase() === 'coinmarketcap' ? 'CMC' : platform.toLowerCase() === 'twitch' ? 'Stream' : platform}
-                          </span>
-                        </div>
-                        <span className={`text-xl font-black shrink-0 ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-900'}`}>{count}</span>
-                      </button>
-                    ))}
-                  </div>
+                        ) : item.thumbnail ? (
+                          <div className="relative h-24 overflow-hidden flex-shrink-0 bg-gray-950">
+                            <img src={item.thumbnail} alt={item.title || ''} className="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-105 transition-all duration-500" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-gray-950/80 to-transparent" />
+                          </div>
+                        ) : (
+                          <div className={`h-1 w-full bg-gradient-to-r ${gradient} flex-shrink-0`} />
+                        )}
 
-                  <div className="mt-8 pt-8 border-t border-gray-50">
-                    <button
-                      onClick={() => setShowPlatformsModal(false)}
-                      className="w-full py-4 bg-gray-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-gray-800 transition-all active:scale-95"
-                    >
-                      {lang === 'en' ? 'Close' : 'Cerrar'}
-                    </button>
-                  </div>
-                </motion.div>
+                        <div className="p-2.5 flex flex-col gap-1.5 flex-1">
+                          {/* Creator + platform row */}
+                          <div className="flex items-center justify-between gap-1">
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-black text-white overflow-hidden flex-shrink-0 ${!creator?.photo_url ? `bg-gradient-to-br ${gradient}` : ''}`}>
+                                {creator?.photo_url
+                                  ? <img src={creator.photo_url} alt="" className="w-full h-full object-cover" />
+                                  : (creator?.display_name || '?').charAt(0).toUpperCase()
+                                }
+                              </div>
+                              <span className="text-[9px] font-bold text-gray-400 truncate">{creator?.display_name || t.anonymous}</span>
+                            </div>
+                            {!isStream && (
+                              <span
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setFilterPlatform(item.platform || 'all'); }}
+                                className="px-1.5 py-0.5 bg-white/5 border border-white/10 text-gray-500 hover:text-indigo-400 hover:border-indigo-500/30 rounded text-[7px] font-black uppercase cursor-pointer transition-colors flex-shrink-0 flex items-center gap-0.5"
+                              >
+                                {getPlatformIcon(item.platform, 'h-2 w-2')} {item.platform === 'coinmarketcap' ? 'CMC' : item.platform}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Title */}
+                          <p className="text-[10px] font-bold text-gray-200 line-clamp-2 leading-snug flex-1">
+                            {item.title || (isStream ? `Stream · ${new Date(item.uploaded_at || item.created_at).toLocaleDateString()}` : '—')}
+                          </p>
+
+                          {/* Stats row */}
+                          <div className="flex items-center gap-3 pt-1.5 border-t border-white/5">
+                            <div className="flex items-center gap-1">
+                              <Eye className="h-2.5 w-2.5 text-gray-600" />
+                              <span className="text-[9px] font-black text-gray-300">{(item.views ?? 0).toLocaleString()}</span>
+                            </div>
+                            {!isStream && (item.likes || 0) > 0 && (
+                              <div className="flex items-center gap-1">
+                                <Heart className="h-2.5 w-2.5 text-gray-600" />
+                                <span className="text-[9px] font-black text-gray-400">{(item.likes || 0).toLocaleString()}</span>
+                              </div>
+                            )}
+                            {isStream && (item.average_viewers || 0) > 0 && (
+                              <div className="flex items-center gap-1">
+                                <Users className="h-2.5 w-2.5 text-gray-600" />
+                                <span className="text-[9px] font-black text-gray-400">{(item.average_viewers || 0).toLocaleString()}</span>
+                              </div>
+                            )}
+                            <ExternalLink className="h-2.5 w-2.5 text-gray-700 ml-auto group-hover:text-indigo-400 transition-colors" />
+                          </div>
+                        </div>
+                      </motion.a>
+                    );
+                  })}
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-[#0a0b0f] to-transparent pointer-events-none" />
+              </div>
+            ) : (
+              <div className="bg-white/[0.02] border border-white/5 rounded-[3rem] p-20 text-center">
+                <Globe className="h-12 w-12 text-gray-800 mx-auto mb-4" />
+                <p className="text-gray-600 font-bold uppercase tracking-widest text-sm">{t.noResults}</p>
               </div>
             )}
-          </AnimatePresence>
+          </div>
 
-          {/* Sidebar Stats (Desktop Only) */}
-          <div className="hidden lg:block space-y-8">
-            <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-8">
-              <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-6">{t.platformDistribution}</h3>
-              <div className="space-y-4">
+          {/* Sidebar — Platforms + Brand */}
+          <div className="hidden lg:flex flex-col gap-6">
+            {/* Platform Filter Panel */}
+            <div className="bg-white/[0.03] border border-white/10 rounded-[2rem] p-6">
+              <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-5">{t.platformDistribution}</h3>
+              <div className="space-y-2">
                 {filterPlatform !== 'all' && (
-                  <button 
-                    onClick={() => setFilterPlatform('all')}
-                    className="flex items-center gap-2 py-2 text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:underline transition-all duration-200 active:scale-95"
+                  <button onClick={() => setFilterPlatform('all')}
+                    className="flex items-center gap-1.5 py-2 text-[10px] font-black text-indigo-400 hover:text-indigo-300 uppercase tracking-widest transition-colors"
                   >
-                    <ArrowLeft className="h-3 w-3" />
-                    {t.viewAllPlatforms}
+                    <ArrowLeft className="h-3 w-3" /> {t.viewAllPlatforms}
                   </button>
                 )}
-
                 {Object.entries(stats?.platforms || {}).map(([platform, count]) => (
-                  <button
-                    key={platform}
-                    type="button"
-                    onClick={() => setFilters({ platform, section: 'content' })}
-                    className={`w-full flex items-center justify-between p-4 rounded-2xl group transition-all duration-200 active:scale-95 border gap-3 ${
-                      filterPlatform === platform.toLowerCase() ? 'bg-indigo-600 border-transparent shadow-lg shadow-indigo-100' : 'bg-gray-50 border-transparent hover:bg-white hover:shadow-lg hover:border-gray-100'
+                  <button key={platform} onClick={() => setFilters({ platform, section: 'content' })}
+                    className={`w-full flex items-center justify-between p-3.5 rounded-2xl transition-all duration-200 border gap-3 ${
+                      filterPlatform === platform.toLowerCase()
+                        ? 'bg-indigo-600 border-indigo-500 shadow-lg shadow-indigo-900/50'
+                        : 'bg-white/[0.02] border-white/5 hover:bg-white/[0.05] hover:border-white/10'
                     }`}
                   >
-                    <div className="flex items-center gap-3 min-w-0 flex-1">
-                      <div className={`w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center ${filterPlatform === platform.toLowerCase() ? 'bg-white/20 text-white' : getPlatformColor(platform)}`}>
-                        {getPlatformIcon(platform, "h-5 w-5")}
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className={`w-8 h-8 rounded-xl flex-shrink-0 flex items-center justify-center ${
+                        filterPlatform === platform.toLowerCase() ? 'bg-white/20 text-white' : getPlatformColor(platform)
+                      }`}>
+                        {getPlatformIcon(platform, 'h-4 w-4')}
                       </div>
-                      <span className={`text-sm font-black capitalize tracking-tight truncate ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-900'}`}>
+                      <span className={`text-sm font-black capitalize ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-300'}`}>
                         {platform.toLowerCase() === 'coinmarketcap' ? 'CMC' : platform.toLowerCase() === 'twitch' ? 'Stream' : platform}
                       </span>
                     </div>
-                    <span className={`text-lg font-black shrink-0 ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-900'}`}>{count}</span>
+                    <span className={`text-base font-black ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-400'}`}>{count}</span>
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-[2.5rem] p-8 text-white shadow-xl shadow-indigo-100 relative overflow-hidden group">
-               <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl group-hover:scale-150 transition-transform duration-1000" />
-               <TrendingUp className="h-10 w-10 mb-6 opacity-80" />
-               <h3 className="text-xl font-black mb-2 leading-tight">Umbra Creator Hub</h3>
-               <p className="text-indigo-100 text-sm font-medium opacity-90 leading-relaxed mb-6">{lang === 'en' ? 'Optimizing the connection between brands and creators with real-time metrics.' : 'Optimizando la conexión entre marcas y creadores con métricas en tiempo real.'}</p>
-               <div className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">© 2026 UMBRA AGENCY</div>
+            {/* Brand Card */}
+            <div className="relative bg-gradient-to-br from-indigo-600/20 via-purple-700/10 to-transparent border border-indigo-500/20 rounded-[2rem] p-6 overflow-hidden">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-600/10 rounded-full blur-3xl -mr-10 -mt-10" />
+              <div className="relative z-10">
+                <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-indigo-900/50">
+                  <TrendingUp className="h-5 w-5 text-white" />
+                </div>
+                <h3 className="text-lg font-black text-white mb-2 leading-tight">Umbra Creator Hub</h3>
+                <p className="text-gray-500 text-xs font-medium leading-relaxed mb-4">
+                  {lang === 'en'
+                    ? 'Real-time campaign metrics connecting brands with top creators.'
+                    : 'Métricas de campaña en tiempo real.'}
+                </p>
+                <div className="text-[9px] font-black text-gray-700 uppercase tracking-[0.2em]">© 2026 UMBRA AGENCY</div>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Image Preview Modal */}
+      <AnimatePresence>
+        {selectedImage && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+            onClick={() => setSelectedImage(null)}
+          >
+            <div className="absolute inset-0 bg-black/95 backdrop-blur-xl" />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+              className="relative max-w-5xl w-full rounded-[2rem] overflow-hidden shadow-2xl z-10"
+              onClick={e => e.stopPropagation()}
+            >
+              <img src={selectedImage} alt="Preview" className="w-full h-auto max-h-[85vh] object-contain" />
+              <button onClick={() => setSelectedImage(null)}
+                className="absolute top-4 right-4 w-10 h-10 bg-black/50 backdrop-blur-md text-white rounded-full flex items-center justify-center hover:bg-black/80 transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Platforms Modal (Mobile) */}
+      <AnimatePresence>
+        {showPlatformsModal && (
+          <div className="fixed inset-0 z-[100] flex items-end justify-center">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setShowPlatformsModal(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 100, opacity: 0 }}
+              className="relative w-full max-w-lg bg-[#0f1117] border-t border-white/10 rounded-t-[2.5rem] p-6 shadow-2xl"
+            >
+              <div className="w-12 h-1 bg-white/10 rounded-full mx-auto mb-6" />
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-sm font-black text-white uppercase tracking-widest">{t.platformDistribution}</h3>
+                <button onClick={() => setShowPlatformsModal(false)} className="w-8 h-8 bg-white/5 rounded-xl flex items-center justify-center text-gray-400">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="space-y-2 max-h-[50vh] overflow-y-auto">
+                {Object.entries(stats?.platforms || {}).map(([platform, count]) => (
+                  <button key={platform}
+                    onClick={() => { setFilters({ platform, section: 'content' }); setShowPlatformsModal(false); }}
+                    className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all active:scale-95 ${
+                      filterPlatform === platform.toLowerCase()
+                        ? 'bg-indigo-600 border-indigo-500 text-white'
+                        : 'bg-white/[0.03] border-white/10 hover:border-white/20'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${filterPlatform === platform.toLowerCase() ? 'bg-white/20 text-white' : getPlatformColor(platform)}`}>
+                        {getPlatformIcon(platform, 'h-4 w-4')}
+                      </div>
+                      <span className={`font-black capitalize ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-200'}`}>
+                        {platform.toLowerCase() === 'coinmarketcap' ? 'CMC' : platform.toLowerCase() === 'twitch' ? 'Stream' : platform}
+                      </span>
+                    </div>
+                    <span className={`text-xl font-black ${filterPlatform === platform.toLowerCase() ? 'text-white' : 'text-gray-400'}`}>{count}</span>
+                  </button>
+                ))}
+              </div>
+              <button onClick={() => setShowPlatformsModal(false)}
+                className="w-full mt-5 py-4 bg-white/5 border border-white/10 text-gray-400 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-white/10"
+              >
+                {lang === 'en' ? 'Close' : 'Cerrar'}
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
-function MetricCard({ title, value, icon, color, onClick, t }: { title: string, value: string, icon: React.ReactNode, color: 'emerald' | 'indigo' | 'purple' | 'rose', onClick?: () => void, t: any }) {
+function HeroStatCard({ icon, label, value, color, onClick }: {
+  icon: React.ReactNode; label: string; value: string;
+  color: 'indigo' | 'purple' | 'emerald' | 'rose'; onClick?: () => void;
+}) {
   const colors = {
-    emerald: 'bg-emerald-50 text-emerald-600',
-    indigo: 'bg-indigo-50 text-indigo-600',
-    purple: 'bg-purple-50 text-purple-600',
-    rose: 'bg-rose-50 text-rose-600'
-  };
+    indigo: { bg: 'from-indigo-600/10 to-indigo-600/5', border: 'border-indigo-500/20', icon: 'bg-indigo-600/20 text-indigo-400', text: 'text-indigo-400' },
+    purple: { bg: 'from-purple-600/10 to-purple-600/5', border: 'border-purple-500/20', icon: 'bg-purple-600/20 text-purple-400', text: 'text-purple-400' },
+    emerald: { bg: 'from-emerald-600/10 to-emerald-600/5', border: 'border-emerald-500/20', icon: 'bg-emerald-600/20 text-emerald-400', text: 'text-emerald-400' },
+    rose: { bg: 'from-rose-600/10 to-rose-600/5', border: 'border-rose-500/20', icon: 'bg-rose-600/20 text-rose-400', text: 'text-rose-400' },
+  }[color];
 
   return (
-    <button 
+    <motion.button
+      whileHover={{ y: -2 }}
       onClick={onClick}
       disabled={!onClick}
-      className={`bg-white p-5 sm:p-8 rounded-[2rem] sm:rounded-[3rem] border border-gray-100 shadow-sm relative overflow-hidden group text-left w-full transition-all ${onClick ? 'hover:shadow-xl hover:border-indigo-100 active:scale-95' : 'cursor-default'} ${title === t.activeCreators ? 'col-span-2 md:col-span-1' : ''}`}
+      className={`relative bg-gradient-to-br ${colors.bg} border ${colors.border} rounded-[2rem] p-5 sm:p-6 text-left w-full overflow-hidden group transition-all ${onClick ? 'cursor-pointer hover:shadow-2xl hover:shadow-black/50' : 'cursor-default'}`}
     >
-      <div className={`absolute -right-4 -bottom-4 w-16 sm:w-24 h-16 sm:h-24 ${colors[color]} opacity-10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700`} />
-      <div className="flex flex-col relative z-10">
-        <div className={`w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl ${colors[color]} flex items-center justify-center mb-3 sm:mb-6 shadow-sm`}>
-          <div className="h-4 w-4 sm:h-5 sm:w-5">
-            {icon}
-          </div>
-        </div>
-        <p className="text-[8px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5 sm:mb-1">{title}</p>
-        <span className="text-xl sm:text-3xl font-black text-gray-900 tracking-tighter">{value}</span>
+      <div className="absolute -right-6 -bottom-6 w-20 h-20 bg-white/[0.02] rounded-full blur-xl group-hover:scale-150 transition-transform duration-700" />
+      <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl ${colors.icon} flex items-center justify-center mb-4 relative z-10`}>
+        <div className="h-4 w-4 sm:h-5 sm:w-5">{icon}</div>
       </div>
-    </button>
+      <p className="text-[8px] sm:text-[9px] font-black text-gray-600 uppercase tracking-widest mb-1 relative z-10">{label}</p>
+      <span className="text-2xl sm:text-3xl font-black text-white tracking-tighter relative z-10">{value}</span>
+    </motion.button>
   );
 }
 
-function getPlatformIcon(platform: string, className = "h-3.5 w-3.5 sm:h-4 sm:w-4") {
+function getPlatformIcon(platform: string, className = 'h-4 w-4') {
   switch (platform) {
     case 'tiktok': return <Music2 className={className} />;
     case 'instagram': return <Instagram className={className} />;
     case 'youtube': return <Youtube className={className} />;
     case 'x': return <Twitter className={className} />;
-    case 'twitch': return <Globe className={className} />;
-    case 'coinmarketcap': return <Zap className={className} />;
+    case 'twitch': return <Zap className={className} />;
+    case 'coinmarketcap': return <TrendingUp className={className} />;
     default: return <Globe className={className} />;
   }
 }
 
 function getPlatformColor(platform: string) {
   switch (platform) {
-    case 'tiktok': return 'bg-gray-900 text-white';
-    case 'instagram': return 'bg-pink-50 text-pink-600';
-    case 'youtube': return 'bg-rose-50 text-rose-600';
-    case 'x': return 'bg-indigo-50 text-indigo-600';
-    case 'twitch': return 'bg-purple-50 text-purple-600';
-    case 'coinmarketcap': return 'bg-amber-50 text-amber-600';
-    default: return 'bg-gray-50 text-gray-600';
+    case 'tiktok': return 'bg-gray-800 text-white';
+    case 'instagram': return 'bg-pink-900/30 text-pink-400';
+    case 'youtube': return 'bg-red-900/30 text-red-400';
+    case 'x': return 'bg-sky-900/30 text-sky-400';
+    case 'twitch': return 'bg-violet-900/30 text-violet-400';
+    case 'coinmarketcap': return 'bg-amber-900/30 text-amber-400';
+    default: return 'bg-gray-800 text-gray-400';
   }
 }

@@ -91,11 +91,17 @@ export default function UserHistoryModal({
         {/* Modal Header */}
         <div className="p-8 pb-4 flex justify-between items-start">
           <div className="flex items-center gap-6">
-            <div className={`w-20 h-20 rounded-3xl flex items-center justify-center ${
-              user.role === 'admin' ? 'bg-rose-50 text-rose-600' : 
-              user.role === 'manager' ? 'bg-amber-50 text-amber-600' : 'bg-indigo-50 text-indigo-600'
+            <div className={`w-20 h-20 rounded-3xl flex items-center justify-center overflow-hidden flex-shrink-0 ${
+              !user.photo_url ? (
+                user.role === 'admin' ? 'bg-rose-50 text-rose-600' : 
+                user.role === 'manager' ? 'bg-amber-50 text-amber-600' : 'bg-indigo-50 text-indigo-600'
+              ) : ''
             }`}>
-              <Users className="h-10 w-10" />
+              {user.photo_url ? (
+                <img src={user.photo_url} alt={user.display_name || ''} className="w-full h-full object-cover" />
+              ) : (
+                <Users className="h-10 w-10" />
+              )}
             </div>
             <div>
               <h2 className="text-3xl font-black text-gray-900 tracking-tight flex items-center gap-3">

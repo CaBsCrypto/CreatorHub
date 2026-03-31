@@ -55,7 +55,13 @@ const CreatorCard: React.FC<CreatorCardProps> = ({ creator, index, userRole, onE
             <div className="relative shrink-0">
               <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${creator.rank.color} p-[2.5px] shadow-sm transform group-hover:rotate-3 transition-transform duration-500`}>
                 <div className="w-full h-full bg-white rounded-[0.85rem] flex items-center justify-center overflow-hidden">
-                  <User className="h-7 w-7 text-gray-200 group-hover:text-gray-300 transition-colors" />
+                  {(creator as any).photo_url ? (
+                    <img src={(creator as any).photo_url} alt={creator.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className={`text-xl font-black bg-gradient-to-br ${creator.rank.color} bg-clip-text text-transparent`}>
+                      {creator.name.charAt(0).toUpperCase()}
+                    </span>
+                  )}
                 </div>
               </div>
               <div className={`absolute -bottom-1 -right-1 w-7 h-7 rounded-lg bg-gradient-to-br ${creator.rank.color} flex items-center justify-center border-2 border-white shadow-md`}>
