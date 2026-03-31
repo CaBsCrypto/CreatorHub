@@ -197,46 +197,6 @@ export default function CreatorDashboard() {
             />
           </div>
 
-          <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden relative group">
-            <div className="absolute -right-12 -top-12 w-48 h-48 bg-indigo-50 rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-opacity" />
-            <div className="relative z-10">
-              <h3 className="text-xl font-black text-gray-900 mb-6 flex items-center gap-2">
-                <Rocket className="h-5 w-5 text-indigo-500" /> Campañas Activas ({campaigns.filter(c => c.status === 'active').length})
-              </h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {campaigns.filter(c => c.status === 'active').map((campaign, i) => (
-                  <motion.div 
-                    key={campaign.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.1 }}
-                    className="p-4 bg-gray-50 rounded-3xl border border-gray-100 hover:border-indigo-100 transition-all flex items-center justify-between"
-                  >
-                    <div>
-                      <p className="text-sm font-black text-gray-900">{campaign.name}</p>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Meta: {campaign.target_posts} posts</p>
-                    </div>
-                    <button 
-                      onClick={() => {
-                        setFilter('campaign', campaign.id);
-                        setActiveTab('content');
-                      }}
-                      className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-100/50 border border-indigo-200 active:scale-95 transition-all"
-                    >
-                      Ir a la Campaña
-                    </button>
-                  </motion.div>
-                ))}
-                {campaigns.filter(c => c.status === 'active').length === 0 && (
-                  <div className="col-span-full py-12 text-center text-gray-400 font-medium">
-                    No hay campañas activas en este momento.
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
             <div className="lg:col-span-2">
               <RankCard 
