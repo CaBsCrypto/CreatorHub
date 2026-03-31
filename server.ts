@@ -26,7 +26,9 @@ import {
 } from "./src/middleware/validation.js";
 import { analyzeTwitchScreenshot } from "./src/services/aiService.js";
 
-// dotenv.config(); - Removed, now using import 'dotenv/config'
+// Cooldown memory store for creators (15 minutes = 900000 ms)
+const creatorRefreshCooldowns = new Map<string, number>();
+const COOLDOWN_MS = 15 * 60 * 1000;
 
 
 process.on('unhandledRejection', (reason, promise) => {
@@ -149,6 +151,55 @@ app.post("/api/refresh-metrics", authenticate, authorize(['admin']), validate(Re
     res.json({ success: true, results });
   } catch (globalError: any) {
     console.error("Global refresh error:", globalError);
+    res.status(500).json({ error: globalError.message });
+  }
+});
+
+app.post("/api/refresh-creator-metrics", authenticate, authorize(['creator']), validate(RefreshMetricsSchema), async (req, res) => {
+  try {
+    const user = (req as any).user;
+    const userId = user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ error: "Usuario no identificado" });
+    }
+
+    // Check cooldown
+    const lastRefresh = creatorRefreshCooldowns.get(userId);
+    if (lastRefresh && (Date.now() - lastRefresh) < COOLDOWN_MS) {
+      const remainingMinutes = Math.ceil((COOLDOWN_MS - (Date.now() - lastRefresh)) / 60000);
+      return res.status(429).json({ error: `Por favor espera ${remainingMinutes} minutos antes de volver a actualizar.` });
+    }
+
+    const { items } = req.body; 
+    if (!items || !Array.isArray(items)) {
+      return res.status(400).json({ error: "Items array is required" });
+    }
+    
+    // Set cooldown immediately to prevent concurrent spam
+    creatorRefreshCooldowns.set(userId, Date.now());
+
+    const results = [];
+    for (const item of items) {
+      if (!item.id || !item.url || !item.platform) continue;
+      try {
+        let data;
+        switch(item.platform) {
+          case 'tiktok': data = await fetchTikTokData(item.url); break;
+          case 'youtube': data = await fetchYouTubeData(item.url); break;
+          case 'instagram': data = await fetchInstagramData(item.url); break;
+          case 'x': data = await fetchXData(item.url); break;
+          case 'coinmarketcap': data = await fetchCMCData(item.url); break;
+          default: continue;
+        }
+        results.push({ id: item.id, ...data });
+      } catch (itemError: any) {
+        console.error(`Failed to refresh item ${item.url}:`, itemError.message);
+      }
+    }
+    res.json({ success: true, results });
+  } catch (globalError: any) {
+    console.error("Creator refresh error:", globalError);
     res.status(500).json({ error: globalError.message });
   }
 });

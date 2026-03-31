@@ -3,7 +3,9 @@ import { X, Download, Youtube, Instagram, Twitter, Globe, Zap, Users, Music2, Fi
 import { motion, AnimatePresence } from 'framer-motion';
 import { Campaign, Content, UserProfile } from '../../supabase';
 import { useToast } from '../../hooks/useToast';
-
+import { HistoryChart } from './HistoryChart';
+import { supabase } from '../../supabase';
+import { ContentMetricsHistory } from '../../supabase';
 interface CampaignReportModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -24,6 +26,62 @@ export default function CampaignReportModal({
   
   const { success, error: toastError } = useToast();
   const [filterPlatform, setFilterPlatform] = React.useState('all');
+  const [historyData, setHistoryData] = React.useState<ContentMetricsHistory[]>([]);
+  const [loadingHistory, setLoadingHistory] = React.useState(false);
+
+  React.useEffect(() => {
+    if (isOpen && campaign && content.length > 0) {
+      loadHistory();
+    }
+  }, [isOpen, campaign, content]);
+
+  const loadHistory = async () => {
+    if (!campaign) return;
+    setLoadingHistory(true);
+    try {
+      const contentIds = content.filter(c => c.campaign_id === campaign.id).map(c => c.id);
+      if (contentIds.length === 0) {
+        setHistoryData([]);
+        return;
+      }
+      
+      const { data, error } = await supabase
+        .from('content_metrics_history')
+        .select('*')
+        .in('content_id', contentIds)
+        .order('recorded_at', { ascending: true });
+        
+      if (error) throw error;
+      
+      // Merge snapshots from same timestamps representing the overall campaign evolution
+      const aggregated = (data as ContentMetricsHistory[]).reduce((acc: Record<string, any>, curr) => {
+        // Group by hour or just format
+        const timestamp = curr.recorded_at.substring(0, 13); // group by hour
+        if (!acc[timestamp]) {
+            acc[timestamp] = {
+                id: curr.id,
+                content_id: 'campaign-agg',
+                recorded_at: curr.recorded_at,
+                views: 0,
+                likes: 0,
+                comments: 0,
+                unique_chatters: 0
+            };
+        }
+        acc[timestamp].views += (curr.views || 0);
+        acc[timestamp].likes += (curr.likes || 0);
+        acc[timestamp].comments += (curr.comments || 0);
+        acc[timestamp].unique_chatters += (curr.unique_chatters || 0);
+        return acc;
+      }, {});
+
+      setHistoryData(Object.values(aggregated));
+    } catch (err: any) {
+      console.error("Error loading history:", err);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
 
   const campaignContent = useMemo(() => {
     if (!campaign) return [];
@@ -313,6 +371,13 @@ export default function CampaignReportModal({
           </div>
 
           <div className="flex-1 overflow-y-auto p-8 no-scrollbar bg-slate-50/50">
+            {/* Histórico Evolutivo */}
+            {historyData.length > 0 && (
+              <div className="mb-8">
+                <HistoryChart data={historyData} height={200} showOtherMetrics={true} />
+              </div>
+            )}
+            
             {/* Global Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex flex-col justify-center">

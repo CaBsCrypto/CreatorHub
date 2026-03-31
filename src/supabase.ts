@@ -82,3 +82,19 @@ export interface Payment {
   paid_at: string;
   created_at: string;
 }
+
+export interface ContentMetricsHistory {
+  id: string;
+  content_id: string;
+  recorded_at: string;
+  views: number;
+  likes: number;
+  comments: number;
+  average_viewers?: number;
+  peek_viewers?: number;
+  unique_chatters?: number;
+  unique_viewers?: number;
+  followers?: number;
+  new_subscriptions?: number;
+  duration_minutes?: number;
+}

@@ -85,7 +85,7 @@ export default function CreatorDashboard() {
       const { data } = await supabase.from('content').select('id, url, platform').eq('creator_id', user?.id).is('deleted_at', null);
       if (data && data.length > 0) {
         const { data: { session } } = await supabase.auth.getSession();
-        const response = await fetch('/api/refresh-metrics', {
+        const response = await fetch('/api/refresh-creator-metrics', {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
@@ -137,9 +137,9 @@ export default function CreatorDashboard() {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row items-center gap-2 w-full lg:w-auto">
-            <button onClick={handleRefresh} disabled={isRefreshing} className={`flex-1 lg:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-white text-gray-900 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-sm ring-1 ring-gray-100 hover:bg-gray-50 transition-all ${isRefreshing ? 'opacity-50' : ''}`}>
+            <button onClick={handleRefresh} disabled={isRefreshing} className={`flex-1 lg:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-white text-gray-900 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-sm ring-1 ring-gray-100 hover:bg-gray-50 transition-all ${isRefreshing ? 'opacity-50 cursor-not-allowed' : ''}`}>
               <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-              Sincronizar
+              Sincronizar Métricas
             </button>
             <button onClick={() => setIsContentModalOpen(true)} className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-2xl shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95">
               <Plus className="h-4 w-4" />

@@ -110,28 +110,29 @@ const CreatorCard: React.FC<CreatorCardProps> = ({ creator, index, userRole, onE
             </span>
           </div>
 
-          {/* Posts */}
-          <div className="flex flex-col">
-            <span className="text-xl font-black text-gray-800 leading-none">
-              {creator.contentCount}
-            </span>
-            <span className="text-[10px] font-extrabold text-gray-400 uppercase mt-1.5 tracking-[0.1em]">
-              Posts
-            </span>
-          </div>
-
-
-          {/* Pagado - Conditional */}
-          {creator.totalPaid !== undefined && creator.totalPaid > 0 && (
-            <div className="flex flex-col animate-in fade-in slide-in-from-top-2 duration-700">
-              <span className="text-xl font-black text-indigo-600 leading-none">
-                ${creator.totalPaid.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+          <div className="flex items-center gap-8">
+            {/* Posts */}
+            <div className="flex flex-col">
+              <span className="text-xl font-black text-gray-800 leading-none">
+                {creator.contentCount}
               </span>
               <span className="text-[10px] font-extrabold text-gray-400 uppercase mt-1.5 tracking-[0.1em]">
-                Pagado
+                Posts
               </span>
             </div>
-          )}
+
+            {/* Pagado - Conditional */}
+            {creator.totalPaid !== undefined && creator.totalPaid > 0 && (
+              <div className="flex flex-col animate-in fade-in slide-in-from-top-2 duration-700">
+                <span className="text-xl font-black text-indigo-600 leading-none">
+                  ${creator.totalPaid.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                </span>
+                <span className="text-[10px] font-extrabold text-indigo-400/80 uppercase mt-1.5 tracking-[0.1em]">
+                  Pagado
+                </span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Bottom Action Hint */}
