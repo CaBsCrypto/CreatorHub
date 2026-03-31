@@ -38,13 +38,13 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({
   const activeFiltersCount = [platform, campaign, creator, pay_month, team_role].filter(f => f !== 'all').length;
 
   return (
-    <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 mb-16">
+    <header className="flex flex-col items-start gap-10 mb-16">
       <div className="animate-in fade-in slide-in-from-left-4 duration-700">
         <h1 className="text-4xl lg:text-5xl font-black text-gray-900 leading-tight tracking-tight mb-2">Panel de Control</h1>
         <p className="text-base font-bold text-gray-400 max-w-md">Gestiona la agencia, creadores y campañas activas.</p>
       </div>
       
-      <div className="flex flex-wrap items-center justify-start lg:justify-end gap-3 w-full lg:w-auto animate-in fade-in slide-in-from-right-4 duration-700 relative">
+      <div className="flex flex-wrap items-center justify-start gap-4 w-full animate-in fade-in slide-in-from-bottom-4 duration-700 relative">
         <div className="relative w-full sm:w-auto">
           <button 
             onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)} 
