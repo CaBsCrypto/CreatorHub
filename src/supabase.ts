@@ -73,7 +73,7 @@ export interface Content {
   campaign_id: string;
   creator_id: string | null;
   guest_name?: string | null;
-  platform: 'youtube' | 'instagram' | 'tiktok' | 'x' | 'coinmarketcap' | 'twitch' | 'stream';
+  platform: 'youtube' | 'instagram' | 'tiktok' | 'x' | 'coinmarketcap' | 'twitch' | 'stream' | 'discord';
   url: string;
   title: string | null;
   thumbnail: string | null;
@@ -86,11 +86,22 @@ export interface Content {
   unique_viewers?: number;
   followers?: number;
   new_subscriptions?: number;
-  duration_minutes?: number; // Twitch specific
+  duration_minutes?: number; // Twitch/Discord total duration
+  avg_duration_minutes?: number; // Discord specific: average stay
+  shares_count?: number; // Discord specific: screen shares
   status: 'active' | 'archived' | 'pending';
   uploaded_at: string | null;
   deleted_at?: string | null;
   created_at: string;
+}
+
+export interface DiscordSessionEvent {
+  id: string;
+  content_id: string;
+  event_type: 'join' | 'leave' | 'stream_start' | 'stream_end';
+  user_name: string;
+  timestamp: string;
+  duration_minutes?: number;
 }
 
 export interface Payment {

@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 export interface ContentItem {
   id: string;
   campaign_id: string;
-  platform: 'youtube' | 'instagram' | 'tiktok' | 'x' | 'coinmarketcap' | 'twitch';
+  platform: 'youtube' | 'instagram' | 'tiktok' | 'x' | 'coinmarketcap' | 'twitch' | 'discord';
   url: string;
   title: string | null;
   thumbnail: string | null;
@@ -39,7 +39,8 @@ const platformConfig = {
   tiktok: { icon: Music2, color: 'text-gray-900', bg: 'from-gray-100 to-white' },
   x: { icon: Twitter, color: 'text-indigo-900', bg: 'from-indigo-50 to-white' },
   coinmarketcap: { icon: Globe, color: 'text-indigo-600', bg: 'from-indigo-50 to-white' },
-  twitch: { icon: Globe, color: 'text-purple-600', bg: 'from-purple-50 to-white' }
+  twitch: { icon: Globe, color: 'text-purple-600', bg: 'from-purple-50 to-white' },
+  discord: { icon: Music2, color: 'text-indigo-500', bg: 'from-indigo-50 to-white' }
 };
 
 const ContentCard: React.FC<ContentCardProps> = ({ item, campaignName, onEdit, onDelete, onClick, index }) => {
@@ -75,7 +76,7 @@ const ContentCard: React.FC<ContentCardProps> = ({ item, campaignName, onEdit, o
             <PlatformIcon className={`h-6 w-6 ${platformColor}`} />
           </div>
           <span className={`text-[9px] font-black uppercase tracking-[0.2em] ${item.thumbnail ? 'text-white' : 'text-gray-400'}`}>
-            {item.platform === 'twitch' ? 'stream' : item.platform}
+            {item.platform === 'twitch' ? 'stream' : item.platform === 'discord' ? 'jornada' : item.platform}
           </span>
         </div>
 
@@ -125,10 +126,10 @@ const ContentCard: React.FC<ContentCardProps> = ({ item, campaignName, onEdit, o
             <div className="w-[1px] h-8 bg-gray-100" />
             <div className="flex flex-col">
               <span className="text-xl font-black text-gray-900 leading-none">
-                {item.platform === 'twitch' ? (item.peek_viewers || 0).toLocaleString() : (item.likes || 0).toLocaleString()}
+                {item.platform === 'twitch' || item.platform === 'discord' ? (item.peek_viewers || 0).toLocaleString() : (item.likes || 0).toLocaleString()}
               </span>
               <span className="text-[9px] font-bold text-gray-400 uppercase mt-1.5 tracking-widest">
-                {item.platform === 'twitch' ? 'Peak' : 'Likes'}
+                {item.platform === 'twitch' || item.platform === 'discord' ? 'Peak' : 'Likes'}
               </span>
             </div>
           </div>

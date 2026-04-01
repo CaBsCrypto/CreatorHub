@@ -21,7 +21,8 @@ const platforms = [
   { id: 'tiktok', icon: Music2, color: 'text-black', label: 'TikTok' },
   { id: 'x', icon: Twitter, color: 'text-indigo-900', label: 'X' },
   { id: 'coinmarketcap', icon: Globe, color: 'text-indigo-600', label: 'CMC' },
-  { id: 'stream', icon: Globe, color: 'text-purple-600', label: 'Streams' }
+  { id: 'stream', icon: Globe, color: 'text-purple-600', label: 'Streams' },
+  { id: 'discord', icon: Music2, color: 'text-indigo-500', label: 'Discord' }
 ];
 
 const ContentModal: React.FC<ContentModalProps> = ({ 
@@ -51,6 +52,8 @@ const ContentModal: React.FC<ContentModalProps> = ({
     unique_viewers: 0,
     followers: 0,
     new_subscriptions: 0,
+    avg_duration_minutes: 0,
+    shares_count: 0,
     guest_name: ''
   });
   const [twitchFile, setTwitchFile] = React.useState<File | null>(null);
@@ -87,6 +90,8 @@ const ContentModal: React.FC<ContentModalProps> = ({
         unique_viewers: editingContent.unique_viewers || 0,
         followers: editingContent.followers || 0,
         new_subscriptions: editingContent.new_subscriptions || 0,
+        avg_duration_minutes: editingContent.avg_duration_minutes || 0,
+        shares_count: editingContent.shares_count || 0,
         guest_name: editingContent.guest_name || ''
       });
     } else {
@@ -107,6 +112,8 @@ const ContentModal: React.FC<ContentModalProps> = ({
         unique_viewers: 0,
         followers: 0,
         new_subscriptions: 0,
+        avg_duration_minutes: 0,
+        shares_count: 0,
         guest_name: ''
       });
     }
@@ -429,6 +436,128 @@ const ContentModal: React.FC<ContentModalProps> = ({
                         />
                       </div>
                     </div>
+                  </div>
+                </div>
+              ) : (formData.platform as any) === 'discord' ? (
+                <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-400 mb-5">
+                   <div className="relative group">
+                    <input
+                      type="text"
+                      required
+                      value={formData.title}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      placeholder="Título de la Jornada (ej. Torneo #1)"
+                      className="block w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/30 text-sm font-semibold text-slate-700 focus:ring-1 focus:ring-indigo-500 focus:bg-white transition-all placeholder:text-slate-400 outline-none"
+                    />
+                  </div>
+                  
+                  <div className="p-3 bg-slate-50/50 rounded-2xl border border-slate-100">
+                    <div className="grid grid-cols-3 gap-2">
+                       <div className="bg-white border border-slate-200 rounded-xl p-2.5 shadow-sm">
+                        <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">Duración</label>
+                        <div className="flex gap-1 items-center">
+                          <input
+                            type="number"
+                            placeholder="H"
+                            value={Math.floor(formData.duration_minutes / 60) || ''}
+                            onChange={(e) => {
+                              const h = parseInt(e.target.value) || 0;
+                              const m = formData.duration_minutes % 60;
+                              setFormData({ ...formData, duration_minutes: (h * 60) + m });
+                            }}
+                            className="w-full bg-slate-50/50 py-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
+                          />
+                          <span className="text-slate-300 font-bold">:</span>
+                          <input
+                            type="number"
+                            placeholder="M"
+                            max="59"
+                            value={formData.duration_minutes % 60 || ''}
+                            onChange={(e) => {
+                              const h = Math.floor(formData.duration_minutes / 60);
+                              const m = parseInt(e.target.value) || 0;
+                              setFormData({ ...formData, duration_minutes: (h * 60) + m });
+                            }}
+                            className="w-full bg-slate-50/50 py-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
+                          />
+                        </div>
+                      </div>
+                      <div className="bg-white border border-slate-200 rounded-xl p-2.5 shadow-sm">
+                        <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">Simultáneos</label>
+                        <input
+                          type="number"
+                          value={formData.peek_viewers || ''}
+                          onChange={(e) => setFormData({ ...formData, peek_viewers: parseInt(e.target.value) || 0 })}
+                          className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
+                          placeholder="0"
+                        />
+                      </div>
+                      <div className="bg-white border border-slate-200 rounded-xl p-2.5 shadow-sm">
+                        <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">Únicos</label>
+                        <input
+                          type="number"
+                          value={formData.views || ''}
+                          onChange={(e) => setFormData({ ...formData, views: parseInt(e.target.value) || 0 })}
+                          className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
+                          placeholder="0"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 mt-2">
+                       <div className="bg-white border border-slate-200 rounded-xl p-2.5 shadow-sm">
+                        <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">T. Promedio</label>
+                        <div className="flex gap-1 items-center">
+                          <input
+                            type="number"
+                            placeholder="H"
+                            value={Math.floor(formData.avg_duration_minutes / 60) || ''}
+                            onChange={(e) => {
+                              const h = parseInt(e.target.value) || 0;
+                              const m = formData.avg_duration_minutes % 60;
+                              setFormData({ ...formData, avg_duration_minutes: (h * 60) + m });
+                            }}
+                            className="w-full bg-slate-50/50 py-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
+                          />
+                          <span className="text-slate-300 font-bold">:</span>
+                          <input
+                            type="number"
+                            placeholder="M"
+                            max="59"
+                            value={formData.avg_duration_minutes % 60 || ''}
+                            onChange={(e) => {
+                              const h = Math.floor(formData.avg_duration_minutes / 60);
+                              const m = parseInt(e.target.value) || 0;
+                              setFormData({ ...formData, avg_duration_minutes: (h * 60) + m });
+                            }}
+                            className="w-full bg-slate-50/50 py-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
+                          />
+                        </div>
+                      </div>
+                      <div className="bg-white border border-slate-200 rounded-xl p-2.5 shadow-sm">
+                        <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">Compartidas</label>
+                        <input
+                          type="number"
+                          value={formData.shares_count || ''}
+                          onChange={(e) => setFormData({ ...formData, shares_count: parseInt(e.target.value) || 0 })}
+                          className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
+                          placeholder="0"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="relative group">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                      <ExternalLink className="h-4 w-4 text-slate-300 transition-colors" />
+                    </div>
+                    <input
+                      type="url"
+                      value={formData.url}
+                      onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                      placeholder="Link de la Jornada (opcional)"
+                      className="block w-full pl-10.5 rounded-xl border-slate-200 bg-slate-50/30 py-3 text-sm font-medium text-slate-700 focus:ring-1 focus:ring-indigo-500 transition-all outline-none"
+                    />
                   </div>
                 </div>
               ) : (

@@ -1,11 +1,11 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { useAuth } from '../AuthContext';
 import { 
   Sparkles, Youtube, Instagram, Globe, 
   ExternalLink, TrendingUp, Zap, Trophy, Flame, CheckCircle2,
   LayoutDashboard, Upload, Wallet, Plus, RefreshCw, BarChart3, List as ListIcon, LayoutGrid, Award,
-  AlertCircle, CheckCircle, Rocket, X
+  AlertCircle, CheckCircle, Rocket, X, Music2
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -25,6 +25,8 @@ import ContentCard, { ContentItem } from '../components/dashboard/ContentCard';
 import PaymentModal from '../components/dashboard/PaymentModal';
 import ContentModal from '../components/dashboard/ContentModal';
 import ContentDetailModal from '../components/dashboard/ContentDetailModal';
+import DiscordStatsModal from '../components/dashboard/DiscordStatsModal';
+import { DiscordSessionEvent } from '../supabase';
 
 export default function CreatorDashboard() {
   const { user, profile } = useAuth();
@@ -42,6 +44,7 @@ export default function CreatorDashboard() {
   const [previewRankIndex, setPreviewRankIndex] = useState<number | null>(null);
   const [editingContent, setEditingContent] = useState<any>(null);
   const [viewingContent, setViewingContent] = useState<ContentItem | null>(null);
+  const [discordEvents, setDiscordEvents] = useState<DiscordSessionEvent[]>([]);
   const [isCompactView, setIsCompactView] = useState(false);
 
   // Derived state
@@ -53,6 +56,19 @@ export default function CreatorDashboard() {
   }, [metrics]);
 
   const myRank = AGENCY_TIERS[currentRankIndex];
+
+  // Fetch Discord events when a discord content is viewed
+  useEffect(() => {
+    if (viewingContent?.platform === 'discord') {
+      supabase.from('discord_session_events')
+        .select('*')
+        .eq('content_id', viewingContent.id)
+        .order('timestamp', { ascending: true })
+        .then(({ data }) => setDiscordEvents(data || []));
+    } else {
+      setDiscordEvents([]);
+    }
+  }, [viewingContent]);
 
   const handleSavePayment = async (data: any) => {
     setIsSavingPayment(true);
@@ -303,7 +319,7 @@ export default function CreatorDashboard() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.03 }}
                   onClick={() => {
-                    const isStream = item.platform === 'twitch' || (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0);
+                    const isStream = item.platform === 'twitch' || (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0) || item.platform === 'discord';
                     if (isStream) setViewingContent(item as any);
                     else window.open(item.url, '_blank');
                   }}
@@ -315,7 +331,8 @@ export default function CreatorDashboard() {
                       {item.platform === 'instagram' && <Instagram className="h-5 w-5 text-pink-500" />}
                       {item.platform === 'youtube' && <Youtube className="h-5 w-5 text-red-500" />}
                       {item.platform === 'twitch' && <Zap className="h-5 w-5 text-purple-500" />}
-                      {!['tiktok', 'instagram', 'youtube', 'twitch'].includes(item.platform) && <Globe className="h-5 w-5 text-indigo-500" />}
+                      {item.platform === 'discord' && <Music2 className="h-5 w-5 text-indigo-500" />}
+                      {!['tiktok', 'instagram', 'youtube', 'twitch', 'discord'].includes(item.platform) && <Globe className="h-5 w-5 text-indigo-500" />}
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-black text-gray-900 truncate leading-tight">{item.title || 'Sin Título'}</p>
@@ -366,7 +383,7 @@ export default function CreatorDashboard() {
                         }
                     }} 
                     onClick={() => {
-                        const isStream = item.platform === 'twitch' || (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0);
+                        const isStream = item.platform === 'twitch' || (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0) || item.platform === 'discord';
                         if (isStream) setViewingContent(item as any);
                         else window.open(item.url, '_blank');
                     }}
@@ -389,11 +406,20 @@ export default function CreatorDashboard() {
         </div>
       )}
 
-      <ContentDetailModal 
-        isOpen={!!viewingContent}
-        onClose={() => setViewingContent(null)}
-        item={viewingContent}
-      />
+      {viewingContent?.platform === 'discord' ? (
+        <DiscordStatsModal
+          isOpen={!!viewingContent}
+          onClose={() => setViewingContent(null)}
+          session={viewingContent as any}
+          events={discordEvents}
+        />
+      ) : (
+        <ContentDetailModal 
+          isOpen={!!viewingContent}
+          onClose={() => setViewingContent(null)}
+          item={viewingContent}
+        />
+      )}
 
       <ContentModal 
         isOpen={isContentModalOpen} 
@@ -468,7 +494,9 @@ export default function CreatorDashboard() {
                   title: data.title,
                   views: data.views,
                   likes: data.likes,
-                  comments: data.comments
+                  comments: data.comments,
+                  avg_duration_minutes: data.avg_duration_minutes,
+                  shares_count: data.shares_count
                 })
                 .eq('id', editingContent.id)
                 .eq('creator_id', user?.id);
