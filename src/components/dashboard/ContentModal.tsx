@@ -15,16 +15,6 @@ interface ContentModalProps {
   isProcessing: boolean;
 }
 
-const platforms = [
-  { id: 'youtube', icon: Youtube, color: 'text-red-600', label: 'YouTube' },
-  { id: 'instagram', icon: Instagram, color: 'text-pink-600', label: 'Instagram' },
-  { id: 'tiktok', icon: Music2, color: 'text-black', label: 'TikTok' },
-  { id: 'x', icon: Twitter, color: 'text-indigo-900', label: 'X' },
-  { id: 'coinmarketcap', icon: Globe, color: 'text-indigo-600', label: 'CMC' },
-  { id: 'stream', icon: Globe, color: 'text-purple-600', label: 'Streams' },
-  { id: 'discord', icon: Music2, color: 'text-indigo-500', label: 'Discord' }
-];
-
 const ContentModal: React.FC<ContentModalProps> = ({ 
   isOpen, 
   onClose, 
@@ -36,6 +26,17 @@ const ContentModal: React.FC<ContentModalProps> = ({
   isProcessing 
 }) => {
   const { error: toastError } = useToast();
+
+  // Dynamic platforms list based on access (Admins have Discord)
+  const availablePlatforms = React.useMemo(() => [
+    { id: 'youtube', icon: Youtube, color: 'text-red-600', label: 'YouTube' },
+    { id: 'instagram', icon: Instagram, color: 'text-pink-600', label: 'Instagram' },
+    { id: 'tiktok', icon: Music2, color: 'text-black', label: 'TikTok' },
+    { id: 'x', icon: Twitter, color: 'text-indigo-900', label: 'X' },
+    { id: 'coinmarketcap', icon: Globe, color: 'text-indigo-600', label: 'CMC' },
+    { id: 'stream', icon: Globe, color: 'text-purple-600', label: 'Streams' },
+    ...(users && users.length > 0 ? [{ id: 'discord', icon: Music2, color: 'text-indigo-500', label: 'Discord' }] : [])
+  ], [users]);
   const [formData, setFormData] = React.useState({
     campaign_id: '',
     creator_id: '',
@@ -238,7 +239,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
             <div>
               <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-3 ml-1">Plataforma</label>
               <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                {platforms.map((p) => (
+                {availablePlatforms.map((p) => (
                   <button
                     key={p.id}
                     type="button"
@@ -504,38 +505,9 @@ const ContentModal: React.FC<ContentModalProps> = ({
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 mt-2">
-                       <div className="bg-white border border-slate-200 rounded-xl p-2.5 shadow-sm">
-                        <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">T. Promedio</label>
-                        <div className="flex gap-1 items-center">
-                          <input
-                            type="number"
-                            placeholder="H"
-                            value={Math.floor(formData.avg_duration_minutes / 60) || ''}
-                            onChange={(e) => {
-                              const h = parseInt(e.target.value) || 0;
-                              const m = formData.avg_duration_minutes % 60;
-                              setFormData({ ...formData, avg_duration_minutes: (h * 60) + m });
-                            }}
-                            className="w-full bg-slate-50/50 py-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
-                          />
-                          <span className="text-slate-300 font-bold">:</span>
-                          <input
-                            type="number"
-                            placeholder="M"
-                            max="59"
-                            value={formData.avg_duration_minutes % 60 || ''}
-                            onChange={(e) => {
-                              const h = Math.floor(formData.avg_duration_minutes / 60);
-                              const m = parseInt(e.target.value) || 0;
-                              setFormData({ ...formData, avg_duration_minutes: (h * 60) + m });
-                            }}
-                            className="w-full bg-slate-50/50 py-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
-                          />
-                        </div>
-                      </div>
+                    <div className="grid grid-cols-1 gap-2 mt-2">
                       <div className="bg-white border border-slate-200 rounded-xl p-2.5 shadow-sm">
-                        <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">Compartidas</label>
+                        <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">Pantallas Compartidas</label>
                         <input
                           type="number"
                           value={formData.shares_count || ''}

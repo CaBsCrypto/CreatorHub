@@ -19,6 +19,7 @@ import AddCampaignModal from '../components/dashboard/AddCampaignModal';
 import AddUserModal from '../components/dashboard/AddUserModal';
 import AudienceGeoModal from '../components/dashboard/AudienceGeoModal';
 import ContentModal from '../components/dashboard/ContentModal';
+import DiscordStatsModal from '../components/dashboard/DiscordStatsModal';
 import ContentDetailModal from '../components/dashboard/ContentDetailModal';
 import CreatorSearchModal from '../components/dashboard/CreatorSearchModal';
 import UserHistoryModal from '../components/dashboard/UserHistoryModal';
@@ -400,11 +401,19 @@ export default function AdminDashboard() {
             setActiveTab('payments');
           }}
         />
-        <ContentDetailModal 
-          isOpen={!!viewingContent}
-          onClose={() => setViewingContent(null)}
-          item={viewingContent}
-        />
+        {viewingContent?.platform === 'discord' ? (
+          <DiscordStatsModal
+            isOpen={!!viewingContent}
+            onClose={() => setViewingContent(null)}
+            session={viewingContent as any}
+          />
+        ) : (
+          <ContentDetailModal 
+            isOpen={!!viewingContent}
+            onClose={() => setViewingContent(null)}
+            item={viewingContent}
+          />
+        )}
 
         <AddCampaignModal 
           isOpen={isCreatingCampaign || isEditingCampaign} 

@@ -111,7 +111,9 @@ export function useContentActions(refresh: () => void) {
             title: data.title,
             views: data.views,
             likes: data.likes,
-            comments: data.comments
+            comments: data.comments,
+            avg_duration_minutes: data.avg_duration_minutes,
+            shares_count: data.shares_count
           })
           .eq('id', editingContent.id);
         
@@ -166,6 +168,8 @@ export function useContentActions(refresh: () => void) {
           followers: data.followers || 0,
           new_subscriptions: data.new_subscriptions || 0,
           duration_minutes: data.duration_minutes || 0,
+          avg_duration_minutes: data.avg_duration_minutes || 0,
+          shares_count: data.shares_count || 0,
           creator_id: activeCreatorId,
           guest_name: guestName,
           status: 'active',
