@@ -98,7 +98,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
     } else {
       setStreamPlatform('twitch');
       setFormData({
-        campaign_id: campaigns[0]?.id || '',
+        campaign_id: '',
         creator_id: '',
         platform: 'youtube',
         url: '',
