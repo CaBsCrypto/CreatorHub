@@ -42,6 +42,10 @@ BEGIN
             action_type := 'RESTORE';
         ELSIF (TG_TABLE_NAME = 'users' AND NEW.role != OLD.role) THEN
             action_type := 'CHANGE_ROLE';
+        ELSIF (TG_TABLE_NAME = 'users' AND (NEW.wallet_address != OLD.wallet_address OR NEW.binance_id != OLD.binance_id)) THEN
+            action_type := 'UPDATE_PAYMENT_INFO';
+        ELSIF (TG_TABLE_NAME = 'users' AND NEW.admin_alias != OLD.admin_alias) THEN
+            action_type := 'UPDATE_ALIAS';
         ELSE
             -- Normal update, we might not want to log every single update to avoid noise
             -- but let's log important ones if needed

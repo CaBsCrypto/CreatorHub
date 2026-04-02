@@ -25,6 +25,12 @@ function useCountUp(target: number, duration = 1200) {
   return count;
 }
 
+function getProxiedUrl(url: string | null | undefined, fallback: string) {
+  if (!url) return fallback;
+  if (url.includes('weserv.nl') || url.includes('base64')) return url;
+  return `https://images.weserv.nl/?url=${encodeURIComponent(url)}&default=${encodeURIComponent(fallback)}`;
+}
+
 export default function PublicReview() {
   const { token } = useParams<{ token: string }>();
   const [loading, setLoading] = useState(true);
@@ -127,7 +133,11 @@ export default function PublicReview() {
         if (creatorIds.length > 0) {
           try {
             const { data: userData } = await supabase.from('users').select('*').in('id', creatorIds);
-            const finalUsers = (userData || []).map(u => ({ ...u, display_name: (u as any).admin_alias || u.display_name || nameFallbackMap.get(u.id) || null }));
+            const finalUsers = (userData || []).map(u => ({ 
+              ...u, 
+              display_name: (u as any).admin_alias || u.display_name || nameFallbackMap.get(u.id) || null,
+              photo_url: u.photo_url ? getProxiedUrl(u.photo_url, 'https://cdn-icons-png.flaticon.com/512/1144/1144760.png') : null
+            }));
             const fetchedIds = new Set(finalUsers.map(u => u.id));
             const stubs: UserProfile[] = creatorIds.filter(id => id && !fetchedIds.has(id)).map(id => ({
               id: id as string, role: 'creator', email: '', display_name: nameFallbackMap.get(id as string) || null,
@@ -445,7 +455,7 @@ export default function PublicReview() {
                         {/* Thumbnail / Color Bar */}
                         {isStream && item.thumbnail ? (
                           <div className="relative h-16 overflow-hidden flex-shrink-0 bg-gray-100">
-                            <img src={item.thumbnail} alt={item.title || 'Stream'} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500" />
+                            <img src={getProxiedUrl(item.thumbnail, 'https://cdn-icons-png.flaticon.com/512/174/174855.png')} alt={item.title || 'Stream'} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500" />
                             <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent" />
                             <span className="absolute top-1.5 right-1.5 px-1 py-0.5 bg-indigo-600 text-white text-[6px] font-black uppercase tracking-wider rounded">STREAM</span>
                             <div className="absolute bottom-1.5 left-1.5 right-1.5 flex items-end justify-between">
@@ -457,7 +467,7 @@ export default function PublicReview() {
                           </div>
                         ) : item.thumbnail ? (
                           <div className="relative h-14 overflow-hidden flex-shrink-0 bg-gray-50">
-                            <img src={item.thumbnail} alt={item.title || ''} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500" />
+                            <img src={getProxiedUrl(item.thumbnail, 'https://cdn-icons-png.flaticon.com/512/174/174855.png')} alt={item.title || ''} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500" />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                           </div>
                         ) : (
@@ -582,7 +592,7 @@ export default function PublicReview() {
               className="relative max-w-5xl w-full rounded-[2rem] overflow-hidden shadow-2xl z-10"
               onClick={e => e.stopPropagation()}
             >
-              <img src={selectedImage} alt="Preview" className="w-full h-auto max-h-[85vh] object-contain" />
+              <img src={getProxiedUrl(selectedImage, 'https://cdn-icons-png.flaticon.com/512/174/174855.png')} alt="Preview" className="w-full h-auto max-h-[85vh] object-contain" />
               <button onClick={() => setSelectedImage(null)}
                 className="absolute top-4 right-4 w-10 h-10 bg-black/50 backdrop-blur-md text-white rounded-full flex items-center justify-center hover:bg-black/80 transition-colors"
               >

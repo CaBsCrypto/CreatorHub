@@ -127,9 +127,10 @@ export async function fetchInstagramData(url: string) {
       timeout: 5000
     });
     
-    const postData = postRes.data?.data || postRes.data?.items?.[0] || postRes.data;
+    const postData = (postRes.data as any)?.data || (postRes.data as any)?.items?.[0] || (postRes.data as any)?.graphql?.shortcode_media || postRes.data;
+    
     if (postData) {
-      ownerId = postData.owner?.id || postData.user?.pk || "";
+      ownerId = postData.owner?.id || postData.user?.pk || postData.owner?.pk || "";
       shortcode = postData.shortcode || postData.code || "";
       title = postData.caption?.text || postData.text || postData.title || title;
       if (title === "Instagram Post" || !title || title === "") {
@@ -150,6 +151,8 @@ export async function fetchInstagramData(url: string) {
       if (!thumbnail && (postData.display_url || postData.thumbnail_url)) {
         thumbnail = `https://images.weserv.nl/?url=${encodeURIComponent(postData.display_url || postData.thumbnail_url)}&default=https://cdn-icons-png.flaticon.com/512/174/174855.png`;
       }
+    } else {
+      console.warn("Instagram scraper: No postData found in API response.");
     }
 
     const isVideo = url.includes('/reel/') || postData?.is_video === true || !!postData?.video_url;
@@ -175,14 +178,37 @@ export async function fetchInstagramData(url: string) {
       } catch (e) { /* reels fallback optional */ }
     }
 
+    // Last resort fallback via HTML regex if views still 0
+    if (views === 0) {
+      try {
+        const fallbackRes = await axios.get(url, { headers: { "User-Agent": "Mozilla/5.0" }, timeout: 3000 });
+        const html = fallbackRes.data;
+        const viewMatch = html.match(/"video_view_count":(\d+)/) || html.match(/"play_count":(\d+)/);
+        if (viewMatch) views = parseInt(viewMatch[1]);
+        if (views < likes) views = likes;
+      } catch (e) { /* fallback ignored if fails */ }
+    }
+
     const duration = Date.now() - start;
     const isZeroViews = views === 0 && isVideo;
-    await logScraperAction('instagram', url, isZeroViews ? 'error' : 'success', isZeroViews ? 'Extracted 0 views for IG video' : undefined, duration, { views, likes });
+    
+    // Log FULL response if something is wrong to debug 0-views
+    await logScraperAction('instagram', url, isZeroViews ? 'error' : 'success', isZeroViews ? 'Extracted 0 views for IG video' : undefined, duration, { 
+      views, 
+      likes, 
+      hasApiKey: !!apiKey,
+      rawResponse: isZeroViews ? (postRes.data as any) : undefined,
+      postDataFound: !!postData 
+    });
 
     return { title: title.substring(0, 100), views, likes, comments, thumbnail };
   } catch (error: any) {
     const duration = Date.now() - start;
-    await logScraperAction('instagram', url, 'error', error.message, duration, { status: error.response?.status });
+    await logScraperAction('instagram', url, 'error', error.message, duration, { 
+      status: error.response?.status,
+      hasApiKey: !!apiKey,
+      responseRaw: error.response?.data
+    });
     console.error("Instagram Fetch Error:", error.message);
     return { title: "Instagram Post", views: 0, likes: 0, comments: 0, thumbnail: "" };
   }
