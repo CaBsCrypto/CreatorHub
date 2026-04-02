@@ -115,7 +115,10 @@ export async function fetchInstagramData(url: string) {
     try {
       const pageRes = await axios.get(url, { headers: { "User-Agent": "Mozilla/5.0" }, timeout: 3000 });
       const thumbMatch = pageRes.data.match(/<meta property="og:image" content="([^"]+)"/);
-      if (thumbMatch) thumbnail = thumbMatch[1];
+      if (thumbMatch) {
+         // Proxy via weserv to prevent 403 CDN errors
+         thumbnail = `https://images.weserv.nl/?url=${encodeURIComponent(thumbMatch[1])}&default=https://cdn-icons-png.flaticon.com/512/174/174855.png`;
+      }
     } catch (e) { /* thumbnail fetch optional */ }
 
     const postRes = await axios.get('https://instagram-looter2.p.rapidapi.com/post', {
@@ -144,7 +147,9 @@ export async function fetchInstagramData(url: string) {
         likes
       );
       
-      if (!thumbnail) thumbnail = postData.display_url || postData.thumbnail_url || "";
+      if (!thumbnail && (postData.display_url || postData.thumbnail_url)) {
+        thumbnail = `https://images.weserv.nl/?url=${encodeURIComponent(postData.display_url || postData.thumbnail_url)}&default=https://cdn-icons-png.flaticon.com/512/174/174855.png`;
+      }
     }
 
     const isVideo = url.includes('/reel/') || postData?.is_video === true || !!postData?.video_url;
@@ -275,7 +280,7 @@ export async function fetchInstagramProfile(username: string) {
       followers,
       monthlyReach: monthlyViews,
       engagement: data.media_count > 100 ? "Estable" : "En crecimiento",
-      image: data.profile_pic_url || "",
+      image: data.profile_pic_url ? `https://images.weserv.nl/?url=${encodeURIComponent(data.profile_pic_url)}&default=https://cdn-icons-png.flaticon.com/512/1144/1144760.png` : "",
       description: data.biography || "",
       region: "N/A"
     };

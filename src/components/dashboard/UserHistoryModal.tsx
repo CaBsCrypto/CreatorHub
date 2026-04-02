@@ -16,6 +16,7 @@ interface UserHistoryModalProps {
   onUpdateRole: (newRole: UserRole) => Promise<void>;
   onRemoveUser: () => Promise<void>;
   onUpdateAlias?: (alias: string) => Promise<void>;
+  onUpdatePayment?: (data: Partial<UserProfile>) => Promise<void>;
   onRegisterPayment?: (creatorId: string) => void;
 }
 
@@ -27,6 +28,7 @@ export default function UserHistoryModal({
   onUpdateRole, 
   onRemoveUser,
   onUpdateAlias,
+  onUpdatePayment,
   onRegisterPayment
 }: UserHistoryModalProps) {
   const [selectedRole, setSelectedRole] = useState<UserRole | undefined>(user?.role);
@@ -34,6 +36,8 @@ export default function UserHistoryModal({
   const [deleteConfirmStep, setDeleteConfirmStep] = useState(0);
   const [isUpdating, setIsUpdating] = useState(false);
   const [adminAlias, setAdminAlias] = useState(user?.admin_alias || '');
+  const [isEditingPayment, setIsEditingPayment] = useState(false);
+  const [editPaymentData, setEditPaymentData] = useState<Partial<UserProfile>>({});
   const { success, error: toastError } = useToast();
 
   // Sync values when user changes
@@ -41,6 +45,12 @@ export default function UserHistoryModal({
     if (user) {
       setSelectedRole(user.role);
       setAdminAlias(user.admin_alias || '');
+      setEditPaymentData({
+        payment_method: user.payment_method,
+        binance_id: user.binance_id || '',
+        wallet_address: user.wallet_address || '',
+        wallet_network: user.wallet_network || ''
+      });
     }
   }, [user]);
 
@@ -239,16 +249,97 @@ export default function UserHistoryModal({
           <div className="space-y-8">
             {/* Payment Information */}
             <div className="bg-emerald-50/50 p-6 rounded-[2rem] border border-emerald-100/50">
-              <h3 className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-4 flex items-center gap-2">
-                <Wallet className="h-3 w-3" /> Información de Pago
-              </h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-[10px] font-black text-emerald-600 uppercase tracking-widest flex items-center gap-2">
+                  <Wallet className="h-3 w-3" /> Información de Pago
+                </h3>
+                {onUpdatePayment && (
+                  <button 
+                    onClick={() => setIsEditingPayment(!isEditingPayment)} 
+                    className="text-[10px] font-bold text-indigo-600 hover:underline"
+                  >
+                    {isEditingPayment ? 'Cancelar' : 'Editar'}
+                  </button>
+                )}
+              </div>
               
-              {!user.payment_method ? (
+              {isEditingPayment ? (
+                <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                  <div>
+                    <label className="block text-[8px] font-black text-emerald-600/50 uppercase tracking-[0.2em] mb-1">Método</label>
+                    <div className="flex gap-2">
+                      {(['binance', 'wallet'] as const).map(m => (
+                        <button
+                          key={m}
+                          onClick={() => setEditPaymentData(prev => ({ ...prev, payment_method: m }))}
+                          className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+                            editPaymentData.payment_method === m 
+                              ? 'bg-emerald-600 text-white border-emerald-600' 
+                              : 'bg-white text-emerald-600 border-emerald-100 hover:bg-emerald-50'
+                          }`}
+                        >
+                          {m === 'binance' ? 'Binance' : 'Wallet'}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {editPaymentData.payment_method === 'binance' ? (
+                    <div>
+                      <label className="block text-[8px] font-black text-emerald-600/50 uppercase tracking-[0.2em] mb-1">Binance ID</label>
+                      <input 
+                        type="text" 
+                        value={editPaymentData.binance_id}
+                        onChange={(e) => setEditPaymentData(prev => ({ ...prev, binance_id: e.target.value }))}
+                        className="w-full px-3 py-2 bg-white border border-emerald-100 rounded-xl text-[10px] font-bold focus:ring-2 focus:ring-emerald-500 outline-none"
+                        placeholder="ID de Binance"
+                      />
+                    </div>
+                  ) : (
+                    <>
+                      <div>
+                        <label className="block text-[8px] font-black text-emerald-600/50 uppercase tracking-[0.2em] mb-1">Red</label>
+                        <input 
+                          type="text" 
+                          value={editPaymentData.wallet_network}
+                          onChange={(e) => setEditPaymentData(prev => ({ ...prev, wallet_network: e.target.value }))}
+                          className="w-full px-3 py-2 bg-white border border-emerald-100 rounded-xl text-[10px] font-bold focus:ring-2 focus:ring-emerald-500 outline-none"
+                          placeholder="Ej: Solana, Ethereum"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[8px] font-black text-emerald-600/50 uppercase tracking-[0.2em] mb-1">Dirección</label>
+                        <input 
+                          type="text" 
+                          value={editPaymentData.wallet_address}
+                          onChange={(e) => setEditPaymentData(prev => ({ ...prev, wallet_address: e.target.value }))}
+                          className="w-full px-3 py-2 bg-white border border-emerald-100 rounded-xl text-[10px] font-bold focus:ring-2 focus:ring-emerald-500 outline-none"
+                          placeholder="0x..."
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  <button
+                    onClick={async () => {
+                      setIsUpdating(true);
+                      await onUpdatePayment?.(editPaymentData);
+                      setIsUpdating(false);
+                      setIsEditingPayment(false);
+                    }}
+                    disabled={isUpdating}
+                    className="w-full py-3 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-100 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2"
+                  >
+                    {isUpdating ? <RefreshCw className="h-3 w-3 animate-spin" /> : <CheckCircle2 className="h-3 w-3" />}
+                    Guardar Pago
+                  </button>
+                </div>
+              ) : !user.payment_method ? (
                 <div className="text-center py-4">
                   <p className="text-[10px] font-bold text-amber-600 uppercase tracking-widest">No configurado</p>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-4 animate-in fade-in duration-300">
                   <div>
                     <p className="text-[8px] font-black text-emerald-600/50 uppercase tracking-[0.2em] mb-1">Método</p>
                     <p className="text-xs font-black text-emerald-900 uppercase tracking-wider">

@@ -123,6 +123,7 @@ export default function AdminDashboard() {
     handleUpdateUserRole,
     handleRemoveUser,
     handleSaveTwitch,
+    handleUpdateUserPayment,
     handleCreatePayment
   } = useAdminActions(refresh, user);
 
@@ -394,6 +395,12 @@ export default function AdminDashboard() {
           onUpdateRole={(role) => handleUpdateUserRole(managingUser, role, setManagingUser)}
           onRemoveUser={() => handleRemoveUser(managingUser, setManagingUser, setDeletedUserIds)}
           onUpdateAlias={handleUpdateAlias}
+          onUpdatePayment={async (data) => {
+            if (managingUser) {
+              const success = await handleUpdateUserPayment(managingUser.id, data);
+              if (success) setManagingUser({ ...managingUser, ...data });
+            }
+          }}
           onRegisterPayment={(creatorId) => {
             setManagingUser(null);
             setNewPayment(prev => ({ ...prev, creator_id: creatorId }));

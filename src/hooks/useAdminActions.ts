@@ -253,6 +253,27 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
       setIsTwitchModalOpen(false);
     }
   };
+  
+  const handleUpdateUserPayment = async (userId: string, data: Partial<UserProfile>) => {
+    const { error } = await supabase
+      .from('users')
+      .update({
+        payment_method: data.payment_method,
+        binance_id: data.binance_id,
+        wallet_address: data.wallet_address,
+        wallet_network: data.wallet_network
+      })
+      .eq('id', userId);
+      
+    if (error) {
+      toastError("Error al actualizar información de pago: " + error.message);
+      return false;
+    } else {
+      success("Información de pago actualizada");
+      refresh();
+      return true;
+    }
+  };
 
   const handleCreatePayment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -316,6 +337,7 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
     handleUpdateUserRole,
     handleRemoveUser,
     handleSaveTwitch,
+    handleUpdateUserPayment,
     handleCreatePayment
   };
 }

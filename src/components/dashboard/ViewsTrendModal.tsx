@@ -131,7 +131,7 @@ export default function ViewsTrendModal({ isOpen, onClose, content }: ViewsTrend
                       <TrendingUp className="h-4 w-4 text-emerald-500" />
                       Crecimiento de Vistas
                     </h3>
-                    <div className="h-64 w-full">
+                    <div className="h-64 w-full min-h-[250px]">
                       <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                           <defs>
