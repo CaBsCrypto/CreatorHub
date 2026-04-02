@@ -291,8 +291,7 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
       currency: newPayment.currency,
       concept: newPayment.concept,
       campaign_id: newPayment.campaign_id || null,
-      paid_at: newPayment.paid_at,
-      status: 'completed'
+      paid_at: newPayment.paid_at
     }]);
 
     if (error) {
