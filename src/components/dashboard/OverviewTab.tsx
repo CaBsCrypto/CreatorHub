@@ -49,20 +49,13 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
         <AdminMetricCard 
           title="Vistas Totales" 
           value={metrics.totalViews.toLocaleString()} 
           trend={metrics.viewsTrend || undefined} 
           icon={TrendingUp} 
           color="from-indigo-500 to-indigo-600"
-          onClick={() => setActiveTab('content')} 
-        />
-        <AdminMetricCard 
-          title="Vistas Promedio" 
-          value={Math.round(metrics.totalViews / (metrics.totalPosts || 1)).toLocaleString()} 
-          icon={Zap} 
-          color="from-rose-500 to-pink-600"
           onClick={() => setActiveTab('content')} 
         />
         <AdminMetricCard 
