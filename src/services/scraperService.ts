@@ -127,9 +127,17 @@ export async function fetchInstagramData(url: string) {
       timeout: 5000
     });
     
-    const postData = (postRes.data as any)?.data || (postRes.data as any)?.items?.[0] || (postRes.data as any)?.graphql?.shortcode_media || postRes.data;
+    const postDataRaw = postRes.data as any;
     
-    if (postData) {
+    // Check for RapidAPI Quota Limit
+    if (postDataRaw?.message?.includes('exceeded') || postDataRaw?.message?.includes('quota')) {
+      console.warn("RapidAPI Quota Exceeded for Instagram Looter 2. Switching to HTML fallback.");
+      throw new Error('RAPIDAPI_QUOTA_EXCEEDED');
+    }
+
+    const postData = postDataRaw?.data || postDataRaw?.items?.[0] || postDataRaw?.graphql?.shortcode_media || postDataRaw;
+    
+    if (postData && (postData.id || postData.shortcode)) {
       ownerId = postData.owner?.id || postData.user?.pk || postData.owner?.pk || "";
       shortcode = postData.shortcode || postData.code || "";
       title = postData.caption?.text || postData.text || postData.title || title;
@@ -152,7 +160,7 @@ export async function fetchInstagramData(url: string) {
         thumbnail = `https://images.weserv.nl/?url=${encodeURIComponent(postData.display_url || postData.thumbnail_url)}&default=https://cdn-icons-png.flaticon.com/512/174/174855.png`;
       }
     } else {
-      console.warn("Instagram scraper: No postData found in API response.");
+      throw new Error('NO_POST_DATA_FOUND');
     }
 
     const isVideo = url.includes('/reel/') || postData?.is_video === true || !!postData?.video_url;
@@ -204,11 +212,53 @@ export async function fetchInstagramData(url: string) {
     return { title: title.substring(0, 100), views, likes, comments, thumbnail };
   } catch (error: any) {
     const duration = Date.now() - start;
-    await logScraperAction('instagram', url, 'error', error.message, duration, { 
+    const isQuotaError = error.message === 'RAPIDAPI_QUOTA_EXCEEDED';
+    
+    // --- EMERGENCY HTML FALLBACK ---
+    // If API fails or quota hit, try direct HTML scraping
+    console.log(`[IG Scraper] API failed (${error.message}). Attempting direct HTML fallback for ${url}...`);
+    try {
+      const pageRes = await axios.get(url, { 
+        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36" }, 
+        timeout: 5000 
+      });
+      const html = pageRes.data;
+      
+      // 1. Extract Views
+      const viewMatch = html.match(/"video_view_count":(\d+)/) || html.match(/"play_count":(\d+)/) || html.match(/"edge_media_preview_like":\{"count":(\d+)\}/);
+      if (viewMatch) views = parseInt(viewMatch[1]);
+      
+      // 2. Extract Likes as backup for views
+      const likeMatch = html.match(/"edge_media_preview_like":\{"count":(\d+)\}/) || html.match(/"like_count":(\d+)/);
+      if (likeMatch && views < parseInt(likeMatch[1])) {
+          likes = parseInt(likeMatch[1]);
+          if (views === 0) views = likes; // Use likes as proxy for views if 0
+      }
+
+      // 3. Extract Thumbnail
+      const thumbMatch = html.match(/<meta property="og:image" content="([^"]+)"/) || html.match(/"display_url":"([^"]+)"/);
+      if (thumbMatch && !thumbnail) {
+        thumbnail = `https://images.weserv.nl/?url=${encodeURIComponent(thumbMatch[1].replace(/\\u0026/g, '&'))}&default=https://cdn-icons-png.flaticon.com/512/174/174855.png`;
+      }
+      
+      // 4. Extract Title
+      const titleMatch = html.match(/<meta property="og:description" content="([^"]+)"/);
+      if (titleMatch && title === "Instagram Post") title = titleMatch[1].split(' - ')[0];
+
+      if (views > 0) {
+        await logScraperAction('instagram', url, 'success', `HTML Fallback Success (API ${error.message})`, duration, { views, mode: 'HTML_ONLY' });
+        return { title: title.substring(0, 100), views, likes, comments, thumbnail };
+      }
+    } catch (fallbackError: any) {
+      console.error("Instagram Fallback also failed:", fallbackError.message);
+    }
+
+    await logScraperAction('instagram', url, 'error', `IG Fail: ${error.message}`, duration, { 
       status: error.response?.status,
-      hasApiKey: !!apiKey,
-      responseRaw: error.response?.data
+      isQuotaError,
+      hasApiKey: !!apiKey
     });
+
     console.error("Instagram Fetch Error:", error.message);
     return { title: "Instagram Post", views: 0, likes: 0, comments: 0, thumbnail: "" };
   }

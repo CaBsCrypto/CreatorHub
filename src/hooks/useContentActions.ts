@@ -133,14 +133,18 @@ export function useContentActions(refresh: () => void) {
           }).then(async (res) => {
             if (res.ok) {
               const metadata = await res.json();
-              await supabase.from('content').update({
-                title: metadata.title || 'Contenido Actualizado',
-                thumbnail: metadata.thumbnail || '',
-                views: metadata.views || 0,
-                likes: metadata.likes || 0,
-                comments: metadata.comments || 0
-              }).eq('id', editingContent.id);
-              refresh();
+              // Only update if scraper found real data to avoid overwriting manual edits with 0
+              const updates: any = {};
+              if (metadata.title && metadata.title !== 'Instagram Post') updates.title = metadata.title;
+              if (metadata.thumbnail) updates.thumbnail = metadata.thumbnail;
+              if (metadata.views > 0) updates.views = metadata.views;
+              if (metadata.likes > 0) updates.likes = metadata.likes;
+              if (metadata.comments > 0) updates.comments = metadata.comments;
+
+              if (Object.keys(updates).length > 0) {
+                await supabase.from('content').update(updates).eq('id', editingContent.id);
+                refresh();
+              }
             }
           }).catch(e => console.warn("Background update after edit failed:", e));
         }
@@ -192,14 +196,18 @@ export function useContentActions(refresh: () => void) {
         }).then(async (res) => {
           if (res.ok && insertedData?.[0]) {
             const metadata = await res.json();
-            await supabase.from('content').update({
-              title: metadata.title || 'Nuevo Contenido',
-              thumbnail: metadata.thumbnail || '',
-              views: metadata.views || 0,
-              likes: metadata.likes || 0,
-              comments: metadata.comments || 0
-            }).eq('id', insertedData[0].id);
-            refresh();
+            // Only update if scraper found real data to avoid overwriting manual values with 0
+            const updates: any = {};
+            if (metadata.title && metadata.title !== 'Instagram Post') updates.title = metadata.title;
+            if (metadata.thumbnail) updates.thumbnail = metadata.thumbnail;
+            if (metadata.views > 0) updates.views = metadata.views;
+            if (metadata.likes > 0) updates.likes = metadata.likes;
+            if (metadata.comments > 0) updates.comments = metadata.comments;
+
+            if (Object.keys(updates).length > 0) {
+              await supabase.from('content').update(updates).eq('id', insertedData[0].id);
+              refresh();
+            }
           }
         }).catch(e => console.warn("Admin background update failed:", e));
       }
