@@ -614,58 +614,6 @@ const ContentModal: React.FC<ContentModalProps> = ({
             </div>
           </div>
 
-          <div className="pt-6 border-t border-slate-100 space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-500">
-            <div className="flex items-center gap-2 mb-1">
-              <RefreshCw className="h-3.5 w-3.5 text-indigo-500" />
-              <h3 className="text-[11px] font-bold text-slate-900 uppercase tracking-wider">
-                {editingContent ? 'Ajuste Manual de Métricas' : 'Métricas de Partida'}
-              </h3>
-            </div>
-            
-            <div className="px-0.5">
-              <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2 ml-1">Título de la Publicación</label>
-              <input
-                type="text"
-                value={formData.title}
-                onChange={e => setFormData({...formData, title: e.target.value})}
-                placeholder={editingContent ? '' : 'Opcional si usas link'}
-                className="block w-full rounded-xl border-slate-200 bg-slate-50/30 py-2.5 px-4 text-sm font-medium text-slate-700 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
-              />
-            </div>
-
-            <div className="grid grid-cols-3 gap-3">
-              <div className="p-3 bg-slate-50/50 rounded-2xl border border-slate-100">
-                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2 ml-1">Vistas</label>
-                <input
-                  type="number"
-                  min="0"
-                  value={formData.views}
-                  onChange={e => setFormData({...formData, views: parseInt(e.target.value) || 0})}
-                  className="block w-full bg-white border border-slate-200 rounded-lg py-1.5 text-center text-sm font-bold text-slate-700 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
-                />
-              </div>
-              <div className="p-3 bg-slate-50/50 rounded-2xl border border-slate-100">
-                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2 ml-1">Likes</label>
-                <input
-                  type="number"
-                  min="0"
-                  value={formData.likes}
-                  onChange={e => setFormData({...formData, likes: parseInt(e.target.value) || 0})}
-                  className="block w-full bg-white border border-slate-200 rounded-lg py-1.5 text-center text-sm font-bold text-slate-700 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
-                />
-              </div>
-              <div className="p-3 bg-slate-50/50 rounded-2xl border border-slate-100">
-                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2 ml-1">Coments</label>
-                <input
-                  type="number"
-                  min="0"
-                  value={formData.comments}
-                  onChange={e => setFormData({...formData, comments: parseInt(e.target.value) || 0})}
-                  className="block w-full bg-white border border-slate-200 rounded-lg py-1.5 text-center text-sm font-bold text-slate-700 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
-                />
-              </div>
-            </div>
-          </div>
 
           <div className="flex gap-3 pt-4 border-t border-slate-100">
             <button
