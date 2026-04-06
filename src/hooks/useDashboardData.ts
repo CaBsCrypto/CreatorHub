@@ -35,7 +35,7 @@ export const getAgencyRank = (posts: number, views: number) => {
   return AGENCY_TIERS[0];
 };
 
-export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform?: string, campaign?: string, creator?: string, showOnlyZeroViews?: boolean }) => {
+export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform?: string, campaign?: string, creator?: string, showOnlyZeroViews?: boolean, sortBy?: 'views' | 'created_at', order?: 'asc' | 'desc' }) => {
   const { user } = useAuth();
   const { error: toastError } = useToast();
   
@@ -154,11 +154,28 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
       if (filters.showOnlyZeroViews) {
         result = result.filter(c => (c.views || 0) === 0);
       }
+
+      // --- Sorting Logic ---
+      const sortField = filters.sortBy || 'created_at';
+      const sortOrder = filters.order || 'desc';
+
+      result = [...result].sort((a, b) => {
+        let valA = a[sortField as keyof Content] || 0;
+        let valB = b[sortField as keyof Content] || 0;
+
+        if (sortField === 'created_at') {
+          valA = new Date(a.created_at).getTime();
+          valB = new Date(b.created_at).getTime();
+        }
+
+        if (sortOrder === 'asc') return (valA as number) - (valB as number);
+        return (valB as number) - (valA as number);
+      });
       
     }
 
     return result;
-  }, [content, role, user, filters?.platform, filters?.campaign, filters?.creator, filters?.showOnlyZeroViews]);
+  }, [content, role, user, filters?.platform, filters?.campaign, filters?.creator, filters?.showOnlyZeroViews, filters?.sortBy, filters?.order]);
 
   const metrics = useMemo(() => {
     const totalViews = filteredContent.reduce((acc, curr) => acc + (curr.views || 0), 0);
