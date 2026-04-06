@@ -107,6 +107,9 @@ app.post("/api/fetch-metadata", authenticate, validate(FetchMetadataSchema), asy
     }
     res.json(data);
   } catch (error: any) {
+    if (error.message === 'IG_QUOTA_EXCEEDED') {
+       return res.status(429).json({ error: 'IG_QUOTA_EXCEEDED', platform: 'instagram' });
+    }
     console.error("Metadata fetch error:", error);
     res.status(500).json({ error: error.message });
   }

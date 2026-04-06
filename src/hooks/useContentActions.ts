@@ -186,7 +186,7 @@ export function useContentActions(refresh: () => void) {
 
         // 3. FETCH METADATA IN BACKGROUND
         const { data: { session } } = await supabase.auth.getSession();
-        fetch('/api/fetch-metadata', {
+        fetch(`${import.meta.env.VITE_SUPABASE_URL.replace('.supabase.co', '')}/api/fetch-metadata`, { // Assuming local server proxy or similar
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
@@ -194,8 +194,16 @@ export function useContentActions(refresh: () => void) {
           },
           body: JSON.stringify({ url: cleanUrl, platform: data.platform })
         }).then(async (res) => {
+          if (res.status === 429) {
+            const errorData = await res.json();
+            if (errorData.error === 'IG_QUOTA_EXCEEDED') {
+              toastError("🚨 Límite de API agotado en RapidAPI. Revisa tus suscripciones o agrega una nueva clave (RAPIDAPI_KEY_3) para reactivar los scrapers.");
+              return;
+            }
+          }
           if (res.ok && insertedData?.[0]) {
             const metadata = await res.json();
+            // ... (rest of update logic)
             // Only update if scraper found real data to avoid overwriting manual values with 0
             const updates: any = {};
             if (metadata.title && metadata.title !== 'Instagram Post' && metadata.title !== 'YouTube Video') {

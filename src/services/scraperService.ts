@@ -333,7 +333,13 @@ export async function fetchInstagramData(url: string) {
   // If we reach here, all providers and keys failed
   const duration = Date.now() - start;
   await logScraperAction('instagram', url, 'error', `All methods failed. Last error: ${lastError}`, duration);
-  console.error("[IG Scraper] Fatal: All extraction methods failed.");
+  console.error(`[IG Scraper] Fatal: All extraction methods failed. Last error: ${lastError}`);
+  
+  // Categorized error for the frontend/server to handle
+  if (lastError.includes('QUOTA_EXCEEDED')) {
+    throw new Error('IG_QUOTA_EXCEEDED');
+  }
+  
   return { title: "Instagram Post", views: 0, likes: 0, comments: 0, thumbnail: "" };
 }
 
