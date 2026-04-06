@@ -110,9 +110,22 @@ const creatorRefreshLimiter = rateLimit({
 
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 
+app.get("/api/scraper-status", authenticate, authorize(['admin']), async (req, res) => {
+  const status = {
+    rapidapi_key_1: !!process.env.RAPIDAPI_KEY,
+    rapidapi_key_2: !!process.env.RAPIDAPI_KEY_2,
+    rapidapi_key_3: !!process.env.RAPIDAPI_KEY_3,
+    youtube_api_key: !!process.env.YOUTUBE_API_KEY,
+    gemini_api_key: !!process.env.GEMINI_API_KEY,
+    supabase_url: !!process.env.VITE_SUPABASE_URL,
+    supabase_service_role: !!process.env.SUPABASE_SERVICE_ROLE_KEY
+  };
+  res.json(status);
+});
+
 app.post("/api/fetch-metadata", authenticate, metadataLimiter, validate(FetchMetadataSchema), async (req, res) => {
   try {
-    const { url, platform } = req.body;
+    const { url, platform, contentId } = req.body;
     if (!url) return res.status(400).json({ error: "URL is required" });
     
     let data;
@@ -125,6 +138,21 @@ app.post("/api/fetch-metadata", authenticate, metadataLimiter, validate(FetchMet
       case 'coinmarketcap': data = await scraperService.fetchCMCData(url); break;
       default: data = { title: "New Upload", views: 0, likes: 0, comments: 0, thumbnail: "" };
     }
+
+    // AUTO-UPDATE DATABASE if contentId is provided
+    if (contentId && data && !((data as any).error)) {
+      const updates: any = {};
+      if (data.title && data.title !== 'Instagram Post') updates.title = data.title;
+      if (data.thumbnail) updates.thumbnail = data.thumbnail;
+      if (data.views > 0) updates.views = data.views;
+      if (data.likes > 0) updates.likes = data.likes;
+      if (data.comments > 0) updates.comments = data.comments;
+
+      if (Object.keys(updates).length > 0) {
+        await supabaseAdmin.from('content').update(updates).eq('id', contentId);
+      }
+    }
+
     res.json(data);
   } catch (error: any) {
     console.error("Metadata fetch error:", error);
@@ -151,12 +179,12 @@ app.post("/api/refresh-metrics", authenticate, authorize(['admin', 'creator']), 
          const { data: dbItem } = await supabaseAdmin.from('content').select('creator_id').eq('id', item.id).single();
          if (!dbItem || dbItem.creator_id !== userId) {
             console.warn(`[Security] Creator ${userId} tried to refresh item ${item.id} belonging to another user. Blocked.`);
-            continue; // Skip this item silently
+            continue; 
          }
       }
 
       try {
-        let data;
+        let data: any;
         switch(item.platform) {
           case 'tiktok': data = await scraperService.fetchTikTokData(item.url); break;
           case 'youtube': data = await scraperService.fetchYouTubeData(item.url); break;
@@ -166,12 +194,25 @@ app.post("/api/refresh-metrics", authenticate, authorize(['admin', 'creator']), 
           case 'coinmarketcap': data = await scraperService.fetchCMCData(item.url); break;
           default: continue;
         }
-        results.push({ id: item.id, ...data });
+
+        if (data && !data.error) {
+          const updates: any = {};
+          if (data.title && data.title !== 'Instagram Post') updates.title = data.title;
+          if (data.thumbnail) updates.thumbnail = data.thumbnail;
+          if (data.views > 0) updates.views = data.views;
+          if (data.likes > 0) updates.likes = data.likes;
+          if (data.comments > 0) updates.comments = data.comments;
+
+          if (Object.keys(updates).length > 0) {
+            await supabaseAdmin.from('content').update(updates).eq('id', item.id);
+          }
+          results.push({ id: item.id, ...data });
+        }
       } catch (itemError: any) {
         console.error(`Failed to refresh item ${item.url}:`, itemError.message);
       }
     }
-    res.json({ success: true, results });
+    res.json({ success: true, results_count: results.length });
   } catch (globalError: any) {
     console.error("Refresh error:", globalError);
     res.status(500).json({ error: globalError.message });

@@ -33,6 +33,8 @@ interface ContentCardProps {
   index: number;
 }
 
+import DiscordIcon from '../icons/DiscordIcon';
+
 const platformConfig = {
   youtube: { icon: Youtube, color: 'text-red-500', bg: 'from-red-50 to-white' },
   instagram: { icon: Instagram, color: 'text-pink-500', bg: 'from-pink-50 to-white' },
@@ -40,7 +42,7 @@ const platformConfig = {
   x: { icon: Twitter, color: 'text-indigo-900', bg: 'from-indigo-50 to-white' },
   coinmarketcap: { icon: Globe, color: 'text-indigo-600', bg: 'from-indigo-50 to-white' },
   twitch: { icon: Globe, color: 'text-purple-600', bg: 'from-purple-50 to-white' },
-  discord: { icon: Music2, color: 'text-indigo-500', bg: 'from-indigo-50 to-white' }
+  discord: { icon: DiscordIcon, color: 'text-indigo-500', bg: 'from-indigo-50 to-white' }
 };
 
 const ContentCard: React.FC<ContentCardProps> = ({ item, campaignName, onEdit, onDelete, onClick, index }) => {

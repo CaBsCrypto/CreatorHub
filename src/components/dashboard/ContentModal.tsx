@@ -3,6 +3,7 @@ import { X, Youtube, Instagram, Music2, Twitter, Globe, ExternalLink, RefreshCw,
 import { Campaign, Content, UserProfile, supabase } from '../../supabase';
 import { useToast } from '../../hooks/useToast';
 import { resizeImage } from '../../utils/imageUtils';
+import DiscordIcon from '../icons/DiscordIcon';
 
 interface ContentModalProps {
   isOpen: boolean;
@@ -35,7 +36,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
     { id: 'x', icon: Twitter, color: 'text-indigo-900', label: 'X' },
     { id: 'coinmarketcap', icon: Globe, color: 'text-indigo-600', label: 'CMC' },
     { id: 'stream', icon: Globe, color: 'text-purple-600', label: 'Streams' },
-    ...(users && users.length > 0 ? [{ id: 'discord', icon: Music2, color: 'text-indigo-500', label: 'Discord' }] : [])
+    ...(users && users.length > 0 ? [{ id: 'discord', icon: DiscordIcon, color: 'text-indigo-500', label: 'Discord' }] : [])
   ], [users]);
   const [formData, setFormData] = React.useState({
     campaign_id: '',

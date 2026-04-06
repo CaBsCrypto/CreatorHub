@@ -73,20 +73,9 @@ const ContentTab: React.FC<ContentTabProps> = ({
         body: JSON.stringify({ items: data })
       });
       const result = await response.json();
-      if (result.success && result.results) {
-        let updatedCount = 0;
-        for (const r of result.results) {
-          try {
-            const { error: updateErr } = await supabase.from('content').update({
-              title: r.title, views: r.views, likes: r.likes, comments: r.comments, thumbnail: r.thumbnail
-            }).eq('id', r.id);
-            if (!updateErr) updatedCount++;
-          } catch (e) {
-            console.error(`Error updating item ${r.id}:`, e);
-          }
-        }
+      if (result.success) {
         await refresh();
-        success(`${updatedCount} de ${result.results.length} videos sincronizados correctamente`);
+        success(`${result.results_count} videos sincronizados correctamente desde el servidor`);
       } else {
         throw new Error(result.error || "Fallo en la sincronización masiva");
       }
@@ -104,16 +93,11 @@ const ContentTab: React.FC<ContentTabProps> = ({
       const res = await fetch('/api/fetch-metadata', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
-        body: JSON.stringify({ url: item.url, platform: item.platform })
+        body: JSON.stringify({ url: item.url, platform: item.platform, contentId: item.id })
       });
       if (!res.ok) throw new Error("Error al obtener metadata");
-      const metadata = await res.json();
-      const { error } = await supabase.from('content').update({
-        title: metadata.title, views: metadata.views, likes: metadata.likes,
-        comments: metadata.comments, thumbnail: metadata.thumbnail
-      }).eq('id', item.id);
-      if (error) throw error;
-      success("Video actualizado");
+      
+      success("Video actualizado desde el servidor");
       refresh();
     } catch (e: any) {
       toastError("Error: " + e.message);
@@ -169,14 +153,8 @@ const ContentTab: React.FC<ContentTabProps> = ({
             >
               <Plus className="h-4 w-4" /> Nuevo Contenido
             </button>
-            <button
-              onClick={handleRefreshAll}
-              className={`flex items-center justify-center p-3 rounded-2xl transition-all ${isRefreshing ? 'bg-gray-100 text-gray-400' : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100 active:scale-95'}`}
-              title="Sincronizar todo"
-            >
-              <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-            </button>
           </div>
+
         </div>
       </div>
 

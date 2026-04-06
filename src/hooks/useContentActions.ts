@@ -198,8 +198,12 @@ export function useContentActions(refresh: () => void) {
             const metadata = await res.json();
             // Only update if scraper found real data to avoid overwriting manual values with 0
             const updates: any = {};
-            if (metadata.title && metadata.title !== 'Instagram Post') updates.title = metadata.title;
+            if (metadata.title && metadata.title !== 'Instagram Post' && metadata.title !== 'YouTube Video') {
+              updates.title = metadata.title;
+            }
             if (metadata.thumbnail) updates.thumbnail = metadata.thumbnail;
+            
+            // Only update metrics if they are > 0 to avoid overwriting manual data with scraper failures
             if (metadata.views > 0) updates.views = metadata.views;
             if (metadata.likes > 0) updates.likes = metadata.likes;
             if (metadata.comments > 0) updates.comments = metadata.comments;

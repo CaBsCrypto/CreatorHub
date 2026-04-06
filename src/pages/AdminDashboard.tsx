@@ -39,6 +39,7 @@ const TeamTab = React.lazy(() => import('../components/dashboard/TeamTab'));
 const PaymentsTab = React.lazy(() => import('../components/dashboard/PaymentsTab'));
 const TrashTab = React.lazy(() => import('../components/dashboard/TrashTab'));
 const ActivityTab = React.lazy(() => import('../components/dashboard/ActivityTab'));
+const ScraperLogsTab = React.lazy(() => import('../components/dashboard/ScraperLogsTab'));
 
 const TabLoader = () => (
   <div className="flex items-center justify-center py-20">
@@ -55,7 +56,7 @@ const PLATFORM_COLORS: Record<string, string> = {
   coinmarketcap: '#0d3efd' // Blue
 };
 
-const ADMIN_TABS = ['overview', 'campaigns', 'content', 'creators', 'payments', 'team', 'activity', 'trash'] as const;
+const ADMIN_TABS = ['overview', 'campaigns', 'content', 'creators', 'payments', 'team', 'activity', 'trash', 'scraper'] as const;
 type AdminTab = typeof ADMIN_TABS[number];
 
 export default function AdminDashboard() {
@@ -254,6 +255,7 @@ export default function AdminDashboard() {
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
         resetFilters={resetFilters} 
+        user={user}
       />
 
       <main className="flex-1 p-4 md:p-8 lg:p-12 overflow-y-auto pb-32 lg:pb-12 bg-gray-50/30">
@@ -383,6 +385,10 @@ export default function AdminDashboard() {
             auditLogs={auditLogs}
             refresh={refresh}
           />
+        )}
+
+        {activeTab === 'scraper' && (
+          <ScraperLogsTab />
         )}
         </React.Suspense>
 

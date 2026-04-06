@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, List, Youtube, Users, Wallet, ShieldCheck, Zap, Trash2, Sparkles, Briefcase } from 'lucide-react';
+import { LayoutDashboard, List, Youtube, Users, Wallet, ShieldCheck, Zap, Trash2, Sparkles } from 'lucide-react';
 
 export const sidebarItems = [
   { id: 'overview', label: 'Resumen', icon: LayoutDashboard },
@@ -16,9 +16,19 @@ interface AdminSidebarProps {
   activeTab: string;
   setActiveTab: (tab: any) => void;
   resetFilters: (params?: any) => void;
+  user: any;
 }
 
-const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab, resetFilters }) => {
+const SUPERADMIN_EMAIL = 'cabscryptocontacto@gmail.com';
+
+const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab, resetFilters, user }) => {
+  const displayItems = React.useMemo(() => {
+    if (user?.email === SUPERADMIN_EMAIL) {
+      return [...sidebarItems, { id: 'scraper', label: 'Salud Logs', icon: ShieldCheck }];
+    }
+    return sidebarItems;
+  }, [user]);
+
   return (
     <>
       <aside className="w-72 bg-white border-r border-gray-100 p-8 hidden lg:block">
@@ -35,7 +45,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab, re
         </div>
 
         <nav className="space-y-2">
-          {sidebarItems.map(item => (
+          {displayItems.map(item => (
             <button
               key={item.id}
               onClick={() => {
@@ -59,7 +69,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab, re
       {/* Mobile Bottom Navigation */}
       <div className="lg:hidden fixed bottom-1 left-0 right-0 z-[60] px-4 pb-4 pt-2 pointer-events-none">
         <div className="bg-white/90 backdrop-blur-xl border border-gray-100 shadow-2xl rounded-[2rem] p-2 flex items-center justify-between pointer-events-auto">
-          {sidebarItems.map(item => (
+          {displayItems.map(item => (
             <button
               key={item.id}
               onClick={() => {

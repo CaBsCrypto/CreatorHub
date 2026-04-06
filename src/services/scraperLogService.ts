@@ -8,13 +8,18 @@ function getSupabase() {
   if (supabaseClient) return supabaseClient;
   
   const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || '';
+  const isBackend = typeof window === 'undefined';
+  const supabaseKey = (isBackend ? process.env.SUPABASE_SERVICE_ROLE_KEY : null) || process.env.VITE_SUPABASE_ANON_KEY || '';
 
   if (!supabaseUrl || !supabaseKey) {
-    if (typeof window === 'undefined') {
+    if (isBackend) {
       console.error("❌ ScraperLogService: Missing Supabase configuration (Backend context)");
     }
     return null;
+  }
+
+  if (isBackend && !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    console.warn("⚠️ ScraperLogService: Running in backend without SERVICE_ROLE_KEY. RLS might block logs.");
   }
 
   try {

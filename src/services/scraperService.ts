@@ -76,6 +76,7 @@ export async function fetchXData(url: string) {
 }
 
 export async function fetchYouTubeData(url: string) {
+  const start = Date.now();
   let title = "YouTube Video", author = "", views = 0, likes = 0, comments = 0, thumbnail = "";
   try {
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/|live\/)([^#&?]*).*/;
@@ -94,6 +95,8 @@ export async function fetchYouTubeData(url: string) {
         views = parseInt(video.statistics?.viewCount || '0', 10);
         likes = parseInt(video.statistics?.likeCount || '0', 10);
         comments = parseInt(video.statistics?.commentCount || '0', 10);
+      } else {
+        console.warn(`[YT Scraper] No video found for ID ${videoId}`);
       }
     } else {
       const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`;
@@ -101,167 +104,167 @@ export async function fetchYouTubeData(url: string) {
       title = oembedRes.data.title || title;
       author = oembedRes.data.author_name || author;
     }
+
+    const duration = Date.now() - start;
+    await logScraperAction('youtube', url, views === 0 ? 'error' : 'success', views === 0 ? 'YouTube returned 0 views (Quota or Invalid ID?)' : undefined, duration, { views, likes });
+
     return { title: (author ? `${author} - ${title}` : title).substring(0, 100), views, likes, comments, thumbnail };
-  } catch (error) {
+  } catch (error: any) {
+    const duration = Date.now() - start;
+    console.error("[YT Scraper] Error:", error.message);
+    await logScraperAction('youtube', url, 'error', error.message, duration);
     return { title: "YouTube Video", views: 0, likes: 0, comments: 0, thumbnail: "" };
   }
 }
 
-export async function fetchInstagramData(url: string) {
-  let title = "Instagram Post", views = 0, likes = 0, comments = 0, ownerId = "", shortcode = "", thumbnail = "";
-  const apiKey = process.env.RAPIDAPI_KEY;
-  const start = Date.now();
-  try {
-    try {
-      const pageRes = await axios.get(url, { headers: { "User-Agent": "Mozilla/5.0" }, timeout: 3000 });
-      const thumbMatch = pageRes.data.match(/<meta property="og:image" content="([^"]+)"/);
-      if (thumbMatch) {
-         // Proxy via weserv to prevent 403 CDN errors
-         thumbnail = `https://images.weserv.nl/?url=${encodeURIComponent(thumbMatch[1])}&default=https://cdn-icons-png.flaticon.com/512/174/174855.png`;
-      }
-    } catch (e) { /* thumbnail fetch optional */ }
+// --- INSTAGRAM REFACTOR (MULTI-PROVIDER & INSIGHTS SUPPORT) ---
 
-    const postRes = await axios.get('https://instagram-looter2.p.rapidapi.com/post', {
-      params: { url },
-      headers: { 'X-RapidAPI-Key': apiKey, 'X-RapidAPI-Host': 'instagram-looter2.p.rapidapi.com' },
-      timeout: 5000
-    });
-    
-    const postDataRaw = postRes.data as any;
-    
-    // Check for RapidAPI Quota Limit
-    if (postDataRaw?.message?.includes('exceeded') || postDataRaw?.message?.includes('quota')) {
-      console.warn("RapidAPI Quota Exceeded for Instagram Looter 2. Switching to HTML fallback.");
-      throw new Error('RAPIDAPI_QUOTA_EXCEEDED');
-    }
+const igCache = new Map<string, { data: any, timestamp: number }>();
+const IG_CACHE_TTL = 15 * 60 * 1000; // 15 mins
 
-    const postData = postDataRaw?.data || postDataRaw?.items?.[0] || postDataRaw?.graphql?.shortcode_media || postDataRaw;
-    
-    if (postData && (postData.id || postData.shortcode)) {
-      ownerId = postData.owner?.id || postData.user?.pk || postData.owner?.pk || "";
-      shortcode = postData.shortcode || postData.code || "";
-      title = postData.caption?.text || postData.text || postData.title || title;
-      if (title === "Instagram Post" || !title || title === "") {
-        title = postData.edge_media_to_caption?.edges?.[0]?.node?.text || title;
-      }
-
-      likes = postData.like_count ?? postData.likes ?? (postData.edge_media_preview_like?.count ?? 0);
-      comments = postData.comment_count ?? postData.comments ?? (postData.edge_media_to_comment?.count ?? 0);
-      
-      views = Math.max(
-        postData.view_count || 0,
-        postData.play_count || 0,
-        postData.video_view_count || 0,
-        postData.video_play_count || 0,
-        likes
-      );
-      
-      if (!thumbnail && (postData.display_url || postData.thumbnail_url)) {
-        thumbnail = `https://images.weserv.nl/?url=${encodeURIComponent(postData.display_url || postData.thumbnail_url)}&default=https://cdn-icons-png.flaticon.com/512/174/174855.png`;
-      }
-    } else {
-      throw new Error('NO_POST_DATA_FOUND');
-    }
-
-    const isVideo = url.includes('/reel/') || postData?.is_video === true || !!postData?.video_url;
-    
-    if (views === 0 && isVideo && ownerId && shortcode) {
-      try {
-        const reelsRes = await axios.get('https://instagram-looter2.p.rapidapi.com/reels', {
-          params: { id: ownerId },
-          headers: { 'X-RapidAPI-Key': apiKey, 'X-RapidAPI-Host': 'instagram-looter2.p.rapidapi.com' },
-          timeout: 4000
-        });
-        const reel = reelsRes.data.items?.find((i: any) => i.media?.code === shortcode);
-        if (reel?.media) {
-          const reelViews = Math.max(
-            reel.media.play_count || 0,
-            reel.media.view_count || 0,
-            reel.media.video_view_count || 0
-          );
-          if (reelViews > views) views = reelViews;
-          if (reel.media.like_count > likes) likes = reel.media.like_count;
-          if (reel.media.comment_count > comments) comments = reel.media.comment_count;
-        }
-      } catch (e) { /* reels fallback optional */ }
-    }
-
-    // Last resort fallback via HTML regex if views still 0
-    if (views === 0) {
-      try {
-        const fallbackRes = await axios.get(url, { headers: { "User-Agent": "Mozilla/5.0" }, timeout: 3000 });
-        const html = fallbackRes.data;
-        const viewMatch = html.match(/"video_view_count":(\d+)/) || html.match(/"play_count":(\d+)/);
-        if (viewMatch) views = parseInt(viewMatch[1]);
-        if (views < likes) views = likes;
-      } catch (e) { /* fallback ignored if fails */ }
-    }
-
-    const duration = Date.now() - start;
-    const isZeroViews = views === 0 && isVideo;
-    
-    // Log FULL response if something is wrong to debug 0-views
-    await logScraperAction('instagram', url, isZeroViews ? 'error' : 'success', isZeroViews ? 'Extracted 0 views for IG video' : undefined, duration, { 
-      views, 
-      likes, 
-      hasApiKey: !!apiKey,
-      rawResponse: isZeroViews ? (postRes.data as any) : undefined,
-      postDataFound: !!postData 
-    });
-
-    return { title: title.substring(0, 100), views, likes, comments, thumbnail };
-  } catch (error: any) {
-    const duration = Date.now() - start;
-    const isQuotaError = error.message === 'RAPIDAPI_QUOTA_EXCEEDED';
-    
-    // --- EMERGENCY HTML FALLBACK ---
-    // If API fails or quota hit, try direct HTML scraping
-    console.log(`[IG Scraper] API failed (${error.message}). Attempting direct HTML fallback for ${url}...`);
-    try {
-      const pageRes = await axios.get(url, { 
-        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36" }, 
-        timeout: 5000 
-      });
-      const html = pageRes.data;
-      
-      // 1. Extract Views
-      const viewMatch = html.match(/"video_view_count":(\d+)/) || html.match(/"play_count":(\d+)/) || html.match(/"edge_media_preview_like":\{"count":(\d+)\}/);
-      if (viewMatch) views = parseInt(viewMatch[1]);
-      
-      // 2. Extract Likes as backup for views
-      const likeMatch = html.match(/"edge_media_preview_like":\{"count":(\d+)\}/) || html.match(/"like_count":(\d+)/);
-      if (likeMatch && views < parseInt(likeMatch[1])) {
-          likes = parseInt(likeMatch[1]);
-          if (views === 0) views = likes; // Use likes as proxy for views if 0
-      }
-
-      // 3. Extract Thumbnail
-      const thumbMatch = html.match(/<meta property="og:image" content="([^"]+)"/) || html.match(/"display_url":"([^"]+)"/);
-      if (thumbMatch && !thumbnail) {
-        thumbnail = `https://images.weserv.nl/?url=${encodeURIComponent(thumbMatch[1].replace(/\\u0026/g, '&'))}&default=https://cdn-icons-png.flaticon.com/512/174/174855.png`;
-      }
-      
-      // 4. Extract Title
-      const titleMatch = html.match(/<meta property="og:description" content="([^"]+)"/);
-      if (titleMatch && title === "Instagram Post") title = titleMatch[1].split(' - ')[0];
-
-      if (views > 0) {
-        await logScraperAction('instagram', url, 'success', `HTML Fallback Success (API ${error.message})`, duration, { views, mode: 'HTML_ONLY' });
-        return { title: title.substring(0, 100), views, likes, comments, thumbnail };
-      }
-    } catch (fallbackError: any) {
-      console.error("Instagram Fallback also failed:", fallbackError.message);
-    }
-
-    await logScraperAction('instagram', url, 'error', `IG Fail: ${error.message}`, duration, { 
-      status: error.response?.status,
-      isQuotaError,
-      hasApiKey: !!apiKey
-    });
-
-    console.error("Instagram Fetch Error:", error.message);
-    return { title: "Instagram Post", views: 0, likes: 0, comments: 0, thumbnail: "" };
+/**
+ * Converts an Instagram Media ID (from Insights links) to a public shortcode.
+ */
+function idToShortcode(id: string): string {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+  let shortcode = '';
+  let idBigInt = BigInt(id);
+  while (idBigInt > 0n) {
+    let remainder = idBigInt % 64n;
+    shortcode = alphabet[Number(remainder)] + shortcode;
+    idBigInt = idBigInt / 64n;
   }
+  return shortcode;
+}
+
+/**
+ * Normalizes any Instagram URL (Posts, Reels, Insights) to a standard public URL.
+ */
+function normalizeInstagramUrl(url: string): string {
+  if (url.includes('/insights/media/')) {
+    const match = url.match(/\/insights\/media\/(\d+)/);
+    if (match && match[1]) {
+      const shortcode = idToShortcode(match[1]);
+      console.log(`[IG Scraper] Converting Insights ID ${match[1]} to Shortcode ${shortcode}`);
+      return `https://www.instagram.com/p/${shortcode}/`;
+    }
+  }
+  return url;
+}
+
+function getInstagramApiKeys() {
+  return [
+    process.env.RAPIDAPI_KEY,
+    process.env.RAPIDAPI_KEY_2,
+    process.env.RAPIDAPI_KEY_3,
+    process.env.RAPIDAPI_KEY_4,
+    process.env.RAPIDAPI_KEY_5
+  ].filter(k => k && k.length > 20 && !k.startsWith('TU_')) as string[];
+}
+
+// Updated to use the more stable "RockSolid AI" provider format (instagram-scraper-stable-api)
+async function fetchFromRockSolidAPI(url: string, apiKey: string, keyIndex: number) {
+  if (!apiKey) throw new Error("MISSING_KEY");
+  
+  // Detect if it's a reel or post for the 'type' parameter
+  const type = (url.includes('/reel/') || url.includes('/reels/')) ? 'reel' : 'post';
+  
+  const response = await axios.get('https://instagram-scraper-stable-api.p.rapidapi.com/get_media_data.php', {
+    params: { 
+      reel_post_code_or_url: url,
+      type: type
+    },
+    headers: { 
+      'X-RapidAPI-Key': apiKey, 
+      'X-RapidAPI-Host': 'instagram-scraper-stable-api.p.rapidapi.com' 
+    },
+    validateStatus: () => true,
+    timeout: 10000
+  });
+
+  if (response.status === 429 || response.data?.message?.includes('exceeded') || response.data?.message?.includes('quota')) {
+    throw new Error(`RAPIDAPI_QUOTA_EXCEEDED_KEY_${keyIndex + 1}`);
+  }
+
+  if (response.status === 403 && response.data?.message?.includes('not subscribed')) {
+    throw new Error(`API_NOT_SUBSCRIBED_KEY_${keyIndex + 1}`);
+  }
+
+  if (response.status !== 200) {
+    throw new Error(`RapidAPI Error ${response.status}: ${response.data?.message || 'Unknown'}`);
+  }
+
+  const postData = response.data?.data || response.data;
+  
+  if (!postData || (!postData.id && !postData.shortcode && !postData.code)) {
+    throw new Error('NO_POST_DATA_FOUND');
+  }
+
+  const title = postData.caption?.text || postData.title || "Instagram Post";
+  const likes = postData.like_count ?? postData.likes ?? 0;
+  const comments = postData.comment_count ?? postData.comments ?? 0;
+  
+  // Real view/play count prioritization
+  let views = Math.max(
+    postData.play_count || 0,
+    postData.view_count || 0,
+    postData.video_view_count || 0,
+    likes // proxy
+  );
+
+  let thumbnail = "";
+  if (postData.thumbnail_url || postData.display_url) {
+    thumbnail = `https://images.weserv.nl/?url=${encodeURIComponent(postData.thumbnail_url || postData.display_url)}&default=https://cdn-icons-png.flaticon.com/512/174/174855.png`;
+  }
+
+  return { title, views, likes, comments, thumbnail };
+}
+
+
+export async function fetchInstagramData(url: string) {
+  const start = Date.now();
+  
+  // 1. Normalize/Convert URL if needed (e.g. Insights to Public)
+  const normalizedUrl = normalizeInstagramUrl(url);
+
+  // 2. Check Cache
+  const cached = igCache.get(normalizedUrl);
+  if (cached && (Date.now() - cached.timestamp) < IG_CACHE_TTL) {
+    console.log(`[IG Scraper] Using cached data for ${normalizedUrl}`);
+    return cached.data;
+  }
+
+  // 3. Define Providers Chain
+  const apiKeys = getInstagramApiKeys();
+
+  // 4. Execution Loop
+  for (let i = 0; i < apiKeys.length; i++) {
+    try {
+      console.log(`[IG Scraper] Trying RockSolid Provider API ${i + 1}...`);
+      // Trying the NEW more stable provider first
+      const data = await fetchFromRockSolidAPI(normalizedUrl, apiKeys[i], i);
+      
+      const duration = Date.now() - start;
+      await logScraperAction('instagram', normalizedUrl, 'success', undefined, duration, { provider: `RockSolid_API_${i+1}`, views: data.views });
+      
+      igCache.set(normalizedUrl, { data, timestamp: Date.now() });
+      return data;
+    } catch (newError: any) {
+      console.warn(`[IG Scraper] RockSolid API ${i + 1} failed: ${newError.message}`);
+      await logScraperAction('instagram', normalizedUrl, 'error', `RockSolid Key ${i+1} Failed: ${newError.message}`, Date.now() - start, { provider: 'RockSolid', keyIndex: i+1 });
+
+      if (i < apiKeys.length - 1) {
+        console.log(`[IG Scraper] Failing over to next key...`);
+        continue;
+      }
+    }
+  }
+
+  // If we reach here, all RockSolid keys failed
+  const duration = Date.now() - start;
+  await logScraperAction('instagram', url, 'error', `All APIs failed`, duration);
+  console.error("[IG Scraper] Fatal: All extraction methods failed.");
+  throw new Error(`IG_UPDATE_FAILED: All methods failed`);
 }
 
 export async function fetchCMCData(url: string) {
@@ -337,32 +340,48 @@ export async function fetchTwitchProfile(username: string) {
 }
 
 export async function fetchInstagramProfile(username: string) {
-  const apiKey = process.env.RAPIDAPI_KEY;
-  try {
-    const res = await axios.get('https://instagram-looter2.p.rapidapi.com/user', {
-      params: { username },
-      headers: { 'X-RapidAPI-Key': apiKey, 'X-RapidAPI-Host': 'instagram-looter2.p.rapidapi.com' },
-      timeout: 5000
-    });
-    
-    const data = res.data?.data || res.data;
-    const followers = data.follower_count || 0;
-    // Instagram Monthly Reach estimate: Followers * 2.1 (reels + posts reach)
-    const monthlyViews = Math.round(followers * 1.2); 
+  const start = Date.now();
+  const apiKeys = getInstagramApiKeys();
+  
+  for (let i = 0; i < apiKeys.length; i++) {
+    const apiKey = apiKeys[i];
+    try {
+      console.log(`[IG Profile] Trying Provider API ${i + 1} for @${username}...`);
+      const res = await axios.get('https://instagram-looter2.p.rapidapi.com/profile', {
+        params: { username },
+        headers: { 'X-RapidAPI-Key': apiKey, 'X-RapidAPI-Host': 'instagram-looter2.p.rapidapi.com' },
+        validateStatus: () => true,
+        timeout: 6000
+      });
 
-    return {
-      platform: 'instagram',
-      username: data.username || username,
-      followers,
-      monthlyReach: monthlyViews,
-      engagement: data.media_count > 100 ? "Estable" : "En crecimiento",
-      image: data.profile_pic_url ? `https://images.weserv.nl/?url=${encodeURIComponent(data.profile_pic_url)}&default=https://cdn-icons-png.flaticon.com/512/1144/1144760.png` : "",
-      description: data.biography || "",
-      region: "N/A"
-    };
-  } catch (e) {
-    throw new Error("No se pudo encontrar el perfil de Instagram.");
+      if (res.status === 429 || res.data?.message?.includes('exceeded') || res.data?.message?.includes('quota')) {
+        throw new Error(`RAPIDAPI_QUOTA_EXCEEDED`);
+      }
+
+      const data = res.data?.data || res.data;
+      if (!data || (!data.username && !data.pk)) throw new Error("NO_PROFILE_DATA");
+
+      const followers = data.follower_count ?? data.edge_followed_by?.count ?? 0;
+      const mediaCount = data.media_count ?? data.edge_owner_to_timeline_media?.count ?? 0;
+      const monthlyViews = Math.round(followers * 1.2); 
+
+      return {
+        platform: 'instagram',
+        username: data.username || username,
+        followers,
+        monthlyReach: monthlyViews,
+        engagement: mediaCount > 100 ? "Estable" : "En crecimiento",
+        image: data.profile_pic_url ? `https://images.weserv.nl/?url=${encodeURIComponent(data.profile_pic_url)}&default=https://cdn-icons-png.flaticon.com/512/1144/1144760.png` : "",
+        description: data.biography || "",
+        region: "N/A"
+      };
+    } catch (e: any) {
+      console.warn(`[IG Profile] API ${i + 1} failed: ${e.message}`);
+      if (i < apiKeys.length - 1) continue;
+      throw new Error(`No se pudo encontrar el perfil de Instagram: ${e.message}`);
+    }
   }
+  throw new Error("No se pudo encontrar el perfil de Instagram (Todas las APIs fallaron).");
 }
 
 export async function fetchYouTubeProfile(handleOrId: string) {
