@@ -84,7 +84,11 @@ const AuditLogDetailModal: React.FC<AuditLogDetailModalProps> = ({ isOpen, onClo
             <div className="bg-indigo-50/30 p-6 rounded-[2rem] border border-indigo-100/50">
               <p className="text-base text-gray-900 font-medium leading-relaxed">
                 <span className="font-black text-indigo-600">{log.admin?.display_name || 'Sistema'}</span> 
-                {' '}{log.details || 'realizó una modificación técnica'}
+                {' '}
+                {typeof log.details === 'string' 
+                  ? log.details 
+                  : ((log.details as any)?.name || 'realizó una modificación técnica')
+                }
               </p>
             </div>
 
