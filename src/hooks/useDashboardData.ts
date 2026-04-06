@@ -47,6 +47,7 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
   const [deletedCampaigns, setDeletedCampaigns] = useState<Campaign[]>([]);
   const [deletedUsers, setDeletedUsers] = useState<UserProfile[]>([]);
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
+  const [assignedCampaignIds, setAssignedCampaignIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
@@ -62,6 +63,15 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
         .select('*')
         .is('deleted_at', null)
         .order('created_at', { ascending: false });
+
+      if (role === 'creator' && user?.id) {
+        const { data: assignments } = await supabase
+          .from('campaign_creators')
+          .select('campaign_id')
+          .eq('creator_id', user.id);
+        
+        setAssignedCampaignIds(assignments?.map(a => (a as any).campaign_id) || []);
+      }
 
       if (camps.error) throw camps.error;
       if (conts.error) throw conts.error;
@@ -233,10 +243,16 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
         views,
         contentCount: campaignContent.length,
         spent,
-        remaining
+        remaining,
+        isAssigned: role === 'admin' ? true : assignedCampaignIds.includes(campaign.id)
       };
+    }).sort((a, b) => {
+      // Sort assigned campaigns first, then by date
+      if (a.isAssigned && !b.isAssigned) return -1;
+      if (!a.isAssigned && b.isAssigned) return 1;
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
-  }, [campaigns, payments, content]);
+  }, [campaigns, payments, content, role, assignedCampaignIds]);
 
   const creatorStats = useMemo(() => {
     const stats: Record<string, any> = {};

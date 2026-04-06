@@ -40,6 +40,7 @@ const CampaignsTab: React.FC<{
             totalPosts={campaign.contentCount}
             spent={campaign.spent}
             remaining={campaign.remaining}
+            isAssigned={campaign.isAssigned}
             onDelete={onDelete}
             onEdit={() => onEdit(campaign)}
             onClick={(id) => {

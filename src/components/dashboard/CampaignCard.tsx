@@ -10,6 +10,7 @@ interface CampaignCardProps {
   totalPosts?: number;
   spent?: number;
   remaining?: number;
+  isAssigned?: boolean;
   onClick?: (id: string) => void;
   onDelete: (id: string) => void;
   onEdit: (id: string) => void;
@@ -21,6 +22,7 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
   campaign,
   totalViews = 0,
   totalPosts = 0,
+  isAssigned = false,
   onDelete,
   onEdit,
   onClick,
@@ -31,7 +33,9 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="group relative bg-white rounded-[2rem] shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-indigo-100 flex flex-col"
+      className={`group relative bg-white rounded-[2rem] shadow-sm hover:shadow-2xl transition-all duration-500 border ${
+        isAssigned ? 'border-indigo-100 ring-1 ring-indigo-50' : 'border-gray-100'
+      } hover:border-indigo-100 flex flex-col`}
       onClick={() => onClick?.(campaign.id)}
       style={{ cursor: onClick ? 'pointer' : 'default' }}
     >
@@ -85,6 +89,13 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
                 Sin slug
               </span>
             )
+          )}
+
+          {/* User Specific Assigned Badge */}
+          {isAssigned && (
+            <span className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[9px] font-black uppercase tracking-widest border border-emerald-100 animate-in zoom-in duration-300">
+              Tu Campaña
+            </span>
           )}
         </div>
 
