@@ -1,13 +1,14 @@
 import React from 'react';
-import { Zap, RefreshCw, Trash2, ShieldCheck, DollarSign, AlertTriangle } from 'lucide-react';
+import { Zap, RefreshCw, Trash2, ShieldCheck, DollarSign, AlertTriangle, ChevronRight } from 'lucide-react';
 
 interface ActivityTabProps {
   groupedLogs: [string, any[]][];
   auditLogs: any[];
   refresh: () => void;
+  onSelectLog: (log: any) => void;
 }
 
-const ActivityTab: React.FC<ActivityTabProps> = ({ groupedLogs, auditLogs, refresh }) => {
+const ActivityTab: React.FC<ActivityTabProps> = ({ groupedLogs, auditLogs, refresh, onSelectLog }) => {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex justify-between items-center mb-2">
@@ -57,11 +58,14 @@ const ActivityTab: React.FC<ActivityTabProps> = ({ groupedLogs, auditLogs, refre
                         {log.action === 'HARD_DELETE' && <AlertTriangle className="h-4 w-4" />}
                       </div>
 
-                      <div className="bg-gray-50/30 rounded-[2rem] p-6 border border-transparent hover:border-gray-100 hover:bg-white hover:shadow-2xl hover:shadow-indigo-100/20 transition-all duration-300">
+                      <div 
+                        onClick={() => onSelectLog(log)}
+                        className="bg-gray-50/30 rounded-[2rem] p-6 border border-transparent hover:border-indigo-100 hover:bg-white hover:shadow-2xl hover:shadow-indigo-100/20 transition-all duration-300 cursor-pointer group/card active:scale-[0.99]"
+                      >
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                           <div className="flex-1">
                             <p className="text-base text-gray-900 leading-relaxed">
-                              <span className="font-black text-indigo-600">
+                              <span className="font-black text-indigo-600 group-hover/card:text-indigo-700">
                                 {log.admin?.display_name || log.admin?.email?.split('@')[0] || 'Sistema'}
                               </span>
                               {' '}
@@ -70,26 +74,30 @@ const ActivityTab: React.FC<ActivityTabProps> = ({ groupedLogs, auditLogs, refre
                                  log.action === 'RESTORE' ? 'ha restaurado' :
                                  log.action === 'CHANGE_ROLE' ? 'ha actualizado el rol de' :
                                  log.action === 'PAYMENT_REGISTERED' ? 'ha registrado un nuevo pago para' :
+                                 log.action === 'METRICS_ADJUSTED' ? 'ha ajustado métricas de' :
                                  'ha modificado'}
                               </span>
                               {' '}
-                              <span className="font-black text-gray-900 underline decoration-indigo-200 underline-offset-4 decoration-2">
-                                {log.details?.name || 'un elemento'}
+                              <span className="font-black text-gray-900 underline decoration-indigo-200 underline-offset-4 decoration-2 group-hover/card:decoration-indigo-400 transition-colors">
+                                {log.details?.includes('Contenido') ? 'Contenido' : log.details?.split(' ').slice(-1)[0] || 'un elemento'}
                               </span>
                             </p>
                             
                             <div className="flex flex-wrap items-center gap-3 mt-3">
-                              <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest bg-white px-2 py-1 rounded-lg border border-gray-50 shadow-sm">
+                              <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest bg-white px-2 py-1 rounded-lg border border-gray-50 shadow-sm group-hover/card:border-indigo-50">
                                 {log.created_at ? new Date(log.created_at).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) : '—'}
                               </span>
-                              <span className="text-[9px] font-black text-indigo-400 opacity-60 uppercase tracking-widest">
-                                Módulo: {log.target_type}
+                              <span className="text-[9px] font-black text-indigo-400 opacity-60 uppercase tracking-widest group-hover/card:opacity-100 transition-opacity">
+                                Módulo: {log.target_type || 'SYSTEM'}
                               </span>
                               {log.target_id && (
-                                <span className="text-[8px] text-gray-300 font-bold uppercase tracking-tight">
+                                <span className="text-[8px] text-gray-300 font-bold uppercase tracking-tight group-hover/card:text-indigo-200 transition-colors">
                                   ID Ref: {log.target_id.slice(0,8)}
                                 </span>
                               )}
+                              <div className="ml-auto opacity-0 group-hover/card:opacity-100 transition-opacity">
+                                <ChevronRight className="h-4 w-4 text-indigo-400" />
+                              </div>
                             </div>
                           </div>
 

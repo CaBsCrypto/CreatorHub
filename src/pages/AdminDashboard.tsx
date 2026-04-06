@@ -25,6 +25,7 @@ import CreatorSearchModal from '../components/dashboard/CreatorSearchModal';
 import UserHistoryModal from '../components/dashboard/UserHistoryModal';
 import CampaignReportModal from '../components/dashboard/CampaignReportModal';
 import Skeleton, { StatsSkeleton, CardSkeleton } from '../components/dashboard/Skeleton';
+import AuditLogDetailModal from '../components/dashboard/AuditLogDetailModal';
 
 // Modular Layout Components
 import AdminSidebar from '../components/dashboard/AdminSidebar';
@@ -143,6 +144,7 @@ export default function AdminDashboard() {
   const isCompactView = viewMode === 'compact';
   const [deletedUserIds, setDeletedUserIds] = useState<string[]>([]);
   const [deletedContentIds, setDeletedContentIds] = useState<string[]>([]);
+  const [selectedLog, setSelectedLog] = useState<any>(null);
   const [viewingDeleted, setViewingDeleted] = useState<{ type: 'content' | 'campaign' | 'user', item: any } | null>(null);
 
   const filteredPayments = useMemo(() => {
@@ -404,6 +406,7 @@ export default function AdminDashboard() {
             groupedLogs={groupedLogs}
             auditLogs={auditLogs}
             refresh={refresh}
+            onSelectLog={setSelectedLog}
           />
         )}
 
@@ -524,6 +527,12 @@ export default function AdminDashboard() {
           onClose={() => setViewingDeleted(null)}
           onRestore={handleRestore}
           onPermanentDelete={handlePermanentDelete}
+        />
+
+        <AuditLogDetailModal 
+          isOpen={!!selectedLog}
+          onClose={() => setSelectedLog(null)}
+          log={selectedLog}
         />
       </main>
     </div>
