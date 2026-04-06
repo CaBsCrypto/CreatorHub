@@ -79,7 +79,13 @@ const ActivityTab: React.FC<ActivityTabProps> = ({ groupedLogs, auditLogs, refre
                               </span>
                               {' '}
                               <span className="font-black text-gray-900 underline decoration-indigo-200 underline-offset-4 decoration-2 group-hover/card:decoration-indigo-400 transition-colors">
-                                {log.details?.includes('Contenido') ? 'Contenido' : log.details?.split(' ').slice(-1)[0] || 'un elemento'}
+                                {(() => {
+                                  const d = log.details;
+                                  if (typeof d === 'string') {
+                                    return d.includes('Contenido') ? 'Contenido' : (d.split(' ').slice(-1)[0] || 'un elemento');
+                                  }
+                                  return (d as any)?.name || 'un elemento';
+                                })()}
                               </span>
                             </p>
                             
