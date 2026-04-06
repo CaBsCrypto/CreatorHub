@@ -21,9 +21,10 @@ export function useContentActions(refresh: () => void) {
     vCount?: number, 
     fCount?: number, 
     sCount?: number,
+    shCount?: number,
     title?: string,
     campaign_id?: string,
-    platform?: 'twitch' | 'tiktok'
+    platform?: 'twitch' | 'tiktok' | 'discord'
   ) => {
     setIsProcessing(true);
     try {
@@ -45,11 +46,12 @@ export function useContentActions(refresh: () => void) {
 
       const finalCampaignId = campaign_id || editingContent?.campaign_id || campaigns[0]?.id || '';
       const finalPlatform = platform || 'twitch';
+      const defaultUrl = `https://${finalPlatform}.com/manual-${Date.now()}`;
 
       const { error: dbError } = await supabase.from('content').insert([{
         campaign_id: finalCampaignId,
         platform: finalPlatform,
-        url: 'https://twitch.tv/stats-' + Date.now(),
+        url: defaultUrl,
         title: title || null,
         thumbnail: publicUrl,
         creator_id: activeCreatorId,
@@ -62,6 +64,7 @@ export function useContentActions(refresh: () => void) {
         followers: fCount || 0,
         new_subscriptions: sCount || 0,
         duration_minutes: dCount || 0,
+        shares_count: shCount || 0,
         uploaded_at: new Date().toISOString()
       }]);
 

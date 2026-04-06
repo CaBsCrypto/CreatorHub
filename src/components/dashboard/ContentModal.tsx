@@ -1,5 +1,6 @@
 import React from 'react';
-import { X, Youtube, Instagram, Music2, Twitter, Globe, ExternalLink, RefreshCw, Plus } from 'lucide-react';
+import { X, Youtube, Instagram, Music2, Twitter, Globe, ExternalLink, RefreshCw, Plus, Image as ImageIcon } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Campaign, Content, UserProfile, supabase } from '../../supabase';
 import { useToast } from '../../hooks/useToast';
 import { resizeImage } from '../../utils/imageUtils';
@@ -12,7 +13,7 @@ interface ContentModalProps {
   users?: UserProfile[];
   editingContent: Content | null;
   onSubmit: (data: any) => Promise<void>;
-  onTwitchUpload: (file: File, creator_id?: string, dCount?: number, aCount?: number, pCount?: number, uvCount?: number, uChatters?: number, vCount?: number, fCount?: number, sCount?: number, title?: string, campaign_id?: string, platform?: 'twitch' | 'tiktok') => Promise<void>;
+  onTwitchUpload: (file: File, creator_id?: string, dCount?: number, aCount?: number, pCount?: number, uvCount?: number, uChatters?: number, vCount?: number, fCount?: number, sCount?: number, shCount?: number, title?: string, campaign_id?: string, platform?: 'twitch' | 'tiktok' | 'discord') => Promise<void>;
   isProcessing: boolean;
 }
 
@@ -154,9 +155,27 @@ const ContentModal: React.FC<ContentModalProps> = ({
         formData.views,
         formData.followers,
         formData.new_subscriptions,
+        formData.shares_count,
         formData.title,
         formData.campaign_id,
-        streamPlatform
+        (formData.platform as any) === 'discord' ? 'discord' : streamPlatform
+      );
+    } else if (formData.platform === 'discord' && twitchFile) {
+       onTwitchUpload(
+        twitchFile, 
+        formData.creator_id, 
+        formData.duration_minutes,
+        0, // average
+        formData.peek_viewers, 
+        formData.views, // uniques
+        0, // chatters
+        formData.views, // total views
+        0, // followers
+        0, // subs
+        formData.shares_count,
+        formData.title,
+        formData.campaign_id,
+        'discord'
       );
     } else {
       onSubmit(finalData);
@@ -449,9 +468,53 @@ const ContentModal: React.FC<ContentModalProps> = ({
                       value={formData.title}
                       onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                       placeholder="Título de la Jornada (ej. Torneo #1)"
-                      className="block w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/30 text-sm font-semibold text-slate-700 focus:ring-1 focus:ring-indigo-500 focus:bg-white transition-all placeholder:text-slate-400 outline-none"
+                      className="block w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50/30 text-sm font-semibold text-slate-700 focus:ring-1 focus:ring-indigo-500 focus:bg-white transition-all placeholder:text-slate-400 outline-none"
                     />
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                      <DiscordIcon className="h-4 w-4 text-slate-300" />
+                    </div>
+                    
+                    {/* Subtle Captura Button */}
+                    <div className="absolute inset-y-0 right-0 pr-1.5 flex items-center">
+                      <button
+                        type="button"
+                        onClick={() => document.getElementById('discord-upload')?.click()}
+                        className={`group/btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all active:scale-95 ${twitchFile ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm' : 'bg-white border-slate-200 text-slate-400 hover:text-indigo-600 hover:border-indigo-200'}`}
+                        title="Adjuntar captura de resultados"
+                      >
+                        <ImageIcon className={`h-3.5 w-3.5 ${twitchFile ? 'text-indigo-100' : 'group-hover/btn:text-indigo-500'}`} />
+                        <span className="text-[9px] font-black uppercase tracking-wider">
+                          {twitchFile ? 'Captura Lista' : 'Captura'}
+                        </span>
+                      </button>
+                      <input
+                        type="file"
+                        id="discord-upload"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                      />
+                    </div>
                   </div>
+                  
+                  {twitchPreview && (
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="relative w-full aspect-video rounded-2xl overflow-hidden border border-slate-100 shadow-sm"
+                    >
+                      <img src={twitchPreview} alt="Preview" className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent flex items-end p-3">
+                        <button 
+                          type="button"
+                          onClick={() => { setTwitchFile(null); setTwitchPreview(null); }}
+                          className="bg-white/20 backdrop-blur-md hover:bg-white/40 text-white p-1.5 rounded-lg transition-all"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
                   
                   <div className="p-3 bg-slate-50/50 rounded-2xl border border-slate-100">
                     <div className="grid grid-cols-3 gap-2">
