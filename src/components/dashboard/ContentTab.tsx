@@ -31,8 +31,6 @@ interface ContentTabProps {
   filterPlatform: string;
   filterCreator: string;
   filterZeroViews: boolean;
-  sortBy: string;
-  order: string;
 }
 
 const ContentTab: React.FC<ContentTabProps> = ({
@@ -60,9 +58,7 @@ const ContentTab: React.FC<ContentTabProps> = ({
   filterCampaign,
   filterPlatform,
   filterCreator,
-  filterZeroViews,
-  sortBy,
-  order
+  filterZeroViews
 }) => {
   const [isViewsModalOpen, setIsViewsModalOpen] = useState(false);
 
@@ -160,22 +156,6 @@ const ContentTab: React.FC<ContentTabProps> = ({
             >
               <TrendingUp className={`h-4 w-4 ${filterZeroViews ? 'rotate-180 transition-transform' : ''}`} /> 0 Vistas
             </button>
-
-            {/* Sort Selector */}
-            <select
-              value={`${sortBy}:${order}`}
-              onChange={(e) => {
-                const [newSort, newOrder] = e.target.value.split(':');
-                setFilter('sort_by', newSort);
-                setFilter('order', newOrder);
-              }}
-              className="bg-white border border-gray-100 px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest text-gray-500 outline-none hover:border-indigo-100 transition-all cursor-pointer shadow-sm"
-            >
-              <option value="created_at:desc">Nuevos primero</option>
-              <option value="created_at:asc">Antiguos primero</option>
-              <option value="views:desc">Más Vistas (Top)</option>
-              <option value="views:asc">Menos Vistas (Cero)</option>
-            </select>
 
             <button 
               onClick={() => { setEditingContent(null); setIsContentModalOpen(true); }}
