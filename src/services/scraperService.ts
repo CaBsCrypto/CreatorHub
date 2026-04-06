@@ -226,50 +226,115 @@ async function fetchFromRockSolidAPI(url: string, apiKey: string, keyIndex: numb
 }
 
 
+async function fetchFromRapidAPILooter2(url: string, apiKey: string, keyIndex: number) {
+  const response = await axios.get('https://instagram-looter2.p.rapidapi.com/post', {
+    params: { url },
+    headers: { 
+      'X-RapidAPI-Key': apiKey, 
+      'X-RapidAPI-Host': 'instagram-looter2.p.rapidapi.com' 
+    },
+    validateStatus: () => true,
+    timeout: 10000
+  });
+
+  if (response.status === 429 || response.data?.message?.includes('exceeded') || response.data?.message?.includes('quota')) {
+    throw new Error(`RAPIDAPI_QUOTA_EXCEEDED_KEY_${keyIndex + 1}`);
+  }
+
+  if (response.status !== 200 || !response.data) {
+    throw new Error(`RapidAPI Looter2 Error ${response.status}: ${response.data?.message || 'Unknown'}`);
+  }
+
+  const postData = response.data;
+  
+  // Real view/play count prioritization for Looter 2
+  let views = Math.max(
+    postData.play_count || 0,
+    postData.view_count || 0,
+    postData.video_view_count || 0,
+    postData.video_play_count || 0,
+    postData.likes || 0
+  );
+
+  const title = postData.caption || postData.title || "Instagram Post";
+  const likes = postData.likes || 0;
+  const comments = postData.comments || 0;
+  
+  let thumbnail = postData.thumbnail_url || postData.display_url || "";
+  if (thumbnail) {
+    thumbnail = `https://images.weserv.nl/?url=${encodeURIComponent(thumbnail)}&default=https://cdn-icons-png.flaticon.com/512/174/174855.png`;
+  }
+
+  return { title, views, likes, comments, thumbnail };
+}
+
 export async function fetchInstagramData(url: string) {
   const start = Date.now();
-  
-  // 1. Normalize/Convert URL if needed (e.g. Insights to Public)
   const normalizedUrl = normalizeInstagramUrl(url);
-
-  // 2. Check Cache
+  
+  // 1. Check Cache
   const cached = igCache.get(normalizedUrl);
   if (cached && (Date.now() - cached.timestamp) < IG_CACHE_TTL) {
     console.log(`[IG Scraper] Using cached data for ${normalizedUrl}`);
     return cached.data;
   }
 
-  // 3. Define Providers Chain
   const apiKeys = getInstagramApiKeys();
+  let lastError = "";
 
-  // 4. Execution Loop
+  // 2. Execution Loop across all keys
   for (let i = 0; i < apiKeys.length; i++) {
+    const key = apiKeys[i];
+    
+    // --- Step A: Try Instagram Looter (Primary) ---
     try {
-      console.log(`[IG Scraper] Trying RockSolid Provider API ${i + 1}...`);
-      // Trying the NEW more stable provider first
-      const data = await fetchFromRockSolidAPI(normalizedUrl, apiKeys[i], i);
+      console.log(`[IG Scraper] Trying Instagram Looter (Primary) with Key ${i+1}...`);
+      const data = await fetchFromRapidAPILooter2(normalizedUrl, key, i);
       
-      const duration = Date.now() - start;
-      await logScraperAction('instagram', normalizedUrl, 'success', undefined, duration, { provider: `RockSolid_API_${i+1}`, views: data.views });
+      if (data.views > 0 || data.likes > 0) {
+        igCache.set(normalizedUrl, { data, timestamp: Date.now() });
+        const duration = Date.now() - start;
+        await logScraperAction('instagram', normalizedUrl, 'success', undefined, duration, { provider: 'Looter2', keyIndex: i+1, views: data.views });
+        return data;
+      }
+      console.warn(`[IG Scraper] Looter Key ${i+1} returned 0 views. Trying fallback...`);
+    } catch (err: any) {
+      console.warn(`[IG Scraper] Looter Key ${i + 1} failed: ${err.message}`);
+      lastError = err.message;
       
-      igCache.set(normalizedUrl, { data, timestamp: Date.now() });
-      return data;
-    } catch (newError: any) {
-      console.warn(`[IG Scraper] RockSolid API ${i + 1} failed: ${newError.message}`);
-      await logScraperAction('instagram', normalizedUrl, 'error', `RockSolid Key ${i+1} Failed: ${newError.message}`, Date.now() - start, { provider: 'RockSolid', keyIndex: i+1 });
+      if (err.message.includes('QUOTA_EXCEEDED')) {
+        await logScraperAction('instagram', normalizedUrl, 'error', `Looter Key ${i+1} Quota Exceeded`, Date.now() - start);
+      }
+      // Continue to RockSolid even if Looter fails
+    }
 
-      if (i < apiKeys.length - 1) {
-        console.log(`[IG Scraper] Failing over to next key...`);
-        continue;
+    // --- Step B: Try RockSolid API (Fallback) ---
+    try {
+      console.log(`[IG Scraper] Trying RockSolid API (Fallback) with Key ${i+1}...`);
+      const data = await fetchFromRockSolidAPI(normalizedUrl, key, i);
+      
+      if (data.views > 0 || data.likes > 0) {
+        igCache.set(normalizedUrl, { data, timestamp: Date.now() });
+        const duration = Date.now() - start;
+        await logScraperAction('instagram', normalizedUrl, 'success', undefined, duration, { provider: 'RockSolid', keyIndex: i+1, views: data.views });
+        return data;
+      }
+    } catch (err: any) {
+      console.warn(`[IG Scraper] RockSolid API ${i + 1} failed: ${err.message}`);
+      lastError = err.message;
+      
+      if (err.message.includes('QUOTA_EXCEEDED') || err.message.includes('NOT_SUBSCRIBED')) {
+         // Move to next key if this one is exhausted for both
+         continue;
       }
     }
   }
 
-  // If we reach here, all RockSolid keys failed
+  // If we reach here, all providers and keys failed
   const duration = Date.now() - start;
-  await logScraperAction('instagram', url, 'error', `All APIs failed`, duration);
+  await logScraperAction('instagram', url, 'error', `All methods failed. Last error: ${lastError}`, duration);
   console.error("[IG Scraper] Fatal: All extraction methods failed.");
-  throw new Error(`IG_UPDATE_FAILED: All methods failed`);
+  return { title: "Instagram Post", views: 0, likes: 0, comments: 0, thumbnail: "" };
 }
 
 export async function fetchCMCData(url: string) {
