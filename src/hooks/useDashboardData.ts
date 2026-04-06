@@ -130,11 +130,23 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
     if (!user) return;
     fetchData();
 
+    let debounceTimer: ReturnType<typeof setTimeout>;
+
+    const handleRealtimeUpdate = () => {
+      // Debounce: wait 3 seconds after the last realtime event before fetching data
+      // This prevents the UI from freezing and API spam when scrapers update bulk rows
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        fetchData();
+      }, 3000);
+    };
+
     const channel = supabase.channel('dashboard_updates')
-      .on('postgres_changes', { event: '*', schema: 'public' }, fetchData)
+      .on('postgres_changes', { event: '*', schema: 'public' }, handleRealtimeUpdate)
       .subscribe();
 
     return () => {
+      clearTimeout(debounceTimer);
       supabase.removeChannel(channel);
     };
   }, [user, fetchData]);
