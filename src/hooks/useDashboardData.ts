@@ -158,7 +158,7 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
     }
 
     return result;
-  }, [content, role, user, filters?.platform, filters?.campaign, filters?.creator]);
+  }, [content, role, user, filters?.platform, filters?.campaign, filters?.creator, filters?.showOnlyZeroViews]);
 
   const metrics = useMemo(() => {
     const totalViews = filteredContent.reduce((acc, curr) => acc + (curr.views || 0), 0);
