@@ -533,6 +533,9 @@ export default function AdminDashboard() {
           isOpen={!!selectedLog}
           onClose={() => setSelectedLog(null)}
           log={selectedLog}
+          users={users}
+          payments={payments}
+          campaigns={campaigns}
         />
       </main>
     </div>
