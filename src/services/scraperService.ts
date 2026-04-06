@@ -207,8 +207,13 @@ async function fetchFromRockSolidAPI(url: string, apiKey: string, keyIndex: numb
   // Real view/play count prioritization
   let views = Math.max(
     postData.play_count || 0,
+    postData.video_play_count || 0,
     postData.view_count || 0,
     postData.video_view_count || 0,
+    postData.plays || 0,
+    postData.metrics?.plays || 0,
+    postData.metrics?.views || 0,
+    postData.video?.play_count || 0,
     likes // proxy
   );
 
