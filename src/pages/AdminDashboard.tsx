@@ -24,6 +24,7 @@ import ContentDetailModal from '../components/dashboard/ContentDetailModal';
 import CreatorSearchModal from '../components/dashboard/CreatorSearchModal';
 import UserHistoryModal from '../components/dashboard/UserHistoryModal';
 import CampaignReportModal from '../components/dashboard/CampaignReportModal';
+import Skeleton, { StatsSkeleton, CardSkeleton } from '../components/dashboard/Skeleton';
 
 // Modular Layout Components
 import AdminSidebar from '../components/dashboard/AdminSidebar';
@@ -95,7 +96,7 @@ export default function AdminDashboard() {
   
   const { 
     campaigns, content, users, payments, metrics, creatorStats, campaignStats, 
-    refresh, filteredContent, deletedContent, deletedCampaigns, deletedUsers, auditLogs 
+    refresh, filteredContent, deletedContent, deletedCampaigns, deletedUsers, auditLogs, loading 
   } = useDashboardData('admin', { 
     platform: filters.platform, 
     campaign: filters.campaign, 
@@ -280,7 +281,22 @@ export default function AdminDashboard() {
 
         <React.Suspense fallback={<TabLoader />}>
 
-
+        {loading ? (
+          <div className="space-y-8 animate-in fade-in duration-500">
+             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
+                <StatsSkeleton />
+                <StatsSkeleton />
+                <StatsSkeleton />
+                <StatsSkeleton />
+             </div>
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <CardSkeleton />
+                <CardSkeleton />
+                <CardSkeleton />
+             </div>
+          </div>
+        ) : (
+          <>
         {activeTab === 'overview' && (
           <OverviewTab
             metrics={metrics}
@@ -394,6 +410,8 @@ export default function AdminDashboard() {
         {activeTab === 'scraper' && (
           <ScraperLogsTab />
         )}
+          </>
+        )}
         </React.Suspense>
 
       {/* Modals */}
@@ -439,12 +457,13 @@ export default function AdminDashboard() {
             setIsCreatingCampaign(false);
             setIsEditingCampaign(false);
             setEditingCampaignId(null);
-            setNewCampaign({ name: '', description: '', client_id: '', twitter_url: '', contact_info: '', budget: 0, slug: '' });
+            setNewCampaign({ name: '', description: '', client_id: '', twitter_url: '', contact_info: '', budget: 0, slug: '', assigned_creator_ids: [] });
           }} 
           onSubmit={isEditingCampaign ? handleUpdateCampaign : handleCreateCampaign} 
           newCampaign={newCampaign} 
           setNewCampaign={setNewCampaign}
           clients={users.filter(u => u.role === 'client')}
+          creators={users.filter(u => u.role === 'creator')}
         />
         <AddUserModal 
           isOpen={isAddingUser} 

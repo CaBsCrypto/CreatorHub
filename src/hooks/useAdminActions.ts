@@ -21,7 +21,8 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
     twitter_url: '', 
     contact_info: '', 
     budget: 0,
-    slug: ''
+    slug: '',
+    assigned_creator_ids: [] as string[]
   });
 
   const [newUser, setNewUser] = useState<{ email: string; role: UserRole; linked_campaign_id?: string }>({ 
@@ -67,7 +68,7 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
     e.preventDefault();
     const finalSlug = newCampaign.slug || generateSecureSlug(newCampaign.name);
     
-    const { error } = await supabase.from('campaigns').insert([{ 
+    const { data: campData, error } = await supabase.from('campaigns').insert([{ 
       name: newCampaign.name,
       description: newCampaign.description,
       client_id: newCampaign.client_id || null,
@@ -77,19 +78,39 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
       slug: finalSlug,
       status: 'active', 
       created_by: currentUser?.id 
-    }]);
+    }]).select();
+
     if (error) {
       toastError("Error al crear campaña: " + error.message);
-    } else {
+    } else if (campData && campData[0]) {
+      // Save creator assignments
+      const creatorIds = (newCampaign as any).assigned_creator_ids || [];
+      if (creatorIds.length > 0) {
+        const assignments = creatorIds.map((cid: string) => ({
+          campaign_id: campData[0].id,
+          creator_id: cid
+        }));
+        await supabase.from('campaign_creators').insert(assignments);
+      }
+
       success("Campaña creada con éxito");
       setIsCreatingCampaign(false);
-      setNewCampaign({ name: '', description: '', client_id: '', twitter_url: '', contact_info: '', budget: 0, slug: '' });
+      setNewCampaign({ name: '', description: '', client_id: '', twitter_url: '', contact_info: '', budget: 0, slug: '', assigned_creator_ids: [] });
       refresh();
     }
   };
 
-  const handleEditCampaign = (campaign: Campaign) => {
+  const handleEditCampaign = async (campaign: Campaign) => {
     setEditingCampaignId(campaign.id);
+    
+    // Fetch current assignments
+    const { data: assignments } = await supabase
+      .from('campaign_creators')
+      .select('creator_id')
+      .eq('campaign_id', campaign.id);
+    
+    const assignedIds = assignments?.map(a => a.creator_id) || [];
+
     setNewCampaign({
       name: campaign.name,
       description: campaign.description || '',
@@ -97,7 +118,8 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
       twitter_url: campaign.twitter_url || '',
       contact_info: campaign.contact_info || '',
       budget: campaign.budget || 0,
-      slug: campaign.slug || ''
+      slug: campaign.slug || '',
+      assigned_creator_ids: assignedIds as any
     });
     setIsEditingCampaign(true);
   };
@@ -122,10 +144,22 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
     if (error) {
       toastError("Error al actualizar campaña: " + error.message);
     } else {
+      // Update creator assignments: Delete old, add new
+      await supabase.from('campaign_creators').delete().eq('campaign_id', editingCampaignId);
+      
+      const creatorIds = (newCampaign as any).assigned_creator_ids || [];
+      if (creatorIds.length > 0) {
+        const assignments = creatorIds.map((cid: string) => ({
+          campaign_id: editingCampaignId,
+          creator_id: cid
+        }));
+        await supabase.from('campaign_creators').insert(assignments);
+      }
+
       success("Campaña actualizada con éxito");
       setIsEditingCampaign(false);
       setEditingCampaignId(null);
-      setNewCampaign({ name: '', description: '', client_id: '', twitter_url: '', contact_info: '', budget: 0, slug: '' });
+      setNewCampaign({ name: '', description: '', client_id: '', twitter_url: '', contact_info: '', budget: 0, slug: '', assigned_creator_ids: [] });
       refresh();
     }
   };

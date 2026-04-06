@@ -26,6 +26,7 @@ import PaymentModal from '../components/dashboard/PaymentModal';
 import ContentModal from '../components/dashboard/ContentModal';
 import ContentDetailModal from '../components/dashboard/ContentDetailModal';
 import DiscordStatsModal from '../components/dashboard/DiscordStatsModal';
+import Skeleton, { StatsSkeleton, CardSkeleton } from '../components/dashboard/Skeleton';
 import { DiscordSessionEvent } from '../supabase';
 
 export default function CreatorDashboard() {
@@ -34,7 +35,7 @@ export default function CreatorDashboard() {
   const [filters, setFilter, setFilters, resetFilters] = useFilterParams({ campaign: 'all', tab: 'overview' });
   const activeTab = filters.tab || 'overview';
   const setActiveTab = (tab: string) => setFilter('tab', tab);
-  const { campaigns, content, filteredContent, metrics, refresh } = useDashboardData('creator', { campaign: filters.campaign });
+  const { campaigns, content, filteredContent, metrics, refresh, loading } = useDashboardData('creator', { campaign: filters.campaign });
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
@@ -140,6 +141,36 @@ export default function CreatorDashboard() {
       setIsRefreshing(false);
     }
   };
+
+    if (loading) {
+      return (
+        <div className="min-h-screen bg-slate-50 p-4 md:p-8 lg:p-12 overflow-y-auto">
+          <div className="max-w-[1600px] mx-auto space-y-10">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+              <div className="space-y-4">
+                <Skeleton className="h-4 w-32" variant="text" />
+                <Skeleton className="h-10 w-64" variant="rectangular" />
+              </div>
+              <div className="flex gap-3">
+                <Skeleton className="h-12 w-32" variant="rectangular" />
+                <Skeleton className="h-12 w-32" variant="rectangular" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
+              <StatsSkeleton />
+              <StatsSkeleton />
+              <StatsSkeleton />
+              <StatsSkeleton />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <CardSkeleton />
+              <CardSkeleton />
+              <CardSkeleton />
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div className="relative z-0 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 p-4 md:p-0 pb-20 md:pb-6">

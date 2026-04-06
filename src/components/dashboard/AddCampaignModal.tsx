@@ -16,6 +16,7 @@ interface AddCampaignModalProps {
   };
   setNewCampaign: (campaign: any) => void;
   clients: any[];
+  creators: any[];
   isEditing?: boolean;
 }
 
@@ -26,6 +27,7 @@ const AddCampaignModal: React.FC<AddCampaignModalProps> = ({
   newCampaign,
   setNewCampaign,
   clients,
+  creators,
   isEditing = false
 }) => {
   if (!isOpen) return null;
@@ -115,6 +117,34 @@ const AddCampaignModal: React.FC<AddCampaignModalProps> = ({
             <p className="mt-2 text-[9px] text-indigo-400/80 font-bold leading-relaxed">
               ⚡ Este es el enlace corto que verán tus clientes. Se genera automáticamente si lo dejas vacío.
             </p>
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Asignar Creadores</label>
+            <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-100">
+              {creators.map(creator => (
+                <label key={creator.id} className="flex items-center gap-3 p-3 rounded-2xl border border-gray-100 bg-gray-50/30 hover:bg-white hover:border-indigo-100 transition-all cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 transition-all cursor-pointer"
+                    checked={(newCampaign as any).assigned_creator_ids?.includes(creator.id)}
+                    onChange={(e) => {
+                      const currentIds = (newCampaign as any).assigned_creator_ids || [];
+                      const newIds = e.target.checked 
+                        ? [...currentIds, creator.id]
+                        : currentIds.filter((id: string) => id !== creator.id);
+                      setNewCampaign({ ...newCampaign, assigned_creator_ids: newIds });
+                    }}
+                  />
+                  <span className="text-xs font-bold text-gray-600 group-hover:text-indigo-600 transition-colors truncate">
+                    {creator.display_name || creator.email.split('@')[0]}
+                  </span>
+                </label>
+              ))}
+            </div>
+            {creators.length === 0 && (
+              <p className="text-[10px] font-medium text-gray-400 italic">No hay creadores disponibles para asignar.</p>
+            )}
           </div>
 
           <div className="flex gap-4 pt-4 sticky bottom-0 bg-white sm:static">

@@ -51,11 +51,30 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
 
   const fetchData = useCallback(async () => {
     try {
-      const [camps, conts, usrs] = await Promise.all([
-        supabase.from('campaigns').select('*').is('deleted_at', null).order('created_at', { ascending: false }),
+      const [conts, usrs] = await Promise.all([
         supabase.from('content').select('*').is('deleted_at', null).order('created_at', { ascending: false }).limit(1000),
         supabase.from('users').select('*').is('deleted_at', null)
       ]);
+
+      let camps;
+      if (role === 'admin') {
+        camps = await supabase.from('campaigns').select('*').is('deleted_at', null).order('created_at', { ascending: false });
+      } else {
+        // Only fetch assigned campaigns for creators
+        const { data: assignments } = await supabase
+          .from('campaign_creators')
+          .select('campaign_id')
+          .eq('creator_id', user?.id || '');
+        
+        const assignedIds = assignments?.map(a => (a as any).campaign_id) || [];
+        
+        camps = await supabase
+          .from('campaigns')
+          .select('*')
+          .in('id', assignedIds)
+          .is('deleted_at', null)
+          .order('created_at', { ascending: false });
+      }
 
       if (camps.error) throw camps.error;
       if (conts.error) throw conts.error;

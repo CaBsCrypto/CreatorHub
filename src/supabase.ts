@@ -131,3 +131,10 @@ export interface ContentMetricsHistory {
   new_subscriptions?: number;
   duration_minutes?: number;
 }
+
+export interface CampaignCreator {
+  id: string;
+  campaign_id: string;
+  creator_id: string;
+  created_at: string;
+}
