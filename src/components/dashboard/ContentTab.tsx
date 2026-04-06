@@ -30,6 +30,7 @@ interface ContentTabProps {
   filterCampaign: string;
   filterPlatform: string;
   filterCreator: string;
+  filterZeroViews: boolean;
 }
 
 const ContentTab: React.FC<ContentTabProps> = ({
@@ -56,7 +57,8 @@ const ContentTab: React.FC<ContentTabProps> = ({
   resetFilters,
   filterCampaign,
   filterPlatform,
-  filterCreator
+  filterCreator,
+  filterZeroViews
 }) => {
   const [isViewsModalOpen, setIsViewsModalOpen] = useState(false);
 
@@ -148,6 +150,13 @@ const ContentTab: React.FC<ContentTabProps> = ({
           </div>
           <div className="flex items-center gap-3">
             <button 
+              onClick={() => setFilter('zero_views', filterZeroViews ? 'false' : 'true')}
+              className={`flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 whitespace-nowrap ${filterZeroViews ? 'bg-rose-500 text-white shadow-lg shadow-rose-100' : 'bg-white border border-gray-100 text-gray-400 hover:text-rose-500 hover:bg-rose-50'}`}
+              title="Mostrar solo contenido con 0 vistas"
+            >
+              <TrendingUp className={`h-4 w-4 ${filterZeroViews ? 'rotate-180 transition-transform' : ''}`} /> 0 Vistas
+            </button>
+            <button 
               onClick={() => { setEditingContent(null); setIsContentModalOpen(true); }}
               className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-100 transition-all active:scale-95 whitespace-nowrap"
             >
@@ -159,9 +168,15 @@ const ContentTab: React.FC<ContentTabProps> = ({
       </div>
 
       {/* Active Filter Indicator */}
-      {(filterCampaign !== 'all' || filterPlatform !== 'all' || filterCreator !== 'all' || searchTerm) && (
+      {(filterCampaign !== 'all' || filterPlatform !== 'all' || filterCreator !== 'all' || searchTerm || filterZeroViews) && (
         <div className="flex flex-wrap items-center gap-2 mb-4 animate-in fade-in slide-in-from-left-4 duration-300">
           <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">Filtros Activos:</span>
+          {filterZeroViews && (
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-rose-50 text-rose-700 rounded-xl text-[10px] font-black border border-rose-100 uppercase tracking-widest">
+              Solo con 0 vistas
+              <button onClick={() => setFilter('zero_views', 'false')} className="hover:text-rose-900">×</button>
+            </div>
+          )}
           {filterCampaign !== 'all' && (
             <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-xl text-[10px] font-black border border-indigo-100 uppercase tracking-widest">
               Campaña: {campaigns.find(c => c.id === filterCampaign)?.name || '...'}

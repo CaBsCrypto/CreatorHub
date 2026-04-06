@@ -35,7 +35,7 @@ export const getAgencyRank = (posts: number, views: number) => {
   return AGENCY_TIERS[0];
 };
 
-export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform?: string, campaign?: string, creator?: string }) => {
+export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform?: string, campaign?: string, creator?: string, showOnlyZeroViews?: boolean }) => {
   const { user } = useAuth();
   const { error: toastError } = useToast();
   
@@ -150,6 +150,9 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
           const targetCreatorId = String(filters.creator);
           result = result.filter(c => String(c.creator_id) === targetCreatorId);
         }
+      }
+      if (filters.showOnlyZeroViews) {
+        result = result.filter(c => (c.views || 0) === 0);
       }
       
     }

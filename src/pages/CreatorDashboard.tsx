@@ -31,10 +31,13 @@ import { DiscordSessionEvent } from '../supabase';
 export default function CreatorDashboard() {
   const { user, profile } = useAuth();
   const { success, error: toastError, info } = useToast();
-  const [filters, setFilter, setFilters, resetFilters] = useFilterParams({ campaign: 'all', tab: 'overview' });
+  const [filters, setFilter, setFilters, resetFilters] = useFilterParams({ campaign: 'all', tab: 'overview', zero_views: 'false' });
   const activeTab = filters.tab || 'overview';
   const setActiveTab = (tab: string) => setFilter('tab', tab);
-  const { campaigns, content, filteredContent, metrics, refresh } = useDashboardData('creator', { campaign: filters.campaign });
+  const { campaigns, content, filteredContent, metrics, refresh } = useDashboardData('creator', { 
+    campaign: filters.campaign,
+    showOnlyZeroViews: filters.zero_views === 'true'
+  });
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
@@ -291,6 +294,13 @@ export default function CreatorDashboard() {
                   <button onClick={() => setFilter('campaign', 'all')} className="hover:text-indigo-900 ml-1"><X className="h-3 w-3" /></button>
                 </div>
               )}
+              <button 
+                onClick={() => setFilter('zero_views', filters.zero_views === 'true' ? 'false' : 'true')}
+                className={`flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 whitespace-nowrap ${filters.zero_views === 'true' ? 'bg-rose-500 text-white shadow-lg shadow-rose-100' : 'bg-white border border-gray-100 text-gray-400 hover:text-rose-500 hover:bg-rose-50'}`}
+                title="Mostrar solo contenido con 0 vistas"
+              >
+                <TrendingUp className={`h-4 w-4 ${filters.zero_views === 'true' ? 'rotate-180 transition-transform' : ''}`} /> 0 Vistas
+              </button>
               <div className="flex items-center gap-1 p-1 bg-gray-50 rounded-xl border border-gray-100">
                 <button 
                   onClick={() => setIsCompactView(false)}
@@ -411,7 +421,6 @@ export default function CreatorDashboard() {
           isOpen={!!viewingContent}
           onClose={() => setViewingContent(null)}
           session={viewingContent as any}
-          events={discordEvents}
         />
       ) : (
         <ContentDetailModal 

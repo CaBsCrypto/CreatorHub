@@ -87,7 +87,8 @@ export default function AdminDashboard() {
     view: 'compact',
     pay_campaign: 'all',
     pay_month: 'all',
-    team_role: 'all'
+    team_role: 'all',
+    zero_views: 'false'
   });
   const activeTab = filters.tab as typeof ADMIN_TABS[number];
   const setActiveTab = (tab: typeof ADMIN_TABS[number]) => setFilter('tab', tab);
@@ -98,7 +99,8 @@ export default function AdminDashboard() {
   } = useDashboardData('admin', { 
     platform: filters.platform, 
     campaign: filters.campaign, 
-    creator: filters.creator 
+    creator: filters.creator,
+    showOnlyZeroViews: filters.zero_views === 'true'
   });
 
   const { isProcessing: isProcessingContent, handleTwitchUpload, handleContentSubmit } = useContentActions(refresh);
@@ -135,6 +137,7 @@ export default function AdminDashboard() {
   const payCampaign = filters.pay_campaign;
   const payMonth = filters.pay_month;
   const teamRole = filters.team_role;
+  const filterZeroViews = filters.zero_views === 'true';
   const viewMode = (filters.view as 'grid' | 'compact' | 'gallery') || 'compact';
   const isCompactView = viewMode === 'compact';
   const [deletedUserIds, setDeletedUserIds] = useState<string[]>([]);
@@ -337,6 +340,7 @@ export default function AdminDashboard() {
             filterCampaign={filterCampaign}
             filterPlatform={filterPlatform}
             filterCreator={filterCreator}
+            filterZeroViews={filterZeroViews}
             setViewingContent={setViewingContent}
           />
         )}
