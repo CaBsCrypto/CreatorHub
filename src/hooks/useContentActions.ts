@@ -123,6 +123,22 @@ export function useContentActions(refresh: () => void) {
         if (error) throw error;
         success("Contenido actualizado");
 
+        // --- Audit Log: Manual metrics adjustment ---
+        const changedFields: string[] = [];
+        if (data.views !== editingContent.views) changedFields.push(`vistas: ${editingContent.views} -> ${data.views}`);
+        if (data.likes !== editingContent.likes) changedFields.push(`likes: ${editingContent.likes} -> ${data.likes}`);
+        if (data.comments !== editingContent.comments) changedFields.push(`coment: ${editingContent.comments} -> ${data.comments}`);
+
+        if (changedFields.length > 0) {
+          await supabase.from('audit_logs').insert([{
+            user_id: user_id,
+            action: 'METRICS_ADJUSTED',
+            details: `Ajuste manual para post ${editingContent.id}. Cambios: ${changedFields.join(', ')}`,
+            target_id: editingContent.id,
+            metadata: { from: editingContent, to: data }
+          }]);
+        }
+
         // If URL changed, fetch new metadata in background
         if (cleanUrl !== normalizeUrl(editingContent.url, editingContent.platform)) {
           const { data: { session } } = await supabase.auth.getSession();

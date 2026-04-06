@@ -124,13 +124,35 @@ const ContentModal: React.FC<ContentModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setTwitchFile(file);
+      // Create preview immediately
       const reader = new FileReader();
       reader.onloadend = () => setTwitchPreview(reader.result as string);
       reader.readAsDataURL(file);
+
+      // --- Optimization: Resize image before storing ---
+      try {
+        const base64 = await new Promise<string>((resolve) => {
+          const r = new FileReader();
+          r.onload = () => resolve(r.result as string);
+          r.readAsDataURL(file);
+        });
+
+        // Resize to 1280px max with 0.7 quality via imageUtils
+        const optimizedBase64 = await resizeImage(base64, 1280, 1280);
+        
+        // Convert base64 back to a Blob/File for upload
+        const response = await fetch(optimizedBase64);
+        const blob = await response.blob();
+        const optimizedFile = new File([blob], file.name, { type: 'image/jpeg' });
+        
+        setTwitchFile(optimizedFile);
+      } catch (err) {
+        console.warn("Image optimization failed, falling back to original", err);
+        setTwitchFile(file);
+      }
     }
   };
 
