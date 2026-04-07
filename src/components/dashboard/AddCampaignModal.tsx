@@ -13,6 +13,7 @@ interface AddCampaignModalProps {
     contact_info?: string | null;
     budget?: number;
     slug?: string | null;
+    notes?: string | null;
   };
   setNewCampaign: (campaign: any) => void;
   clients: any[];
@@ -58,7 +59,6 @@ const AddCampaignModal: React.FC<AddCampaignModalProps> = ({
               onChange={(e) => setNewCampaign({ ...newCampaign, name: e.target.value })}
             />
           </div>
-          
           <div>
             <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Descripción</label>
             <textarea
@@ -67,6 +67,17 @@ const AddCampaignModal: React.FC<AddCampaignModalProps> = ({
               placeholder="Detalles sobre los objetivos de la campaña..."
               value={newCampaign.description}
               onChange={(e) => setNewCampaign({ ...newCampaign, description: e.target.value })}
+            />
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2">Notas / Información Extra (Para Creadores)</label>
+            <textarea
+              className="block w-full rounded-2xl border-indigo-100 bg-indigo-50/20 py-3 px-4 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all outline-none resize-none"
+              rows={4}
+              placeholder="Escribe aquí cualquier detalle adicional, requisitos o links que los creadores necesiten saber..."
+              value={newCampaign.notes || ''}
+              onChange={(e) => setNewCampaign({ ...newCampaign, notes: e.target.value })}
             />
           </div>
 

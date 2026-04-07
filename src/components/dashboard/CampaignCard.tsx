@@ -1,6 +1,6 @@
 import React from 'react';
-import { Calendar, Trash2, Edit2, Link, Zap } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Calendar, Trash2, Edit2, Link, Zap, StickyNote, ChevronDown, ChevronUp } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Campaign } from '../../supabase';
 import { format } from 'date-fns';
 
@@ -33,6 +33,7 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
   onViewReport,
   onCopyLink
 }) => {
+  const [showNotes, setShowNotes] = React.useState(false);
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -96,12 +97,27 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
               </span>
             )
           )}
-
           {/* User Specific Assigned Badge */}
           {isAssigned && (
             <span className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[9px] font-black uppercase tracking-widest border border-emerald-100 animate-in zoom-in duration-300">
               Tu Campaña
             </span>
+          )}
+
+          {/* 📝 Note pill if exists */}
+          {campaign.notes && (
+            <button
+              onClick={(e) => { e.stopPropagation(); setShowNotes(!showNotes); }}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${
+                showNotes 
+                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' 
+                  : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100'
+              }`}
+            >
+              <StickyNote className="h-3 w-3" />
+              Ver Notas
+              {showNotes ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+            </button>
           )}
         </div>
 
@@ -121,6 +137,28 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
           {campaign.description || 'Sin descripción'}
         </p>
 
+        {/* 📘 Expandable Notes Section */}
+        <AnimatePresence>
+          {showNotes && campaign.notes && (
+            <motion.div
+              initial={{ height: 0, opacity: 0, marginBottom: 0 }}
+              animate={{ height: 'auto', opacity: 1, marginBottom: 20 }}
+              exit={{ height: 0, opacity: 0, marginBottom: 0 }}
+              className="overflow-hidden"
+            >
+              <div className="p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100/50 relative group/note">
+                <div className="absolute top-3 right-3 h-1.5 w-1.5 rounded-full bg-indigo-400 animate-pulse" />
+                <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                  <StickyNote className="h-3 w-3" /> Información Extra
+                </h4>
+                <div className="text-sm text-gray-700 font-medium leading-relaxed whitespace-pre-wrap break-words max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+                  {campaign.notes}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Stats — tres filas horizontales (Admin) o dos (Creator) */}
         <div className="mt-auto space-y-2 mb-5">
           <div className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3 border border-gray-100 group-hover:border-indigo-50 transition-colors">
@@ -136,8 +174,8 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
             </span>
           </div>
           {role === 'admin' ? (
-            <div className="flex items-center justify-between bg-gray-900 rounded-xl px-4 py-3 border border-gray-800 transition-colors">
-              <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Gasto Total</span>
+            <div className="flex items-center justify-between bg-sky-600 rounded-xl px-4 py-3 border border-sky-500 transition-colors">
+              <span className="text-[9px] font-black text-sky-50 uppercase tracking-widest">Gasto Total</span>
               <span className="text-base font-black text-white tabular-nums">
                 ${spent?.toLocaleString() || '0'}
               </span>

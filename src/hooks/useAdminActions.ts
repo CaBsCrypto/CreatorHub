@@ -22,6 +22,7 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
     contact_info: '', 
     budget: 0,
     slug: '',
+    notes: '',
     assigned_creator_ids: [] as string[]
   });
 
@@ -76,6 +77,7 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
       contact_info: newCampaign.contact_info || null,
       budget: newCampaign.budget || 0,
       slug: finalSlug,
+      notes: newCampaign.notes || null,
       status: 'active', 
       created_by: currentUser?.id 
     }]).select();
@@ -95,7 +97,7 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
 
       success("Campaña creada con éxito");
       setIsCreatingCampaign(false);
-      setNewCampaign({ name: '', description: '', client_id: '', twitter_url: '', contact_info: '', budget: 0, slug: '', assigned_creator_ids: [] });
+      setNewCampaign({ name: '', description: '', client_id: '', twitter_url: '', contact_info: '', budget: 0, slug: '', notes: '', assigned_creator_ids: [] });
       refresh();
     }
   };
@@ -119,6 +121,7 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
       contact_info: campaign.contact_info || '',
       budget: campaign.budget || 0,
       slug: campaign.slug || '',
+      notes: campaign.notes || '',
       assigned_creator_ids: assignedIds as any
     });
     setIsEditingCampaign(true);
@@ -137,7 +140,8 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
         twitter_url: newCampaign.twitter_url || null,
         contact_info: newCampaign.contact_info || null,
         budget: newCampaign.budget || 0,
-        slug: newCampaign.slug || null
+        slug: newCampaign.slug || null,
+        notes: newCampaign.notes || null
       })
       .eq('id', editingCampaignId);
 
@@ -159,7 +163,7 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
       success("Campaña actualizada con éxito");
       setIsEditingCampaign(false);
       setEditingCampaignId(null);
-      setNewCampaign({ name: '', description: '', client_id: '', twitter_url: '', contact_info: '', budget: 0, slug: '', assigned_creator_ids: [] });
+      setNewCampaign({ name: '', description: '', client_id: '', twitter_url: '', contact_info: '', budget: 0, slug: '', notes: '', assigned_creator_ids: [] });
       refresh();
     }
   };
