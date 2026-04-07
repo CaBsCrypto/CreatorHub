@@ -210,7 +210,7 @@ export default function CreatorDashboard() {
         </header>
         {/* Main Tabs Navigation */}
         <div 
-          className="flex items-center gap-2 p-1.5 bg-gray-100/50 rounded-2xl w-full lg:w-fit overflow-x-auto no-scrollbar relative z-[9999] pointer-events-auto"
+          className="flex items-center gap-2 p-1.5 bg-gray-100/50 rounded-2xl w-full lg:w-fit overflow-x-auto no-scrollbar relative z-10 pointer-events-auto"
           style={{ isolation: 'isolate' }}
         >
           {[
