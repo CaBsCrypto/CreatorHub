@@ -1,6 +1,6 @@
 import React from 'react';
-import { X, Youtube, Instagram, Music2, Twitter, Globe, ExternalLink, RefreshCw, Plus, Image as ImageIcon } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { X, Youtube, Instagram, Music2, Twitter, Globe, ExternalLink, RefreshCw, Plus, Image as ImageIcon, Search, Check } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Campaign, Content, UserProfile, supabase } from '../../supabase';
 import { useToast } from '../../hooks/useToast';
 import { resizeImage } from '../../utils/imageUtils';
@@ -61,8 +61,29 @@ const ContentModal: React.FC<ContentModalProps> = ({
   });
   const [twitchFile, setTwitchFile] = React.useState<File | null>(null);
   const [twitchPreview, setTwitchPreview] = React.useState<string | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = React.useState(false);
   const [streamPlatform, setStreamPlatform] = React.useState<'twitch' | 'tiktok'>('twitch');
+  const [campaignSearchQuery, setCampaignSearchQuery] = React.useState('');
+  const [isCampaignListOpen, setIsCampaignListOpen] = React.useState(false);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+
+  // Filtered campaigns based on search query
+  const filteredCampaigns = React.useMemo(() => {
+    if (!campaignSearchQuery.trim()) return campaigns;
+    return campaigns.filter(c => 
+      c.name.toLowerCase().includes(campaignSearchQuery.toLowerCase())
+    );
+  }, [campaigns, campaignSearchQuery]);
+
+  // Click outside listener
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsCampaignListOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Single effect: reset form + detect stream platform atomically
   React.useEffect(() => {
@@ -230,19 +251,82 @@ const ContentModal: React.FC<ContentModalProps> = ({
           <div className="space-y-5">
             {/* Header Fields: Campaign & Creator */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
+              <div className="relative" ref={dropdownRef}>
                 <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2 ml-1">Campaña</label>
-                <select
-                  required
-                  value={formData.campaign_id}
-                  onChange={(e) => setFormData({ ...formData, campaign_id: e.target.value })}
-                  className="block w-full rounded-xl border-slate-200 bg-slate-50/30 py-2.5 px-4 text-sm font-medium text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all outline-none"
+                
+                {/* Custom Select Trigger */}
+                <button
+                  type="button"
+                  onClick={() => setIsCampaignListOpen(!isCampaignListOpen)}
+                  className="flex items-center justify-between w-full rounded-xl border border-slate-200 bg-slate-50/30 py-2.5 px-4 text-sm font-medium text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all outline-none text-left"
                 >
-                  <option value="" disabled>{campaigns.length > 0 ? "Seleccionar..." : "No hay campañas"}</option>
-                  {campaigns.map(c => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
-                </select>
+                  <span className={formData.campaign_id ? 'text-slate-900' : 'text-slate-400'}>
+                    {formData.campaign_id 
+                      ? campaigns.find(c => c.id === formData.campaign_id)?.name || 'Seleccionar...'
+                      : 'Seleccionar...'}
+                  </span>
+                  <ExternalLink className={`h-4 w-4 text-slate-300 transition-transform duration-300 ${isCampaignListOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {/* Dropdown Menu */}
+                <AnimatePresence>
+                  {isCampaignListOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 5, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 5, scale: 0.95 }}
+                      className="absolute z-[110] left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden"
+                    >
+                      {/* Search Bar within Dropdown */}
+                      <div className="p-2 border-b border-slate-50 flex items-center gap-2 sticky top-0 bg-white/80 backdrop-blur-md">
+                        <Search className="h-3.5 w-3.5 text-slate-400 ml-1.5" />
+                        <input
+                          type="text"
+                          autoFocus
+                          placeholder="Buscar campaña..."
+                          value={campaignSearchQuery}
+                          onChange={(e) => setCampaignSearchQuery(e.target.value)}
+                          className="w-full bg-transparent border-none text-xs font-bold text-slate-700 placeholder:text-slate-400 focus:ring-0 outline-none py-1"
+                        />
+                      </div>
+
+                      {/* Options List */}
+                      <div className="max-h-48 overflow-y-auto pt-1 pb-2">
+                        {filteredCampaigns.length > 0 ? (
+                          filteredCampaigns.map(c => {
+                            const isSelected = formData.campaign_id === c.id;
+                            return (
+                              <button
+                                key={c.id}
+                                type="button"
+                                onClick={() => {
+                                  setFormData({ ...formData, campaign_id: c.id });
+                                  setIsCampaignListOpen(false);
+                                  setCampaignSearchQuery('');
+                                }}
+                                className={`w-full flex items-center justify-between px-4 py-2.5 text-xs font-bold transition-all ${
+                                  isSelected 
+                                    ? 'bg-indigo-50 text-indigo-600' 
+                                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                                }`}
+                              >
+                                <span>{c.name}</span>
+                                {isSelected && <Check className="h-3.5 w-3.5" />}
+                              </button>
+                            );
+                          })
+                        ) : (
+                          <div className="px-4 py-8 text-center text-slate-400 italic text-[11px]">
+                            No se encontraron campañas
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                
+                {/* Hidden input for HTML validation if needed, or keeping formData as is */}
+                <input type="hidden" required value={formData.campaign_id} />
               </div>
 
               {users && users.length > 0 && (
