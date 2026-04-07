@@ -91,7 +91,8 @@ export default function PublicReview() {
       backHome: "Back to Home", anonymous: "Anonymous Creator",
       searchCreators: "Search creators...", platformDistribution: "Platforms",
       noResults: "No content matches the filters", viewAllPlatforms: "View all",
-      engagement: "Engagement", top5Content: "Content Ranking"
+      engagement: "Engagement", top5Content: "Content Ranking",
+      additionalInfo: "Campaign Info"
     },
     es: {
       clientReport: "Reporte de Campaña", live: "En Vivo", posts: "Posts",
@@ -104,7 +105,8 @@ export default function PublicReview() {
       backHome: "Volver al inicio", anonymous: "Creador Anónimo",
       searchCreators: "Buscar creadores...", platformDistribution: "Plataformas",
       noResults: "Sin contenido para los filtros seleccionados", viewAllPlatforms: "Ver todo",
-      engagement: "Engagement", top5Content: "Ranking de Contenido"
+      engagement: "Engagement", top5Content: "Ranking de Contenido",
+      additionalInfo: "Información"
     }
   }[lang];
 
@@ -252,6 +254,12 @@ export default function PublicReview() {
                   {project?.display_name || campaign.name}
                 </h1>
                 {project && <p className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest truncate">{campaign.name}</p>}
+                {campaign.notes && (
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="w-1 h-1 bg-indigo-400 rounded-full animate-pulse" />
+                    <span className="text-[9px] font-black text-indigo-500 uppercase tracking-widest">Tiene notas info</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -302,6 +310,25 @@ export default function PublicReview() {
             onClick={() => setActiveSection('creators')}
           />
         </div>
+
+        {/* 📘 Public Notes Section */}
+        {campaign.notes && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
+            <div className="bg-white border border-gray-100 rounded-[2.5rem] p-6 sm:p-8 shadow-sm relative overflow-hidden group">
+              <div className="absolute -right-8 -top-8 w-32 h-32 bg-indigo-50/50 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+              <h3 className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                <Zap className="h-4 w-4" /> {t.additionalInfo}
+              </h3>
+              <div className="text-sm sm:text-base text-gray-600 font-medium leading-relaxed whitespace-pre-wrap italic border-l-4 border-indigo-100 pl-6 py-1">
+                "{campaign.notes}"
+              </div>
+            </div>
+          </motion.div>
+        )}
 
         {/* Mobile Nav Tabs */}
         <div className="lg:hidden flex items-center gap-2 mb-6">

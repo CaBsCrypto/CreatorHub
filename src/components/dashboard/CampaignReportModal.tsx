@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { X, Download, Youtube, Instagram, Twitter, Globe, Zap, Users, Music2, FileSpreadsheet } from 'lucide-react';
+import { X, Download, Youtube, Instagram, Twitter, Globe, Zap, Users, Music2, FileSpreadsheet, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Campaign, Content, UserProfile } from '../../supabase';
 import { useToast } from '../../hooks/useToast';
@@ -371,6 +371,19 @@ export default function CampaignReportModal({
           </div>
 
           <div className="flex-1 overflow-y-auto p-8 no-scrollbar bg-slate-50/50">
+            {/* 📘 Campaign Notes (Internal Report) */}
+            {campaign.notes && (
+              <div className="mb-8 bg-white p-6 rounded-[2rem] border border-indigo-100/50 shadow-sm relative overflow-hidden group">
+                <div className="absolute top-0 right-0 h-1.5 w-1.5 rounded-full bg-indigo-400 m-4 animate-pulse" />
+                <h3 className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                  <Star className="h-4 w-4" /> Información Adicional
+                </h3>
+                <div className="text-sm text-gray-700 font-medium leading-relaxed italic whitespace-pre-wrap max-h-32 overflow-y-auto custom-scrollbar pr-2">
+                  "{campaign.notes}"
+                </div>
+              </div>
+            )}
+
             {/* Histórico Evolutivo */}
             {historyData.length > 0 && (
               <div className="mb-8">
