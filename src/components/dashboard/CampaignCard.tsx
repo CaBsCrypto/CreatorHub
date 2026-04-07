@@ -17,6 +17,7 @@ interface CampaignCardProps {
   onEdit: (id: string) => void;
   onViewReport?: (id: string, e: React.MouseEvent) => void;
   onCopyLink?: (token: string, e: React.MouseEvent, type: 'review' | 'slug') => void;
+  onClearNote?: (id: string) => void;
 }
 
 const CampaignCard: React.FC<CampaignCardProps> = ({
@@ -31,7 +32,8 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
   onEdit,
   onClick,
   onViewReport,
-  onCopyLink
+  onCopyLink,
+  onClearNote
 }) => {
   const [showNotes, setShowNotes] = React.useState(false);
   return (
@@ -147,7 +149,27 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
               className="overflow-hidden"
             >
               <div className="p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100/50 relative group/note">
-                <div className="absolute top-3 right-3 h-1.5 w-1.5 rounded-full bg-indigo-400 animate-pulse" />
+                <div className="absolute top-3 right-3 flex items-center gap-2">
+                  {role === 'admin' && (
+                    <>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); onEdit(campaign.id); }}
+                        className="p-1.5 text-indigo-400 hover:text-indigo-600 hover:bg-white rounded-lg transition-all"
+                        title="Editar nota"
+                      >
+                        <Edit2 className="h-3 w-3" />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); onClearNote?.(campaign.id); }}
+                        className="p-1.5 text-rose-400 hover:text-rose-600 hover:bg-white rounded-lg transition-all"
+                        title="Eliminar nota"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                    </>
+                  )}
+                  <div className="h-1.5 w-1.5 rounded-full bg-indigo-400 animate-pulse" />
+                </div>
                 <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
                   <StickyNote className="h-3 w-3" /> Información Extra
                 </h4>

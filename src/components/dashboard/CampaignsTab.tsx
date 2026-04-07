@@ -10,6 +10,7 @@ const CampaignsTab: React.FC<{
   setFilters: (filters: any) => void;
   setSelectedCampaignReport: (id: string) => void;
   onCopyLink: (token: string, e: React.MouseEvent, type?: 'review' | 'slug') => void;
+  onClearNote?: (id: string) => void;
 }> = ({
   campaignStats,
   role = 'admin',
@@ -17,7 +18,8 @@ const CampaignsTab: React.FC<{
   onEdit,
   setFilters,
   setSelectedCampaignReport,
-  onCopyLink
+  onCopyLink,
+  onClearNote
 }) => {
   const [searchTerm, setSearchTerm] = React.useState('');
 
@@ -84,6 +86,7 @@ const CampaignsTab: React.FC<{
                 setSelectedCampaignReport(id);
               }}
               onCopyLink={onCopyLink}
+              onClearNote={onClearNote}
             />
           ))}
         </div>

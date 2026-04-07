@@ -255,6 +255,22 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleClearNote = async (id: string) => {
+    if (confirm("¿Estás seguro de eliminar la nota de esta campaña?")) {
+      try {
+        const { error } = await supabase
+          .from('campaigns')
+          .update({ notes: null })
+          .eq('id', id);
+        if (error) throw error;
+        success("Nota eliminada correctamente");
+        refresh();
+      } catch (err: any) {
+        toastError("Error al eliminar nota: " + err.message);
+      }
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-slate-50">
       <AdminSidebar 
@@ -318,6 +334,7 @@ export default function AdminDashboard() {
             setFilters={setFilters}
             setSelectedCampaignReport={setSelectedCampaignReport}
             onCopyLink={handleCopyShareLink}
+            onClearNote={handleClearNote}
           />
         )}
 
@@ -460,7 +477,7 @@ export default function AdminDashboard() {
             setIsCreatingCampaign(false);
             setIsEditingCampaign(false);
             setEditingCampaignId(null);
-            setNewCampaign({ name: '', description: '', client_id: '', twitter_url: '', contact_info: '', budget: 0, slug: '', assigned_creator_ids: [] });
+            setNewCampaign({ name: '', description: '', client_id: '', twitter_url: '', contact_info: '', budget: 0, slug: '', notes: '', assigned_creator_ids: [] });
           }} 
           onSubmit={isEditingCampaign ? handleUpdateCampaign : handleCreateCampaign} 
           newCampaign={newCampaign} 
