@@ -26,6 +26,7 @@ import PaymentModal from '../components/dashboard/PaymentModal';
 import ContentModal from '../components/dashboard/ContentModal';
 import ContentDetailModal from '../components/dashboard/ContentDetailModal';
 import DiscordStatsModal from '../components/dashboard/DiscordStatsModal';
+import CampaignsTab from '../components/dashboard/CampaignsTab';
 import Skeleton, { StatsSkeleton, CardSkeleton } from '../components/dashboard/Skeleton';
 import { DiscordSessionEvent } from '../supabase';
 
@@ -35,7 +36,7 @@ export default function CreatorDashboard() {
   const [filters, setFilter, setFilters, resetFilters] = useFilterParams({ campaign: 'all', tab: 'overview' });
   const activeTab = filters.tab || 'overview';
   const setActiveTab = (tab: string) => setFilter('tab', tab);
-  const { campaigns, content, filteredContent, metrics, refresh, loading } = useDashboardData('creator', { campaign: filters.campaign });
+  const { campaigns, content, filteredContent, metrics, campaignStats, refresh, loading } = useDashboardData('creator', { campaign: filters.campaign });
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
@@ -142,6 +143,19 @@ export default function CreatorDashboard() {
     }
   };
 
+  const handleCopyShareLink = async (token: string, e: React.MouseEvent, type: 'review' | 'slug' = 'review') => {
+    e.stopPropagation();
+    try {
+      const BASE_URL = window.location.origin;
+      const path = type === 'slug' ? `/v/${token}` : `/review/${token}`;
+      const url = `${BASE_URL}${path}`;
+      await navigator.clipboard.writeText(url);
+      success(type === 'slug' ? "¡Enlace personalizado copiado!" : "¡Enlace de reporte copiado!");
+    } catch (err) {
+      toastError("No se pudo copiar el enlace.");
+    }
+  };
+
     if (loading) {
       return (
         <div className="min-h-screen bg-slate-50 p-4 md:p-8 lg:p-12 overflow-y-auto">
@@ -201,6 +215,7 @@ export default function CreatorDashboard() {
         >
           {[
             { id: 'overview', label: 'Resumen', icon: LayoutDashboard },
+            { id: 'campaigns', label: 'Campañas', icon: BarChart3 },
             { id: 'content', label: 'Mi Contenido', icon: ListIcon },
             { id: 'journey', label: 'Mi Camino', icon: Trophy }
           ].map(tab => (
@@ -428,6 +443,20 @@ export default function CreatorDashboard() {
               <span className="text-xs font-black uppercase tracking-widest">Añadir Contenido</span>
             </button>
           </div>
+        </div>
+      )}
+
+      {activeTab === 'campaigns' && (
+        <div className="animate-in fade-in duration-500">
+          <CampaignsTab
+            campaignStats={campaignStats}
+            role="creator"
+            onDelete={() => {}} // No permissions
+            onEdit={() => {}}   // No permissions
+            setFilters={setFilters}
+            setSelectedCampaignReport={() => {}} // Could be enabled later if we want creators to see their own reports
+            onCopyLink={handleCopyShareLink}
+          />
         </div>
       )}
 

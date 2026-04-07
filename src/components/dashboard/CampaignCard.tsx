@@ -11,6 +11,7 @@ interface CampaignCardProps {
   spent?: number;
   remaining?: number;
   isAssigned?: boolean;
+  role?: 'admin' | 'creator';
   onClick?: (id: string) => void;
   onDelete: (id: string) => void;
   onEdit: (id: string) => void;
@@ -22,7 +23,10 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
   campaign,
   totalViews = 0,
   totalPosts = 0,
+  spent = 0,
+  remaining = 0,
   isAssigned = false,
+  role = 'admin',
   onDelete,
   onEdit,
   onClick,
@@ -39,21 +43,23 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
       onClick={() => onClick?.(campaign.id)}
       style={{ cursor: onClick ? 'pointer' : 'default' }}
     >
-      {/* Edit / Delete — aparecen en hover, top-right */}
-      <div className="absolute top-4 right-4 flex gap-1 z-10">
-        <button
-          onClick={(e) => { e.stopPropagation(); onEdit(campaign.id); }}
-          className="p-2 rounded-xl text-gray-300 hover:text-indigo-600 hover:bg-indigo-50 transition-all opacity-0 group-hover:opacity-100"
-        >
-          <Edit2 className="h-3.5 w-3.5" />
-        </button>
-        <button
-          onClick={(e) => { e.stopPropagation(); onDelete(campaign.id); }}
-          className="p-2 rounded-xl text-gray-300 hover:text-rose-500 hover:bg-rose-50 transition-all opacity-0 group-hover:opacity-100"
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-        </button>
-      </div>
+      {/* Edit / Delete — aparecen en hover, top-right (Admin only) */}
+      {role === 'admin' && (
+        <div className="absolute top-4 right-4 flex gap-1 z-10">
+          <button
+            onClick={(e) => { e.stopPropagation(); onEdit(campaign.id); }}
+            className="p-2 rounded-xl text-gray-300 hover:text-indigo-600 hover:bg-indigo-50 transition-all opacity-0 group-hover:opacity-100"
+          >
+            <Edit2 className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); onDelete(campaign.id); }}
+            className="p-2 rounded-xl text-gray-300 hover:text-rose-500 hover:bg-rose-50 transition-all opacity-0 group-hover:opacity-100"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
 
       {/* Body */}
       <div className="flex flex-col flex-1 p-6">
@@ -115,7 +121,7 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
           {campaign.description || 'Sin descripción'}
         </p>
 
-        {/* Stats — dos filas horizontales */}
+        {/* Stats — tres filas horizontales (Admin) o dos (Creator) */}
         <div className="mt-auto space-y-2 mb-5">
           <div className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3 border border-gray-100 group-hover:border-indigo-50 transition-colors">
             <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Vistas Totales</span>
@@ -129,6 +135,21 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
               {totalPosts}
             </span>
           </div>
+          {role === 'admin' ? (
+            <div className="flex items-center justify-between bg-gray-900 rounded-xl px-4 py-3 border border-gray-800 transition-colors">
+              <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Gasto Total</span>
+              <span className="text-base font-black text-white tabular-nums">
+                ${spent?.toLocaleString() || '0'}
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between bg-emerald-600 rounded-xl px-4 py-3 border border-emerald-500 transition-colors">
+              <span className="text-[9px] font-black text-emerald-50/70 uppercase tracking-widest">Mis Ganancias</span>
+              <span className="text-base font-black text-white tabular-nums">
+                ${spent?.toLocaleString() || '0'}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Footer Actions */}
@@ -156,12 +177,14 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
             )}
           </div>
 
-          {/* Right: Ver Detalle */}
+          {/* Right: Ver Detalle / Entrar */}
           <button
-            onClick={(e) => { e.stopPropagation(); onEdit(campaign.id); }}
-            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-[9px] font-black uppercase tracking-wide rounded-xl transition-all shadow-md shadow-indigo-100 whitespace-nowrap"
+            onClick={(e) => { e.stopPropagation(); role === 'admin' ? onEdit(campaign.id) : onClick?.(campaign.id); }}
+            className={`px-4 py-2 text-white text-[9px] font-black uppercase tracking-wide rounded-xl transition-all shadow-md whitespace-nowrap ${
+              role === 'admin' ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-100' : 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-100'
+            }`}
           >
-            Ver Detalle
+            {role === 'admin' ? 'Ver Detalle' : 'Entrar'}
           </button>
         </div>
       </div>

@@ -114,6 +114,15 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
         
         if (logsError) throw logsError;
         setAuditLogs(logs || []);
+      } else {
+        // Fetch only MY payments if I am a creator
+        const { data: myPayments } = await supabase
+          .from('payments')
+          .select('*')
+          .eq('creator_id', user?.id)
+          .order('paid_at', { ascending: false });
+        
+        if (myPayments) setPayments(myPayments as Payment[]);
       }
     } catch (err: any) {
       console.error("Dashboard data fetch error:", err);
@@ -242,7 +251,7 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
         ...campaign,
         views,
         contentCount: campaignContent.length,
-        spent,
+        spent, // For creators, this is "their" spent (earnings)
         remaining,
         isAssigned: role === 'admin' ? true : assignedCampaignIds.includes(campaign.id)
       };
