@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Rocket, List, BarChart3, LogOut, Zap, LayoutDashboard } from 'lucide-react';
+import { Rocket, List, BarChart3, LogOut, Zap, LayoutDashboard, StickyNote, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase, Campaign, Content, UserProfile } from '../supabase';
 import { useAuth, logout } from '../AuthContext';
@@ -16,6 +16,7 @@ export default function ClientDashboard() {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCampaignReport, setSelectedCampaignReport] = useState<string | null>(null);
+  const [expandedNotes, setExpandedNotes] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (user) {
@@ -159,8 +160,44 @@ export default function ClientDashboard() {
                 <BarChart3 className="h-5 w-5 text-gray-200 group-hover:text-indigo-200 transition-colors" />
               </div>
               
-              <h3 className="text-xl font-bold text-gray-900 mb-2 leading-tight group-hover:text-indigo-600 transition-colors">{campaign.name}</h3>
-              <p className="text-sm text-gray-500 line-clamp-2 mb-6 min-h-[40px]">{campaign.description || 'Sin descripción.'}</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-2 leading-tight group-hover:text-indigo-600 transition-colors uppercase tracking-tight">{campaign.name}</h3>
+              <p className="text-sm text-gray-500 line-clamp-2 mb-4 min-h-[40px] leading-relaxed">{campaign.description || 'Sin descripción.'}</p>
+              
+              {/* 📝 Note Toggle if exists */}
+              {campaign.notes && (
+                <div className="mb-6">
+                  <button
+                    onClick={() => setExpandedNotes(prev => ({ ...prev, [campaign.id]: !prev[campaign.id] }))}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                      expandedNotes[campaign.id] 
+                        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' 
+                        : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100'
+                    }`}
+                  >
+                    <StickyNote className="h-3.5 w-3.5" />
+                    Info Adicional
+                    {expandedNotes[campaign.id] ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                  </button>
+
+                  <AnimatePresence>
+                    {expandedNotes[campaign.id] && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0, marginTop: 0 }}
+                        animate={{ height: 'auto', opacity: 1, marginTop: 16 }}
+                        exit={{ height: 0, opacity: 0, marginTop: 0 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100/50 relative">
+                          <div className="absolute top-3 right-3 h-1.5 w-1.5 rounded-full bg-indigo-400 animate-pulse" />
+                          <div className="text-sm text-gray-700 font-medium leading-relaxed whitespace-pre-wrap break-words max-h-40 overflow-y-auto pr-2 custom-scrollbar italic">
+                            "{campaign.notes}"
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              )}
               
               {/* Budget Info */}
               <div className="bg-gray-50/50 rounded-2xl p-4 mb-8 border border-gray-100 flex flex-col gap-3">
