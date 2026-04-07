@@ -155,7 +155,7 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
                       <button
                         onClick={(e) => { e.stopPropagation(); onEdit(campaign.id); }}
                         className="p-1.5 text-indigo-400 hover:text-indigo-600 hover:bg-white rounded-lg transition-all"
-                        title="Editar nota"
+                        title="Editar"
                       >
                         <Edit2 className="h-3 w-3" />
                       </button>

@@ -257,7 +257,7 @@ export default function PublicReview() {
                 {campaign.notes && (
                   <div className="flex items-center gap-2 mt-1">
                     <span className="w-1 h-1 bg-indigo-400 rounded-full animate-pulse" />
-                    <span className="text-[9px] font-black text-indigo-500 uppercase tracking-widest">Tiene notas info</span>
+                    <span className="text-[9px] font-black text-indigo-500 uppercase tracking-widest">{t.additionalInfo}</span>
                   </div>
                 )}
               </div>
