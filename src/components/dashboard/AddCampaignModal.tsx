@@ -71,7 +71,7 @@ const AddCampaignModal: React.FC<AddCampaignModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2">Notas / Información Extra (Para Creadores)</label>
+            <label className="block text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2">Notas / Información Extra (Para el Cliente)</label>
             <textarea
               className="block w-full rounded-2xl border-indigo-100 bg-indigo-50/20 py-3 px-4 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all outline-none resize-none"
               rows={4}

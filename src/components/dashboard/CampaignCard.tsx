@@ -106,8 +106,8 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
             </span>
           )}
 
-          {/* 📝 Note pill if exists */}
-          {campaign.notes && (
+          {/* 📝 Note pill if exists (Admin + Client only, NOT creators) */}
+          {role === 'admin' && campaign.notes && (
             <button
               onClick={(e) => { e.stopPropagation(); setShowNotes(!showNotes); }}
               className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${
@@ -141,7 +141,7 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
 
         {/* 📘 Expandable Notes Section */}
         <AnimatePresence>
-          {showNotes && campaign.notes && (
+          {role === 'admin' && showNotes && campaign.notes && (
             <motion.div
               initial={{ height: 0, opacity: 0, marginBottom: 0 }}
               animate={{ height: 'auto', opacity: 1, marginBottom: 20 }}

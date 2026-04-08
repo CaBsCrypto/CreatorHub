@@ -46,12 +46,12 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
 
   // Campaign Handlers
   const handleDeleteCampaign = async (id: string) => {
-    if (!window.confirm('¿Estás seguro de eliminar esta campaña?')) return;
-    const { error } = await supabase.from('campaigns').delete().eq('id', id);
+    if (!window.confirm('¿Mover esta campaña a la papelera? Su contenido no será afectado.')) return;
+    const { error } = await supabase.from('campaigns').update({ deleted_at: new Date().toISOString() }).eq('id', id);
     if (error) {
-      toastError("Error al eliminar campaña: " + error.message);
+      toastError("Error al mover campaña: " + error.message);
     } else {
-      success("Campaña eliminada");
+      success("Campaña movida a la papelera");
       refresh();
     }
   };
@@ -249,14 +249,15 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
 
   const handleRemoveUser = async (managingUser: UserProfile | null, setManagingUser: (u: UserProfile | null) => void, setDeletedUserIds: React.Dispatch<React.SetStateAction<string[]>>) => {
     if (!managingUser) return;
-    const confirmMsg = `¿Estás seguro de que quieres eliminar a ${managingUser.display_name || managingUser.email}? Esta acción también eliminará todo su contenido vinculado.`;
+    const confirmMsg = `¿Estás seguro de que quieres eliminar a ${managingUser.display_name || managingUser.email}?\n\nSu contenido será preservado en las campañas (sin creador asignado).`;
     if (!window.confirm(confirmMsg)) return;
 
     try {
-      await supabase.from('content').delete().eq('creator_id', managingUser.id);
-      const { error: campaignError } = await supabase.from('campaigns').delete().eq('created_by', managingUser.id);
+      // SAFE: Orphan content instead of deleting it — keeps campaign data intact
+      await supabase.from('content').update({ creator_id: null }).eq('creator_id', managingUser.id);
       
-      if (campaignError && currentUser?.id) {
+      // Reassign campaigns created by this user to current admin
+      if (currentUser?.id) {
         await supabase.from('campaigns').update({ created_by: currentUser.id }).eq('created_by', managingUser.id);
       }
 
@@ -264,7 +265,7 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
       if (userError) throw userError;
       
       setDeletedUserIds((prev) => [...prev, managingUser.id]);
-      success("Miembro eliminado correctamente");
+      success("Miembro eliminado. Su contenido fue preservado en las campañas.");
       setManagingUser(null);
       await refresh();
     } catch (err: any) {

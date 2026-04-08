@@ -404,8 +404,9 @@ export default function CreatorDashboard() {
                     <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
                        <button onClick={() => { setEditingContent(item); setIsContentModalOpen(true); }} className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"><BarChart3 className="h-4 w-4" /></button>
                        <button onClick={async () => {
-                         if(confirm("¿Eliminar contenido?")) {
-                            await supabase.from('content').delete().eq('id', item.id);
+                         if(confirm("¿Mover este contenido a la papelera?")) {
+                            await supabase.from('content').update({ deleted_at: new Date().toISOString() }).eq('id', item.id);
+                            success("Contenido movido a la papelera");
                             refresh();
                          }
                        }} className="p-2 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"><AlertCircle className="h-4 w-4" /></button>
@@ -422,9 +423,9 @@ export default function CreatorDashboard() {
                         setIsContentModalOpen(true); 
                     }} 
                     onDelete={async (id) => { 
-                        if(confirm("¿Eliminar contenido?")) {
-                            await supabase.from('content').delete().eq('id', id);
-                            success("Contenido eliminado");
+                        if(confirm("¿Mover este contenido a la papelera?")) {
+                            await supabase.from('content').update({ deleted_at: new Date().toISOString() }).eq('id', id);
+                            success("Contenido movido a la papelera");
                             refresh();
                         }
                     }} 

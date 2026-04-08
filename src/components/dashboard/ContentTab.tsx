@@ -360,13 +360,13 @@ const ContentTab: React.FC<ContentTabProps> = ({
                     onClick={async (e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      if (confirm("¿Estás seguro de eliminar esta publicación?")) {
+                      if (confirm("¿Mover esta publicación a la papelera?")) {
                         setDeletedContentIds(prev => [...prev, item.id]);
-                        const { error } = await supabase.from('content').delete().eq('id', item.id);
+                        const { error } = await supabase.from('content').update({ deleted_at: new Date().toISOString() }).eq('id', item.id);
                         if (error) {
-                          toastError("Error al eliminar: " + error.message);
+                          toastError("Error al mover a papelera: " + error.message);
                         } else {
-                          success("Contenido eliminado");
+                          success("Contenido movido a la papelera");
                           refresh();
                         }
                       }
@@ -389,10 +389,13 @@ const ContentTab: React.FC<ContentTabProps> = ({
                   setIsContentModalOpen(true);
                 }}
                 onDelete={async (id) => {
-                  if (confirm("¿Estás seguro de que deseas eliminar este contenido?")) {
+                  if (confirm("¿Mover este contenido a la papelera?")) {
                     setDeletedContentIds(prev => [...prev, id]);
-                    const { error } = await supabase.from('content').delete().eq('id', id);
-                    if (!error) refresh();
+                    const { error } = await supabase.from('content').update({ deleted_at: new Date().toISOString() }).eq('id', id);
+                    if (!error) {
+                      success("Contenido movido a la papelera");
+                      refresh();
+                    }
                   }
                 }}
                 onClick={() => setViewingContent(item as any)}
