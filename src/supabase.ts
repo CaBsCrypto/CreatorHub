@@ -74,7 +74,7 @@ export interface Content {
   campaign_id: string;
   creator_id: string | null;
   guest_name?: string | null;
-  platform: 'youtube' | 'instagram' | 'tiktok' | 'x' | 'coinmarketcap' | 'twitch' | 'stream' | 'discord';
+  platform: 'youtube' | 'instagram' | 'tiktok' | 'x' | 'coinmarketcap' | 'twitch' | 'stream' | 'discord' | 'baseapp';
   url: string;
   title: string | null;
   thumbnail: string | null;

@@ -37,6 +37,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
     { id: 'x', icon: Twitter, color: 'text-indigo-900', label: 'X' },
     { id: 'coinmarketcap', icon: Globe, color: 'text-indigo-600', label: 'CMC' },
     { id: 'stream', icon: Globe, color: 'text-purple-600', label: 'Streams' },
+    { id: 'baseapp', icon: Globe, color: 'text-blue-600', label: 'BaseApp' },
     ...(users && users.length > 0 ? [{ id: 'discord', icon: DiscordIcon, color: 'text-indigo-500', label: 'Discord' }] : [])
   ], [users]);
   const [formData, setFormData] = React.useState({
@@ -203,7 +204,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
         formData.campaign_id,
         (formData.platform as any) === 'discord' ? 'discord' : streamPlatform
       );
-    } else if (formData.platform === 'discord' && twitchFile) {
+    } else if ((formData.platform === 'discord' || formData.platform === ('baseapp' as any)) && twitchFile) {
        onTwitchUpload(
         twitchFile, 
         formData.creator_id, 
@@ -218,7 +219,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
         formData.shares_count,
         formData.title,
         formData.campaign_id,
-        'discord'
+        formData.platform as 'discord' | 'baseapp' as any
       );
     } else {
       onSubmit(finalData);
@@ -387,7 +388,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
             
             <div className="mb-5">
               <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-3 ml-1">
-                {(formData.platform as any) === 'stream' ? 'Captura y Resultados' : 'URL del Contenido'}
+                {(formData.platform as any) === 'stream' ? 'Captura y Resultados' : (formData.platform as any) === 'baseapp' ? 'Video Entregable' : 'URL del Contenido'}
               </label>
 
               {(formData.platform as any) === 'stream' ? (
@@ -565,7 +566,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
                     </div>
                   </div>
                 </div>
-              ) : (formData.platform as any) === 'discord' ? (
+              ) : (formData.platform as any) === 'discord' || (formData.platform as any) === 'baseapp' ? (
                 <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-400 mb-5">
                    <div className="relative group">
                     <input
@@ -573,11 +574,11 @@ const ContentModal: React.FC<ContentModalProps> = ({
                       required
                       value={formData.title}
                       onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      placeholder="Título de la Jornada (ej. Torneo #1)"
+                      placeholder={(formData.platform as any) === 'baseapp' ? "Título del Video (ej. Demo 1)" : "Título de la Jornada (ej. Torneo #1)"}
                       className="block w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50/30 text-sm font-semibold text-slate-700 focus:ring-1 focus:ring-indigo-500 focus:bg-white transition-all placeholder:text-slate-400 outline-none"
                     />
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                      <DiscordIcon className="h-4 w-4 text-slate-300" />
+                      {(formData.platform as any) === 'baseapp' ? <Globe className="h-4 w-4 text-slate-300" /> : <DiscordIcon className="h-4 w-4 text-slate-300" />}
                     </div>
                     
                     {/* Subtle Captura Button */}
@@ -586,18 +587,18 @@ const ContentModal: React.FC<ContentModalProps> = ({
                         type="button"
                         onClick={() => document.getElementById('discord-upload')?.click()}
                         className={`group/btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all active:scale-95 ${twitchFile ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm' : 'bg-white border-slate-200 text-slate-400 hover:text-indigo-600 hover:border-indigo-200'}`}
-                        title="Adjuntar captura de resultados"
+                        title={(formData.platform as any) === 'baseapp' ? "Subir video/captura" : "Adjuntar captura de resultados"}
                       >
                         <ImageIcon className={`h-3.5 w-3.5 ${twitchFile ? 'text-indigo-100' : 'group-hover/btn:text-indigo-500'}`} />
                         <span className="text-[9px] font-black uppercase tracking-wider">
-                          {twitchFile ? 'Captura Lista' : 'Captura'}
+                          {twitchFile ? 'Listo' : (formData.platform as any) === 'baseapp' ? 'Subir' : 'Captura'}
                         </span>
                       </button>
                       <input
                         type="file"
                         id="discord-upload"
                         className="hidden"
-                        accept="image/*"
+                        accept={(formData.platform as any) === 'baseapp' ? "image/*,video/*" : "image/*"}
                         onChange={handleFileChange}
                       />
                     </div>
@@ -607,14 +608,19 @@ const ContentModal: React.FC<ContentModalProps> = ({
                     <motion.div 
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="relative w-full aspect-video rounded-2xl overflow-hidden border border-slate-100 shadow-sm"
+                      className="relative w-full aspect-video rounded-2xl overflow-hidden border border-slate-100 shadow-sm transition-all"
                     >
-                      <img src={twitchPreview} alt="Preview" className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent flex items-end p-3">
+                      {twitchFile?.type.startsWith('video') ? (
+                        <video src={twitchPreview} className="w-full h-full object-cover" controls />
+                      ) : (
+                        <img src={twitchPreview} alt="Preview" className="w-full h-full object-cover" />
+                      )}
+                      <div className="absolute top-2 right-2 flex gap-2">
                         <button 
                           type="button"
                           onClick={() => { setTwitchFile(null); setTwitchPreview(null); }}
-                          className="bg-white/20 backdrop-blur-md hover:bg-white/40 text-white p-1.5 rounded-lg transition-all"
+                          className="bg-slate-900/40 backdrop-blur-md hover:bg-red-500 text-white p-1.5 rounded-lg transition-all"
+                          title="Eliminar"
                         >
                           <X className="h-3.5 w-3.5" />
                         </button>
@@ -622,73 +628,6 @@ const ContentModal: React.FC<ContentModalProps> = ({
                     </motion.div>
                   )}
                   
-                  <div className="p-3 bg-slate-50/50 rounded-2xl border border-slate-100">
-                    <div className="grid grid-cols-3 gap-2">
-                       <div className="bg-white border border-slate-200 rounded-xl p-2.5 shadow-sm">
-                        <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">Duración</label>
-                        <div className="flex gap-1 items-center">
-                          <input
-                            type="number"
-                            placeholder="H"
-                            value={Math.floor(formData.duration_minutes / 60) || ''}
-                            onChange={(e) => {
-                              const h = parseInt(e.target.value) || 0;
-                              const m = formData.duration_minutes % 60;
-                              setFormData({ ...formData, duration_minutes: (h * 60) + m });
-                            }}
-                            className="w-full bg-slate-50/50 py-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
-                          />
-                          <span className="text-slate-300 font-bold">:</span>
-                          <input
-                            type="number"
-                            placeholder="M"
-                            max="59"
-                            value={formData.duration_minutes % 60 || ''}
-                            onChange={(e) => {
-                              const h = Math.floor(formData.duration_minutes / 60);
-                              const m = parseInt(e.target.value) || 0;
-                              setFormData({ ...formData, duration_minutes: (h * 60) + m });
-                            }}
-                            className="w-full bg-slate-50/50 py-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
-                          />
-                        </div>
-                      </div>
-                      <div className="bg-white border border-slate-200 rounded-xl p-2.5 shadow-sm">
-                        <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">Simultáneos</label>
-                        <input
-                          type="number"
-                          value={formData.peek_viewers || ''}
-                          onChange={(e) => setFormData({ ...formData, peek_viewers: parseInt(e.target.value) || 0 })}
-                          className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
-                          placeholder="0"
-                        />
-                      </div>
-                      <div className="bg-white border border-slate-200 rounded-xl p-2.5 shadow-sm">
-                        <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">Únicos</label>
-                        <input
-                          type="number"
-                          value={formData.views || ''}
-                          onChange={(e) => setFormData({ ...formData, views: parseInt(e.target.value) || 0 })}
-                          className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
-                          placeholder="0"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-2 mt-2">
-                      <div className="bg-white border border-slate-200 rounded-xl p-2.5 shadow-sm">
-                        <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">Pantallas Compartidas</label>
-                        <input
-                          type="number"
-                          value={formData.shares_count || ''}
-                          onChange={(e) => setFormData({ ...formData, shares_count: parseInt(e.target.value) || 0 })}
-                          className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
-                          placeholder="0"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
                   <div className="relative group">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                       <ExternalLink className="h-4 w-4 text-slate-300 transition-colors" />
@@ -697,7 +636,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
                       type="url"
                       value={formData.url}
                       onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-                      placeholder="Link de la Jornada (opcional)"
+                      placeholder={(formData.platform as any) === 'baseapp' ? "URL del Post (opcional)" : "Link de la Jornada (opcional)"}
                       className="block w-full pl-10.5 rounded-xl border-slate-200 bg-slate-50/30 py-3 text-sm font-medium text-slate-700 focus:ring-1 focus:ring-indigo-500 transition-all outline-none"
                     />
                   </div>

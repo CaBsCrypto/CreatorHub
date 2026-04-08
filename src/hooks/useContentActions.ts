@@ -24,7 +24,7 @@ export function useContentActions(refresh: () => void) {
     shCount?: number,
     title?: string,
     campaign_id?: string,
-    platform?: 'twitch' | 'tiktok' | 'discord'
+    platform?: 'twitch' | 'tiktok' | 'discord' | 'baseapp'
   ) => {
     setIsProcessing(true);
     try {
