@@ -5,7 +5,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import {
   Zap, Users, Music2, Instagram, Youtube, Twitter, Globe,
   TrendingUp, BarChart3, Award, ArrowLeft, PieChart, LayoutGrid, X,
-  Eye, Heart, MessageCircle, ExternalLink, ChevronRight
+  Eye, Heart, MessageCircle, ExternalLink, ChevronRight, StickyNote
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -48,6 +48,7 @@ export default function PublicReview() {
   const [showPlatformsModal, setShowPlatformsModal] = useState(false);
   const [showTop5Modal, setShowTop5Modal] = useState(false);
   const [modalLimit, setModalLimit] = useState<'5'|'10'|'all'>('10');
+  const [showNotesModal, setShowNotesModal] = useState(false);
   const [lang, setLangLocal] = useState<'en' | 'es'>((searchParams.get('lang') as 'en' | 'es') || 'en');
 
   useEffect(() => {
@@ -305,23 +306,22 @@ export default function PublicReview() {
           />
         </div>
 
-        {/* 📘 Campaign Notes — Client Info */}
+        {/* 📘 Campaign Notes — Button triggers modal */}
         {campaign.notes && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
-          >
-            <div className="bg-white border border-gray-100 rounded-[2.5rem] p-6 sm:p-8 shadow-sm relative overflow-hidden group">
-              <div className="absolute -right-8 -top-8 w-32 h-32 bg-indigo-50/50 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-              <h3 className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                <Zap className="h-4 w-4" /> {t.additionalInfo}
-              </h3>
-              <div className="text-sm sm:text-base text-gray-600 font-medium leading-relaxed whitespace-pre-wrap italic border-l-4 border-indigo-100 pl-6 py-1">
-                "{campaign.notes}"
-              </div>
-            </div>
-          </motion.div>
+          <div className="flex justify-center mb-8">
+            <motion.button
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => setShowNotesModal(true)}
+              className="flex items-center gap-2.5 px-6 py-3 bg-white border border-indigo-100 rounded-2xl text-sm font-black text-indigo-600 uppercase tracking-widest shadow-sm hover:shadow-lg hover:border-indigo-200 hover:bg-indigo-50/30 transition-all duration-300 group"
+            >
+              <StickyNote className="h-4 w-4 group-hover:rotate-6 transition-transform" />
+              {t.additionalInfo}
+              <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-pulse" />
+            </motion.button>
+          </div>
         )}
 
         {/* Mobile Nav Tabs */}
@@ -742,6 +742,44 @@ export default function PublicReview() {
                 })}
               </div>
               <button onClick={() => setShowTop5Modal(false)}
+                className="w-full mt-6 py-4 bg-gray-50 border border-gray-100 text-gray-500 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-gray-100"
+              >
+                {lang === 'en' ? 'Close' : 'Cerrar'}
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Notes Modal */}
+      <AnimatePresence>
+        {showNotesModal && campaign?.notes && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setShowNotesModal(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              className="relative w-full max-w-lg bg-white border border-gray-100 rounded-[2.5rem] p-6 sm:p-8 shadow-2xl"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center">
+                    <StickyNote className="h-5 w-5" />
+                  </div>
+                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">{t.additionalInfo}</h3>
+                </div>
+                <button onClick={() => setShowNotesModal(false)} className="w-8 h-8 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="max-h-[50vh] overflow-y-auto pr-2" style={{ scrollbarWidth: 'thin', scrollbarColor: '#e2e8f0 transparent' }}>
+                <div className="text-sm sm:text-base text-gray-600 font-medium leading-relaxed whitespace-pre-wrap border-l-4 border-indigo-100 pl-6 py-1">
+                  {campaign.notes}
+                </div>
+              </div>
+              <button onClick={() => setShowNotesModal(false)}
                 className="w-full mt-6 py-4 bg-gray-50 border border-gray-100 text-gray-500 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-gray-100"
               >
                 {lang === 'en' ? 'Close' : 'Cerrar'}
