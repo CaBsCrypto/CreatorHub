@@ -8,4 +8,11 @@ coverage/
 !.env.example
 .vercel
 firebase-applet-config.json
-debug-youtube.cjs
+
+# Temp / Debug
+tmp/
+test-*.js
+test-*.ts
+test-*.cjs
+fix-*.cjs
+debug-*.cjs
