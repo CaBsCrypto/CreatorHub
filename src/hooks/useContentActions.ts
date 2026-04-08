@@ -205,7 +205,7 @@ export function useContentActions(refresh: () => void) {
 
         // 3. FETCH METADATA IN BACKGROUND
         const { data: { session } } = await supabase.auth.getSession();
-        fetch(`${import.meta.env.VITE_SUPABASE_URL.replace('.supabase.co', '')}/api/fetch-metadata`, { // Assuming local server proxy or similar
+        fetch('/api/fetch-metadata', { 
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
