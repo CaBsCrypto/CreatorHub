@@ -20,7 +20,7 @@ const TrashTab: React.FC<TrashTabProps> = ({
   refresh
 }) => {
   const handleRestore = async (id: string) => {
-    const { error } = await supabase.from('content').update({ is_deleted: false, deleted_at: null }).eq('id', id);
+    const { error } = await supabase.from('content').update({ deleted_at: null }).eq('id', id);
     if (error) toastError('Error: ' + error.message);
     else { success('Contenido restaurado'); refresh(); }
   };
