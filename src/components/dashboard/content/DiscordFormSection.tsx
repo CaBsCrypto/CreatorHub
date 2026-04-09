@@ -86,7 +86,7 @@ const DiscordFormSection: React.FC<DiscordFormSectionProps> = ({
         </motion.div>
       )}
       
-      {platform === 'discord' && (
+      {(platform === 'discord' || platform === 'baseapp') && (
         <div className="p-3 bg-slate-50/50 rounded-2xl border border-slate-100">
           <div className="grid grid-cols-2 gap-2 mb-2">
             <div className="bg-white border border-slate-200 rounded-xl p-2.5">

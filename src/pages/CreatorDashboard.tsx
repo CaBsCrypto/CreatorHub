@@ -487,7 +487,7 @@ export default function CreatorDashboard() {
         campaigns={campaigns} 
         editingContent={editingContent}
         isProcessing={isProcessingContent}
-        onTwitchUpload={async (file, explicitCreatorId, dCount, aCount, pCount, uvCount, uChatters, vCount, fCount, sCount, title, campaign_id, platform) => {
+        onTwitchUpload={async (file, explicitCreatorId, dCount, aCount, pCount, uvCount, uChatters, vCount, fCount, sCount, shCount, title, campaign_id, platform) => {
           setIsProcessingContent(true);
           try {
             const currentCampaignId = campaign_id || (filters.campaign === 'all' ? (campaigns[0]?.id || '') : filters.campaign);
@@ -523,6 +523,7 @@ export default function CreatorDashboard() {
               followers: fCount || 0,
               new_subscriptions: sCount || 0,
               duration_minutes: dCount || 0,
+              shares_count: shCount || 0,
               uploaded_at: new Date().toISOString()
             }]);
 

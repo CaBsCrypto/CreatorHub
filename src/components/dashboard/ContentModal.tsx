@@ -60,8 +60,8 @@ const ContentModal: React.FC<ContentModalProps> = ({
     { id: 'coinmarketcap', icon: Globe, color: 'text-indigo-600', label: 'CMC' },
     { id: 'stream', icon: Globe, color: 'text-purple-600', label: 'Streams' },
     { id: 'baseapp', icon: Globe, color: 'text-blue-600', label: 'BaseApp' },
-    ...(users && users.length > 0 ? [{ id: 'discord', icon: DiscordIcon, color: 'text-indigo-500', label: 'Discord' }] : [])
-  ], [users]);
+    { id: 'discord', icon: DiscordIcon, color: 'text-indigo-500', label: 'Discord' }
+  ], []);
 
   // Click outside for dropdown
   React.useEffect(() => {
