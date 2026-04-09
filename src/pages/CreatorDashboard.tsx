@@ -515,7 +515,7 @@ export default function CreatorDashboard() {
               thumbnail: publicUrl,
               creator_id: explicitCreatorId || user?.id,
               status: 'active',
-              views: vCount || 0,
+              views: finalPlatform === 'discord' ? (uvCount || 0) : (vCount || 0),
               unique_viewers: uvCount || 0,
               peek_viewers: pCount || 0,
               average_viewers: aCount || 0,
