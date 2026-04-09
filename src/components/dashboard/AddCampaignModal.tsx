@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Target, List } from 'lucide-react';
+import { X, Target, List, Maximize2 } from 'lucide-react';
 
 interface AddCampaignModalProps {
   isOpen: boolean;
@@ -71,11 +71,16 @@ const AddCampaignModal: React.FC<AddCampaignModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2">Notas / Información Extra (Para el Cliente)</label>
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-[10px] font-black text-indigo-400 uppercase tracking-widest">Notas / Información Extra (Para el Cliente)</label>
+              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1">
+                <Maximize2 className="h-3 w-3" /> Arrastra para ampliar
+              </span>
+            </div>
             <textarea
-              className="block w-full rounded-2xl border-indigo-100 bg-indigo-50/20 py-3 px-4 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all outline-none resize-none"
-              rows={4}
-              placeholder="Escribe aquí cualquier detalle adicional, requisitos o links que los creadores necesiten saber..."
+              className="block w-full rounded-2xl border-indigo-100 bg-indigo-50/20 py-3 px-4 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all outline-none resize-y min-h-[150px]"
+              rows={8}
+              placeholder="Escribe aquí cualquier detalle adicional, requisitos o links que los creadores necesiten saber... (Ej: Wallets, hashes de transacción, links de carpetas)"
               value={newCampaign.notes || ''}
               onChange={(e) => setNewCampaign({ ...newCampaign, notes: e.target.value })}
             />

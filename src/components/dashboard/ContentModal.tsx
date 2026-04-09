@@ -226,7 +226,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
             )}
             
             <PlatformSelector
-              availablePlatforms={availablePlatforms}
+              availablePlatforms={availablePlatforms as any}
               selectedPlatform={formData.platform}
               onSelect={(id) => setFormData({ ...formData, platform: id as any })}
             />

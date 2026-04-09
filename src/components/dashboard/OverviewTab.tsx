@@ -8,6 +8,8 @@ interface OverviewTabProps {
   metrics: {
     totalViews: number;
     viewsTrend?: { value: number; isPositive: boolean };
+    totalPosts: number;
+    postsTrend?: { value: number; isPositive: boolean };
     activeCreators: number;
   };
   campaigns: any[];

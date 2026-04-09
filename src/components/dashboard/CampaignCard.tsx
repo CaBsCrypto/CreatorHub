@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, Trash2, Edit2, Link, Zap, StickyNote, ChevronDown, ChevronUp } from 'lucide-react';
+import { Calendar, Trash2, Edit2, Link, Zap, StickyNote, ChevronDown, ChevronUp, Maximize2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Campaign } from '../../supabase';
 import { format } from 'date-fns';
@@ -18,6 +18,7 @@ interface CampaignCardProps {
   onViewReport?: (id: string, e: React.MouseEvent) => void;
   onCopyLink?: (token: string, e: React.MouseEvent, type: 'review' | 'slug') => void;
   onClearNote?: (id: string) => void;
+  onEditNotes?: (campaign: any) => void;
 }
 
 const CampaignCard: React.FC<CampaignCardProps> = ({
@@ -33,7 +34,8 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
   onClick,
   onViewReport,
   onCopyLink,
-  onClearNote
+  onClearNote,
+  onEditNotes
 }) => {
   const [showNotes, setShowNotes] = React.useState(false);
   return (
@@ -152,6 +154,13 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
                 <div className="absolute top-3 right-3 flex items-center gap-2">
                   {role === 'admin' && (
                     <>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); onEditNotes?.(campaign); }}
+                        className="p-1.5 text-indigo-400 hover:text-indigo-600 hover:bg-white rounded-lg transition-all"
+                        title="Expandir Anotaciones"
+                      >
+                        <Maximize2 className="h-3 w-3" />
+                      </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); onEdit(campaign.id); }}
                         className="p-1.5 text-indigo-400 hover:text-indigo-600 hover:bg-white rounded-lg transition-all"

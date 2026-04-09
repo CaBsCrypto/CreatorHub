@@ -26,6 +26,7 @@ import UserHistoryModal from '../components/dashboard/UserHistoryModal';
 import CampaignReportModal from '../components/dashboard/CampaignReportModal';
 import Skeleton, { StatsSkeleton, CardSkeleton } from '../components/dashboard/Skeleton';
 import AuditLogDetailModal from '../components/dashboard/AuditLogDetailModal';
+import CampaignNotesModal from '../components/dashboard/CampaignNotesModal';
 
 // Modular Layout Components
 import AdminSidebar from '../components/dashboard/AdminSidebar';
@@ -74,6 +75,7 @@ export default function AdminDashboard() {
   const [isAnalyzingCreator, setIsAnalyzingCreator] = useState(false);
   const [managingUser, setManagingUser] = useState<UserProfile | null>(null);
   const [selectedCampaignReport, setSelectedCampaignReport] = useState<string | null>(null);
+  const [editingNotesCampaign, setEditingNotesCampaign] = useState<any | null>(null);
   
   // Processing states
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -312,15 +314,16 @@ export default function AdminDashboard() {
 
           {/* Rest of the tabs handle their own rendering or are shown after loading */}
           {activeTab === 'campaigns' && !loading && (
-            <CampaignsTab
-              campaignStats={campaignStats}
-              onDelete={handleDeleteCampaign}
-              onEdit={handleEditCampaign}
-              setFilters={setFilters}
-              setSelectedCampaignReport={setSelectedCampaignReport}
-              onCopyLink={handleCopyShareLink}
-              onClearNote={handleClearNote}
-            />
+             <CampaignsTab
+               campaignStats={campaignStats}
+               onDelete={handleDeleteCampaign}
+               onEdit={handleEditCampaign}
+               onEditNotes={setEditingNotesCampaign}
+               setFilters={setFilters}
+               setSelectedCampaignReport={setSelectedCampaignReport}
+               onCopyLink={handleCopyShareLink}
+               onClearNote={handleClearNote}
+             />
           )}
 
           {activeTab === 'creators' && !loading && (
@@ -537,6 +540,22 @@ export default function AdminDashboard() {
           onClose={() => setViewingDeleted(null)}
           onRestore={handleRestore}
           onPermanentDelete={handlePermanentDelete}
+        />
+
+        <CampaignNotesModal
+          isOpen={!!editingNotesCampaign}
+          onClose={() => setEditingNotesCampaign(null)}
+          campaignName={editingNotesCampaign?.name || ''}
+          initialNotes={editingNotesCampaign?.notes || ''}
+          onSave={async (notes) => {
+            if (editingNotesCampaign) {
+              const { error } = await supabase.from('campaigns').update({ notes }).eq('id', editingNotesCampaign.id);
+              if (error) throw error;
+              success("Anotaciones guardadas correctamente");
+              refresh();
+              setEditingNotesCampaign(null);
+            }
+          }}
         />
 
         <AuditLogDetailModal 

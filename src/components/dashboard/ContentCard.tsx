@@ -19,6 +19,7 @@ export interface ContentItem {
   duration_minutes?: number;
   followers?: number;
   new_subscriptions?: number;
+  shares_count?: number;
   uploaded_at: string | null;
   created_at: string;
   creator_id: string;

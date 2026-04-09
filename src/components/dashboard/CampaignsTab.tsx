@@ -8,6 +8,7 @@ const CampaignsTab: React.FC<{
   role?: 'admin' | 'creator';
   onDelete: (id: string) => void;
   onEdit: (campaign: any) => void;
+  onEditNotes?: (campaign: any) => void;
   setFilters: (filters: any) => void;
   setSelectedCampaignReport: (id: string) => void;
   onCopyLink: (token: string, e: React.MouseEvent, type?: 'review' | 'slug') => void;
@@ -18,6 +19,7 @@ const CampaignsTab: React.FC<{
   role = 'admin',
   onDelete,
   onEdit,
+  onEditNotes,
   setFilters,
   setSelectedCampaignReport,
   onCopyLink,
@@ -83,6 +85,7 @@ const CampaignsTab: React.FC<{
               role={role}
               onDelete={onDelete}
               onEdit={() => onEdit(campaign)}
+              onEditNotes={onEditNotes}
               onClick={(id) => {
                 setFilters({
                   tab: 'content',

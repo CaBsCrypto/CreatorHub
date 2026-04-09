@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, ExternalLink, Youtube, Instagram, Music2, Twitter, Globe, Clock, Users, Eye, TrendingUp, BarChart3, MessageSquare } from 'lucide-react';
+import { X, ExternalLink, Youtube, Instagram, Music2, Twitter, Globe, Clock, Users, Eye, TrendingUp, BarChart3, MessageSquare, Monitor } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ContentItem } from './ContentCard';
 
