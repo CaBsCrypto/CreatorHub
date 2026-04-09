@@ -36,7 +36,7 @@ const AddCampaignModal: React.FC<AddCampaignModalProps> = ({
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity" onClick={onClose}></div>
-      <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-[2.5rem] bg-white p-8 shadow-2xl ring-1 ring-gray-900/10 animate-in zoom-in-95 slide-in-from-bottom-8 duration-300 scrollbar-thin scrollbar-thumb-gray-100 scrollbar-track-transparent">
+      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-[2.5rem] bg-white p-8 shadow-2xl ring-1 ring-gray-900/10 animate-in zoom-in-95 slide-in-from-bottom-8 duration-300 scrollbar-thin scrollbar-thumb-gray-100 scrollbar-track-transparent">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-black text-gray-900 flex items-center gap-2">
             {isEditing ? <Target className="h-6 w-6 text-indigo-600" /> : <List className="h-6 w-6 text-indigo-600" />}
@@ -62,7 +62,7 @@ const AddCampaignModal: React.FC<AddCampaignModalProps> = ({
           <div>
             <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Descripción</label>
             <textarea
-              className="block w-full rounded-2xl border-gray-100 bg-gray-50/50 py-3 px-4 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all outline-none resize-none"
+              className="block w-full rounded-2xl border-gray-100 bg-gray-50/50 py-3 px-4 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all outline-none resize-y min-h-[100px]"
               rows={3}
               placeholder="Detalles sobre los objetivos de la campaña..."
               value={newCampaign.description}
