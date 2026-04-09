@@ -1,6 +1,6 @@
-import React from 'react';
 import { Search } from 'lucide-react';
 import CreatorCard from './CreatorCard';
+import { CardSkeleton } from './Skeleton';
 
 interface CreatorsTabProps {
   creatorStats: any[];
@@ -10,6 +10,7 @@ interface CreatorsTabProps {
   users: any[];
   setManagingUser: (user: any) => void;
   setEditingAudienceUser: (user: any) => void;
+  isLoading?: boolean;
 }
 
 const CreatorsTab: React.FC<CreatorsTabProps> = ({
@@ -19,7 +20,8 @@ const CreatorsTab: React.FC<CreatorsTabProps> = ({
   deletedUserIds,
   users,
   setManagingUser,
-  setEditingAudienceUser
+  setEditingAudienceUser,
+  isLoading
 }) => {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -36,19 +38,27 @@ const CreatorsTab: React.FC<CreatorsTabProps> = ({
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8">
-        {creatorStats
-          .filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()))
-          .filter(c => !deletedUserIds.includes(c.creator_id))
-          .map((c, i) => (
-            <CreatorCard 
-              key={c.creator_id} 
-              creator={c} 
-              index={i}
-              userRole={users.find(u => u.id === c.creator_id)?.role}
-              onViewProfile={() => setManagingUser(users.find(u => u.id === c.creator_id) || null)}
-              onEditAudience={() => setEditingAudienceUser(users.find(u => u.id === c.creator_id) || null)} 
-            />
-          ))}
+        {isLoading ? (
+          <>
+            <CardSkeleton />
+            <CardSkeleton />
+            <CardSkeleton />
+          </>
+        ) : (
+          creatorStats
+            .filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()))
+            .filter(c => !deletedUserIds.includes(c.creator_id))
+            .map((c, i) => (
+              <CreatorCard 
+                key={c.creator_id} 
+                creator={c} 
+                index={i}
+                userRole={users.find(u => u.id === c.creator_id)?.role}
+                onViewProfile={() => setManagingUser(users.find(u => u.id === c.creator_id) || null)}
+                onEditAudience={() => setEditingAudienceUser(users.find(u => u.id === c.creator_id) || null)} 
+              />
+            ))
+        )}
       </div>
     </div>
   );

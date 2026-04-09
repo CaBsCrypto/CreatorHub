@@ -2,13 +2,12 @@ import React from 'react';
 import { TrendingUp, Zap, Users, List, BarChart3 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import AdminMetricCard from './AdminMetricCard';
+import { StatsSkeleton } from './Skeleton';
 
 interface OverviewTabProps {
   metrics: {
     totalViews: number;
     viewsTrend?: { value: number; isPositive: boolean };
-    totalPosts: number;
-    postsTrend?: { value: number; isPositive: boolean };
     activeCreators: number;
   };
   campaigns: any[];
@@ -16,6 +15,7 @@ interface OverviewTabProps {
   setActiveTab: (tab: any) => void;
   setFilter: (key: string, value: any) => void;
   PLATFORM_COLORS: Record<string, string>;
+  isLoading?: boolean;
 }
 
 const OverviewTab: React.FC<OverviewTabProps> = ({
@@ -24,7 +24,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
   filteredContent,
   setActiveTab,
   setFilter,
-  PLATFORM_COLORS
+  PLATFORM_COLORS,
+  isLoading
 }) => {
   const platformCount = React.useMemo(() => [
     { name: 'Youtube', id: 'youtube', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'youtube').length },
@@ -50,36 +51,47 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
-        <AdminMetricCard 
-          title="Vistas Totales" 
-          value={metrics.totalViews.toLocaleString()} 
-          trend={metrics.viewsTrend || undefined} 
-          icon={TrendingUp} 
-          color="from-indigo-500 to-indigo-600"
-          onClick={() => setActiveTab('content')} 
-        />
-        <AdminMetricCard 
-          title="Creadores" 
-          value={metrics.activeCreators} 
-          icon={Users} 
-          color="from-teal-500 to-emerald-600"
-          onClick={() => setActiveTab('creators')} 
-        />
-        <AdminMetricCard 
-          title="Posts Totales" 
-          value={metrics.totalPosts.toLocaleString()} 
-          trend={metrics.postsTrend || undefined} 
-          icon={List} 
-          color="from-amber-500 to-orange-600"
-          onClick={() => setActiveTab('content')} 
-        />
-        <AdminMetricCard 
-          title="Campañas Activas" 
-          value={campaigns.filter(c => c.status === 'active').length} 
-          icon={BarChart3} 
-          color="from-blue-500 to-blue-600"
-          onClick={() => setActiveTab('campaigns')} 
-        />
+        {isLoading ? (
+          <>
+            <StatsSkeleton />
+            <StatsSkeleton />
+            <StatsSkeleton />
+            <StatsSkeleton />
+          </>
+        ) : (
+          <>
+            <AdminMetricCard 
+              title="Vistas Totales" 
+              value={metrics.totalViews.toLocaleString()} 
+              trend={metrics.viewsTrend || undefined} 
+              icon={TrendingUp} 
+              color="from-indigo-500 to-indigo-600"
+              onClick={() => setActiveTab('content')} 
+            />
+            <AdminMetricCard 
+              title="Creadores" 
+              value={metrics.activeCreators} 
+              icon={Users} 
+              color="from-teal-500 to-emerald-600"
+              onClick={() => setActiveTab('creators')} 
+            />
+            <AdminMetricCard 
+              title="Posts Totales" 
+              value={metrics.totalPosts.toLocaleString()} 
+              trend={metrics.postsTrend || undefined} 
+              icon={List} 
+              color="from-amber-500 to-orange-600"
+              onClick={() => setActiveTab('content')} 
+            />
+            <AdminMetricCard 
+              title="Campañas Activas" 
+              value={campaigns.filter(c => c.status === 'active').length} 
+              icon={BarChart3} 
+              color="from-blue-500 to-blue-600"
+              onClick={() => setActiveTab('campaigns')} 
+            />
+          </>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

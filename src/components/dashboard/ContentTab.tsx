@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import ContentCard from './ContentCard';
 import { supabase } from '../../supabase';
 import ViewsTrendModal from './ViewsTrendModal';
+import Skeleton, { CardSkeleton } from './Skeleton';
 
 interface ContentTabProps {
   searchTerm: string;
@@ -31,6 +32,7 @@ interface ContentTabProps {
   filterPlatform: string;
   filterCreator: string;
   filterZeroViews: boolean;
+  isLoading?: boolean;
 }
 
 const ContentTab: React.FC<ContentTabProps> = ({
@@ -58,7 +60,8 @@ const ContentTab: React.FC<ContentTabProps> = ({
   filterCampaign,
   filterPlatform,
   filterCreator,
-  filterZeroViews
+  filterZeroViews,
+  isLoading
 }) => {
   const [isViewsModalOpen, setIsViewsModalOpen] = useState(false);
 
@@ -213,25 +216,42 @@ const ContentTab: React.FC<ContentTabProps> = ({
 
       {/* Filtered Content Summary Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
-        <div className="bg-white/50 backdrop-blur-sm p-4 md:p-5 rounded-[2rem] border border-gray-100 flex flex-col group hover:bg-white hover:shadow-xl hover:shadow-indigo-100/20 transition-all duration-500">
-          <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
-            <Youtube className="h-3 w-3 text-indigo-400" /> Videos
-          </span>
-          <span className="text-xl md:text-2xl font-black text-gray-900 group-hover:text-indigo-600 transition-colors">
-            {filteredContent.filter(item => !deletedContentIds.includes(item.id)).length}
-          </span>
-        </div>
-        <div 
-          onClick={() => setIsViewsModalOpen(true)}
-          className="bg-white/50 backdrop-blur-sm p-4 md:p-5 rounded-[2rem] border border-gray-100 flex flex-col group hover:bg-white hover:shadow-xl hover:shadow-emerald-100/20 transition-all duration-500 cursor-pointer"
-        >
-          <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
-            <TrendingUp className="h-3 w-3 text-emerald-400" /> Vistas (Clic para ver historial)
-          </span>
-          <span className="text-xl md:text-2xl font-black text-emerald-600 group-hover:text-emerald-700 transition-colors">
-            {filteredContent.filter(item => !deletedContentIds.includes(item.id)).reduce((sum, item) => sum + (item.views || 0), 0).toLocaleString()}
-          </span>
-        </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
+        {isLoading ? (
+          <>
+            <div className="bg-white/50 backdrop-blur-sm p-4 md:p-5 rounded-[2rem] border border-gray-100 flex flex-col gap-2">
+              <Skeleton className="h-2 w-16" variant="rectangular" />
+              <Skeleton className="h-6 w-24" variant="rectangular" />
+            </div>
+            <div className="bg-white/50 backdrop-blur-sm p-4 md:p-5 rounded-[2rem] border border-gray-100 flex flex-col gap-2">
+              <Skeleton className="h-2 w-16" variant="rectangular" />
+              <Skeleton className="h-6 w-24" variant="rectangular" />
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="bg-white/50 backdrop-blur-sm p-4 md:p-5 rounded-[2rem] border border-gray-100 flex flex-col group hover:bg-white hover:shadow-xl hover:shadow-indigo-100/20 transition-all duration-500">
+              <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                <Youtube className="h-3 w-3 text-indigo-400" /> Videos
+              </span>
+              <span className="text-xl md:text-2xl font-black text-gray-900 group-hover:text-indigo-600 transition-colors">
+                {filteredContent.filter(item => !deletedContentIds.includes(item.id)).length}
+              </span>
+            </div>
+            <div 
+              onClick={() => setIsViewsModalOpen(true)}
+              className="bg-white/50 backdrop-blur-sm p-4 md:p-5 rounded-[2rem] border border-gray-100 flex flex-col group hover:bg-white hover:shadow-xl hover:shadow-emerald-100/20 transition-all duration-500 cursor-pointer"
+            >
+              <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                <TrendingUp className="h-3 w-3 text-emerald-400" /> Vistas (Clic para ver historial)
+              </span>
+              <span className="text-xl md:text-2xl font-black text-emerald-600 group-hover:text-emerald-700 transition-colors">
+                {filteredContent.filter(item => !deletedContentIds.includes(item.id)).reduce((sum, item) => sum + (item.views || 0), 0).toLocaleString()}
+              </span>
+            </div>
+          </>
+        )}
+      </div>
       </div>
 
       <div className={
@@ -239,7 +259,14 @@ const ContentTab: React.FC<ContentTabProps> = ({
         viewMode === 'gallery' ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4" :
         "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
       }>
-        {filteredContent
+        {isLoading ? (
+          <>
+            <CardSkeleton />
+            <CardSkeleton />
+            <CardSkeleton />
+            <CardSkeleton />
+          </>
+        ) : filteredContent
           .filter(item => !deletedContentIds.includes(item.id))
           .filter(item => {
             if (!searchTerm) return true;
@@ -247,6 +274,7 @@ const ContentTab: React.FC<ContentTabProps> = ({
                    item.platform.toLowerCase().includes(searchTerm.toLowerCase());
           })
           .map((item, i) => (
+            // ... (rest of map logic)
             viewMode === 'gallery' ? (
               <motion.div
                 key={item.id}

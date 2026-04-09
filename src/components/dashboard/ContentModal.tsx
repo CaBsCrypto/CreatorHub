@@ -159,7 +159,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
     } else if ((formData.platform === 'discord' || formData.platform === ('baseapp' as any)) && twitchFile) {
        onTwitchUpload(
         twitchFile, formData.creator_id, formData.duration_minutes,
-        0, formData.peek_viewers, formData.views, 0, formData.views,
+        0, formData.peek_viewers, formData.unique_viewers, 0, formData.views,
         0, 0, formData.shares_count, formData.title, formData.campaign_id,
         formData.platform as 'discord' | 'baseapp' as any
       );

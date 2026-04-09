@@ -299,139 +299,134 @@ export default function AdminDashboard() {
 
         <React.Suspense fallback={<TabLoader />}>
 
-        {loading ? (
-          <div className="space-y-8 animate-in fade-in duration-500">
-             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
-                <StatsSkeleton />
-                <StatsSkeleton />
-                <StatsSkeleton />
-                <StatsSkeleton />
-             </div>
-             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <CardSkeleton />
-                <CardSkeleton />
-                <CardSkeleton />
-             </div>
-          </div>
-        ) : (
-          <>
-        {activeTab === 'overview' && (
-          <OverviewTab
-            metrics={metrics}
-            campaigns={campaigns}
-            filteredContent={filteredContent}
-            PLATFORM_COLORS={PLATFORM_COLORS}
-            setActiveTab={setActiveTab}
-            setFilter={setFilter}
-          />
-        )}
+        <React.Suspense fallback={<TabLoader />}>
+          {activeTab === 'overview' && (
+            <OverviewTab
+              metrics={metrics}
+              campaigns={campaigns}
+              filteredContent={filteredContent}
+              PLATFORM_COLORS={PLATFORM_COLORS}
+              setActiveTab={setActiveTab}
+              setFilter={setFilter}
+              isLoading={loading}
+            />
+          )}
 
-        {activeTab === 'campaigns' && (
-          <CampaignsTab
-            campaignStats={campaignStats}
-            onDelete={handleDeleteCampaign}
-            onEdit={handleEditCampaign}
-            setFilters={setFilters}
-            setSelectedCampaignReport={setSelectedCampaignReport}
-            onCopyLink={handleCopyShareLink}
-            onClearNote={handleClearNote}
-          />
-        )}
+          {/* Rest of the tabs handle their own rendering or are shown after loading */}
+          {activeTab === 'campaigns' && !loading && (
+            <CampaignsTab
+              campaignStats={campaignStats}
+              onDelete={handleDeleteCampaign}
+              onEdit={handleEditCampaign}
+              setFilters={setFilters}
+              setSelectedCampaignReport={setSelectedCampaignReport}
+              onCopyLink={handleCopyShareLink}
+              onClearNote={handleClearNote}
+            />
+          )}
 
-        {activeTab === 'creators' && (
-          <CreatorsTab
-            creatorStats={creatorStats}
-            users={users}
-            deletedUserIds={deletedUserIds}
-            searchTerm={searchTerm}
-            setFilter={setFilter}
-            setManagingUser={setManagingUser}
-            setEditingAudienceUser={setEditingAudienceUser}
-          />
-        )}
+          {activeTab === 'creators' && !loading && (
+            <CreatorsTab
+              creatorStats={creatorStats}
+              users={users}
+              deletedUserIds={deletedUserIds}
+              searchTerm={searchTerm}
+              setFilter={setFilter}
+              setManagingUser={setManagingUser}
+              setEditingAudienceUser={setEditingAudienceUser}
+            />
+          )}
 
-        {activeTab === 'content' && (
-          <ContentTab
-            filteredContent={filteredContent}
-            deletedContentIds={deletedContentIds}
-            searchTerm={searchTerm}
-            setFilter={setFilter}
-            viewMode={viewMode}
-            isCompactView={isCompactView}
-            setEditingContent={setEditingContent}
-            setIsContentModalOpen={setIsContentModalOpen}
-            content={content}
-            setIsRefreshing={setIsRefreshing}
-            isRefreshing={isRefreshing}
-            info={info}
-            success={success}
-            toastError={toastError}
-            refresh={refresh}
-            campaigns={campaigns}
-            users={users}
-            setManagingUser={setManagingUser}
-            setDeletedContentIds={setDeletedContentIds}
-            resetFilters={resetFilters}
-            filterCampaign={filterCampaign}
-            filterPlatform={filterPlatform}
-            filterCreator={filterCreator}
-            filterZeroViews={filterZeroViews}
-            setViewingContent={setViewingContent}
-          />
-        )}
+          {activeTab === 'content' && !loading && (
+            <ContentTab
+              filteredContent={filteredContent}
+              deletedContentIds={deletedContentIds}
+              searchTerm={searchTerm}
+              setFilter={setFilter}
+              viewMode={viewMode}
+              isCompactView={isCompactView}
+              setEditingContent={setEditingContent}
+              setIsContentModalOpen={setIsContentModalOpen}
+              content={content}
+              setIsRefreshing={setIsRefreshing}
+              isRefreshing={isRefreshing}
+              info={info}
+              success={success}
+              toastError={toastError}
+              refresh={refresh}
+              campaigns={campaigns}
+              users={users}
+              setManagingUser={setManagingUser}
+              setDeletedContentIds={setDeletedContentIds}
+              resetFilters={resetFilters}
+              filterCampaign={filterCampaign}
+              filterPlatform={filterPlatform}
+              filterCreator={filterCreator}
+              filterZeroViews={filterZeroViews}
+              setViewingContent={setViewingContent}
+            />
+          )}
 
-        {activeTab === 'team' && (
-          <TeamTab
-            filteredUsers={filteredUsers}
-            setManagingUser={setManagingUser}
-          />
-        )}
+          {activeTab === 'team' && !loading && (
+            <TeamTab
+              filteredUsers={filteredUsers}
+              setManagingUser={setManagingUser}
+            />
+          )}
 
-        {activeTab === 'payments' && (
-          <PaymentsTab
-            filteredPayments={filteredPayments}
-            isAddingPayment={isAddingPayment}
-            setIsAddingPayment={setIsAddingPayment}
-            newPayment={newPayment}
-            setNewPayment={setNewPayment}
-            users={users}
-            campaigns={campaigns}
-            refresh={refresh}
-            success={success}
-            toastError={toastError}
-            onSubmit={handleCreatePayment}
-            onViewProfile={(userId) => {
-              const userObj = users.find(u => u.id === userId);
-              if (userObj) setManagingUser(userObj);
-            }}
-          />
-        )}
+          {activeTab === 'payments' && !loading && (
+            <PaymentsTab
+              filteredPayments={filteredPayments}
+              isAddingPayment={isAddingPayment}
+              setIsAddingPayment={setIsAddingPayment}
+              newPayment={newPayment}
+              setNewPayment={setNewPayment}
+              users={users}
+              campaigns={campaigns}
+              refresh={refresh}
+              success={success}
+              toastError={toastError}
+              onSubmit={handleCreatePayment}
+              onViewProfile={(userId) => {
+                const userObj = users.find(u => u.id === userId);
+                if (userObj) setManagingUser(userObj);
+              }}
+            />
+          )}
 
-        {activeTab === 'trash' && (
-          <TrashTab 
-            deletedContent={deletedContent}
-            users={users}
-            campaigns={campaigns}
-            success={success}
-            toastError={toastError}
-            refresh={refresh} 
-          />
-        )}
+          {activeTab === 'trash' && !loading && (
+            <TrashTab 
+              deletedContent={deletedContent}
+              users={users}
+              campaigns={campaigns}
+              success={success}
+              toastError={toastError}
+              refresh={refresh} 
+            />
+          )}
 
-        {activeTab === 'activity' && (
-          <ActivityTab
-            groupedLogs={groupedLogs}
-            auditLogs={auditLogs}
-            refresh={refresh}
-            onSelectLog={setSelectedLog}
-          />
-        )}
+          {activeTab === 'activity' && !loading && (
+            <ActivityTab
+              groupedLogs={groupedLogs}
+              auditLogs={auditLogs}
+              refresh={refresh}
+              onSelectLog={setSelectedLog}
+            />
+          )}
 
-        {activeTab === 'scraper' && (
-          <ScraperLogsTab />
-        )}
-          </>
-        )}
+          {activeTab === 'scraper' && !loading && (
+            <ScraperLogsTab />
+          )}
+
+          {loading && activeTab !== 'overview' && (
+            <div className="space-y-8 animate-in fade-in duration-500">
+               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <CardSkeleton />
+                  <CardSkeleton />
+                  <CardSkeleton />
+               </div>
+            </div>
+          )}
         </React.Suspense>
 
       {/* Modals */}

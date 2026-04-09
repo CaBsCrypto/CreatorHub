@@ -1,6 +1,7 @@
 import React from 'react';
 import { Filter, Search, Plus, Users } from 'lucide-react';
 import FilterMenu from './FilterMenu';
+import ScraperHealthWidget from './ScraperHealthWidget';
 
 interface AdminHeaderProps {
   filters: any;
@@ -39,9 +40,14 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({
 
   return (
     <header className="flex flex-col items-start gap-10 mb-16">
-      <div className="animate-in fade-in slide-in-from-left-4 duration-700">
-        <h1 className="text-4xl lg:text-5xl font-black text-gray-900 leading-tight tracking-tight mb-2">Panel de Control</h1>
-        <p className="text-base font-bold text-gray-400 max-w-md">Gestiona la agencia, creadores y campañas activas.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full gap-4 animate-in fade-in slide-in-from-left-4 duration-700">
+        <div>
+          <h1 className="text-4xl lg:text-5xl font-black text-gray-900 leading-tight tracking-tight mb-2">Panel de Control</h1>
+          <p className="text-base font-bold text-gray-400 max-w-md">Gestiona la agencia, creadores y campañas activas.</p>
+        </div>
+        <div className="flex-shrink-0">
+          <ScraperHealthWidget />
+        </div>
       </div>
       
       <div className="flex flex-wrap items-center justify-start gap-4 w-full animate-in fade-in slide-in-from-bottom-4 duration-700 relative">

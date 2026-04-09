@@ -1,6 +1,6 @@
-import React from 'react';
 import { BarChart3 } from 'lucide-react';
 import CampaignCard from './CampaignCard';
+import { CardSkeleton } from './Skeleton';
 
 const CampaignsTab: React.FC<{
   campaignStats: any[];
@@ -11,6 +11,7 @@ const CampaignsTab: React.FC<{
   setSelectedCampaignReport: (id: string) => void;
   onCopyLink: (token: string, e: React.MouseEvent, type?: 'review' | 'slug') => void;
   onClearNote?: (id: string) => void;
+  isLoading?: boolean;
 }> = ({
   campaignStats,
   role = 'admin',
@@ -19,7 +20,8 @@ const CampaignsTab: React.FC<{
   setFilters,
   setSelectedCampaignReport,
   onCopyLink,
-  onClearNote
+  onClearNote,
+  isLoading
 }) => {
   const [searchTerm, setSearchTerm] = React.useState('');
 
@@ -52,7 +54,13 @@ const CampaignsTab: React.FC<{
         </div>
       </div>
 
-      {filteredStats.length === 0 ? (
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <CardSkeleton />
+          <CardSkeleton />
+          <CardSkeleton />
+        </div>
+      ) : filteredStats.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 bg-gray-50/50 rounded-[3rem] border-2 border-dashed border-gray-100">
           <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-sm">
             <BarChart3 className="h-8 w-8 text-gray-200" />
