@@ -215,8 +215,7 @@ const ContentTab: React.FC<ContentTabProps> = ({
       )}
 
       {/* Filtered Content Summary Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {isLoading ? (
           <>
             <div className="bg-white/50 backdrop-blur-sm p-4 md:p-5 rounded-[2rem] border border-gray-100 flex flex-col gap-2">
@@ -251,7 +250,6 @@ const ContentTab: React.FC<ContentTabProps> = ({
             </div>
           </>
         )}
-      </div>
       </div>
 
       <div className={

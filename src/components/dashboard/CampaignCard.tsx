@@ -127,7 +127,7 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
         <div className="flex items-center gap-1.5 text-gray-300 mb-4">
           <Calendar className="h-3 w-3 flex-shrink-0" />
           <span className="text-[9px] font-bold uppercase tracking-wide whitespace-nowrap">
-            {format(new Date(campaign.created_at), 'MMM d, yyyy')}
+            {campaign.created_at ? format(new Date(campaign.created_at), 'MMM d, yyyy') : 'Sin fecha'}
           </span>
         </div>
 

@@ -1,3 +1,4 @@
+import React from 'react';
 import { BarChart3 } from 'lucide-react';
 import CampaignCard from './CampaignCard';
 import { CardSkeleton } from './Skeleton';

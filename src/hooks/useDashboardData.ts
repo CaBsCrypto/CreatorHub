@@ -77,13 +77,13 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
       if (conts.error) throw conts.error;
       if (usrs.error) throw usrs.error;
 
-      setCampaigns(camps.data as Campaign[]);
+      setCampaigns(camps.data || []);
       // Normalize: 'stream' → 'twitch' para que todos los checks existentes funcionen
-      setContent((conts.data as Content[]).map(c => ({
+      setContent((conts.data || []).map(c => ({
         ...c,
         platform: (c.platform === 'stream' ? 'twitch' : c.platform) as Content['platform']
       })));
-      setUsers(usrs.data as UserProfile[]);
+      setUsers(usrs.data || []);
 
       // Fetch payments (admin-only)
       if (role === 'admin') {
@@ -94,10 +94,10 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
           supabase.from('users').select('*').not('deleted_at', 'is', null).order('deleted_at', { ascending: false })
         ]);
 
-        if (payRes.data) setPayments(payRes.data as Payment[]);
-        if (delCont.data) setDeletedContent(delCont.data as Content[]);
-        if (delCamp.data) setDeletedCampaigns(delCamp.data as Campaign[]);
-        if (delUsr.data) setDeletedUsers(delUsr.data as UserProfile[]);
+        setPayments(payRes.data || []);
+        setDeletedContent(delCont.data || []);
+        setDeletedCampaigns(delCamp.data || []);
+        setDeletedUsers(delUsr.data || []);
 
         // Fetch audit logs for admins
         const { data: logs, error: logsError } = await supabase
