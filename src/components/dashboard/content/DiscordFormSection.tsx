@@ -38,42 +38,44 @@ const DiscordFormSection: React.FC<DiscordFormSectionProps> = ({
         />
       </div>
 
-      {/* Large Upload Box (Matching Streams) */}
-      <div 
-        className="relative border border-dashed border-slate-300 rounded-2xl p-6 flex flex-col items-center justify-center hover:border-indigo-400 hover:bg-slate-50/50 transition-all cursor-pointer bg-slate-50/20 group"
-        onClick={() => document.getElementById('discord-upload-modal')?.click()}
-      >
-        {twitchPreview ? (
-          <div className="relative group/img">
-            {twitchFile?.type.startsWith('video') ? (
-               <div className="flex flex-col items-center">
-                 <Monitor className="h-8 w-8 text-indigo-500 mb-2" />
-                 <p className="text-[10px] font-bold text-slate-700">Video Adjuntado</p>
-               </div>
-            ) : (
-              <img src={twitchPreview} alt="Preview" className="max-h-32 rounded-xl border border-slate-100 transition-transform group-hover/img:scale-[1.02]" />
-            )}
-            <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover/img:opacity-100 transition-opacity rounded-xl flex items-center justify-center">
-              <Plus className="h-6 w-6 text-white" />
+      {/* Large Upload Box (Only for Discord) */}
+      {platform === 'discord' && (
+        <div 
+          className="relative border border-dashed border-slate-300 rounded-2xl p-6 flex flex-col items-center justify-center hover:border-indigo-400 hover:bg-slate-50/50 transition-all cursor-pointer bg-slate-50/20 group"
+          onClick={() => document.getElementById('discord-upload-modal')?.click()}
+        >
+          {twitchPreview ? (
+            <div className="relative group/img">
+              {twitchFile?.type.startsWith('video') ? (
+                 <div className="flex flex-col items-center">
+                   <Monitor className="h-8 w-8 text-indigo-500 mb-2" />
+                   <p className="text-[10px] font-bold text-slate-700">Video Adjuntado</p>
+                 </div>
+              ) : (
+                <img src={twitchPreview} alt="Preview" className="max-h-32 rounded-xl border border-slate-100 transition-transform group-hover/img:scale-[1.02]" />
+              )}
+              <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover/img:opacity-100 transition-opacity rounded-xl flex items-center justify-center">
+                <Plus className="h-6 w-6 text-white" />
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center">
-            <Plus className="h-6 w-6 text-slate-300 mb-2 group-hover:text-indigo-500 transition-colors" />
-            <p className="text-[11px] font-semibold text-slate-500 mb-1">
-              {platform === 'baseapp' ? 'Subir video o captura' : 'Subir captura de resultados'}
-            </p>
-            <p className="text-[9px] text-slate-400 uppercase font-bold tracking-widest">PNG, JPG {platform === 'baseapp' && ', MP4'}</p>
-          </div>
-        )}
-        <input
-          type="file"
-          id="discord-upload-modal"
-          className="hidden"
-          accept={platform === 'baseapp' ? "image/*,video/*" : "image/*"}
-          onChange={onFileChange}
-        />
-      </div>
+          ) : (
+            <div className="flex flex-col items-center">
+              <Plus className="h-6 w-6 text-slate-300 mb-2 group-hover:text-indigo-500 transition-colors" />
+              <p className="text-[11px] font-semibold text-slate-500 mb-1">
+                Subir captura de resultados
+              </p>
+              <p className="text-[9px] text-slate-400 uppercase font-bold tracking-widest">PNG, JPG</p>
+            </div>
+          )}
+          <input
+            type="file"
+            id="discord-upload-modal"
+            className="hidden"
+            accept="image/*"
+            onChange={onFileChange}
+          />
+        </div>
+      )}
 
       {/* Metrics Grid (Only for Discord) */}
       {platform === 'discord' && (

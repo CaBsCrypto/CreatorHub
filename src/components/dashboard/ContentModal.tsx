@@ -233,7 +233,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
 
             <div>
               <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-3 ml-1">
-                {(formData.platform as any) === 'stream' ? 'Captura y Resultados' : (formData.platform as any) === 'baseapp' ? 'Video Entregable' : 'URL del Contenido'}
+                {(formData.platform as any) === 'stream' ? 'Captura y Resultados' : 'URL del Contenido'}
               </label>
 
               {(formData.platform as any) === 'stream' ? (
