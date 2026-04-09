@@ -207,7 +207,7 @@ const PublicModals: React.FC<PublicModalsProps> = ({
             />
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              className="relative w-full max-w-lg bg-white border border-gray-100 rounded-[2.5rem] p-6 sm:p-8 shadow-2xl"
+              className="relative w-full max-w-2xl bg-white border border-gray-100 rounded-[2.5rem] p-6 sm:p-8 shadow-2xl"
             >
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
@@ -221,7 +221,7 @@ const PublicModals: React.FC<PublicModalsProps> = ({
                 </button>
               </div>
               <div className="max-h-[50vh] overflow-y-auto pr-2" style={{ scrollbarWidth: 'thin', scrollbarColor: '#e2e8f0 transparent' }}>
-                <div className="text-sm sm:text-base text-gray-600 font-medium leading-relaxed whitespace-pre-wrap border-l-4 border-indigo-100 pl-6 py-1">
+                <div className="text-sm sm:text-base text-gray-600 font-medium leading-relaxed whitespace-pre-wrap break-words border-l-4 border-indigo-100 pl-6 py-1">
                   {campaign.notes}
                 </div>
               </div>
