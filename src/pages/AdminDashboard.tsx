@@ -298,8 +298,6 @@ export default function AdminDashboard() {
         />
 
         <React.Suspense fallback={<TabLoader />}>
-
-        <React.Suspense fallback={<TabLoader />}>
           {activeTab === 'overview' && (
             <OverviewTab
               metrics={metrics}

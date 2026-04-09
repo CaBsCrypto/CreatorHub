@@ -176,7 +176,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
       <div className="relative w-full max-w-lg rounded-[2rem] bg-white p-6 sm:p-8 shadow-xl ring-1 ring-slate-100 animate-in zoom-in-95 slide-in-from-bottom-10 overflow-y-auto max-h-[min(90vh,calc(100vh-2rem))]">
         <div className="flex justify-between items-start mb-4">
           <div>
-            <h2 className="text-xl font-bold text-slate-900">{editingContent ? 'Editar Contenido' : 'Nuevo Contenido (v1.5 - Discord Sync)'}</h2>
+            <h2 className="text-xl font-bold text-slate-900">{editingContent ? 'Editar Contenido' : 'Nuevo Contenido'}</h2>
             <p className="text-xs font-medium text-slate-500 mt-0.5">{editingContent ? 'Actualiza los detalles' : 'Vincula una nueva publicación'}</p>
           </div>
           <button onClick={onClose} className="p-2 rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-50 transition-all shadow-sm ring-1 ring-slate-100">
