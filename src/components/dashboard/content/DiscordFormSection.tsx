@@ -62,6 +62,89 @@ const DiscordFormSection: React.FC<DiscordFormSectionProps> = ({
         </div>
       </div>
       
+      {/* Métricas de la Jornada */}
+      <div className="p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100/50 space-y-3">
+        <div className="flex items-center gap-2 mb-1">
+          <DiscordIcon className="h-3.5 w-3.5 text-indigo-600" />
+          <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Métricas de la Jornada</span>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-2">
+          <div className="bg-white border border-indigo-100 rounded-xl p-2.5 shadow-sm">
+            <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
+              Duración Total
+            </label>
+            <div className="flex gap-1 items-center">
+              <input
+                type="number"
+                placeholder="H"
+                value={Math.floor((formData.duration_minutes || 0) / 60) || ''}
+                onChange={(e) => {
+                  const h = parseInt(e.target.value) || 0;
+                  const m = (formData.duration_minutes || 0) % 60;
+                  setFormData({ ...formData, duration_minutes: (h * 60) + m });
+                }}
+                className="w-full bg-slate-50/50 py-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-slate-700 font-mono"
+              />
+              <span className="text-indigo-200 font-bold">:</span>
+              <input
+                type="number"
+                placeholder="M"
+                max="59"
+                value={(formData.duration_minutes || 0) % 60 || ''}
+                onChange={(e) => {
+                  const h = Math.floor((formData.duration_minutes || 0) / 60);
+                  const m = parseInt(e.target.value) || 0;
+                  setFormData({ ...formData, duration_minutes: (h * 60) + m });
+                }}
+                className="w-full bg-slate-50/50 py-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-slate-700 font-mono"
+              />
+            </div>
+          </div>
+          
+          <div className="bg-white border border-indigo-100 rounded-xl p-2.5 shadow-sm">
+            <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
+              Usu. Únicos
+            </label>
+            <input
+              type="number"
+              value={formData.unique_viewers || ''}
+              onChange={(e) => setFormData({ ...formData, unique_viewers: parseInt(e.target.value) || 0 })}
+              className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700 font-mono"
+              placeholder="0"
+            />
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-2">
+          <div className="bg-white border border-indigo-100 rounded-xl p-2.5 shadow-sm">
+            <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
+              Usu. Simultáneos
+            </label>
+            <input
+              type="number"
+              value={formData.peek_viewers || ''}
+              onChange={(e) => setFormData({ ...formData, peek_viewers: parseInt(e.target.value) || 0 })}
+              className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700 font-mono"
+              placeholder="0"
+            />
+          </div>
+          
+          <div className="bg-white border border-indigo-100 rounded-xl p-2.5 shadow-sm">
+            <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
+              Pantallas Comp.
+            </label>
+            <input
+              type="number"
+              value={formData.shares_count || ''}
+              onChange={(e) => setFormData({ ...formData, shares_count: parseInt(e.target.value) || 0 })}
+              className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700 font-mono"
+              placeholder="0"
+            />
+          </div>
+        </div>
+      </div>
+      
       {twitchPreview && (
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
@@ -84,85 +167,6 @@ const DiscordFormSection: React.FC<DiscordFormSectionProps> = ({
             </button>
           </div>
         </motion.div>
-      )}
-      
-      {(platform === 'discord' || platform === 'baseapp') && (
-        <div className="p-3 bg-slate-50/50 rounded-2xl border border-slate-100">
-          <div className="grid grid-cols-2 gap-2 mb-2">
-            <div className="bg-white border border-slate-200 rounded-xl p-2.5">
-              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
-                Duración
-              </label>
-              <div className="flex gap-1 items-center">
-                <input
-                  type="number"
-                  placeholder="H"
-                  value={Math.floor((formData.duration_minutes || 0) / 60) || ''}
-                  onChange={(e) => {
-                    const h = parseInt(e.target.value) || 0;
-                    const m = (formData.duration_minutes || 0) % 60;
-                    setFormData({ ...formData, duration_minutes: (h * 60) + m });
-                  }}
-                  className="w-full bg-slate-50/50 py-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-slate-700"
-                />
-                <span className="text-slate-300 font-bold">:</span>
-                <input
-                  type="number"
-                  placeholder="M"
-                  max="59"
-                  value={(formData.duration_minutes || 0) % 60 || ''}
-                  onChange={(e) => {
-                    const h = Math.floor((formData.duration_minutes || 0) / 60);
-                    const m = parseInt(e.target.value) || 0;
-                    setFormData({ ...formData, duration_minutes: (h * 60) + m });
-                  }}
-                  className="w-full bg-slate-50/50 py-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-slate-700"
-                />
-              </div>
-            </div>
-            
-            <div className="bg-white border border-slate-200 rounded-xl p-2.5">
-              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
-                Usu. Únicos
-              </label>
-              <input
-                type="number"
-                value={formData.unique_viewers || ''}
-                onChange={(e) => setFormData({ ...formData, unique_viewers: parseInt(e.target.value) || 0 })}
-                className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
-                placeholder="0"
-              />
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-2">
-            <div className="bg-white border border-slate-200 rounded-xl p-2.5">
-              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
-                Simultáneos
-              </label>
-              <input
-                type="number"
-                value={formData.peek_viewers || ''}
-                onChange={(e) => setFormData({ ...formData, peek_viewers: parseInt(e.target.value) || 0 })}
-                className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
-                placeholder="0"
-              />
-            </div>
-            
-            <div className="bg-white border border-slate-200 rounded-xl p-2.5">
-              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
-                Pantallas Comp.
-              </label>
-              <input
-                type="number"
-                value={formData.shares_count || ''}
-                onChange={(e) => setFormData({ ...formData, shares_count: parseInt(e.target.value) || 0 })}
-                className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
-                placeholder="0"
-              />
-            </div>
-          </div>
-        </div>
       )}
 
       <div className="relative group">

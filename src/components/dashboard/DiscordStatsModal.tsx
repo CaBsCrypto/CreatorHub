@@ -29,7 +29,7 @@ const DiscordStatsModal: React.FC<DiscordStatsModalProps> = ({ isOpen, onClose, 
     },
     { 
       label: 'Usuarios Únicos', 
-      value: (session.views || 0).toLocaleString(), 
+      value: (session.unique_viewers || 0).toLocaleString(), 
       icon: Activity, 
       color: 'text-emerald-600', 
       bg: 'bg-emerald-50' 

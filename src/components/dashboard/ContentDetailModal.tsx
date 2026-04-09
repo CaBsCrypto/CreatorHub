@@ -136,6 +136,35 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
                   );
                 }
 
+                if (item.platform === 'discord') {
+                  return (
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-indigo-50/50 border border-indigo-100 rounded-2xl p-5 shadow-sm">
+                          <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2 flex items-center gap-2"><Clock className="h-4 w-4" /> Duración Total</p>
+                          <p className="text-2xl font-black text-slate-900">
+                            {Math.floor((item.duration_minutes || 0) / 60)}h {(item.duration_minutes || 0) % 60}m
+                          </p>
+                        </div>
+                        <div className="bg-indigo-50/50 border border-indigo-100 rounded-2xl p-5 shadow-sm">
+                          <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2 flex items-center gap-2"><Users className="h-4 w-4" /> Usu. Únicos</p>
+                          <p className="text-2xl font-black text-slate-900">{(item.unique_viewers || 0).toLocaleString()}</p>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-indigo-50/50 border border-indigo-100 rounded-2xl p-5 shadow-sm">
+                          <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2 flex items-center gap-2"><TrendingUp className="h-4 w-4" /> Usu. Simultáneos</p>
+                          <p className="text-2xl font-black text-slate-900">{(item.peek_viewers || 0).toLocaleString()}</p>
+                        </div>
+                        <div className="bg-indigo-50/50 border border-indigo-100 rounded-2xl p-5 shadow-sm">
+                          <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2 flex items-center gap-2"><Monitor className="h-4 w-4" /> Pantallas Comp.</p>
+                          <p className="text-2xl font-black text-slate-900">{(item.shares_count || 0).toLocaleString()}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+
                 return (
                   <div className="grid grid-cols-2 gap-4">
                     <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5 shadow-sm">
