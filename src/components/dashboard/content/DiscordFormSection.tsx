@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Globe, ImageIcon, X, ExternalLink } from 'lucide-react';
+import { Globe, ImageIcon, X, ExternalLink, Plus, Monitor } from 'lucide-react';
 import DiscordIcon from '../../icons/DiscordIcon';
 
 interface DiscordFormSectionProps {
@@ -26,6 +26,7 @@ const DiscordFormSection: React.FC<DiscordFormSectionProps> = ({
 }) => {
   return (
     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-400 mb-5">
+      {/* Title Section */}
       <div className="relative group">
         <input
           type="text"
@@ -33,44 +34,51 @@ const DiscordFormSection: React.FC<DiscordFormSectionProps> = ({
           value={formData.title}
           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
           placeholder={platform === 'baseapp' ? "Título del Video (ej. Demo 1)" : "Título de la Jornada (ej. Torneo #1)"}
-          className="block w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50/30 text-sm font-semibold text-slate-700 focus:ring-1 focus:ring-indigo-500 focus:bg-white transition-all placeholder:text-slate-400 outline-none"
+          className="block w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/30 text-sm font-semibold text-slate-700 focus:ring-1 focus:ring-indigo-500 focus:bg-white transition-all placeholder:text-slate-400 outline-none"
         />
-        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-          {platform === 'baseapp' ? <Globe className="h-4 w-4 text-slate-300" /> : <DiscordIcon className="h-4 w-4 text-slate-300" />}
-        </div>
-        
-        {/* Subtle Captura Button */}
-        <div className="absolute inset-y-0 right-0 pr-1.5 flex items-center">
-          <button
-            type="button"
-            onClick={() => document.getElementById('discord-upload')?.click()}
-            className={`group/btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all active:scale-95 ${twitchFile ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm' : 'bg-white border-slate-200 text-slate-400 hover:text-indigo-600 hover:border-indigo-200'}`}
-            title={platform === 'baseapp' ? "Subir video/captura" : "Adjuntar captura de resultados"}
-          >
-            <ImageIcon className={`h-3.5 w-3.5 ${twitchFile ? 'text-indigo-100' : 'group-hover/btn:text-indigo-500'}`} />
-            <span className="text-[9px] font-black uppercase tracking-wider">
-              {twitchFile ? 'Listo' : platform === 'baseapp' ? 'Subir' : 'Captura'}
-            </span>
-          </button>
-          <input
-            type="file"
-            id="discord-upload"
-            className="hidden"
-            accept={platform === 'baseapp' ? "image/*,video/*" : "image/*"}
-            onChange={onFileChange}
-          />
-        </div>
       </div>
-      
-      {/* Métricas de la Jornada */}
-      <div className="p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100/50 space-y-3">
-        <div className="flex items-center gap-2 mb-1">
-          <DiscordIcon className="h-3.5 w-3.5 text-indigo-600" />
-          <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Métricas de la Jornada</span>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-2">
-          <div className="bg-white border border-indigo-100 rounded-xl p-2.5 shadow-sm">
+
+      {/* Large Upload Box (Matching Streams) */}
+      <div 
+        className="relative border border-dashed border-slate-300 rounded-2xl p-6 flex flex-col items-center justify-center hover:border-indigo-400 hover:bg-slate-50/50 transition-all cursor-pointer bg-slate-50/20 group"
+        onClick={() => document.getElementById('discord-upload-modal')?.click()}
+      >
+        {twitchPreview ? (
+          <div className="relative group/img">
+            {twitchFile?.type.startsWith('video') ? (
+               <div className="flex flex-col items-center">
+                 <Monitor className="h-8 w-8 text-indigo-500 mb-2" />
+                 <p className="text-[10px] font-bold text-slate-700">Video Adjuntado</p>
+               </div>
+            ) : (
+              <img src={twitchPreview} alt="Preview" className="max-h-32 rounded-xl border border-slate-100 transition-transform group-hover/img:scale-[1.02]" />
+            )}
+            <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover/img:opacity-100 transition-opacity rounded-xl flex items-center justify-center">
+              <Plus className="h-6 w-6 text-white" />
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center">
+            <Plus className="h-6 w-6 text-slate-300 mb-2 group-hover:text-indigo-500 transition-colors" />
+            <p className="text-[11px] font-semibold text-slate-500 mb-1">
+              {platform === 'baseapp' ? 'Subir video o captura' : 'Subir captura de resultados'}
+            </p>
+            <p className="text-[9px] text-slate-400 uppercase font-bold tracking-widest">PNG, JPG {platform === 'baseapp' && ', MP4'}</p>
+          </div>
+        )}
+        <input
+          type="file"
+          id="discord-upload-modal"
+          className="hidden"
+          accept={platform === 'baseapp' ? "image/*,video/*" : "image/*"}
+          onChange={onFileChange}
+        />
+      </div>
+
+      {/* Metrics Grid (Matching Streams Style) */}
+      <div className="p-3 bg-slate-50/50 rounded-2xl border border-slate-100">
+        <div className="grid grid-cols-2 gap-2 mb-2">
+          <div className="bg-white border border-slate-200 rounded-xl p-2.5">
             <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
               Duración Total
             </label>
@@ -84,9 +92,9 @@ const DiscordFormSection: React.FC<DiscordFormSectionProps> = ({
                   const m = (formData.duration_minutes || 0) % 60;
                   setFormData({ ...formData, duration_minutes: (h * 60) + m });
                 }}
-                className="w-full bg-slate-50/50 py-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-slate-700 font-mono"
+                className="w-full bg-slate-50/50 py-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-slate-700"
               />
-              <span className="text-indigo-200 font-bold">:</span>
+              <span className="text-slate-300 font-bold">:</span>
               <input
                 type="number"
                 placeholder="M"
@@ -97,27 +105,12 @@ const DiscordFormSection: React.FC<DiscordFormSectionProps> = ({
                   const m = parseInt(e.target.value) || 0;
                   setFormData({ ...formData, duration_minutes: (h * 60) + m });
                 }}
-                className="w-full bg-slate-50/50 py-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-slate-700 font-mono"
+                className="w-full bg-slate-50/50 py-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-slate-700"
               />
             </div>
           </div>
           
-          <div className="bg-white border border-indigo-100 rounded-xl p-2.5 shadow-sm">
-            <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
-              Usu. Únicos
-            </label>
-            <input
-              type="number"
-              value={formData.unique_viewers || ''}
-              onChange={(e) => setFormData({ ...formData, unique_viewers: parseInt(e.target.value) || 0 })}
-              className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700 font-mono"
-              placeholder="0"
-            />
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-2">
-          <div className="bg-white border border-indigo-100 rounded-xl p-2.5 shadow-sm">
+          <div className="bg-white border border-slate-200 rounded-xl p-2.5">
             <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
               Usu. Simultáneos
             </label>
@@ -125,12 +118,27 @@ const DiscordFormSection: React.FC<DiscordFormSectionProps> = ({
               type="number"
               value={formData.peek_viewers || ''}
               onChange={(e) => setFormData({ ...formData, peek_viewers: parseInt(e.target.value) || 0 })}
-              className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700 font-mono"
+              className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
+              placeholder="0"
+            />
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-2">
+          <div className="bg-white border border-slate-200 rounded-xl p-2.5">
+            <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
+              Usu. Únicos
+            </label>
+            <input
+              type="number"
+              value={formData.unique_viewers || ''}
+              onChange={(e) => setFormData({ ...formData, unique_viewers: parseInt(e.target.value) || 0 })}
+              className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
               placeholder="0"
             />
           </div>
           
-          <div className="bg-white border border-indigo-100 rounded-xl p-2.5 shadow-sm">
+          <div className="bg-white border border-slate-200 rounded-xl p-2.5">
             <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
               Pantallas Comp.
             </label>
@@ -138,40 +146,17 @@ const DiscordFormSection: React.FC<DiscordFormSectionProps> = ({
               type="number"
               value={formData.shares_count || ''}
               onChange={(e) => setFormData({ ...formData, shares_count: parseInt(e.target.value) || 0 })}
-              className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700 font-mono"
+              className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
               placeholder="0"
             />
           </div>
         </div>
       </div>
-      
-      {twitchPreview && (
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="relative w-full aspect-video rounded-2xl overflow-hidden border border-slate-100 shadow-sm transition-all"
-        >
-          {twitchFile?.type.startsWith('video') ? (
-            <video src={twitchPreview} className="w-full h-full object-cover" controls />
-          ) : (
-            <img src={twitchPreview} alt="Preview" className="w-full h-full object-cover" />
-          )}
-          <div className="absolute top-2 right-2 flex gap-2">
-            <button 
-              type="button"
-              onClick={() => { setTwitchFile(null); setTwitchPreview(null); }}
-              className="bg-slate-900/40 backdrop-blur-md hover:bg-red-500 text-white p-1.5 rounded-lg transition-all"
-              title="Eliminar"
-            >
-              <X className="h-3.5 w-3.5" />
-            </button>
-          </div>
-        </motion.div>
-      )}
 
+      {/* Optional Link Section */}
       <div className="relative group">
         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-          <ExternalLink className="h-4 w-4 text-slate-300 transition-colors" />
+          <ExternalLink className="h-4 w-4 text-slate-300" />
         </div>
         <input
           type="url"
