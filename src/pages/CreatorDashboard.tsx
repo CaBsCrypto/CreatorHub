@@ -25,7 +25,6 @@ import ContentCard, { ContentItem } from '../components/dashboard/ContentCard';
 import PaymentModal from '../components/dashboard/PaymentModal';
 import ContentModal from '../components/dashboard/ContentModal';
 import ContentDetailModal from '../components/dashboard/ContentDetailModal';
-import DiscordStatsModal from '../components/dashboard/DiscordStatsModal';
 import CampaignsTab from '../components/dashboard/CampaignsTab';
 import Skeleton, { StatsSkeleton, CardSkeleton } from '../components/dashboard/Skeleton';
 import { DiscordSessionEvent } from '../supabase';
@@ -467,15 +466,9 @@ export default function CreatorDashboard() {
         </div>
       )}
 
-      {viewingContent?.platform === 'discord' ? (
-        <DiscordStatsModal
-          isOpen={!!viewingContent}
-          onClose={() => setViewingContent(null)}
-          session={viewingContent as any}
-        />
-      ) : (
+      {viewingContent && (
         <ContentDetailModal 
-          isOpen={!!viewingContent}
+          isOpen={true}
           onClose={() => setViewingContent(null)}
           item={viewingContent}
         />
