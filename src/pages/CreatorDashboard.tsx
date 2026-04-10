@@ -364,8 +364,8 @@ export default function CreatorDashboard() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.03 }}
                   onClick={() => {
-                    const isStream = item.platform === 'twitch' || (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0) || item.platform === 'discord';
-                    if (isStream) setViewingContent(item as any);
+                    const isPopup = item.platform === 'twitch' || item.platform === 'discord' || item.platform === 'baseapp' || (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0);
+                    if (isPopup) setViewingContent(item as any);
                     else window.open(item.url, '_blank');
                   }}
                   className="group bg-white p-4 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 cursor-pointer"

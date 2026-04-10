@@ -315,8 +315,8 @@ const ContentTab: React.FC<ContentTabProps> = ({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.03 }}
                 onClick={() => {
-                  const isStream = item.platform === 'twitch' || (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0);
-                  if (isStream) setViewingContent(item as any);
+                  const isPopup = item.platform === 'twitch' || item.platform === 'discord' || item.platform === 'baseapp' || (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0);
+                  if (isPopup) setViewingContent(item as any);
                   else window.open(item.url, '_blank');
                 }}
                 className="bg-white px-6 py-4 rounded-2xl border border-gray-100 flex items-center hover:border-indigo-100 hover:shadow-lg transition-all group gap-8 cursor-pointer active:scale-[0.99]"
