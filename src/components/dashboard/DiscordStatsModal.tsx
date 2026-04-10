@@ -104,6 +104,21 @@ const DiscordStatsModal: React.FC<DiscordStatsModalProps> = ({ isOpen, onClose, 
               </motion.div>
             ))}
           </div>
+          
+          {/* Session Description (New) */}
+          {session.description && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-10 p-6 bg-slate-50/50 rounded-3xl border border-slate-100 relative overflow-hidden"
+            >
+              <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500" />
+              <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2 px-1">Notas de la Jornada</p>
+              <p className="text-sm font-medium text-slate-700 leading-relaxed italic px-1">
+                "{session.description}"
+              </p>
+            </motion.div>
+          )}
 
           {/* Thumbnail / Capture View */}
           {session.thumbnail && (

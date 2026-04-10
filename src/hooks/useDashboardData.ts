@@ -79,10 +79,21 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
 
       setCampaigns(camps.data || []);
       // Normalize: 'stream' → 'twitch' para que todos los checks existentes funcionen
-      setContent((conts.data || []).map(c => ({
-        ...c,
-        platform: (c.platform === 'stream' ? 'twitch' : c.platform) as Content['platform']
-      })));
+      setContent((conts.data || []).map(c => {
+        const platform = (c.platform === 'stream' ? 'twitch' : c.platform) as Content['platform'];
+        let views = c.views || 0;
+        
+        // Normalize views for Discord/BaseApp/Streams where views might be 0 but we have other metrics
+        if (views === 0 && (platform === 'discord' || platform === 'baseapp' || platform === 'twitch')) {
+          views = Math.max(c.unique_viewers || 0, c.peek_viewers || 0);
+        }
+
+        return {
+          ...c,
+          platform,
+          views
+        };
+      }));
       setUsers(usrs.data || []);
 
       // Fetch payments (admin-only)

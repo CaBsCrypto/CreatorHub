@@ -83,7 +83,7 @@ export default function PublicReview() {
         setCampaign(campaignData);
 
         const { data: contentData, error: contentError } = await supabase
-          .from('content').select('*').eq('campaign_id', campaignData.id).eq('status', 'active');
+          .from('content').select('*').eq('campaign_id', campaignData.id).eq('status', 'active').is('deleted_at', null);
         if (contentError) throw contentError;
         setContent(contentData || []);
 

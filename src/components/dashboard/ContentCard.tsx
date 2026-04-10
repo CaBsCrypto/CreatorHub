@@ -8,6 +8,7 @@ export interface ContentItem {
   platform: 'youtube' | 'instagram' | 'tiktok' | 'x' | 'coinmarketcap' | 'twitch' | 'discord' | 'baseapp';
   url: string;
   title: string | null;
+  description?: string | null;
   thumbnail: string | null;
   views: number;
   likes: number;

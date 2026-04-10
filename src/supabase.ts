@@ -77,6 +77,7 @@ export interface Content {
   platform: 'youtube' | 'instagram' | 'tiktok' | 'x' | 'coinmarketcap' | 'twitch' | 'stream' | 'discord' | 'baseapp';
   url: string;
   title: string | null;
+  description?: string | null;
   thumbnail: string | null;
   views: number;
   likes: number;

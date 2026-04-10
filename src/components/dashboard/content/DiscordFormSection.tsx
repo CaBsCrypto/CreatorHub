@@ -38,6 +38,17 @@ const DiscordFormSection: React.FC<DiscordFormSectionProps> = ({
         />
       </div>
 
+      {/* Description Section (New) */}
+      <div className="relative group">
+        <textarea
+          value={formData.description || ''}
+          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          placeholder="Descripción / Notas de la sesión (ej. Resultados del evento, detalles del ganador...)"
+          rows={3}
+          className="block w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/30 text-sm font-semibold text-slate-700 focus:ring-1 focus:ring-indigo-500 focus:bg-white transition-all placeholder:text-slate-400 outline-none resize-none"
+        />
+      </div>
+
       {/* Large Upload Box (Only for Discord) */}
       {platform === 'discord' && (
         <div 

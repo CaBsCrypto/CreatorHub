@@ -85,7 +85,7 @@ export default function CampaignReportModal({
 
   const campaignContent = useMemo(() => {
     if (!campaign) return [];
-    let filtered = content.filter(c => c.campaign_id === campaign.id);
+    let filtered = content.filter(c => c.campaign_id === campaign.id && !c.deleted_at);
     if (filterPlatform !== 'all') {
       filtered = filtered.filter(c => c.platform === filterPlatform);
     }

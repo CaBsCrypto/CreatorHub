@@ -42,7 +42,8 @@ const ContentModal: React.FC<ContentModalProps> = ({
     new_subscriptions: 0,
     avg_duration_minutes: 0,
     shares_count: 0,
-    guest_name: ''
+    guest_name: '',
+    description: ''
   });
 
   const [twitchFile, setTwitchFile] = React.useState<File | null>(null);
@@ -105,7 +106,8 @@ const ContentModal: React.FC<ContentModalProps> = ({
         new_subscriptions: editingContent.new_subscriptions || 0,
         avg_duration_minutes: editingContent.avg_duration_minutes || 0,
         shares_count: editingContent.shares_count || 0,
-        guest_name: editingContent.guest_name || ''
+        guest_name: editingContent.guest_name || '',
+        description: editingContent.description || ''
       });
     } else {
       setStreamPlatform('twitch');
@@ -113,7 +115,8 @@ const ContentModal: React.FC<ContentModalProps> = ({
         campaign_id: '', creator_id: '', platform: 'youtube', url: '', title: '',
         views: 0, likes: 0, comments: 0, peek_viewers: 0, duration_minutes: 0,
         average_viewers: 0, unique_chatters: 0, unique_viewers: 0, followers: 0,
-        new_subscriptions: 0, avg_duration_minutes: 0, shares_count: 0, guest_name: ''
+        new_subscriptions: 0, avg_duration_minutes: 0, shares_count: 0, guest_name: '',
+        description: ''
       });
     }
   }, [editingContent, isOpen]);
