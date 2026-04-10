@@ -390,19 +390,15 @@ export default function CreatorDashboard() {
 
                   <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto px-1 sm:px-0">
                     <div className="flex items-center gap-8">
-                      <div className="flex flex-col items-end">
-                        <span className="text-base font-black text-gray-900 leading-none">{(item.views ?? 0).toLocaleString()}</span>
-                        <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest mt-0.5">Vistas</span>
+                      <div className="flex flex-col items-end w-24 shrink-0">
+                        <span className="text-xl font-black text-gray-900 leading-none">{(item.views ?? 0).toLocaleString()}</span>
+                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-1">Vistas</span>
                       </div>
-                      <div className="flex flex-col items-end">
-                        <span className="text-base font-black text-emerald-600 leading-none">${((item.views || 0) / 1000 * 2.5).toFixed(2)}</span>
-                        <span className="text-[8px] font-black text-emerald-400 uppercase tracking-widest mt-0.5">ROI Est.</span>
-                      </div>
-                      <div className="hidden xl:flex flex-col items-end">
-                        <span className="text-base font-black text-gray-500 leading-none">
+                      <div className="hidden lg:flex flex-col items-end w-24 shrink-0">
+                        <span className="text-sm font-black text-gray-500 leading-none text-right">
                           {item.uploaded_at ? new Date(item.uploaded_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }) : '—'}
                         </span>
-                        <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest mt-0.5">Fecha</span>
+                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-1 text-right">Fecha</span>
                       </div>
                     </div>
                     

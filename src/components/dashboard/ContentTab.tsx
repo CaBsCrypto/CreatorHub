@@ -353,20 +353,15 @@ const ContentTab: React.FC<ContentTabProps> = ({
                 </div>
 
                 <div className="hidden md:flex flex-col items-center w-32 shrink-0">
-                  <p className="text-xs font-black text-gray-900">{(item.views || 0).toLocaleString()}</p>
-                  <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Vistas</p>
+                  <p className="text-xl font-black text-gray-900 leading-none">{(item.views || 0).toLocaleString()}</p>
+                  <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1.5">Vistas</p>
                 </div>
 
                 <div className="hidden lg:flex flex-col items-center w-32 shrink-0">
-                  <p className="text-xs font-black text-emerald-600">${((item.views || 0) / 1000 * 2.5).toFixed(2)}</p>
-                  <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">ROI Est.</p>
-                </div>
-
-                <div className="hidden xl:flex flex-col items-center w-32 shrink-0">
-                  <p className="text-xs font-black text-gray-500">
+                  <p className="text-sm font-black text-gray-500 leading-none">
                     {item.uploaded_at ? new Date(item.uploaded_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }) : '—'}
                   </p>
-                  <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Fecha</p>
+                  <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1.5">Fecha</p>
                 </div>
 
                 <div className="flex items-center gap-3 shrink-0">

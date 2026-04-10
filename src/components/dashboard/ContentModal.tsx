@@ -21,6 +21,48 @@ interface ContentModalProps {
   isProcessing: boolean;
 }
 
+const sanitizeUrl = (url: string, platform: string): string => {
+  if (!url) return url;
+  const cleanUrl = url.trim();
+
+  try {
+    if (platform === 'instagram') {
+      // Handles p/, reels/, reel/, tv/ and URLs with username: instagram.com/user/p/ID
+      const igMatch = cleanUrl.match(/(?:instagram\.com\/(?:[^/]+\/)?(?:p|reels|reel|tv)\/)([A-Za-z0-9_-]+)/);
+      if (igMatch && igMatch[1]) {
+        return `https://www.instagram.com/p/${igMatch[1]}/`;
+      }
+    }
+
+    if (platform === 'youtube') {
+      // Standardize youtu.be and youtube.com/watch
+      const ytMatch = cleanUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/))([^?&/]+)/);
+      if (ytMatch && ytMatch[1]) {
+        return `https://www.youtube.com/watch?v=${ytMatch[1]}`;
+      }
+    }
+
+    if (platform === 'tiktok') {
+      // Standardize tiktok.com/@user/video/ID and strip query params
+      const ttMatch = cleanUrl.match(/(?:tiktok\.com\/@[^/]+\/video\/|tiktok\.com\/t\/|vt\.tiktok\.com\/)([^?&/]+)/);
+      if (ttMatch && ttMatch[1]) {
+        // If it's a short link (t/ or vt.tiktok.com), we can't easily expand it here, 
+        // but we can definitely strip query params from standard links
+        if (cleanUrl.includes('/video/')) {
+           return `https://www.tiktok.com/${cleanUrl.match(/(@[^/]+)/)?.[1] || '@user'}/video/${ttMatch[1]}`;
+        }
+      }
+      // For all TikTok links, at least strip the query parameters
+      return cleanUrl.split('?')[0].split('#')[0];
+    }
+
+    // Default: just strip query parameters for everything else
+    return cleanUrl.split('?')[0].split('#')[0];
+  } catch (e) {
+    return cleanUrl;
+  }
+};
+
 const ContentModal: React.FC<ContentModalProps> = ({ 
   isOpen, onClose, campaigns, users, editingContent, onSubmit, onTwitchUpload, isProcessing 
 }) => {
@@ -146,7 +188,11 @@ const ContentModal: React.FC<ContentModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const finalData = { ...formData };
+    
+    // Sanitize URL before processing
+    const cleanUrl = sanitizeUrl(formData.url, formData.platform);
+    const finalData = { ...formData, url: cleanUrl };
+
     if ((finalData.platform as any) === 'stream') {
       finalData.platform = streamPlatform as any;
     }
