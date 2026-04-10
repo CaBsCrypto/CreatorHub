@@ -398,6 +398,12 @@ export default function CreatorDashboard() {
                         <span className="text-base font-black text-emerald-600 leading-none">${((item.views || 0) / 1000 * 2.5).toFixed(2)}</span>
                         <span className="text-[8px] font-black text-emerald-400 uppercase tracking-widest mt-0.5">ROI Est.</span>
                       </div>
+                      <div className="hidden xl:flex flex-col items-end">
+                        <span className="text-base font-black text-gray-500 leading-none">
+                          {item.uploaded_at ? new Date(item.uploaded_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }) : '—'}
+                        </span>
+                        <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest mt-0.5">Fecha</span>
+                      </div>
                     </div>
                     
                     <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>

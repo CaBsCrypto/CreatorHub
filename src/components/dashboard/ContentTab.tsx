@@ -362,6 +362,13 @@ const ContentTab: React.FC<ContentTabProps> = ({
                   <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">ROI Est.</p>
                 </div>
 
+                <div className="hidden xl:flex flex-col items-center w-32 shrink-0">
+                  <p className="text-xs font-black text-gray-500">
+                    {item.uploaded_at ? new Date(item.uploaded_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }) : '—'}
+                  </p>
+                  <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Fecha</p>
+                </div>
+
                 <div className="flex items-center gap-3 shrink-0">
                   <button
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleRefreshItem(item); }}
