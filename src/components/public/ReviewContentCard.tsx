@@ -23,35 +23,55 @@ const ReviewContentCard: React.FC<ReviewContentCardProps> = ({
   translations
 }) => {
   const isStream = item.platform === 'twitch';
+  const isGamenight = item.platform === 'discord' || item.platform === 'baseapp';
   const platformColors: Record<string, string> = {
     youtube: 'from-rose-600 to-red-700', instagram: 'from-pink-600 to-rose-600',
     tiktok: 'from-gray-800 to-gray-900', x: 'from-sky-600 to-blue-700',
     twitch: 'from-violet-700 to-purple-800', coinmarketcap: 'from-amber-600 to-orange-600',
+    discord: 'from-indigo-600 to-blue-700', baseapp: 'from-blue-600 to-indigo-700'
   };
   const gradient = platformColors[item.platform] || 'from-indigo-600 to-blue-700';
 
   return (
     <motion.a
-      href={isStream ? '#' : item.url}
-      onClick={(e) => { if (isStream && item.thumbnail) { e.preventDefault(); onStreamClick(item.thumbnail); } }}
-      target={isStream ? undefined : '_blank'}
+      href={(isStream || isGamenight) ? '#' : item.url}
+      onClick={(e) => { 
+        if ((isStream || isGamenight) && item.thumbnail) { 
+          e.preventDefault(); 
+          onStreamClick(item.thumbnail!); 
+        } 
+      }}
+      target={(isStream || isGamenight) ? undefined : '_blank'}
       rel="noopener noreferrer"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.025 }}
-      className="bg-white border border-gray-100 rounded-xl overflow-hidden group hover:border-indigo-100 hover:shadow-2xl hover:shadow-indigo-500/5 transition-all duration-300 flex flex-col cursor-pointer"
+      className={`bg-white rounded-xl overflow-hidden group hover:shadow-2xl transition-all duration-300 flex flex-col cursor-pointer ${
+        isGamenight 
+          ? 'ring-2 ring-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.2)] border-none' 
+          : 'border border-gray-100 hover:border-indigo-100 hover:shadow-indigo-500/5'
+      }`}
     >
       {/* Thumbnail / Color Bar */}
-      {isStream && item.thumbnail ? (
-        <div className="relative h-16 overflow-hidden flex-shrink-0 bg-gray-100">
-          <img src={getProxiedUrl(item.thumbnail, 'https://cdn-icons-png.flaticon.com/512/174/174855.png')} alt={item.title || 'Stream'} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500" />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent" />
-          <span className="absolute top-1.5 right-1.5 px-1 py-0.5 bg-indigo-600 text-white text-[6px] font-black uppercase tracking-wider rounded">STREAM</span>
+      {(isStream || isGamenight) && item.thumbnail ? (
+        <div className="relative h-16 overflow-hidden flex-shrink-0 bg-slate-900 border-b border-white/5">
+          <img src={getProxiedUrl(item.thumbnail, 'https://cdn-icons-png.flaticon.com/512/174/174855.png')} alt={item.title || 'Stream'} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500 opacity-80" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
+          <span className={`absolute top-1.5 right-1.5 px-1.5 py-0.5 ${isGamenight ? 'bg-indigo-600 shadow-[0_0_8px_rgba(99,102,241,0.6)]' : 'bg-indigo-600'} text-white text-[6px] font-black uppercase tracking-wider rounded flex items-center gap-1`}>
+            {isGamenight && <div className="w-1 h-1 bg-white rounded-full animate-pulse" />}
+            {isGamenight ? 'GAMENIGHT' : 'STREAM'}
+          </span>
           <div className="absolute bottom-1.5 left-1.5 right-1.5 flex items-end justify-between">
             <div>
-              <p className="text-[6px] font-black text-white/70 uppercase">Views</p>
-              <p className="text-[10px] font-black text-white leading-none">{(item.views || 0).toLocaleString()}</p>
+              <p className="text-[6px] font-black text-white/50 uppercase tracking-tighter">Peak Views</p>
+              <p className="text-[10px] font-black text-white leading-none">{(item.peek_viewers || item.views || 0).toLocaleString()}</p>
             </div>
+            {isGamenight && (item.unique_viewers || 0) > 0 && (
+              <div className="text-right">
+                <p className="text-[6px] font-black text-white/50 uppercase tracking-tighter text-right">Unique</p>
+                <p className="text-[10px] font-black text-indigo-300 leading-none">{(item.unique_viewers || 0).toLocaleString()}</p>
+              </div>
+            )}
           </div>
         </div>
       ) : item.thumbnail ? (
@@ -60,7 +80,7 @@ const ReviewContentCard: React.FC<ReviewContentCardProps> = ({
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
         </div>
       ) : (
-        <div className={`h-1 w-full bg-gradient-to-r ${gradient} flex-shrink-0`} />
+        <div className={`h-1.5 w-full bg-gradient-to-r ${gradient} flex-shrink-0`} />
       )}
 
       <div className="p-2 flex flex-col gap-1 flex-1">

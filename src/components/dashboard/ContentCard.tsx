@@ -50,6 +50,7 @@ const platformConfig = {
 
 const ContentCard: React.FC<ContentCardProps> = ({ item, campaignName, onEdit, onDelete, onClick, index }) => {
   const { icon: PlatformIcon, color: platformColor, bg: platformBg } = platformConfig[item.platform] || { icon: Globe, color: 'text-gray-400', bg: 'from-gray-50 to-white' };
+  const isGamenight = item.platform === 'discord' || item.platform === 'baseapp';
 
   return (
     <motion.div 
@@ -57,7 +58,11 @@ const ContentCard: React.FC<ContentCardProps> = ({ item, campaignName, onEdit, o
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.05 * index }}
       onClick={onClick}
-      className="group relative flex flex-col rounded-[2.5rem] bg-white overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-1 ring-1 ring-gray-100 hover:ring-indigo-100 transition-all duration-500 cursor-pointer"
+      className={`group relative flex flex-col rounded-[2.5rem] bg-white overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 cursor-pointer ${
+        isGamenight 
+          ? 'ring-2 ring-indigo-500 shadow-[0_0_25px_rgba(99,102,241,0.25)]' 
+          : 'ring-1 ring-gray-100 hover:ring-indigo-100'
+      }`}
     >
       {/* Generic Premium Header */}
       <div className={`relative h-32 w-full bg-gradient-to-br ${platformBg} flex items-center justify-center overflow-hidden`}>
@@ -84,6 +89,13 @@ const ContentCard: React.FC<ContentCardProps> = ({ item, campaignName, onEdit, o
             {item.platform === 'twitch' ? 'stream' : item.platform === 'discord' ? 'jornada' : item.platform === 'baseapp' ? 'video' : item.platform}
           </span>
         </div>
+
+        {isGamenight && (
+          <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600/90 backdrop-blur-md text-white rounded-xl shadow-lg border border-white/20 scale-90 origin-top-left animate-in fade-in zoom-in-75 duration-500">
+            <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
+            <span className="text-[10px] font-black uppercase tracking-widest leading-none">GAMENIGHT</span>
+          </div>
+        )}
 
         {/* Action Buttons overlay */}
         <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300 z-[9999]">
