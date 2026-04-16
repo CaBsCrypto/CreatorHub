@@ -6,7 +6,16 @@ interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
   profile: UserProfile | null;
-  onSave: (data: { payment_method: 'binance' | 'wallet', binance_id: string, wallet_address: string, wallet_network: string }) => Promise<void>;
+  onSave: (data: { 
+    payment_method: 'binance' | 'wallet', 
+    binance_id: string, 
+    wallet_address: string, 
+    wallet_network: string,
+    wallet_note: string,
+    wallet_address_2: string,
+    wallet_network_2: string,
+    wallet_2_note: string
+  }) => Promise<void>;
   isSaving: boolean;
 }
 
@@ -17,6 +26,10 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, profile, o
   const [binance_id, setBinanceId] = React.useState(profile?.binance_id || '');
   const [wallet_address, setWalletAddress] = React.useState(profile?.wallet_address || '');
   const [wallet_network, setWalletNetwork] = React.useState(profile?.wallet_network || 'BSC');
+  const [wallet_note, setWalletNote] = React.useState(profile?.wallet_note || '');
+  const [wallet_address_2, setWalletAddress_2] = React.useState(profile?.wallet_address_2 || '');
+  const [wallet_network_2, setWalletNetwork_2] = React.useState(profile?.wallet_network_2 || 'BSC');
+  const [wallet_2_note, setWallet_2_Note] = React.useState(profile?.wallet_2_note || '');
   const [validationError, setValidationError] = React.useState('');
 
   if (!isOpen) return null;
@@ -42,7 +55,16 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, profile, o
       }
     }
 
-    onSave({ payment_method, binance_id, wallet_address, wallet_network });
+    onSave({ 
+      payment_method, 
+      binance_id, 
+      wallet_address, 
+      wallet_network,
+      wallet_note,
+      wallet_address_2,
+      wallet_network_2,
+      wallet_2_note
+    });
   };
 
   return (
@@ -101,26 +123,38 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, profile, o
                   </div>
                 ) : (
                   <div className="animate-in fade-in slide-in-from-top-2 duration-300 space-y-4">
-                    <div>
-                      <label htmlFor="wallet_network" className="block text-sm font-medium leading-6 text-gray-900">Red</label>
-                      <div className="mt-2">
-                        <select
-                          id="wallet_network"
-                          value={wallet_network}
-                          onChange={(e) => setWalletNetwork(e.target.value)}
-                          className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        >
-                          <option value="BSC">BNB Smart Chain (BEP20)</option>
-                          <option value="Polygon">Polygon (MATIC)</option>
-                          <option value="Ethereum">Ethereum (ERC20)</option>
-                          <option value="Solana">Solana (SOL)</option>
-                          <option value="Arbitrum">Arbitrum One</option>
-                        </select>
+                    <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100 space-y-4">
+                      <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Wallet Principal</p>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label htmlFor="wallet_network" className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Red</label>
+                          <select
+                            id="wallet_network"
+                            value={wallet_network}
+                            onChange={(e) => setWalletNetwork(e.target.value)}
+                            className="block w-full rounded-xl border-gray-200 bg-white py-2 px-3 text-sm font-medium focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
+                          >
+                            <option value="BSC">BNB Chain</option>
+                            <option value="Polygon">Polygon</option>
+                            <option value="Ethereum">Ethereum</option>
+                            <option value="Solana">Solana</option>
+                            <option value="Arbitrum">Arbitrum</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label htmlFor="wallet_note" className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Nota (Opcional)</label>
+                          <input
+                            type="text"
+                            id="wallet_note"
+                            value={wallet_note}
+                            onChange={(e) => setWalletNote(e.target.value)}
+                            placeholder="Ej: Personal"
+                            className="block w-full rounded-xl border-gray-200 bg-white py-2 px-3 text-sm font-medium focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
+                          />
+                        </div>
                       </div>
-                    </div>
-                    <div>
-                      <label htmlFor="wallet_address" className="block text-sm font-medium leading-6 text-gray-900">Dirección de Wallet</label>
-                      <div className="mt-2">
+                      <div>
+                        <label htmlFor="wallet_address" className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Dirección</label>
                         <input
                           type="text"
                           id="wallet_address"
@@ -128,7 +162,50 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, profile, o
                           value={wallet_address}
                           onChange={(e) => setWalletAddress(e.target.value)}
                           placeholder="0x..."
-                          className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                          className="block w-full rounded-xl border-gray-200 bg-white py-2 px-3 text-sm font-medium focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100 space-y-4">
+                      <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Wallet Secundaria (Opcional)</p>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label htmlFor="wallet_network_2" className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Red</label>
+                          <select
+                            id="wallet_network_2"
+                            value={wallet_network_2}
+                            onChange={(e) => setWalletNetwork_2(e.target.value)}
+                            className="block w-full rounded-xl border-gray-200 bg-white py-2 px-3 text-sm font-medium focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
+                          >
+                            <option value="BSC">BNB Chain</option>
+                            <option value="Polygon">Polygon</option>
+                            <option value="Ethereum">Ethereum</option>
+                            <option value="Solana">Solana</option>
+                            <option value="Arbitrum">Arbitrum</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label htmlFor="wallet_2_note" className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Nota</label>
+                          <input
+                            type="text"
+                            id="wallet_2_note"
+                            value={wallet_2_note}
+                            onChange={(e) => setWallet_2_Note(e.target.value)}
+                            placeholder="Ej: Ahorros"
+                            className="block w-full rounded-xl border-gray-200 bg-white py-2 px-3 text-sm font-medium focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label htmlFor="wallet_address_2" className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Dirección</label>
+                        <input
+                          type="text"
+                          id="wallet_address_2"
+                          value={wallet_address_2}
+                          onChange={(e) => setWalletAddress_2(e.target.value)}
+                          placeholder="0x..."
+                          className="block w-full rounded-xl border-gray-200 bg-white py-2 px-3 text-sm font-medium focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
                         />
                       </div>
                     </div>

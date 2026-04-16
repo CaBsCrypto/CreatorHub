@@ -80,7 +80,11 @@ export default function CreatorDashboard() {
           payment_method: data.payment_method,
           binance_id: data.binance_id,
           wallet_address: data.wallet_address,
-          wallet_network: data.wallet_network
+          wallet_network: data.wallet_network,
+          wallet_note: data.wallet_note,
+          wallet_address_2: data.wallet_address_2,
+          wallet_network_2: data.wallet_network_2,
+          wallet_2_note: data.wallet_2_note
         })
         .eq('id', user?.id);
       
@@ -299,17 +303,59 @@ export default function CreatorDashboard() {
                     </div>
                   </div>
                   
-                  <div className="space-y-3 mb-6">
+                  <div className="space-y-3 mb-6 max-h-[180px] overflow-y-auto no-scrollbar pr-1">
                     <div className="p-3 bg-gray-50 rounded-2xl border border-gray-100">
-                      <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Método Activo</p>
-                      <p className="text-xs font-black text-gray-900 uppercase">{profile.payment_method === 'binance' ? 'Binance Pay' : 'Crypto Wallet'}</p>
-                    </div>
-                    <div className="p-3 bg-gray-50 rounded-2xl border border-gray-100">
-                      <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Identificador</p>
-                      <p className="text-xs font-medium text-gray-900 truncate">
-                        {profile.payment_method === 'binance' ? profile.binance_id : profile.wallet_address}
+                      <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 flex justify-between">
+                        <span>Método Principal</span>
+                        {profile.wallet_note && <span className="text-indigo-500">{profile.wallet_note}</span>}
                       </p>
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="text-[10px] font-black text-gray-900 uppercase truncate">
+                            {profile.payment_method === 'binance' ? 'Binance Pay' : `${profile.wallet_network}`}
+                          </p>
+                          <p className="text-[10px] font-medium text-gray-500 truncate">
+                            {profile.payment_method === 'binance' ? profile.binance_id : profile.wallet_address}
+                          </p>
+                        </div>
+                        <button 
+                          onClick={() => {
+                            const val = profile.payment_method === 'binance' ? profile.binance_id : profile.wallet_address;
+                            if (val) { navigator.clipboard.writeText(val); success("Copiado!"); }
+                          }}
+                          className="p-1.5 hover:bg-white rounded-lg transition-colors text-gray-400 hover:text-indigo-600"
+                        >
+                          <RefreshCw className="h-3 w-3" />
+                        </button>
+                      </div>
                     </div>
+
+                    {profile.wallet_address_2 && (
+                      <div className="p-3 bg-gray-50 rounded-2xl border border-gray-100 animate-in fade-in slide-in-from-top-2">
+                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 flex justify-between">
+                          <span>Wallet Secundaria</span>
+                          {profile.wallet_2_note && <span className="text-indigo-500">{profile.wallet_2_note}</span>}
+                        </p>
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="min-w-0">
+                            <p className="text-[10px] font-black text-gray-900 uppercase truncate">
+                              {profile.wallet_network_2}
+                            </p>
+                            <p className="text-[10px] font-medium text-gray-500 truncate">
+                              {profile.wallet_address_2}
+                            </p>
+                          </div>
+                          <button 
+                            onClick={() => {
+                              if (profile.wallet_address_2) { navigator.clipboard.writeText(profile.wallet_address_2); success("Copiado!"); }
+                            }}
+                            className="p-1.5 hover:bg-white rounded-lg transition-colors text-gray-400 hover:text-indigo-600"
+                          >
+                            <RefreshCw className="h-3 w-3" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
                 

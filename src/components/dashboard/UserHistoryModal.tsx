@@ -49,7 +49,11 @@ export default function UserHistoryModal({
         payment_method: user.payment_method,
         binance_id: user.binance_id || '',
         wallet_address: user.wallet_address || '',
-        wallet_network: user.wallet_network || ''
+        wallet_network: user.wallet_network || '',
+        wallet_note: user.wallet_note || '',
+        wallet_address_2: user.wallet_address_2 || '',
+        wallet_network_2: user.wallet_network_2 || '',
+        wallet_2_note: user.wallet_2_note || ''
       });
     }
   }, [user]);
@@ -297,18 +301,30 @@ export default function UserHistoryModal({
                     </div>
                   ) : (
                     <>
-                      <div>
-                        <label className="block text-[8px] font-black text-emerald-600/50 uppercase tracking-[0.2em] mb-1">Red</label>
-                        <input 
-                          type="text" 
-                          value={editPaymentData.wallet_network}
-                          onChange={(e) => setEditPaymentData(prev => ({ ...prev, wallet_network: e.target.value }))}
-                          className="w-full px-3 py-2 bg-white border border-emerald-100 rounded-xl text-[10px] font-bold focus:ring-2 focus:ring-emerald-500 outline-none"
-                          placeholder="Ej: Solana, Ethereum"
-                        />
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[8px] font-black text-emerald-600/50 uppercase tracking-[0.2em] mb-1">Red (Principal)</label>
+                          <input 
+                            type="text" 
+                            value={editPaymentData.wallet_network}
+                            onChange={(e) => setEditPaymentData(prev => ({ ...prev, wallet_network: e.target.value }))}
+                            className="w-full px-3 py-2 bg-white border border-emerald-100 rounded-xl text-[10px] font-bold focus:ring-2 focus:ring-emerald-500 outline-none"
+                            placeholder="Ej: Solana"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[8px] font-black text-emerald-600/50 uppercase tracking-[0.2em] mb-1">Nota (Principal)</label>
+                          <input 
+                            type="text" 
+                            value={editPaymentData.wallet_note}
+                            onChange={(e) => setEditPaymentData(prev => ({ ...prev, wallet_note: e.target.value }))}
+                            className="w-full px-3 py-2 bg-white border border-emerald-100 rounded-xl text-[10px] font-bold focus:ring-2 focus:ring-emerald-500 outline-none"
+                            placeholder="Ej: Wallet Principal"
+                          />
+                        </div>
                       </div>
                       <div>
-                        <label className="block text-[8px] font-black text-emerald-600/50 uppercase tracking-[0.2em] mb-1">Dirección</label>
+                        <label className="block text-[8px] font-black text-emerald-600/50 uppercase tracking-[0.2em] mb-1">Dirección (Principal)</label>
                         <input 
                           type="text" 
                           value={editPaymentData.wallet_address}
@@ -319,6 +335,43 @@ export default function UserHistoryModal({
                       </div>
                     </>
                   )}
+
+                  {/* Wallet 2 Section - Always editable if exists or if adding */}
+                  <div className="pt-4 border-t border-emerald-100/50 mt-4">
+                    <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-3">Wallet Secundaria (Opcional)</p>
+                    <div className="grid grid-cols-2 gap-3 mb-3">
+                      <div>
+                        <label className="block text-[8px] font-black text-emerald-600/50 uppercase tracking-[0.2em] mb-1">Red (Secundaria)</label>
+                        <input 
+                          type="text" 
+                          value={editPaymentData.wallet_network_2 || ''}
+                          onChange={(e) => setEditPaymentData(prev => ({ ...prev, wallet_network_2: e.target.value }))}
+                          className="w-full px-3 py-2 bg-white border border-emerald-100 rounded-xl text-[10px] font-bold focus:ring-2 focus:ring-emerald-500 outline-none"
+                          placeholder="Ej: Ethereum"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[8px] font-black text-emerald-600/50 uppercase tracking-[0.2em] mb-1">Nota (Secundaria)</label>
+                        <input 
+                          type="text" 
+                          value={editPaymentData.wallet_2_note || ''}
+                          onChange={(e) => setEditPaymentData(prev => ({ ...prev, wallet_2_note: e.target.value }))}
+                          className="w-full px-3 py-2 bg-white border border-emerald-100 rounded-xl text-[10px] font-bold focus:ring-2 focus:ring-emerald-500 outline-none"
+                          placeholder="Ej: Solo para ETH"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-[8px] font-black text-emerald-600/50 uppercase tracking-[0.2em] mb-1">Dirección (Secundaria)</label>
+                      <input 
+                        type="text" 
+                        value={editPaymentData.wallet_address_2 || ''}
+                        onChange={(e) => setEditPaymentData(prev => ({ ...prev, wallet_address_2: e.target.value }))}
+                        className="w-full px-3 py-2 bg-white border border-emerald-100 rounded-xl text-[10px] font-bold focus:ring-2 focus:ring-emerald-500 outline-none"
+                        placeholder="0x..."
+                      />
+                    </div>
+                  </div>
 
                   <button
                     onClick={async () => {
@@ -367,13 +420,16 @@ export default function UserHistoryModal({
                     </div>
                   ) : (
                     <>
-                      <div>
-                        <p className="text-[8px] font-black text-emerald-600/50 uppercase tracking-[0.2em] mb-1">Red</p>
-                        <p className="text-xs font-black text-emerald-900 uppercase tracking-wider">{user.wallet_network || 'No especificada'}</p>
-                      </div>
-                      <div>
-                        <p className="text-[8px] font-black text-emerald-600/50 uppercase tracking-[0.2em] mb-1">Dirección</p>
-                        <div className="flex items-center justify-between gap-2 p-2 bg-white rounded-lg border border-emerald-100">
+                      <div className="p-3 bg-white rounded-xl border border-emerald-100 relative group/wallet">
+                        <div className="flex justify-between items-start mb-1">
+                          <p className="text-[8px] font-black text-emerald-600/50 uppercase tracking-[0.2em]">Wallet Principal • {user.wallet_network}</p>
+                          {user.wallet_note && (
+                            <span className="text-[7px] font-black px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded-full uppercase tracking-tighter">
+                              {user.wallet_note}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center justify-between gap-2">
                           <code className="text-[10px] font-bold text-emerald-900 truncate">{user.wallet_address}</code>
                           <button 
                             onClick={() => {
@@ -382,12 +438,39 @@ export default function UserHistoryModal({
                                 success("Copiado: " + user.wallet_address);
                               }
                             }}
-                            className="p-1.5 hover:bg-emerald-50 rounded-md transition-colors text-emerald-600"
+                            className="p-1 hover:bg-emerald-50 rounded transition-colors text-emerald-600"
                           >
                             <RefreshCw className="h-3 w-3" />
                           </button>
                         </div>
                       </div>
+
+                      {user.wallet_address_2 && (
+                        <div className="p-3 bg-white rounded-xl border border-emerald-100 relative group/wallet mt-2">
+                          <div className="flex justify-between items-start mb-1">
+                            <p className="text-[8px] font-black text-emerald-600/50 uppercase tracking-[0.2em]">Wallet Secundaria • {user.wallet_network_2}</p>
+                            {user.wallet_2_note && (
+                              <span className="text-[7px] font-black px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded-full uppercase tracking-tighter">
+                                {user.wallet_2_note}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center justify-between gap-2">
+                            <code className="text-[10px] font-bold text-emerald-900 truncate">{user.wallet_address_2}</code>
+                            <button 
+                              onClick={() => {
+                                if (user.wallet_address_2) {
+                                  navigator.clipboard.writeText(user.wallet_address_2);
+                                  success("Copiado: " + user.wallet_address_2);
+                                }
+                              }}
+                              className="p-1 hover:bg-emerald-50 rounded transition-colors text-emerald-600"
+                            >
+                              <RefreshCw className="h-3 w-3" />
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </>
                   )}
                 </div>

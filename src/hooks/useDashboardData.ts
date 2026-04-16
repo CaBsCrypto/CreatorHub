@@ -297,7 +297,7 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
         creator_id: id,
         name: (role === 'admin' && u?.admin_alias) ? u.admin_alias : (u?.display_name || u?.email || 'Unknown'),
         paymentMethod: u?.payment_method,
-        paymentId: u?.payment_method === 'binance' ? u.binance_id : u?.wallet_address,
+        paymentId: u?.payment_method === 'binance' ? u.binance_id : (u?.wallet_address || u?.wallet_address_2),
         rank: getAgencyRank(data.contentCount, data.views),
         totalPaid,
         ...data

@@ -300,7 +300,11 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
         payment_method: data.payment_method,
         binance_id: data.binance_id,
         wallet_address: data.wallet_address,
-        wallet_network: data.wallet_network
+        wallet_network: data.wallet_network,
+        wallet_note: data.wallet_note,
+        wallet_address_2: data.wallet_address_2,
+        wallet_network_2: data.wallet_network_2,
+        wallet_2_note: data.wallet_2_note
       })
       .eq('id', userId);
       

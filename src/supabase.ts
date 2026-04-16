@@ -45,6 +45,10 @@ export interface UserProfile {
   binance_id: string | null;
   wallet_address: string | null;
   wallet_network: string | null;
+  wallet_note?: string | null;
+  wallet_address_2?: string | null;
+  wallet_network_2?: string | null;
+  wallet_2_note?: string | null;
   admin_alias?: string | null; // Nickname visible only to admins
   audience_geo?: Record<string, number>; // Mapping of country codes to audience percentage/count
   deleted_at?: string | null;
