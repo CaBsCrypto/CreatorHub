@@ -136,6 +136,35 @@ export default function Landing() {
         <div className="absolute -z-10 top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-indigo-600/10 blur-[120px] rounded-full" />
       </section>
 
+      {/* Trust Marquee Section */}
+      <section className="py-10 border-y border-white/5 bg-white/2 overflow-hidden">
+        <div className="flex gap-20 whitespace-nowrap marquee-wrapper">
+          <motion.div 
+            className="flex gap-20 items-center marquee-content"
+            animate={{ x: [0, -1000] }}
+            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          >
+            {['BASE ECOSYSTEM', 'PIXEL STUDIOS', 'WEB3 INNOVATORS', 'GAMING CORP', 'NEXT-GEN AGENCY', 'SHADOW NET', 'UMBRA HUB'].map((brand, i) => (
+              <div key={i} className="flex items-center gap-3 opacity-30 hover:opacity-100 transition-opacity grayscale hover:grayscale-0 cursor-default">
+                <div className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center">
+                  <Star className="h-4 w-4 text-indigo-400" />
+                </div>
+                <span className="text-sm font-black tracking-[0.4em] uppercase">{brand}</span>
+              </div>
+            ))}
+            {/* Repeat for loop */}
+            {['BASE ECOSYSTEM', 'PIXEL STUDIOS', 'WEB3 INNOVATORS', 'GAMING CORP', 'NEXT-GEN AGENCY', 'SHADOW NET', 'UMBRA HUB'].map((brand, i) => (
+              <div key={`${i}-dup`} className="flex items-center gap-3 opacity-30 hover:opacity-100 transition-opacity grayscale hover:grayscale-0 cursor-default">
+                <div className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center">
+                  <Star className="h-4 w-4 text-indigo-400" />
+                </div>
+                <span className="text-sm font-black tracking-[0.4em] uppercase">{brand}</span>
+              </div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
       {/* Stats Section */}
       <section className="py-20 px-6 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -169,54 +198,39 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* About Section */}
-      <section id="about" className="py-32 px-6 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-        <div>
-          <span className="section-label">Who We Are</span>
-          <h2 className="text-4xl md:text-6xl font-black mb-8 leading-tight">
-            Our Mission is <br /> <span className="text-indigo-500">Your Growth.</span>
+      {/* Service Section (Refined About) */}
+      <section id="about" className="py-32 px-6 max-w-7xl mx-auto">
+        <div className="text-center mb-24">
+          <span className="section-label">Our Capabilities</span>
+          <h2 className="text-4xl md:text-6xl font-black mb-8 leading-tight text-white/90">
+            Engineered for <br/> <span className="gradient-text">Mass Growth.</span>
           </h2>
-          <div className="space-y-6 text-slate-400 text-lg font-medium leading-relaxed">
-            <p>
-              Founded with the vision to professionalize the creator economy, Umbra has become the essential 
-              bridge between creativity and commercial strategy.
-            </p>
-            <p>
-              We don't just manage campaigns; we cultivate talent. Our platform offers advanced 
-              tracking tools, real-time metrics, and an exclusive support community.
-            </p>
-          </div>
-          <div className="mt-12 grid grid-cols-2 gap-8">
-            <div className="flex gap-4 items-start">
-              <div className="p-2 bg-indigo-500/20 rounded-lg"><Shield className="h-5 w-5 text-indigo-400" /></div>
-              <div>
-                <h4 className="font-bold text-white mb-1">Secure Payments</h4>
-                <p className="text-xs text-slate-500">Transparent and automated systems.</p>
-              </div>
-            </div>
-            <div className="flex gap-4 items-start">
-              <div className="p-2 bg-pink-500/20 rounded-lg"><Target className="h-5 w-5 text-pink-400" /></div>
-              <div>
-                <h4 className="font-bold text-white mb-1">Elite Metrics</h4>
-                <p className="text-xs text-slate-500">Detailed analysis of every impression.</p>
-              </div>
-            </div>
-          </div>
+          <p className="text-slate-400 max-w-2xl mx-auto font-medium">
+            We provide the infrastructure for the most ambitious campaigns in the digital ecosystem.
+          </p>
         </div>
-        <div className="relative group">
-          <div className="absolute -inset-4 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-[3rem] blur-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-700" />
-          <img 
-            src={creator1} 
-            alt="Umbra Culture" 
-            className="premium-card w-full h-auto object-cover relative z-10 p-2"
-          />
-          <div className="absolute -bottom-10 -right-10 bg-slate-900 border border-white/5 p-8 rounded-3xl z-20 hidden md:block floating">
-             <div className="flex items-center gap-3 mb-2">
-                <Star className="h-4 w-4 text-emerald-400 fill-emerald-400" />
-                <span className="text-sm font-bold">Trending Content</span>
-             </div>
-             <div className="text-2xl font-black">#GlobalViral</div>
-          </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+           {[
+             { title: 'Campaign Strategy', desc: 'Crafting viral concepts and data-driven narratives that dominate social timelines.', icon: Target, color: 'from-blue-500/20 to-indigo-500/20 text-blue-400' },
+             { title: 'Talent Management', desc: 'Curating elite creator lineups and fostering long-term strategic growth.', icon: Sparkles, color: 'from-purple-500/20 to-pink-500/20 text-purple-400' },
+             { title: 'Real-time Analytics', desc: 'Advanced tracking and transparent ROI metrics for brands and agencies.', icon: BarChart3, color: 'from-indigo-500/20 to-cyan-500/20 text-cyan-400' }
+           ].map((service, i) => (
+             <motion.div 
+               key={service.title}
+               initial={{ opacity: 0, scale: 0.95 }}
+               whileInView={{ opacity: 1, scale: 1 }}
+               transition={{ delay: i * 0.1 }}
+               viewport={{ once: true }}
+               className="premium-card group py-12 px-10 text-center border-white/5 hover:border-white/20 transition-all"
+             >
+               <div className={`mx-auto w-20 h-20 rounded-[2rem] bg-gradient-to-br ${service.color} flex items-center justify-center mb-8 group-hover:rotate-6 transition-transform duration-500`}>
+                  <service.icon className="h-10 w-10" />
+               </div>
+               <h3 className="text-2xl font-black mb-4 group-hover:text-indigo-400 transition-colors uppercase tracking-tight">{service.title}</h3>
+               <p className="text-slate-400 font-medium leading-relaxed">{service.desc}</p>
+             </motion.div>
+           ))}
         </div>
       </section>
 

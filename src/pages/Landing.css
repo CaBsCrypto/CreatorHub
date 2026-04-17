@@ -38,7 +38,8 @@
 }
 
 .gradient-text {
-  @apply bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent;
+  @apply bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-gradient-x;
+  background-size: 200% 200%;
 }
 
 .floating {
@@ -90,4 +91,28 @@
 /* Global Influence Card Specifics */
 .world-dot {
   @apply absolute w-2 h-2 bg-indigo-500 rounded-full animate-ping;
+}
+
+/* Marquee Styles */
+.marquee-wrapper {
+  mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+}
+
+.marquee-content {
+  @apply py-4;
+}
+
+/* Service Card Refinements */
+.premium-card {
+  background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.03), transparent 70%),
+              rgba(15, 23, 42, 0.6);
+}
+
+@keyframes gradient-x {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.animate-gradient-x {
+  animation: gradient-x 15s ease infinite;
 }
