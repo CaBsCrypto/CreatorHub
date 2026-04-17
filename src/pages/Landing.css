@@ -1,0 +1,78 @@
+@reference "tailwindcss";
+
+.landing-container {
+  @apply min-h-screen bg-slate-950 text-white overflow-x-hidden;
+  background: radial-gradient(circle at top right, rgba(79, 70, 229, 0.15), transparent),
+              radial-gradient(circle at bottom left, rgba(244, 63, 94, 0.1), transparent),
+              #020617;
+}
+
+.hero-text {
+  @apply text-5xl md:text-8xl font-black tracking-tighter leading-none;
+  background: linear-gradient(to bottom right, #fff 30%, rgba(255,255,255,0.5));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.glass-nav {
+  @apply fixed top-0 left-0 right-0 z-[100] border-b border-white/5 bg-slate-950/20 backdrop-blur-xl;
+}
+
+.premium-card {
+  @apply relative p-8 rounded-[2.5rem] bg-slate-900/50 border border-white/5 backdrop-blur-sm transition-all duration-500;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.premium-card:hover {
+  @apply border-indigo-500/30 -translate-y-2;
+  box-shadow: 0 20px 40px -10px rgba(79, 70, 229, 0.2);
+}
+
+.stat-value {
+  @apply text-4xl md:text-5xl font-black text-white mb-2;
+  text-shadow: 0 0 20px rgba(79, 70, 229, 0.3);
+}
+
+.founder-image {
+  @apply w-full aspect-[4/5] object-cover rounded-3xl mb-6 grayscale hover:grayscale-0 transition-all duration-700;
+}
+
+.gradient-text {
+  @apply bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent;
+}
+
+.floating {
+  animation: floating 6s ease-in-out infinite;
+}
+
+@keyframes floating {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+.section-label {
+  @apply text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 mb-4 block;
+}
+
+.creator-image {
+  @apply absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110;
+}
+
+.glow-button {
+  @apply px-8 py-4 bg-indigo-600 rounded-full font-bold text-sm tracking-widest uppercase transition-all duration-300 relative overflow-hidden;
+  box-shadow: 0 0 20px rgba(79, 70, 229, 0.4);
+}
+
+.glow-button:hover {
+  @apply bg-indigo-500 -translate-y-1;
+  box-shadow: 0 0 30px rgba(79, 70, 229, 0.6);
+}
+
+.glow-button::after {
+  content: '';
+  @apply absolute inset-0 bg-white/20 -translate-x-full transition-transform duration-500 skew-x-12;
+}
+
+.glow-button:hover::after {
+  @apply translate-x-full;
+}

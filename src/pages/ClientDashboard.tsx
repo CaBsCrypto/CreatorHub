@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Rocket, List, BarChart3, LogOut, Zap, LayoutDashboard, StickyNote, ChevronDown, ChevronUp } from 'lucide-react';
+import { Rocket, List, BarChart3, LogOut, Zap, LayoutDashboard, StickyNote, ChevronDown, ChevronUp, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase, Campaign, Content, UserProfile } from '../supabase';
 import { useAuth, logout } from '../AuthContext';

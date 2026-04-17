@@ -1,5 +1,5 @@
 import React from 'react';
-import { Filter, Search, Plus, Users } from 'lucide-react';
+import { Filter, Search, Plus, Users, Globe } from 'lucide-react';
 import FilterMenu from './FilterMenu';
 import ScraperHealthWidget from './ScraperHealthWidget';
 
@@ -103,6 +103,14 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({
         >
           <Users className="h-4 w-4" /> Añadir Miembro
         </button>
+
+        <a 
+          href="/" 
+          target="_blank"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 bg-emerald-50 text-emerald-600 rounded-2xl text-[11px] font-black uppercase tracking-wider hover:bg-emerald-100 transition-all active:scale-95 border-2 border-emerald-100 whitespace-nowrap"
+        >
+          <Globe className="h-4 w-4" /> Ver Página Pública
+        </a>
       </div>
     </header>
   );
