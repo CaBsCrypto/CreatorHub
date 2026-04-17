@@ -76,3 +76,18 @@
 .glow-button:hover::after {
   @apply translate-x-full;
 }
+
+/* Carousel Styles */
+.creator-carousel-container {
+  @apply w-full overflow-hidden py-10;
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
+.creator-carousel-item {
+  @apply flex-shrink-0;
+}
+
+/* Global Influence Card Specifics */
+.world-dot {
+  @apply absolute w-2 h-2 bg-indigo-500 rounded-full animate-ping;
+}

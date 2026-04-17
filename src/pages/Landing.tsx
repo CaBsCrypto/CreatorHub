@@ -22,9 +22,10 @@ export default function Landing() {
   const [stats, setStats] = useState({
     creators: 12,
     views: 850000,
-    gameNights: 8
+    campaigns: 8
   });
   const [loadingStats, setLoadingStats] = useState(true);
+  const [featuredCreators, setFeaturedCreators] = useState<any[]>([]);
 
   const { scrollYProgress } = useScroll();
   const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
@@ -35,19 +36,23 @@ export default function Landing() {
       try {
         // We try to fetch real stats, but fall back to "premium placeholders" if it fails
         // This is safe for a landing page where we want to "WOW" regardless of DB connection
-        const [usersRes, contentRes] = await Promise.all([
-          supabase.from('users').select('id', { count: 'exact', head: true }).eq('role', 'creator').is('deleted_at', null),
-          supabase.from('content').select('views, platform').is('deleted_at', null)
+        const [usersRes, contentRes, campaignsRes] = await Promise.all([
+          supabase.from('users').select('id, display_name, photo_url, role').eq('role', 'creator').is('deleted_at', null).order('created_at', { ascending: false }).limit(10),
+          supabase.from('content').select('views, platform').is('deleted_at', null),
+          supabase.from('campaigns').select('id', { count: 'exact', head: true }).is('deleted_at', null)
         ]);
 
-        if (usersRes.count) {
+        if (usersRes.data) {
+          setFeaturedCreators(usersRes.data);
+        }
+
+        if (usersRes.count !== null || campaignsRes.count !== null) {
           const totalViews = contentRes.data?.reduce((acc, curr) => acc + (curr.views || 0), 0) || 850000;
-          const gameNights = contentRes.data?.filter(c => c.platform === 'discord' || c.platform === 'baseapp').length || 8;
           
           setStats({
-            creators: usersRes.count,
+            creators: usersRes.data?.length || 12,
             views: totalViews,
-            gameNights: gameNights
+            campaigns: campaignsRes.count || 8
           });
         }
       } catch (err) {
@@ -82,10 +87,10 @@ export default function Landing() {
         </div>
         <div className="flex items-center gap-4">
           <button 
-            onClick={handleEnterApp}
+            onClick={() => navigate('/login')}
             className="px-6 py-2.5 bg-white/10 hover:bg-white/20 rounded-full text-xs font-bold tracking-widest uppercase transition-all border border-white/10"
           >
-            {user ? 'Dashboard' : 'Login'}
+            Login
           </button>
           <button 
             onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
@@ -117,8 +122,8 @@ export default function Landing() {
             connecting elite brands with the most talented creators in the ecosystem.
           </p>
           <div className="flex flex-col sm:flex-row gap-6 items-center">
-            <button onClick={handleEnterApp} className="glow-button">
-              {user ? 'Back to Hub' : 'Get Started'}
+            <button onClick={() => navigate('/login')} className="glow-button">
+              Get Started
               <ArrowRight className="inline-block ml-2 h-5 w-5" />
             </button>
             <button onClick={() => document.getElementById('creators')?.scrollIntoView({ behavior: 'smooth' })} className="px-8 py-4 border border-white/10 rounded-full font-bold text-sm tracking-widest uppercase hover:bg-white/5 transition-all">
@@ -144,7 +149,7 @@ export default function Landing() {
               icon: Zap, 
               color: 'text-yellow-400' 
             },
-            { label: 'Game Nights', value: stats.gameNights, icon: Gamepad2, color: 'text-purple-400' }
+            { label: 'Total Campaigns', value: stats.campaigns, icon: Target, color: 'text-purple-400' }
           ].map((stat, i) => (
             <motion.div 
               key={stat.label}
@@ -247,27 +252,97 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Creators Visual Grid */}
-      <section id="creators" className="py-32 px-6 max-w-7xl mx-auto overflow-hidden">
-        <div className="flex flex-col lg:flex-row justify-between items-end gap-8 mb-20">
-          <div className="max-w-2xl">
-            <span className="section-label">Community</span>
-            <h2 className="text-4xl md:text-6xl font-black mb-6">Our Faces. <br/> Your Results.</h2>
+      {/* Global Presence Section */}
+      <section className="py-32 px-6 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+          <div className="order-2 lg:order-1">
+             <div className="premium-card bg-slate-900/50 p-10 relative group">
+                <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
+                  <Globe className="h-40 w-40 text-indigo-500" />
+                </div>
+                <h3 className="text-3xl font-black mb-6">Global Influence.</h3>
+                <p className="text-slate-400 font-medium leading-relaxed mb-8">
+                  Our network spans across borders, reaching audiences in over 15 countries. 
+                  From Tokyo to New York, Umbra creators dominate the conversation.
+                </p>
+                <div className="flex flex-wrap gap-4">
+                  {['USA', 'Spain', 'Mexico', 'France', 'Japan', 'Brazil'].map(country => (
+                    <span key={country} className="px-4 py-2 bg-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-white/5">
+                      {country}
+                    </span>
+                  ))}
+                </div>
+             </div>
           </div>
-          <button className="flex items-center gap-4 text-indigo-400 font-black uppercase tracking-widest text-sm group">
-            View Full Directory
-            <div className="w-12 h-12 rounded-full border border-indigo-500/30 flex items-center justify-center group-hover:bg-indigo-500 group-hover:text-white transition-all">
-              <ChevronRight className="h-6 w-6" />
-            </div>
+          <div className="order-1 lg:order-2">
+            <span className="section-label">Global Presence</span>
+            <h2 className="text-4xl md:text-6xl font-black mb-8">Unlimited <br/> Reach.</h2>
+            <p className="text-xl text-slate-400 font-medium leading-relaxed">
+              We've built a decentralized network that understands local cultures while driving 
+              global trends. Your brand doesn't just go viral; it becomes part of the culture.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Creator Carousel Section */}
+      <section id="creators" className="py-32 bg-slate-900/20">
+        <div className="max-w-7xl mx-auto px-6 mb-16 flex justify-between items-end">
+          <div>
+            <span className="section-label">Showcase</span>
+            <h2 className="text-4xl md:text-5xl font-black">Our Top Talent.</h2>
+          </div>
+          <button className="hidden md:flex items-center gap-2 text-indigo-400 font-black uppercase tracking-widest text-xs">
+            Show all <ChevronRight className="h-4 w-4" />
           </button>
         </div>
-        
+
+        <div className="creator-carousel-container relative">
+          <motion.div 
+            className="flex gap-8 px-6"
+            animate={{ x: [0, -1000] }}
+            transition={{ 
+              x: {
+                repeat: Infinity,
+                repeatType: "loop",
+                duration: 30,
+                ease: "linear"
+              }
+            }}
+          >
+            {[...featuredCreators, ...featuredCreators].map((creator, i) => (
+              <div key={`${creator.id}-${i}`} className="creator-carousel-item group">
+                <div className="relative w-64 h-80 rounded-[2.5rem] overflow-hidden mb-6 border border-white/10 group-hover:border-indigo-500/50 transition-colors">
+                  <img 
+                    src={creator.photo_url || creator1} 
+                    alt={creator.display_name} 
+                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60" />
+                  <div className="absolute bottom-6 left-6 right-6">
+                    <div className="text-xl font-black mb-1 truncate">{creator.display_name || 'Umbra Creator'}</div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400">Elite Talent</span>
+                      <div className="p-2 bg-white/10 rounded-full backdrop-blur-md">
+                        <Zap className="h-3 w-3 text-yellow-400" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Creators Visual Grid (Repurposed as Secondary Showcase) */}
+      <section className="py-32 px-6 max-w-7xl mx-auto overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 h-[600px]">
            <div className="md:col-span-2 relative group overflow-hidden rounded-[3rem]">
-              <img src={creator2} alt="Creator 1" className="creator-image" />
+              <img src={creator2} alt="Creator Highlights" className="creator-image" />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60" />
               <div className="absolute bottom-8 left-8">
-                 <div className="text-xs font-black uppercase tracking-[0.2em] text-white/60 mb-1">Featured Creator</div>
+                 <div className="text-xs font-black uppercase tracking-[0.2em] text-white/60 mb-1">Impact Highlights</div>
                  <div className="text-3xl font-black">Koda Stream</div>
               </div>
            </div>
@@ -275,12 +350,12 @@ export default function Landing() {
               <div className="absolute inset-0 bg-indigo-600 flex flex-col items-center justify-center text-center p-8 group-hover:bg-indigo-500 transition-colors">
                  <Trophy className="h-12 w-12 mb-6" />
                  <div className="text-4xl font-black mb-2">+50M</div>
-                 <div className="text-[10px] font-black uppercase tracking-widest">Vistas Totales 2024</div>
+                 <div className="text-[10px] font-black uppercase tracking-widest">Global Views 2024</div>
               </div>
            </div>
            <div className="relative group overflow-hidden rounded-[3rem] bg-slate-900 border border-white/5 flex flex-col items-center justify-center p-8 text-center hover:border-indigo-500/30 transition-all">
               <Heart className="h-10 w-10 text-rose-500 mb-6 group-hover:scale-110 transition-transform" />
-              <p className="font-bold text-slate-300">"The only hub that truly understands the creator."</p>
+              <p className="font-bold text-slate-300">"The standard for agency excellence."</p>
               <div className="mt-6 text-xs font-black uppercase tracking-widest text-indigo-400">— Sarah M.</div>
            </div>
         </div>
@@ -297,8 +372,8 @@ export default function Landing() {
               Join the elite. Register your creator profile or request a brand audit today.
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-              <button onClick={handleEnterApp} className="px-10 py-5 bg-white text-indigo-600 rounded-full font-black text-sm uppercase tracking-widest hover:scale-105 transition-all shadow-xl">
-                Access Dashboard
+              <button onClick={() => navigate('/login')} className="px-10 py-5 bg-white text-indigo-600 rounded-full font-black text-sm uppercase tracking-widest hover:scale-105 transition-all shadow-xl">
+                Get Started
               </button>
               <button className="px-10 py-5 bg-transparent border-2 border-white/30 rounded-full font-black text-sm uppercase tracking-widest hover:bg-white/10 transition-all">
                 Contact Sales
@@ -308,20 +383,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Floating Hub Button for Logged users */}
-      {user && (
-        <motion.button
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={handleEnterApp}
-          className="fixed bottom-8 right-8 z-[200] p-5 bg-indigo-600 text-white rounded-full shadow-2xl shadow-indigo-500/50 flex items-center gap-3 font-black text-xs uppercase tracking-widest border border-white/20"
-        >
-          <LayoutDashboard className="h-5 w-5" />
-          <span className="hidden sm:inline">Go to my Panel</span>
-        </motion.button>
-      )}
 
       {/* Footer */}
       <footer className="py-20 px-6 border-t border-white/5 text-slate-500">

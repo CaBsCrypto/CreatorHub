@@ -9,7 +9,8 @@ export const sidebarItems = [
   { id: 'payments', label: 'Pagos', icon: Wallet },
   { id: 'team', label: 'Equipo', icon: ShieldCheck },
   { id: 'activity', label: 'Actividad', icon: Zap },
-  { id: 'trash', label: 'Papelera', icon: Trash2 }
+  { id: 'trash', label: 'Papelera', icon: Trash2 },
+  { id: 'creator-pov', label: 'POV Creador', icon: UserCircle }
 ] as const;
 
 interface AdminSidebarProps {
@@ -51,6 +52,8 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab, re
               onClick={() => {
                 if (item.id === 'overview') {
                   resetFilters({ tab: 'overview' } as any);
+                } else if (item.id === 'creator-pov') {
+                  window.open('/creator', '_blank');
                 } else {
                   setActiveTab(item.id);
                 }
@@ -75,6 +78,8 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab, re
               onClick={() => {
                 if (item.id === 'overview') {
                   resetFilters({ tab: 'overview' } as any);
+                } else if (item.id === 'creator-pov') {
+                  window.open('/creator', '_blank');
                 } else {
                   setActiveTab(item.id);
                 }
