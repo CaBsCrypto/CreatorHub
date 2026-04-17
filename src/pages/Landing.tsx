@@ -101,39 +101,76 @@ export default function Landing() {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="relative pt-40 pb-20 px-6 max-w-7xl mx-auto flex flex-col items-center text-center">
-        <motion.div 
-          style={{ opacity, scale }}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <span className="section-label group">
-            <Sparkles className="inline-block h-3 w-3 mr-2 animate-pulse" />
-            Empowering the next generation of creators
-          </span>
-          <h1 className="hero-text mb-8">
-            THE ULTIMATE <br />
-            <span className="gradient-text">CREATOR HUB.</span>
-          </h1>
-          <p className="text-lg md:text-xl text-slate-400 max-w-2xl mb-12 font-medium leading-relaxed">
-            Umbra is more than a platform. It's the engine behind the most viral campaigns, 
-            connecting elite brands with the most talented creators in the ecosystem.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-6 items-center">
-            <button onClick={() => document.getElementById('vision')?.scrollIntoView({ behavior: 'smooth' })} className="glow-button">
-              The Vision
-              <ArrowRight className="inline-block ml-2 h-5 w-5" />
-            </button>
-            <button onClick={() => document.getElementById('creators')?.scrollIntoView({ behavior: 'smooth' })} className="px-8 py-4 border border-white/10 rounded-full font-bold text-sm tracking-widest uppercase hover:bg-white/5 transition-all">
-              View Creators
-            </button>
-          </div>
-        </motion.div>
+      {/* Hero Section (Redesigned) */}
+      <section className="relative min-h-[90vh] flex items-center px-6 overflow-hidden">
+        <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-20 items-center pt-20">
+          <motion.div 
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+            className="relative z-10"
+          >
+            <span className="section-label group mb-6">
+              <Sparkles className="inline-block h-3 w-3 mr-2 animate-pulse" />
+              Meaning becomes Momentum
+            </span>
+            <h1 className="hero-text mb-8 text-left leading-[0.9]">
+              THE <br/>UNMISTAKABLE <br/>
+              <span className="gradient-text">STANDARD.</span>
+            </h1>
+            <p className="text-xl text-slate-400 max-w-lg mb-12 font-medium leading-relaxed">
+              Umbra curates and publishes the best work from a select circle of creators. 
+              So your project gets noticed. <span className="text-white">And remembered.</span>
+            </p>
+            <div className="flex flex-col sm:flex-row gap-6 items-center">
+              <button 
+                onClick={() => document.getElementById('vision')?.scrollIntoView({ behavior: 'smooth' })} 
+                className="glow-button w-full sm:w-auto"
+              >
+                Explore Vision
+                <ArrowRight className="inline-block ml-2 h-5 w-5" />
+              </button>
+              <button 
+                onClick={() => document.getElementById('creators')?.scrollIntoView({ behavior: 'smooth' })} 
+                className="px-8 py-4 bg-white/5 border border-white/10 rounded-full font-bold text-sm tracking-widest uppercase hover:bg-white/10 transition-all w-full sm:w-auto"
+              >
+                The Talent
+              </button>
+            </div>
+          </motion.div>
 
-        {/* Hero Decorative Elements */}
-        <div className="absolute -z-10 top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-indigo-600/10 blur-[120px] rounded-full" />
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1.5, delay: 0.2 }}
+            className="hidden lg:block relative h-[600px]"
+          >
+             {/* Abstract Visual Component */}
+             <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/10 to-transparent rounded-[4rem] blur-3xl opacity-30" />
+             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-slate-900 border border-white/5 rounded-full flex items-center justify-center shadow-2xl backdrop-blur-xl">
+                <div className="w-64 h-64 border border-indigo-500/20 rounded-full animate-spin-slow" />
+                <div className="absolute w-48 h-48 border border-purple-500/20 rounded-full animate-reverse-spin" />
+                <Rocket className="h-20 w-20 text-indigo-500 absolute animate-pulse" />
+             </div>
+             
+             {/* Floating Elements */}
+             <div className="absolute top-20 right-10 p-6 premium-card floating">
+                <div className="text-xs font-black text-indigo-400 mb-1 uppercase">Standard</div>
+                <div className="text-2xl font-black">UMBRA</div>
+             </div>
+             <div className="absolute bottom-20 left-0 p-6 premium-card floating delay-700">
+                <div className="flex items-center gap-2 mb-2">
+                   <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                   <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Active Momentum</span>
+                </div>
+                <div className="text-xl font-black text-white">+500K Views</div>
+             </div>
+          </motion.div>
+        </div>
+
+        {/* Starlight/Shadow Background Background Elements */}
+        <div className="absolute -top-40 -right-40 w-[800px] h-[800px] bg-indigo-600/5 blur-[150px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-slate-950 to-transparent pointer-events-none" />
       </section>
 
       {/* Trust Marquee Section */}
