@@ -114,7 +114,7 @@ export default function Landing() {
               <Sparkles className="inline-block h-3 w-3 mr-2 animate-pulse" />
               Meaning becomes Momentum
             </span>
-            <h1 className="hero-text mb-8 text-left leading-[0.9]">
+            <h1 className="hero-text mb-8 text-left">
               THE <br/>UNMISTAKABLE <br/>
               <span className="gradient-text">STANDARD.</span>
             </h1>
@@ -143,25 +143,25 @@ export default function Landing() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1.5, delay: 0.2 }}
-            className="hidden lg:block relative h-[600px]"
+            className="hidden lg:block relative h-[600px] w-full"
           >
              {/* Abstract Visual Component */}
-             <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/10 to-transparent rounded-[4rem] blur-3xl opacity-30" />
-             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-slate-900 border border-white/5 rounded-full flex items-center justify-center shadow-2xl backdrop-blur-xl">
+             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-slate-900/40 border border-white/5 rounded-full flex items-center justify-center shadow-2xl backdrop-blur-xl">
+                <div className="w-[120%] h-[120%] border border-indigo-500/10 rounded-full animate-spin-slow absolute" />
                 <div className="w-64 h-64 border border-indigo-500/20 rounded-full animate-spin-slow" />
                 <div className="absolute w-48 h-48 border border-purple-500/20 rounded-full animate-reverse-spin" />
-                <Rocket className="h-20 w-20 text-indigo-500 absolute animate-pulse" />
+                <Rocket className="h-16 w-16 text-indigo-500 absolute animate-pulse" />
              </div>
              
-             {/* Floating Elements */}
-             <div className="absolute top-20 right-10 p-6 premium-card floating">
-                <div className="text-xs font-black text-indigo-400 mb-1 uppercase">Standard</div>
-                <div className="text-2xl font-black">UMBRA</div>
+             {/* Floating Elements - Repositioned to avoid overlap */}
+             <div className="absolute top-10 right-0 p-6 premium-card floating shadow-indigo-500/10 scale-90">
+                <div className="text-[10px] font-black text-indigo-400 mb-1 uppercase tracking-widest">Standard</div>
+                <div className="text-xl font-black">UMBRA</div>
              </div>
-             <div className="absolute bottom-20 left-0 p-6 premium-card floating delay-700">
+             <div className="absolute bottom-10 right-10 p-6 premium-card floating delay-700 shadow-purple-500/10">
                 <div className="flex items-center gap-2 mb-2">
                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-                   <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Active Momentum</span>
+                   <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Momentum</span>
                 </div>
                 <div className="text-xl font-black text-white">+500K Views</div>
              </div>

@@ -8,8 +8,8 @@
 }
 
 .hero-text {
-  @apply text-5xl md:text-8xl font-black tracking-tighter leading-none;
-  background: linear-gradient(to bottom right, #fff 30%, rgba(255,255,255,0.5));
+  @apply text-5xl md:text-7xl font-black tracking-tighter leading-[0.9] transition-all duration-500;
+  background: linear-gradient(to bottom right, #fff 40%, rgba(255,255,255,0.4));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
