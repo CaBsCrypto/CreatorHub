@@ -20,7 +20,7 @@ export default function Landing() {
   const navigate = useNavigate();
   const { user, profile, loading: authLoading } = useAuth();
   const [stats, setStats] = useState({
-    creators: 12,
+    creators: 7,
     views: 850000,
     campaigns: 8
   });
@@ -122,8 +122,8 @@ export default function Landing() {
             connecting elite brands with the most talented creators in the ecosystem.
           </p>
           <div className="flex flex-col sm:flex-row gap-6 items-center">
-            <button onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })} className="glow-button">
-              Our Vision
+            <button onClick={() => document.getElementById('vision')?.scrollIntoView({ behavior: 'smooth' })} className="glow-button">
+              The Vision
               <ArrowRight className="inline-block ml-2 h-5 w-5" />
             </button>
             <button onClick={() => document.getElementById('creators')?.scrollIntoView({ behavior: 'smooth' })} className="px-8 py-4 border border-white/10 rounded-full font-bold text-sm tracking-widest uppercase hover:bg-white/5 transition-all">
@@ -198,23 +198,61 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Service Section (Refined About) */}
+      {/* Vision Section (New) */}
+      <section id="vision" className="py-32 px-6 relative overflow-hidden">
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <span className="section-label">Vision</span>
+          <h2 className="text-3xl md:text-5xl font-black mb-12 leading-tight italic">
+            "Umbra isn't a Web3 guild. <br/> <span className="gradient-text">It's a standard.</span>"
+          </h2>
+          <div className="space-y-8 text-xl md:text-2xl text-slate-300 font-medium leading-relaxed">
+            <p className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+              It's the <span className="text-rose-500 font-black">unmistakable</span> impression a well-crafted message leaves behind.
+            </p>
+            <p className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
+              Like starlight passing a planet and casting a shadow. <br/>
+              <span className="text-white font-black">Meaning becomes momentum.</span>
+            </p>
+            <p className="text-lg text-slate-400 mt-12 pt-12 border-t border-white/5">
+              Umbra curates and publishes the best work from a select circle of creators. 
+              So your project gets noticed. <span className="text-white">And remembered.</span>
+            </p>
+          </div>
+        </div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full -z-10 opacity-20">
+           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(79,70,229,0.15),transparent_70%)]" />
+        </div>
+      </section>
+
+      {/* Method Section (Updated Service Section) */}
       <section id="about" className="py-32 px-6 max-w-7xl mx-auto">
         <div className="text-center mb-24">
-          <span className="section-label">Our Capabilities</span>
+          <span className="section-label">THE METHOD</span>
           <h2 className="text-4xl md:text-6xl font-black mb-8 leading-tight text-white/90">
-            Engineered for <br/> <span className="gradient-text">Mass Growth.</span>
+             Strategic <br/> <span className="gradient-text">Execution.</span>
           </h2>
-          <p className="text-slate-400 max-w-2xl mx-auto font-medium">
-            We provide the infrastructure for the most ambitious campaigns in the digital ecosystem.
-          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24">
            {[
-             { title: 'Campaign Strategy', desc: 'Crafting viral concepts and data-driven narratives that dominate social timelines.', icon: Target, color: 'from-blue-500/20 to-indigo-500/20 text-blue-400' },
-             { title: 'Talent Management', desc: 'Curating elite creator lineups and fostering long-term strategic growth.', icon: Sparkles, color: 'from-purple-500/20 to-pink-500/20 text-purple-400' },
-             { title: 'Real-time Analytics', desc: 'Advanced tracking and transparent ROI metrics for brands and agencies.', icon: BarChart3, color: 'from-indigo-500/20 to-cyan-500/20 text-cyan-400' }
+             { 
+               title: '1. STRATEGY', 
+               desc: 'EMINATR1X (MSc in Marketing) begins with a discovery call to align on vision and goals; then turns them into a content strategy and media mix* that lands with your audience.', 
+               icon: Target, 
+               color: 'from-blue-500/20 to-indigo-500/20 text-blue-400' 
+             },
+             { 
+               title: '2. DIRECTION', 
+               desc: 'Creators are briefed to align on message, goals, and deliverables, while preserving creative freedom.', 
+               icon: Sparkles, 
+               color: 'from-purple-500/20 to-pink-500/20 text-purple-400' 
+             },
+             { 
+               title: '3. REPORTING', 
+               desc: 'Ongoing KPI visibility during the campaign, followed by a final performance report and key takeaways.', 
+               icon: BarChart3, 
+               color: 'from-indigo-500/20 to-cyan-500/20 text-cyan-400' 
+             }
            ].map((service, i) => (
              <motion.div 
                key={service.title}
@@ -222,15 +260,36 @@ export default function Landing() {
                whileInView={{ opacity: 1, scale: 1 }}
                transition={{ delay: i * 0.1 }}
                viewport={{ once: true }}
-               className="premium-card group py-12 px-10 text-center border-white/5 hover:border-white/20 transition-all"
+               className="premium-card group py-12 px-10 text-center border-white/5 hover:border-white/20 transition-all h-full"
              >
-               <div className={`mx-auto w-20 h-20 rounded-[2rem] bg-gradient-to-br ${service.color} flex items-center justify-center mb-8 group-hover:rotate-6 transition-transform duration-500`}>
-                  <service.icon className="h-10 w-10" />
+               <div className={`mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br ${service.color} flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500`}>
+                  <service.icon className="h-8 w-8" />
                </div>
-               <h3 className="text-2xl font-black mb-4 group-hover:text-indigo-400 transition-colors uppercase tracking-tight">{service.title}</h3>
-               <p className="text-slate-400 font-medium leading-relaxed">{service.desc}</p>
+               <h3 className="text-xl font-black mb-4 group-hover:text-indigo-400 transition-colors tracking-tight">{service.title}</h3>
+               <p className="text-slate-400 text-sm font-medium leading-relaxed">{service.desc}</p>
              </motion.div>
            ))}
+        </div>
+
+        {/* Media Mix Section */}
+        <div className="premium-card bg-slate-900/40 p-12 text-center max-w-4xl mx-auto border-indigo-500/10 hover:border-indigo-500/20">
+           <div className="text-xs font-black uppercase tracking-[0.3em] text-indigo-400 mb-8">Media Mix*</div>
+           <div className="flex flex-wrap justify-center gap-6 md:gap-12">
+              {[
+                { name: 'Streams', icon: Play },
+                { name: 'Short & Long Video', icon: Gamepad2 },
+                { name: 'Gaming Nights', icon: Trophy },
+                { name: 'Live Casting', icon: Zap },
+                { name: 'IRL Events', icon: Globe }
+              ].map((item) => (
+                <div key={item.name} className="flex flex-col items-center gap-3 group">
+                   <div className="p-4 bg-white/5 rounded-2xl group-hover:bg-indigo-600/20 transition-colors">
+                      <item.icon className="h-6 w-6 text-slate-400 group-hover:text-indigo-400" />
+                   </div>
+                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 group-hover:text-white transition-colors">{item.name}</span>
+                </div>
+              ))}
+           </div>
         </div>
       </section>
 
@@ -241,10 +300,11 @@ export default function Landing() {
             <span className="section-label">Leadership</span>
             <h2 className="text-4xl md:text-6xl font-black">The Minds Behind <br/> the Shadow.</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto">
              {[
                { name: 'Gabriel S.', role: 'CEO & Founder', image: founder1, desc: 'Visionary with over 10 years in the digital and crypto ecosystem.' },
-               { name: 'Valentina R.', role: 'COO & Strategy', image: founder2, desc: 'Specialist in agency scalability and international talent management.' }
+               { name: 'Valentina R.', role: 'COO & Strategy', image: founder2, desc: 'Specialist in agency scalability and international talent management.' },
+               { name: 'Founder 3', role: 'Head of Growth', image: creator1, desc: 'Driving the next wave of creator-led brand innovation.' }
              ].map((founder, i) => (
                <motion.div 
                  key={founder.name}
