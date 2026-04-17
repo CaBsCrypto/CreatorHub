@@ -20,9 +20,9 @@ export default function Landing() {
   const navigate = useNavigate();
   const { user, profile, loading: authLoading } = useAuth();
   const [stats, setStats] = useState({
-    creators: 154,
-    views: 12500000,
-    gameNights: 42
+    creators: 12,
+    views: 850000,
+    gameNights: 8
   });
   const [loadingStats, setLoadingStats] = useState(true);
 
@@ -41,8 +41,8 @@ export default function Landing() {
         ]);
 
         if (usersRes.count) {
-          const totalViews = contentRes.data?.reduce((acc, curr) => acc + (curr.views || 0), 0) || 12500000;
-          const gameNights = contentRes.data?.filter(c => c.platform === 'discord' || c.platform === 'baseapp').length || 42;
+          const totalViews = contentRes.data?.reduce((acc, curr) => acc + (curr.views || 0), 0) || 850000;
+          const gameNights = contentRes.data?.filter(c => c.platform === 'discord' || c.platform === 'baseapp').length || 8;
           
           setStats({
             creators: usersRes.count,
@@ -136,7 +136,14 @@ export default function Landing() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
             { label: 'Active Creators', value: stats.creators, icon: Users, color: 'text-blue-400' },
-            { label: 'Views Achieved', value: (stats.views / 1000000).toFixed(1) + 'M', icon: Zap, color: 'text-yellow-400' },
+            { 
+              label: 'Views Achieved', 
+              value: stats.views >= 1000000 
+                ? (stats.views / 1000000).toFixed(1) + 'M' 
+                : (stats.views / 1000).toFixed(1) + 'K', 
+              icon: Zap, 
+              color: 'text-yellow-400' 
+            },
             { label: 'Game Nights', value: stats.gameNights, icon: Gamepad2, color: 'text-purple-400' }
           ].map((stat, i) => (
             <motion.div 
