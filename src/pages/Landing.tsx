@@ -87,10 +87,10 @@ export default function Landing() {
         </div>
         <div className="flex items-center gap-4">
           <button 
-            onClick={() => navigate('/login')}
+            onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
             className="px-6 py-2.5 bg-white/10 hover:bg-white/20 rounded-full text-xs font-bold tracking-widest uppercase transition-all border border-white/10"
           >
-            Login
+            Learn More
           </button>
           <button 
             onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
@@ -122,8 +122,8 @@ export default function Landing() {
             connecting elite brands with the most talented creators in the ecosystem.
           </p>
           <div className="flex flex-col sm:flex-row gap-6 items-center">
-            <button onClick={() => navigate('/login')} className="glow-button">
-              Get Started
+            <button onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })} className="glow-button">
+              Our Vision
               <ArrowRight className="inline-block ml-2 h-5 w-5" />
             </button>
             <button onClick={() => document.getElementById('creators')?.scrollIntoView({ behavior: 'smooth' })} className="px-8 py-4 border border-white/10 rounded-full font-bold text-sm tracking-widest uppercase hover:bg-white/5 transition-all">
@@ -372,11 +372,11 @@ export default function Landing() {
               Join the elite. Register your creator profile or request a brand audit today.
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-              <button onClick={() => navigate('/login')} className="px-10 py-5 bg-white text-indigo-600 rounded-full font-black text-sm uppercase tracking-widest hover:scale-105 transition-all shadow-xl">
-                Get Started
+              <button className="px-10 py-5 bg-white text-indigo-600 rounded-full font-black text-sm uppercase tracking-widest hover:scale-105 transition-all shadow-xl">
+                Contact Strategy
               </button>
               <button className="px-10 py-5 bg-transparent border-2 border-white/30 rounded-full font-black text-sm uppercase tracking-widest hover:bg-white/10 transition-all">
-                Contact Sales
+                Our Services
               </button>
             </div>
           </div>

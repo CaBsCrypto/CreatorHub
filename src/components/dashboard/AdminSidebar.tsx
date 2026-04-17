@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, List, Youtube, Users, Wallet, ShieldCheck, Zap, Trash2, Sparkles } from 'lucide-react';
+import { LayoutDashboard, List, Youtube, Users, Wallet, ShieldCheck, Zap, Trash2, Sparkles, UserCircle } from 'lucide-react';
 
 export const sidebarItems = [
   { id: 'overview', label: 'Resumen', icon: LayoutDashboard },
