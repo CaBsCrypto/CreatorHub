@@ -91,7 +91,7 @@ export default function Landing() {
             onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
             className="hidden md:block px-6 py-2.5 text-xs font-bold tracking-widest uppercase hover:text-indigo-400 transition-colors"
           >
-            Nosotros
+            About
           </button>
         </div>
       </nav>
@@ -106,23 +106,23 @@ export default function Landing() {
         >
           <span className="section-label group">
             <Sparkles className="inline-block h-3 w-3 mr-2 animate-pulse" />
-            Empoderando la próxima generación de creadores
+            Empowering the next generation of creators
           </span>
           <h1 className="hero-text mb-8">
-            EL HUB DE CREADORES <br />
-            <span className="gradient-text">DEFINITIVO.</span>
+            THE ULTIMATE <br />
+            <span className="gradient-text">CREATOR HUB.</span>
           </h1>
           <p className="text-lg md:text-xl text-slate-400 max-w-2xl mb-12 font-medium leading-relaxed">
-            Umbra es más que una plataforma. Es el motor que impulsa las campañas más virales, 
-            conectando marcas elite con los creadores más talentosos del ecosistema.
+            Umbra is more than a platform. It's the engine behind the most viral campaigns, 
+            connecting elite brands with the most talented creators in the ecosystem.
           </p>
           <div className="flex flex-col sm:flex-row gap-6 items-center">
             <button onClick={handleEnterApp} className="glow-button">
-              {user ? 'Regresar al Hub' : 'Empezar Ahora'}
+              {user ? 'Back to Hub' : 'Get Started'}
               <ArrowRight className="inline-block ml-2 h-5 w-5" />
             </button>
             <button onClick={() => document.getElementById('creators')?.scrollIntoView({ behavior: 'smooth' })} className="px-8 py-4 border border-white/10 rounded-full font-bold text-sm tracking-widest uppercase hover:bg-white/5 transition-all">
-              Ver Creadores
+              View Creators
             </button>
           </div>
         </motion.div>
@@ -135,8 +135,8 @@ export default function Landing() {
       <section className="py-20 px-6 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
-            { label: 'Creadores Activos', value: stats.creators, icon: Users, color: 'text-blue-400' },
-            { label: 'Visualizaciones', value: (stats.views / 1000000).toFixed(1) + 'M', icon: Zap, color: 'text-yellow-400' },
+            { label: 'Active Creators', value: stats.creators, icon: Users, color: 'text-blue-400' },
+            { label: 'Views Achieved', value: (stats.views / 1000000).toFixed(1) + 'M', icon: Zap, color: 'text-yellow-400' },
             { label: 'Game Nights', value: stats.gameNights, icon: Gamepad2, color: 'text-purple-400' }
           ].map((stat, i) => (
             <motion.div 
@@ -160,33 +160,33 @@ export default function Landing() {
       {/* About Section */}
       <section id="about" className="py-32 px-6 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
         <div>
-          <span className="section-label">Quiénes Somos</span>
+          <span className="section-label">Who We Are</span>
           <h2 className="text-4xl md:text-6xl font-black mb-8 leading-tight">
-            Nuestra Misión es <br /> <span className="text-indigo-500">Tu Crecimiento.</span>
+            Our Mission is <br /> <span className="text-indigo-500">Your Growth.</span>
           </h2>
           <div className="space-y-6 text-slate-400 text-lg font-medium leading-relaxed">
             <p>
-              Fundada con la visión de profesionalizar la economía de los creadores, Umbra se ha convertido en el puente 
-              indispensable entre la creatividad y la estrategia comercial.
+              Founded with the vision to professionalize the creator economy, Umbra has become the essential 
+              bridge between creativity and commercial strategy.
             </p>
             <p>
-              No solo gestionamos campañas; cultivamos talento. Nuestra plataforma ofrece herramientas avanzadas de 
-              seguimiento, métricas en tiempo real y una comunidad exclusiva de soporte.
+              We don't just manage campaigns; we cultivate talent. Our platform offers advanced 
+              tracking tools, real-time metrics, and an exclusive support community.
             </p>
           </div>
           <div className="mt-12 grid grid-cols-2 gap-8">
             <div className="flex gap-4 items-start">
               <div className="p-2 bg-indigo-500/20 rounded-lg"><Shield className="h-5 w-5 text-indigo-400" /></div>
               <div>
-                <h4 className="font-bold text-white mb-1">Pagos Seguros</h4>
-                <p className="text-xs text-slate-500">Sistemas transparentes y automatizados.</p>
+                <h4 className="font-bold text-white mb-1">Secure Payments</h4>
+                <p className="text-xs text-slate-500">Transparent and automated systems.</p>
               </div>
             </div>
             <div className="flex gap-4 items-start">
               <div className="p-2 bg-pink-500/20 rounded-lg"><Target className="h-5 w-5 text-pink-400" /></div>
               <div>
-                <h4 className="font-bold text-white mb-1">Métricas Elite</h4>
-                <p className="text-xs text-slate-500">Análisis detallado de cada impresión.</p>
+                <h4 className="font-bold text-white mb-1">Elite Metrics</h4>
+                <p className="text-xs text-slate-500">Detailed analysis of every impression.</p>
               </div>
             </div>
           </div>
@@ -212,13 +212,13 @@ export default function Landing() {
       <section className="py-32 px-6 bg-slate-900/30">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
-            <span className="section-label">Liderazgo</span>
-            <h2 className="text-4xl md:text-6xl font-black">Mentes Detrás <br/> de la Sombra.</h2>
+            <span className="section-label">Leadership</span>
+            <h2 className="text-4xl md:text-6xl font-black">The Minds Behind <br/> the Shadow.</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-4xl mx-auto">
              {[
-               { name: 'Gabriel S.', role: 'CEO & Founder', image: founder1, desc: 'Visionario con más de 10 años en el ecosistema digital y crypto.' },
-               { name: 'Valentina R.', role: 'COO & Strategy', image: founder2, desc: 'Especialista en escalabilidad de agencias y gestión de talento internacional.' }
+               { name: 'Gabriel S.', role: 'CEO & Founder', image: founder1, desc: 'Visionary with over 10 years in the digital and crypto ecosystem.' },
+               { name: 'Valentina R.', role: 'COO & Strategy', image: founder2, desc: 'Specialist in agency scalability and international talent management.' }
              ].map((founder, i) => (
                <motion.div 
                  key={founder.name}
@@ -244,11 +244,11 @@ export default function Landing() {
       <section id="creators" className="py-32 px-6 max-w-7xl mx-auto overflow-hidden">
         <div className="flex flex-col lg:flex-row justify-between items-end gap-8 mb-20">
           <div className="max-w-2xl">
-            <span className="section-label">Comunidad</span>
-            <h2 className="text-4xl md:text-6xl font-black mb-6">Nuestros Rostros. <br/> Tus Resultados.</h2>
+            <span className="section-label">Community</span>
+            <h2 className="text-4xl md:text-6xl font-black mb-6">Our Faces. <br/> Your Results.</h2>
           </div>
           <button className="flex items-center gap-4 text-indigo-400 font-black uppercase tracking-widest text-sm group">
-            Ver Directorio Completo
+            View Full Directory
             <div className="w-12 h-12 rounded-full border border-indigo-500/30 flex items-center justify-center group-hover:bg-indigo-500 group-hover:text-white transition-all">
               <ChevronRight className="h-6 w-6" />
             </div>
@@ -273,7 +273,7 @@ export default function Landing() {
            </div>
            <div className="relative group overflow-hidden rounded-[3rem] bg-slate-900 border border-white/5 flex flex-col items-center justify-center p-8 text-center hover:border-indigo-500/30 transition-all">
               <Heart className="h-10 w-10 text-rose-500 mb-6 group-hover:scale-110 transition-transform" />
-              <p className="font-bold text-slate-300">"El único hub que realmente entiende al creador."</p>
+              <p className="font-bold text-slate-300">"The only hub that truly understands the creator."</p>
               <div className="mt-6 text-xs font-black uppercase tracking-widest text-indigo-400">— Sarah M.</div>
            </div>
         </div>
@@ -285,16 +285,16 @@ export default function Landing() {
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20" />
           <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 blur-[100px] rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="relative z-10 py-10">
-            <h2 className="text-4xl md:text-6xl font-black mb-8 leading-tight">¿Listo para dar el gran paso?</h2>
+            <h2 className="text-4xl md:text-6xl font-black mb-8 leading-tight">Ready to take the next step?</h2>
             <p className="text-lg text-white/80 mb-12 max-w-xl mx-auto font-medium">
-              Únete a la élite. Registra tu perfil como creador o solicita una auditoría de marca.
+              Join the elite. Register your creator profile or request a brand audit today.
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
               <button onClick={handleEnterApp} className="px-10 py-5 bg-white text-indigo-600 rounded-full font-black text-sm uppercase tracking-widest hover:scale-105 transition-all shadow-xl">
-                Acceder al Dashboard
+                Access Dashboard
               </button>
               <button className="px-10 py-5 bg-transparent border-2 border-white/30 rounded-full font-black text-sm uppercase tracking-widest hover:bg-white/10 transition-all">
-                Contactar Ventas
+                Contact Sales
               </button>
             </div>
           </div>
@@ -312,7 +312,7 @@ export default function Landing() {
           className="fixed bottom-8 right-8 z-[200] p-5 bg-indigo-600 text-white rounded-full shadow-2xl shadow-indigo-500/50 flex items-center gap-3 font-black text-xs uppercase tracking-widest border border-white/20"
         >
           <LayoutDashboard className="h-5 w-5" />
-          <span className="hidden sm:inline">Ir a mi Panel</span>
+          <span className="hidden sm:inline">Go to my Panel</span>
         </motion.button>
       )}
 
@@ -328,7 +328,7 @@ export default function Landing() {
             <a href="#" className="hover:text-white transition-colors">Discord</a>
             <a href="#" className="hover:text-white transition-colors">Contact</a>
           </div>
-          <p className="text-xs">© 2026 UMBRA AGENCY. TODOS LOS DERECHOS RESERVADOS.</p>
+          <p className="text-xs">© 2026 UMBRA AGENCY. ALL RIGHTS RESERVED.</p>
         </div>
       </footer>
     </div>
