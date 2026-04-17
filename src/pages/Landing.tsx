@@ -4,7 +4,7 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { 
   Zap, Users, Globe, Play, Rocket, Trophy, Target, 
   ChevronRight, ArrowRight, Shield, Star, Heart,
-  BarChart3, Gamepad2, Sparkles
+  BarChart3, Gamepad2, Sparkles, LayoutDashboard
 } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { supabase } from '../supabase';
