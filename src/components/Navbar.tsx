@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import { logout } from '../AuthContext';
-import { LogOut, User as UserIcon, Menu, X, LayoutDashboard, UserCircle } from 'lucide-react';
+import { LogOut, User as UserIcon, Menu, X, LayoutDashboard, UserCircle, Globe } from 'lucide-react';
 import { clsx } from 'clsx';
 
 export default function Navbar() {
