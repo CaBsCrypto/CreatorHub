@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Eye, Heart, ExternalLink } from 'lucide-react';
+import { Eye, Heart, ExternalLink, MessageSquare } from 'lucide-react';
 import { Content, UserProfile } from '../../supabase';
 import { getProxiedUrl } from '../../utils/urlHelpers';
 
@@ -110,7 +110,13 @@ const ReviewContentCard: React.FC<ReviewContentCardProps> = ({
           {!isStream && (item.likes || 0) > 0 && (
             <div className="flex items-center gap-1">
               <Heart className="h-2 w-2 text-gray-300" />
-              <span className="text-[8px] font-black text-gray-500">{(item.likes || 0).toLocaleString()}</span>
+              <span className="text-[8px] font-black text-slate-500">{(item.likes || 0).toLocaleString()}</span>
+            </div>
+          )}
+          {!isStream && (item.comments || 0) > 0 && (
+            <div className="flex items-center gap-1">
+              <MessageSquare className="h-2 w-2 text-gray-300" />
+              <span className="text-[8px] font-black text-slate-500">{(item.comments || 0).toLocaleString()}</span>
             </div>
           )}
           <ExternalLink className="h-2 w-2 text-gray-200 ml-auto group-hover:text-indigo-400 transition-colors" />

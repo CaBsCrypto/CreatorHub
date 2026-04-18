@@ -78,6 +78,11 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
                   <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest leading-none">
                     {new Date(item.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
                   </span>
+                  {item.updated_at && (
+                    <span className="text-[8px] font-medium text-indigo-400 mt-1 uppercase tracking-tighter">
+                      Actualizado: {new Date(item.updated_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -146,15 +151,21 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
                 }
 
                 return (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-slate-50 border border-slate-100 rounded-3xl p-6 shadow-sm">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2"><Eye className="h-4 w-4" /> Vistas</p>
-                      <p className="text-3xl font-black text-slate-900">{(item.views || 0).toLocaleString()}</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="bg-slate-50 border border-slate-100 rounded-3xl p-5 shadow-sm group">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2"><Eye className="h-4 w-4 text-indigo-500" /> Vistas</p>
+                      <p className="text-2xl font-black text-slate-900">{(item.views || 0).toLocaleString()}</p>
                     </div>
-                    <div className="bg-slate-50 border border-slate-100 rounded-3xl p-6 shadow-sm">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2"><TrendingUp className="h-4 w-4" /> Likes</p>
-                      <p className="text-3xl font-black text-slate-900">{(item.likes || 0).toLocaleString()}</p>
+                    <div className="bg-slate-50 border border-slate-100 rounded-3xl p-5 shadow-sm group">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2"><TrendingUp className="h-4 w-4 text-rose-500" /> Likes</p>
+                      <p className="text-2xl font-black text-slate-900">{(item.likes || 0).toLocaleString()}</p>
                     </div>
+                    {(item.comments > 0 || item.platform === 'coinmarketcap' || item.platform === 'youtube') && (
+                      <div className="bg-slate-50 border border-slate-100 rounded-3xl p-5 shadow-sm group">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2"><MessageSquare className="h-4 w-4 text-emerald-500" /> Comentarios</p>
+                        <p className="text-2xl font-black text-slate-900">{(item.comments || 0).toLocaleString()}</p>
+                      </div>
+                    )}
                   </div>
                 );
               })()}

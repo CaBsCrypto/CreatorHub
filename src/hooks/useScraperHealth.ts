@@ -5,6 +5,7 @@ export interface ScraperHealth {
   successRate: number;
   errorCount: number;
   total: number;
+  recentErrors: any[];
   loading: boolean;
 }
 
@@ -13,6 +14,7 @@ export function useScraperHealth() {
     successRate: 100,
     errorCount: 0,
     total: 0,
+    recentErrors: [],
     loading: true
   });
 
@@ -20,15 +22,29 @@ export function useScraperHealth() {
     try {
       const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
       
-      const { data, error } = await supabase
-        .from('scraper_logs')
-        .select('status')
-        .gt('created_at', twentyFourHoursAgo);
+      // Fetch status counts and recent errors in parallel
+      const [statsRes, errorsRes] = await Promise.all([
+        supabase
+          .from('scraper_logs')
+          .select('status')
+          .gt('created_at', twentyFourHoursAgo),
+        supabase
+          .from('scraper_logs')
+          .select('*')
+          .eq('status', 'error')
+          .gt('created_at', twentyFourHoursAgo)
+          .order('created_at', { ascending: false })
+          .limit(5)
+      ]);
 
-      if (error) throw error;
+      if (statsRes.error) throw statsRes.error;
+      if (errorsRes.error) throw errorsRes.error;
 
-      if (!data || data.length === 0) {
-        setHealth({ successRate: 100, errorCount: 0, total: 0, loading: false });
+      const data = statsRes.data || [];
+      const recentErrors = errorsRes.data || [];
+
+      if (data.length === 0) {
+        setHealth({ successRate: 100, errorCount: 0, total: 0, recentErrors: [], loading: false });
         return;
       }
 
@@ -37,7 +53,7 @@ export function useScraperHealth() {
       const total = data.length;
       const successRate = Math.round((successCount / total) * 100);
 
-      setHealth({ successRate, errorCount, total, loading: false });
+      setHealth({ successRate, errorCount, total, recentErrors, loading: false });
     } catch (err) {
       console.error("Error fetching scraper health:", err);
       setHealth(prev => ({ ...prev, loading: false }));

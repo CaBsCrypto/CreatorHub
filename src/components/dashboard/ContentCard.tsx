@@ -23,6 +23,7 @@ export interface ContentItem {
   shares_count?: number;
   uploaded_at: string | null;
   created_at: string;
+  updated_at?: string;
   creator_id: string;
 }
 

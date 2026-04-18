@@ -417,12 +417,28 @@ export default function CampaignReportModal({
               <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex flex-col justify-center">
                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Distribución por Red</p>
                 <div className="flex flex-wrap gap-2">
-                  {Object.entries(stats.platformCounts).map(([platform, count]) => count > 0 && (
-                    <div key={platform} className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-100">
-                      <PlatformIcon platform={platform} className="h-3.5 w-3.5 text-gray-600" />
-                      <span className="text-xs font-bold text-gray-900">{count}</span>
-                    </div>
-                  ))}
+                  {Object.entries(stats.platformCounts).map(([platform, count]) => {
+                    if (count === 0) return null;
+                    const platformViews = campaignContent
+                      .filter(c => c.platform === platform)
+                      .reduce((sum, c) => sum + (c.views || 0), 0);
+                    
+                    return (
+                      <div key={platform} className="flex flex-col gap-1 px-3 py-2 bg-gray-50 rounded-xl border border-gray-100 min-w-[70px]">
+                        <div className="flex items-center gap-1.5 ">
+                          <PlatformIcon platform={platform} className="h-3 w-3 text-gray-400" />
+                          <span className="text-[9px] font-black uppercase text-gray-400">{platform === 'coinmarketcap' ? 'CMC' : platform}</span>
+                        </div>
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-xs font-black text-gray-900">{count}</span>
+                          <span className="text-[8px] font-bold text-gray-400">posts</span>
+                        </div>
+                        <div className="text-[10px] font-black text-indigo-600">
+                          {platformViews >= 1000 ? (platformViews / 1000).toFixed(1) + 'K' : platformViews} <span className="text-[8px] opacity-70">views</span>
+                        </div>
+                      </div>
+                    );
+                  })}
                   {campaignContent.length === 0 && <span className="text-xs text-gray-400">Sin contenido publicado</span>}
                 </div>
               </div>

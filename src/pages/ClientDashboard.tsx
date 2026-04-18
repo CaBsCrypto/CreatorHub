@@ -81,31 +81,47 @@ export default function ClientDashboard() {
   if (loading) return <LoadingSpinner message="Cargando tu panel de cliente..." />;
 
   return (
-    <div className="min-h-screen pb-20">
-      {/* Header */}
-      <header className="mb-12">
+    <div className="min-h-screen pb-20 relative overflow-hidden">
+      {/* Background Nebula (Subtle) */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute -top-24 -left-24 w-96 h-96 bg-indigo-500/5 blur-[100px] rounded-full" />
+        <div className="absolute top-1/2 -right-24 w-80 h-80 bg-rose-500/5 blur-[100px] rounded-full" />
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-6 pt-12">
+        {/* Header */}
+      <motion.header 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-12"
+      >
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <h1 className="text-4xl font-black text-gray-900 tracking-tight mb-2 flex items-center gap-3">
-              <span className="p-3 bg-indigo-600 text-white rounded-2xl shadow-xl shadow-indigo-100">
-                <BarChart3 className="h-8 w-8" />
+              <span className="p-3 bg-indigo-600 text-white rounded-2xl shadow-xl shadow-indigo-100 group">
+                <BarChart3 className="h-8 w-8 group-hover:rotate-12 transition-transform" />
               </span>
               ¡Hola, {profile?.display_name || 'Cliente'}!
             </h1>
-            <p className="text-gray-500 font-medium">Gracias por colaborar con <strong>Umbra</strong>. Aquí puedes ver los resultados detallados de nuestra campaña.</p>
+            <p className="text-gray-500 font-medium">Gracias por colaborar con <span className="text-indigo-600 font-black">UMBRA</span>. Aquí puedes ver los resultados detallados de tu campaña.</p>
           </div>
           
           <button 
             onClick={() => logout()}
-            className="flex items-center gap-2 px-6 py-3 bg-white border border-gray-100 rounded-2xl text-sm font-bold text-gray-400 hover:text-rose-500 hover:border-rose-100 transition-all shadow-sm"
+            className="flex items-center gap-2 px-6 py-3 bg-white border border-gray-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-rose-500 hover:border-rose-100 transition-all shadow-sm active:scale-95"
           >
             <LogOut className="h-4 w-4" /> Cerrar Sesión
           </button>
         </div>
-      </header>
+      </motion.header>
 
       {/* Stats Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"
+      >
         <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm relative overflow-hidden group">
           <div className="absolute -right-4 -top-4 w-24 h-24 bg-indigo-50 rounded-full blur-2xl opacity-50 group-hover:scale-150 transition-transform duration-700" />
           <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Campañas Activas</p>
@@ -134,7 +150,7 @@ export default function ClientDashboard() {
             <Zap className="h-5 w-5 text-amber-500 mb-1 animate-pulse" />
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Campaigns List */}
       <h2 className="text-xl font-black text-gray-900 uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
