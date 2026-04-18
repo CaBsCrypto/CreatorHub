@@ -11,8 +11,10 @@ export default function Login() {
 
   React.useEffect(() => {
     if (user && profile) {
-      if (profile.role === 'admin') {
+      if (profile.role === 'admin' || profile.role === 'manager') {
         navigate('/admin');
+      } else if (profile.role === 'client') {
+        navigate('/client');
       } else {
         navigate('/creator');
       }

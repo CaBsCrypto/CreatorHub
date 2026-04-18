@@ -353,12 +353,22 @@ export async function fetchCMCData(url: string) {
     if (thumbMatch) thumbnail = thumbMatch[1];
 
     const urlObj = new URL(url);
-    const postId = urlObj.pathname.split('/').pop();
-    const statsRegex = new RegExp(`"gravityId"\\s*:\\s*"${postId}"[\\s\\S]*?"commentCount"\\s*:\\s*"(\\d+)"[\\s\\S]*?"likeCount"\\s*:\\s*"(\\d+)"`, 'i');
+    const pathParts = urlObj.pathname.split('/').filter(Boolean);
+    const postId = pathParts.pop();
+
+    // Stats Regex: Matches both "key":"value" and "key":value (number)
+    // Also handles gravityId at the start of the block to ensure we match the right post
+    const statsRegex = new RegExp(`"gravityId"\\s*:\\s*"${postId}"[\\s\\S]*?"commentCount"\\s*:\\s*"?(\\d+)"?[\\s\\S]*?"likeCount"\\s*:\\s*"?(\\d+)"?`, 'i');
     const match = html.match(statsRegex);
     let views = 0, likes = 0, comments = 0;
-    if (match) { comments = parseInt(match[1], 10); likes = parseInt(match[2], 10); }
-    const impRegex = new RegExp(`"gravityId"\\s*:\\s*"${postId}"[\\s\\S]*?"impressionCount"\\s*:\\s*"(\\d+)"`, 'i');
+    
+    if (match) { 
+      comments = parseInt(match[1], 10); 
+      likes = parseInt(match[2], 10); 
+    }
+
+    // Impression Count Regex: Numeric or String
+    const impRegex = new RegExp(`"gravityId"\\s*:\\s*"${postId}"[\\s\\S]*?"impressionCount"\\s*:\\s*"?(\\d+)"?`, 'i');
     const impMatch = html.match(impRegex);
     if (impMatch) views = parseInt(impMatch[1], 10);
     const duration = Date.now() - start;
