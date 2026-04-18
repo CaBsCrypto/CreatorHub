@@ -346,39 +346,67 @@ export async function fetchInstagramData(url: string) {
 export async function fetchCMCData(url: string) {
   const start = Date.now();
   try {
-    const pageRes = await axios.get(url, { headers: { "User-Agent": USER_AGENT }, timeout: 5000 });
-    const html = pageRes.data;
-    let thumbnail = "";
-    const thumbMatch = html.match(/<meta property="og:image" content="([^"]+)"/);
-    if (thumbMatch) thumbnail = thumbMatch[1];
-
+    // Extract the post ID from the URL
     const urlObj = new URL(url);
     const pathParts = urlObj.pathname.split('/').filter(Boolean);
     const postId = pathParts.pop();
 
-    // Stats Regex: Matches both "key":"value" and "key":value (number)
-    // Also handles gravityId at the start of the block to ensure we match the right post
-    const statsRegex = new RegExp(`"gravityId"\\s*:\\s*"${postId}"[\\s\\S]*?"commentCount"\\s*:\\s*"?(\\d+)"?[\\s\\S]*?"likeCount"\\s*:\\s*"?(\\d+)"?`, 'i');
-    const match = html.match(statsRegex);
-    let views = 0, likes = 0, comments = 0;
-    
-    if (match) { 
-      comments = parseInt(match[1], 10); 
-      likes = parseInt(match[2], 10); 
+    if (!postId || isNaN(Number(postId))) {
+      throw new Error(`Invalid CMC post URL - could not extract postId from: ${url}`);
     }
 
-    // Impression Count Regex: Numeric or String
-    const impRegex = new RegExp(`"gravityId"\\s*:\\s*"${postId}"[\\s\\S]*?"impressionCount"\\s*:\\s*"?(\\d+)"?`, 'i');
-    const impMatch = html.match(impRegex);
-    if (impMatch) views = parseInt(impMatch[1], 10);
+    // Use the official CMC API endpoint instead of scraping HTML - much more reliable
+    const apiUrl = `https://api.coinmarketcap.com/content/v3/community/post/details?postId=${postId}`;
+    const apiRes = await axios.get(apiUrl, {
+      headers: { 
+        "User-Agent": USER_AGENT,
+        "Referer": "https://coinmarketcap.com/",
+        "Origin": "https://coinmarketcap.com",
+        "Accept": "application/json"
+      },
+      timeout: 8000
+    });
+
+    const postData = apiRes.data?.data;
+
+    if (!postData) {
+      throw new Error(`CMC API returned no data for postId: ${postId}`);
+    }
+
+    const views    = parseInt(String(postData.impressionCount || 0), 10);
+    const likes    = parseInt(String(postData.likeCount       || 0), 10);
+    const comments = parseInt(String(postData.commentCount    || 0), 10);
+
+    // Get thumbnail from og:image if still needed, but try API first
+    let thumbnail = postData.imageUrls?.[0] || "";
+    if (!thumbnail) {
+      try {
+        const pageRes = await axios.get(url, { headers: { "User-Agent": USER_AGENT }, timeout: 5000 });
+        const thumbMatch = pageRes.data.match(/<meta property="og:image" content="([^"]+)"/);
+        if (thumbMatch) thumbnail = thumbMatch[1];
+      } catch (_) { /* thumbnail is optional */ }
+    }
+
+    const title = (postData.content || "CoinMarketCap Post").substring(0, 100);
+
     const duration = Date.now() - start;
-    await logScraperAction('coinmarketcap', url, views === 0 ? 'error' : 'success', views === 0 ? 'CMC returned 0 views' : undefined, duration, { views, likes });
-    return { title: "CoinMarketCap Post", views, likes, comments, thumbnail };
+    await logScraperAction(
+      'coinmarketcap', url,
+      views === 0 ? 'error' : 'success',
+      views === 0 ? 'CMC API returned 0 impressionCount' : undefined,
+      duration,
+      { views, likes, comments, postId }
+    );
+
+    return { title, views, likes, comments, thumbnail };
   } catch (error: any) {
-    await logScraperAction('coinmarketcap', url, 'error', error.message, Date.now() - start);
+    const duration = Date.now() - start;
+    console.error("[CMC Scraper] Error:", error.message);
+    await logScraperAction('coinmarketcap', url, 'error', error.message, duration);
     return { title: "CoinMarketCap Post", views: 0, likes: 0, comments: 0, thumbnail: "" };
   }
 }
+
 
 // --- PROFILE SCRAERS (REFINED FOR MONTHLY REACH) ---
 
