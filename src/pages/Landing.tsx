@@ -100,7 +100,7 @@ export default function Landing() {
   const [loadingStats, setLoadingStats] = useState(true);
   const [featuredCreators, setFeaturedCreators] = useState<any[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [mockupFeature, setMockupFeature] = useState<'roi' | 'creators' | 'reporting'>('roi');
+  const [mockupFeature, setMockupFeature] = useState<'metrics' | 'magic-link' | 'summary'>('metrics');
 
   const [language, setLanguage] = useState<'en' | 'es'>('en');
   const t = translations[language];
@@ -690,20 +690,20 @@ export default function Landing() {
                 <div className="mockup-sidebar">
                   <div className="w-8 h-8 bg-indigo-600 rounded-lg mb-8 shadow-lg shadow-indigo-500/20" />
                   <div 
-                    onMouseEnter={() => setMockupFeature('roi')}
-                    className={`mockup-item-click mb-4 ${mockupFeature === 'roi' ? 'active' : ''}`} 
+                    onMouseEnter={() => setMockupFeature('metrics')}
+                    className={`mockup-item-click mb-4 ${mockupFeature === 'metrics' ? 'active' : ''}`} 
                   >
                     <BarChart className="h-2 w-2 text-white" />
                   </div>
                   <div 
-                    onMouseEnter={() => setMockupFeature('creators')}
-                    className={`mockup-item-click mb-4 ${mockupFeature === 'creators' ? 'active' : ''}`} 
+                    onMouseEnter={() => setMockupFeature('magic-link')}
+                    className={`mockup-item-click mb-4 ${mockupFeature === 'magic-link' ? 'active' : ''}`} 
                   >
-                    <Users className="h-2 w-2 text-white" />
+                    <Star className="h-2 w-2 text-white" />
                   </div>
                   <div 
-                    onMouseEnter={() => setMockupFeature('reporting')}
-                    className={`mockup-item-click mb-4 ${mockupFeature === 'reporting' ? 'active' : ''}`} 
+                    onMouseEnter={() => setMockupFeature('summary')}
+                    className={`mockup-item-click mb-4 ${mockupFeature === 'summary' ? 'active' : ''}`} 
                   >
                     <Activity className="h-2 w-2 text-white" />
                   </div>
@@ -724,9 +724,9 @@ export default function Landing() {
                   </div>
 
                   <AnimatePresence mode="wait">
-                    {mockupFeature === 'roi' && (
+                    {mockupFeature === 'metrics' && (
                       <motion.div 
-                        key="roi"
+                        key="metrics"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
@@ -735,17 +735,17 @@ export default function Landing() {
                         <div className="grid grid-cols-2 gap-4">
                           <div className="mockup-card">
                             <TrendingUp className="h-4 w-4 text-emerald-400 mb-2" />
-                            <div className="text-[10px] font-bold text-slate-500 uppercase mb-1">Growth ROI</div>
-                            <div className="text-xl font-black text-white">+24.8%</div>
+                            <div className="text-[10px] font-bold text-slate-500 uppercase mb-1">Live Posts</div>
+                            <div className="text-xl font-black text-white">24</div>
                           </div>
                           <div className="mockup-card">
                             <Zap className="h-4 w-4 text-amber-400 mb-2" />
-                            <div className="text-[10px] font-bold text-slate-500 uppercase mb-1">Efficiency</div>
-                            <div className="text-xl font-black text-white">99.2%</div>
+                            <div className="text-[10px] font-bold text-slate-500 uppercase mb-1">Total Views</div>
+                            <div className="text-xl font-black text-white">850K</div>
                           </div>
                         </div>
                         <div className="bg-slate-800/30 rounded-[2rem] border border-white/5 p-6 h-48 flex flex-col justify-end gap-3 overflow-hidden relative">
-                           <div className="absolute top-4 left-6 text-[8px] font-black uppercase text-indigo-500/50 tracking-widest">Performance Matrix</div>
+                           <div className="absolute top-4 left-6 text-[8px] font-black uppercase text-indigo-500/50 tracking-widest">Real-time Scraper Activity</div>
                            <div className="flex items-end gap-2 h-full">
                               {[0.4, 0.7, 0.5, 0.9, 0.6, 0.8, 0.75, 1, 0.85, 0.95].map((h, i) => (
                                 <motion.div 
@@ -761,31 +761,39 @@ export default function Landing() {
                       </motion.div>
                     )}
 
-                    {mockupFeature === 'creators' && (
+                    {mockupFeature === 'magic-link' && (
                       <motion.div 
-                        key="creators"
+                        key="magic-link"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                         className="space-y-4"
                       >
-                         <div className="text-xs font-black text-white/50 uppercase tracking-widest mb-2">Global Network Status</div>
-                         {[1, 2, 3].map(i => (
-                           <div key={i} className="flex items-center gap-4 bg-white/5 p-3 rounded-2xl border border-white/5">
-                              <div className="w-10 h-10 rounded-xl bg-slate-800" />
-                              <div className="flex-1">
-                                 <div className="h-3 bg-white/10 rounded w-24 mb-2" />
-                                 <div className="h-2 bg-white/5 rounded w-16" />
-                              </div>
-                              <div className="w-12 h-2 bg-emerald-500/20 rounded-full" />
-                           </div>
-                         ))}
+                         <div className="text-xs font-black text-white/50 uppercase tracking-widest mb-2">Public Portal Status</div>
+                         <div className="bg-slate-800/50 rounded-2xl p-6 border border-indigo-500/30">
+                            <div className="flex items-center justify-between mb-4">
+                               <div className="flex items-center gap-2">
+                                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                                  <span className="text-[10px] font-black text-white">LIVE_REPORT_X2.umbra</span>
+                               </div>
+                               <button className="px-3 py-1 bg-indigo-600 rounded-full text-[8px] font-black">COPY LINK</button>
+                            </div>
+                            <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                               <div className="w-2/3 h-full bg-indigo-500" />
+                            </div>
+                            <p className="text-[10px] text-slate-500 mt-4 leading-relaxed font-bold">"Shared with client 2 minutes ago."</p>
+                         </div>
+                         <div className="flex gap-4">
+                            {[1, 2].map(i => (
+                               <div key={i} className="flex-1 bg-white/5 h-20 rounded-2xl border border-white/5" />
+                            ))}
+                         </div>
                       </motion.div>
                     )}
 
-                    {mockupFeature === 'reporting' && (
+                    {mockupFeature === 'summary' && (
                       <motion.div 
-                        key="reporting"
+                        key="summary"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
@@ -793,7 +801,7 @@ export default function Landing() {
                       >
                          <div className="mockup-card border-indigo-500/30 bg-indigo-500/5">
                             <div className="flex justify-between items-center mb-4">
-                               <div className="text-[10px] font-black text-indigo-400">CAMPAIGN_SUMMARY_A4.pdf</div>
+                               <div className="text-[10px] font-black text-indigo-400">CAMPAIGN_SUMMARY.pdf</div>
                                <div className="h-2 w-10 bg-indigo-500 rounded-full" />
                             </div>
                             <div className="space-y-2">
@@ -806,11 +814,11 @@ export default function Landing() {
                          <div className="flex gap-4">
                             <div className="flex-1 h-24 bg-white/5 rounded-[1.5rem] border border-white/5 flex flex-col items-center justify-center">
                                <CheckCircle2 className="h-6 w-6 text-indigo-500 mb-2" />
-                               <div className="text-[8px] font-black text-slate-500">VERIFIED</div>
+                               <div className="text-[8px] font-black text-slate-500">GENERATED</div>
                             </div>
                             <div className="flex-1 h-24 bg-white/5 rounded-[1.5rem] border border-white/5 flex flex-col items-center justify-center">
                                <Globe className="h-6 w-6 text-emerald-500 mb-2" />
-                               <div className="text-[8px] font-black text-slate-500">DISTRIBUTED</div>
+                               <div className="text-[8px] font-black text-slate-500">PUBLISHED</div>
                             </div>
                          </div>
                       </motion.div>
