@@ -871,64 +871,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Global Presence Section */}
-      <section className="py-32 px-6 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-          <div className="order-2 lg:order-1">
-             <div className="premium-card bg-slate-900/50 p-10 relative group overflow-hidden">
-                {/* World Map Pings representation */}
-                <div className="absolute inset-0 opacity-20 pointer-events-none">
-                   {[
-                     { t: '20%', l: '30%', d: 0 },
-                     { t: '45%', l: '65%', d: 0.5 },
-                     { t: '60%', l: '20%', d: 1 },
-                     { t: '30%', l: '80%', d: 1.5 },
-                     { t: '70%', l: '50%', d: 2 },
-                   ].map((p, i) => (
-                     <motion.div 
-                       key={i}
-                       initial={{ opacity: 0, scale: 0 }}
-                       whileInView={{ opacity: 1, scale: 1 }}
-                       transition={{ delay: p.d, duration: 0.8, repeat: Infinity, repeatDelay: 3 }}
-                       className="absolute w-3 h-3 bg-indigo-500 rounded-full blur-[2px]"
-                       style={{ top: p.t, left: p.l }}
-                     >
-                        <div className="absolute inset-0 bg-indigo-400 rounded-full animate-ping" />
-                     </motion.div>
-                   ))}
-                </div>
-
-                <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-                  <Globe className="h-40 w-40 text-indigo-500" />
-                </div>
-                <h3 className="text-3xl font-black mb-6">{t.global.card_title}</h3>
-                <p className="text-slate-400 font-medium leading-relaxed mb-8">
-                  {t.global.card_desc}
-                </p>
-                <div className="flex flex-wrap gap-4">
-                  {['USA', 'Spain', 'Mexico', 'France', 'Japan', 'Brazil'].map((country, i) => (
-                    <motion.span 
-                      key={country} 
-                      initial={{ opacity: 0, y: 10 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.1 }}
-                      className="px-4 py-2 bg-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-white/5 hover:bg-indigo-600/10 transition-colors"
-                    >
-                      {country}
-                    </motion.span>
-                  ))}
-                </div>
-             </div>
-          </div>
-          <div className="order-1 lg:order-2">
-            <span className="section-label">{t.global.label}</span>
-            <h2 className="text-4xl md:text-6xl font-black mb-8">{t.global.title}</h2>
-            <p className="text-xl text-slate-400 font-medium leading-relaxed">
-              {t.global.desc}
-            </p>
-          </div>
-        </div>
-      </section>
 
       {/* Creator Carousel Section */}
       <section id="creators" className="py-32 bg-slate-900/20">
