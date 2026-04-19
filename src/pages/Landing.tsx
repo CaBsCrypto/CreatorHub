@@ -372,8 +372,12 @@ export default function Landing() {
             <div className="flex gap-20 whitespace-nowrap marquee-wrapper w-full">
               <motion.div 
                 className="flex gap-20 items-center marquee-content"
-                animate={{ x: [0, -1000] }}
-                transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+                animate={{ x: ["0%", "-50%"] }}
+                transition={{ 
+                  duration: 40, 
+                  repeat: Infinity, 
+                  ease: "linear" 
+                }}
               >
                 {['BASE', 'IMMUTABLE', 'AVALANCHE', 'RONIN', 'STELLAR', 'ARBITRUM'].map((brand, i) => (
                   <div key={i} className="flex items-center gap-3 opacity-20 hover:opacity-100 transition-all cursor-default group">
@@ -949,7 +953,7 @@ export default function Landing() {
         <div className="creator-carousel-container relative">
           <motion.div 
             className="flex gap-8 px-6"
-            animate={{ x: [0, -1000] }}
+            animate={{ x: ["0%", "-50%"] }}
             transition={{ 
               x: {
                 repeat: Infinity,
