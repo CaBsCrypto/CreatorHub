@@ -39,82 +39,6 @@ const wordRevealVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
 };
 
-// --- Cinematic Glow Cursor ---
-function GlowCursor() {
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const [isHovering, setIsHovering] = useState(false);
-  const [isClicked, setIsClicked] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
-
-  const springConfig = { damping: 25, stiffness: 150 };
-  const cursorX = useSpring(mouseX, springConfig);
-  const cursorY = useSpring(mouseY, springConfig);
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      mouseX.set(e.clientX);
-      mouseY.set(e.clientY);
-      if (!isVisible) setIsVisible(true);
-
-      // Check if hovering over interactive elements
-      const target = e.target as HTMLElement;
-      const isInteractive = target.closest('button, a, .premium-card, .founder-image, .creator-carousel-item, [role="button"]');
-      setIsHovering(!!isInteractive);
-    };
-
-    const handleMouseDown = () => setIsClicked(true);
-    const handleMouseUp = () => setIsClicked(false);
-
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mousedown', handleMouseDown);
-    window.addEventListener('mouseup', handleMouseUp);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mousedown', handleMouseDown);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [mouseX, mouseY, isVisible]);
-
-  if (typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches) return null;
-
-  return (
-    <motion.div
-      className="fixed top-0 left-0 pointer-events-none z-[9999] mix-blend-difference"
-      style={{
-        x: cursorX,
-        y: cursorY,
-        translateX: '-50%',
-        translateY: '-50%',
-      }}
-    >
-      <motion.div
-        animate={{
-          scale: isClicked ? 0.8 : isHovering ? 2.5 : 1,
-          opacity: isVisible ? 1 : 0,
-        }}
-        transition={{ type: 'spring', damping: 20, stiffness: 100 }}
-        className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center"
-      >
-        <motion.div 
-          animate={{
-            scale: isHovering ? 0 : 1,
-          }}
-          className="w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_10px_white]" 
-        />
-      </motion.div>
-      
-      {/* Outer glow trail */}
-      <motion.div
-        animate={{
-          scale: isHovering ? 4 : 1.5,
-          opacity: isVisible ? 0.15 : 0,
-        }}
-        className="absolute inset-0 rounded-full bg-indigo-500 blur-xl -z-10"
-      />
-    </motion.div>
-  );
-}
 
 // --- Animated Counter Sub-component ---
 function AnimatedCounter({ target, suffix, decimals = 0 }: { target: number; suffix: string; decimals?: number }) {
@@ -250,7 +174,6 @@ export default function Landing() {
 
   return (
     <div className="landing-container scroll-smooth">
-      <GlowCursor />
 
       {/* Page Entrance Shutter */}
       <AnimatePresence>
@@ -941,7 +864,7 @@ export default function Landing() {
                  >
                    <Twitter className="h-3 w-3 group-hover/tw:text-sky-400 transition-colors" />
                    <span className="text-[10px] font-bold">@{founder.twitter.split('/').pop()}</span>
-                 </a>
+                 </div>
                   <p className="text-slate-400 font-medium px-4 text-sm italic leading-relaxed">
                     <span className="text-indigo-400/60 text-sm font-black not-italic">"</span>
                     {founder.desc}

@@ -6,7 +6,7 @@
   transition: background 0.3s ease;
 }
 
-/* Custom Cursor Context */
+/* Custom Cursor Context - DELETED as requested */
 .landing-container {
   @apply min-h-screen bg-slate-950 text-white overflow-x-hidden relative;
   background: radial-gradient(circle at 10% 10%, rgba(79, 70, 229, 0.1), transparent 40%),
@@ -14,13 +14,9 @@
               radial-gradient(circle at 50% 50%, rgba(79, 70, 229, 0.05), transparent 60%),
               radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.08), transparent 40%),
               #020617;
-  cursor: none !important;
 }
 
-/* Hide default cursor on all children */
-.landing-container * {
-  cursor: none !important;
-}
+/* Hide fallback - DELETED */
 
 /* Restore cursor on mobile */
 @media (pointer: coarse) {
