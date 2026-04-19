@@ -368,3 +368,59 @@
 footer a:hover {
   text-decoration: none;
 }
+
+/* Bento Grid & Architecture Styles */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: minmax(280px, auto);
+  gap: 1.5rem;
+}
+
+.bento-card {
+  @apply relative p-10 rounded-[3.5rem] bg-slate-900/40 border border-white/5 backdrop-blur-md transition-all duration-700 overflow-hidden flex flex-col;
+  box-shadow: 0 25px 80px -20px rgba(0, 0, 0, 0.7);
+}
+
+.bento-card:hover {
+  @apply border-indigo-500/40 -translate-y-2;
+  box-shadow: 0 40px 100px -20px rgba(79, 70, 229, 0.25);
+}
+
+.bento-streams { grid-column: span 2; grid-row: span 2; }
+.bento-video { grid-column: span 2; grid-row: span 1; }
+.bento-gaming { grid-column: span 1; grid-row: span 1; }
+.bento-casting { grid-column: span 1; grid-row: span 1; }
+.bento-events { grid-column: span 2; grid-row: span 1; }
+
+@media (max-width: 1024px) {
+  .bento-grid {
+    grid-template-columns: repeat(1, 1fr);
+    grid-auto-rows: auto;
+  }
+  .bento-streams, .bento-video, .bento-gaming, .bento-casting, .bento-events {
+    grid-column: span 1;
+    min-height: 250px;
+  }
+}
+
+.phase-stepper {
+  @apply grid grid-cols-1 md:grid-cols-3 gap-10 mb-32 relative;
+}
+
+.stepper-item {
+  @apply relative p-10 rounded-[3rem] bg-white/[0.02] border border-white/5 transition-all duration-700 hover:bg-white/[0.04];
+}
+
+.stepper-number {
+  @apply w-14 h-14 rounded-[1.5rem] bg-indigo-600 flex items-center justify-center text-2xl font-black mb-8 shadow-2xl shadow-indigo-600/40;
+}
+
+.stepper-label {
+  @apply text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400 mb-4 block;
+}
+
+/* Animated connector line */
+.stepper-connector {
+  @apply absolute top-[6.5rem] left-[15%] right-[15%] h-px bg-gradient-to-r from-transparent via-indigo-600/40 to-transparent z-0 hidden md:block;
+}

@@ -500,123 +500,148 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Method Section (Updated Service Section) */}
-      <section id="about" className="py-32 px-6 max-w-7xl mx-auto">
-        <div className="text-center mb-32">
-          <motion.span 
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="section-label"
-          >
-            {t.method.label}
-          </motion.span>
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-5xl md:text-7xl font-black mb-8 leading-tight text-white/90 tracking-tighter"
-          >
-             {t.method.title1} <br/> <span className="gradient-text">{t.method.title2}</span>
-          </motion.h2>
-          <motion.div 
-            initial={{ opacity: 0, scaleX: 0 }}
-            whileInView={{ opacity: 1, scaleX: 1 }}
-            viewport={{ once: true }}
-            className="w-24 h-1 bg-indigo-600 mx-auto rounded-full"
-          />
-        </div>
+      {/* Architecture Section (Unified Strategy & Execution) */}
+      <section id="about" className="py-40 px-6 relative overflow-hidden">
+        {/* Section Decorative Elements */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-indigo-600/5 blur-[120px] rounded-full -z-10" />
 
-        <motion.div 
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-32"
-        >
-           {[
-             { 
-               title: t.method.step1, 
-               desc: t.method.step1_desc, 
-               icon: Target, 
-               color: 'text-blue-400',
-               glow: 'shadow-blue-500/20'
-             },
-             { 
-               title: t.method.step2, 
-               desc: t.method.step2_desc, 
-               icon: Sparkles, 
-               color: 'text-purple-400',
-               glow: 'shadow-purple-500/20'
-             },
-             { 
-               title: t.method.step3, 
-               desc: t.method.step3_desc, 
-               icon: BarChart3, 
-               color: 'text-cyan-400',
-               glow: 'shadow-cyan-500/20'
-             }
-           ].map((service) => (
-             <motion.div 
-               key={service.title}
-               variants={revealVariants}
-               className="service-card-premium group"
-             >
-               <div className="service-icon-container">
-                  <service.icon className={`h-10 w-10 ${service.color}`} />
-                  <div className={`absolute inset-0 rounded-full blur-xl opacity-20 ${service.glow}`} />
-               </div>
-               <h3 className="text-2xl font-black mb-6 group-hover:text-indigo-400 transition-colors tracking-tighter uppercase">{service.title}</h3>
-               <p className="text-slate-400 text-base font-medium leading-relaxed mb-auto">{service.desc}</p>
-               
-               <div className="mt-10 flex items-center gap-2 text-indigo-400/50 group-hover:text-indigo-400 transition-all">
-                  <span className="text-[10px] font-black uppercase tracking-[0.3em]">Phase 0{service.title[0]}</span>
-                  <div className="flex-1 h-px bg-white/5 group-hover:bg-indigo-500/20 transition-all" />
-                  <ArrowRight className="h-4 w-4 transform group-hover:translate-x-1 transition-transform" />
-               </div>
-             </motion.div>
-           ))}
-        </motion.div>
-
-        {/* Media Mix Section - Redesigned as "Capabilities Grid" */}
-        <div className="relative mt-32">
-          <div className="absolute inset-x-0 -top-24 h-px bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent" />
-          <div className="text-center mb-20">
-            <h4 className="text-sm font-black uppercase tracking-[0.6em] text-indigo-400 mb-4">{t.method.media_mix}</h4>
-            <h3 className="text-4xl md:text-5xl font-black text-white mb-6 tracking-tighter">Full Spectrum Execution.</h3>
-            <p className="text-slate-400 text-lg font-medium max-w-2xl mx-auto leading-relaxed">
-              We don't just post content; we architect cultural moments across the entire digital landscape.
-            </p>
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-32">
+            <motion.span 
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="section-label"
+            >
+              {t.method.label}
+            </motion.span>
+            <motion.h2 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-5xl md:text-8xl font-black mb-8 leading-[0.8] text-white tracking-tighter"
+            >
+               THE <br/> <span className="gradient-text">ARCHITECTURE.</span>
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="text-slate-400 text-xl font-medium max-w-2xl mx-auto leading-relaxed"
+            >
+              A multi-layered ecosystem designed to transform raw potential into cultural momentum.
+            </motion.p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-             {[
-               { name: 'Streams', icon: Play, desc: t.method.capabilities.streams },
-               { name: 'Short & Long Video', icon: Gamepad2, desc: t.method.capabilities.video },
-               { name: 'Gaming Nights', icon: Trophy, desc: t.method.capabilities.gaming },
-               { name: 'Live Casting', icon: Zap, desc: t.method.capabilities.casting },
-               { name: 'Event Organization', icon: Globe, desc: t.method.capabilities.events }
-             ].map((item, i) => (
-               <motion.div 
-                 key={item.name}
-                 initial={{ opacity: 0, y: 20 }}
-                 whileInView={{ opacity: 1, y: 0 }}
-                 viewport={{ once: true }}
-                 transition={{ delay: i * 0.1 }}
-                 className={`capability-card-large group ${i === 4 ? 'md:col-span-2 lg:col-span-1' : ''}`}
-               >
-                  <div className="capability-icon-large">
-                    <item.icon />
-                  </div>
-                  <h5 className="text-2xl font-black mb-4 tracking-tighter text-white uppercase">{item.name}</h5>
-                  <p className="text-slate-400 text-sm leading-relaxed font-medium">
-                    {item.desc}
-                  </p>
-                  
-                  {/* Subtle background glow for each card */}
-                  <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-indigo-600/5 blur-3xl rounded-full group-hover:bg-indigo-600/20 transition-all duration-700" />
+
+          {/* Phase Stepper Flow */}
+          <div className="relative">
+            <div className="stepper-connector" />
+            <motion.div 
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              className="phase-stepper"
+            >
+              {[
+                { label: 'Phase 01', title: t.method.step1, desc: t.method.step1_desc, icon: Target },
+                { label: 'Phase 02', title: t.method.step2, desc: t.method.step2_desc, icon: Sparkles },
+                { label: 'Phase 03', title: t.method.step3, desc: t.method.step3_desc, icon: BarChart3 }
+              ].map((phase, i) => (
+                <motion.div 
+                  key={i}
+                  variants={revealVariants}
+                  className="stepper-item group"
+                >
+                  <div className="stepper-number">0{i+1}</div>
+                  <span className="stepper-label">{phase.label}</span>
+                  <h3 className="text-2xl font-black mb-4 group-hover:text-indigo-400 transition-colors uppercase tracking-tight">{phase.title.replace(`${i+1}. `, '')}</h3>
+                  <p className="text-slate-400 text-sm font-medium leading-relaxed">{phase.desc}</p>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+
+          {/* Capabilities Bento Grid */}
+          <div className="mt-40">
+            <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+              <div className="max-w-xl">
+                <span className="section-label">{t.method.media_mix}</span>
+                <h3 className="text-4xl md:text-5xl font-black tracking-tighter uppercase leading-none">Full Spectrum <br/> Execution.</h3>
+              </div>
+              <p className="text-slate-500 text-sm font-bold max-w-sm leading-relaxed mb-1 italic">
+                 "We don't just post content; we architect cultural moments across the entire digital landscape."
+              </p>
+            </div>
+
+            <motion.div 
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              className="bento-grid"
+            >
+               {/* 1. STREAMS (Large Focus) */}
+               <motion.div variants={revealVariants} className="bento-card bento-streams group">
+                 <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:opacity-20 transition-opacity">
+                   <Play className="h-40 w-40 text-indigo-500" />
+                 </div>
+                 <div className="relative z-10">
+                   <div className="w-16 h-16 rounded-[1.5rem] bg-indigo-600/10 flex items-center justify-center mb-8">
+                     <Play className="h-8 w-8 text-indigo-400" />
+                   </div>
+                   <h4 className="text-3xl font-black mb-4 uppercase tracking-tighter">Streams</h4>
+                   <p className="text-slate-400 font-medium text-lg leading-relaxed">
+                     {t.method.capabilities.streams}
+                   </p>
+                 </div>
                </motion.div>
-             ))}
+
+               {/* 2. VIDEO (Wide) */}
+               <motion.div variants={revealVariants} className="bento-card bento-video group">
+                 <div className="flex items-center gap-6 relative z-10">
+                   <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center">
+                     <Gamepad2 className="h-6 w-6 text-indigo-400" />
+                   </div>
+                   <div>
+                     <h4 className="text-xl font-black uppercase tracking-tight">Short & Long Video</h4>
+                     <p className="text-slate-500 text-sm font-medium">{t.method.capabilities.video}</p>
+                   </div>
+                 </div>
+               </motion.div>
+
+               {/* 3. GAMING (Square) */}
+               <motion.div variants={revealVariants} className="bento-card bento-gaming group items-center text-center">
+                  <Trophy className="h-10 w-10 text-amber-400 mb-6 group-hover:scale-110 transition-transform" />
+                  <h4 className="text-sm font-black uppercase tracking-widest mb-2">Gaming Nights</h4>
+                  <div className="h-px w-8 bg-indigo-600/30 mb-4" />
+                  <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wide px-2 leading-relaxed opacity-60">
+                    Community Driven Excellence
+                  </p>
+               </motion.div>
+
+               {/* 4. CASTING (Square) */}
+               <motion.div variants={revealVariants} className="bento-card bento-casting group items-center text-center">
+                  <Zap className="h-10 w-10 text-indigo-400 mb-6 group-hover:rotate-12 transition-transform" />
+                  <h4 className="text-sm font-black uppercase tracking-widest mb-2">Live Casting</h4>
+                  <div className="h-px w-8 bg-indigo-600/30 mb-4" />
+                  <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wide px-2 leading-relaxed opacity-60">
+                    Professional Meta Narration
+                  </p>
+               </motion.div>
+
+               {/* 5. EVENTS (Wide) */}
+               <motion.div variants={revealVariants} className="bento-card bento-events group justify-center">
+                  <div className="flex items-center gap-8 px-4">
+                    <Globe className="h-12 w-12 text-slate-200 group-hover:animate-spin-slow transition-all" />
+                    <div>
+                      <h4 className="text-2xl font-black uppercase tracking-tighter">Event Organization</h4>
+                      <p className="text-slate-400 text-xs font-medium max-w-sm mt-1">{t.method.capabilities.events}</p>
+                    </div>
+                  </div>
+               </motion.div>
+            </motion.div>
           </div>
         </div>
       </section>
