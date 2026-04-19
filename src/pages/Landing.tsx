@@ -151,6 +151,7 @@ function AnimatedCounter({ target, suffix, decimals = 0 }: { target: number; suf
 }
 
 const PLACEHOLDER_CREATORS = [
+  { id: 'p0', display_name: 'Lady Mufa', photo_url: creator1, twitter: 'https://x.com/LadyMufaTV' },
   { id: 'p1', display_name: 'Yagod', photo_url: yagod, twitter: 'https://x.com/YagodNFT' },
   { id: 'p2', display_name: 'Lizard', photo_url: lizard, twitter: 'https://x.com/TheLizardQueenT' },
   { id: 'p3', display_name: 'Spadex', photo_url: spadex, twitter: 'https://x.com/FSpadexx' },
@@ -159,6 +160,19 @@ const PLACEHOLDER_CREATORS = [
   { id: 'p6', display_name: 'Oza', photo_url: oza, twitter: 'https://x.com/SoyOzarux' },
   { id: 'p7', display_name: 'Seven', photo_url: seven, twitter: 'https://x.com/Its7Keys' },
 ];
+
+const handleTwitterPopup = (url: string) => {
+  if (!url || url === '#') return;
+  const width = 600;
+  const height = 800;
+  const left = window.screen.width / 2 - width / 2;
+  const top = window.screen.height / 2 - height / 2;
+  window.open(
+    url, 
+    'TwitterPopup', 
+    `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,status=yes`
+  );
+};
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -907,16 +921,23 @@ export default function Landing() {
                  variants={revealVariants}
                  className="text-center group"
                >
-                 <div className="relative mb-6">
+                 <div 
+                   onClick={() => handleTwitterPopup(founder.twitter)}
+                   className="relative mb-6 cursor-pointer"
+                 >
                    <div className="absolute -inset-2 bg-indigo-500/20 rounded-[2.5rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
                    <img src={founder.image} alt={founder.name} className="founder-image relative z-10" />
+                   {/* Subtle Action Overlay */}
+                   <div className="absolute inset-x-0 bottom-4 z-20 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                     <div className="px-3 py-1 bg-white/90 backdrop-blur-md text-indigo-600 rounded-full text-[8px] font-black uppercase tracking-widest translate-y-2 group-hover:translate-y-0 transition-transform">
+                       X Profile
+                     </div>
+                   </div>
                  </div>
                  <h3 className="text-2xl font-black mb-1 tracking-tight gradient-text">{founder.name}</h3>
-                 <a
-                   href={founder.twitter}
-                   target="_blank"
-                   rel="noopener noreferrer"
-                   className="inline-flex items-center gap-1.5 text-slate-500 hover:text-white transition-colors mb-4 group/tw"
+                 <div 
+                   onClick={() => handleTwitterPopup(founder.twitter)}
+                   className="inline-flex items-center gap-1.5 text-slate-500 hover:text-white transition-colors mb-4 group/tw cursor-pointer"
                  >
                    <Twitter className="h-3 w-3 group-hover/tw:text-sky-400 transition-colors" />
                    <span className="text-[10px] font-bold">@{founder.twitter.split('/').pop()}</span>
@@ -1018,28 +1039,33 @@ export default function Landing() {
           >
             {(featuredCreators.length > 0 ? [...featuredCreators, ...featuredCreators] : [...PLACEHOLDER_CREATORS, ...PLACEHOLDER_CREATORS]).map((creator, i) => (
               <div key={`${creator.id}-${i}`} className="creator-carousel-item group">
-                <a 
-                  href={creator.twitter || '#'} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="block relative w-64 h-80 rounded-[2.5rem] overflow-hidden mb-6 border border-white/10 group-hover:border-indigo-500/50 transition-colors cursor-pointer"
+                <div 
+                  onClick={() => handleTwitterPopup(creator.twitter)}
+                  className="block relative w-64 h-80 rounded-[2.5rem] overflow-hidden mb-6 border border-white/10 group-hover:border-indigo-500/50 transition-all duration-500 cursor-pointer shadow-2xl hover:shadow-indigo-500/20"
                 >
                   <img 
                     src={creator.photo_url || creator1} 
                     alt={creator.display_name} 
-                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110"
+                    className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60" />
                   <div className="absolute bottom-6 left-6 right-6">
                     <div className="text-xl font-black mb-1 truncate">{creator.display_name || 'Umbra Creator'}</div>
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400">{t.showcase.badge}</span>
-                      <div className="p-2 bg-white/10 rounded-full backdrop-blur-md">
-                        <Twitter className="h-3.5 w-3.5 text-white opacity-40 group-hover:text-sky-400 group-hover:opacity-100 transition-all" />
+                      <div className="p-2 bg-white/10 rounded-full backdrop-blur-md group-hover:bg-indigo-600 transition-colors">
+                        <Twitter className="h-3.5 w-3.5 text-white opacity-40 group-hover:opacity-100 transition-all" />
                       </div>
                     </div>
                   </div>
-                </a>
+                  
+                  {/* Subtle Action Overlay */}
+                  <div className="absolute inset-0 bg-indigo-600/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <div className="px-4 py-2 bg-white text-indigo-600 rounded-full text-[8px] font-black uppercase tracking-widest translate-y-4 group-hover:translate-y-0 transition-transform">
+                      View Profile
+                    </div>
+                  </div>
+                </div>
               </div>
             ))}
           </motion.div>
@@ -1168,12 +1194,10 @@ export default function Landing() {
                   { name: 'CaBs', handle: '@CaBsCrypto', twitter: 'https://x.com/CaBsCrypto' },
                   { name: 'Lady Mufa', handle: '@LadyMufaTV', twitter: 'https://x.com/LadyMufaTV' },
                 ].map(person => (
-                  <a
+                  <div
                     key={person.name}
-                    href={person.twitter}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-3 group hover:text-white transition-colors"
+                    onClick={() => handleTwitterPopup(person.twitter)}
+                    className="flex items-center gap-3 group hover:text-white transition-colors cursor-pointer"
                   >
                     <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-indigo-600/20 transition-colors flex-shrink-0">
                       <Twitter className="h-3.5 w-3.5 group-hover:text-sky-400 transition-colors" />
@@ -1182,7 +1206,7 @@ export default function Landing() {
                       <div className="text-sm font-black text-white/80 group-hover:text-white transition-colors">{person.name}</div>
                       <div className="text-[10px] text-slate-600">{person.handle}</div>
                     </div>
-                  </a>
+                  </div>
                 ))}
               </div>
             </div>
