@@ -84,17 +84,9 @@ const PLACEHOLDER_CREATORS = [
   { id: 'p7', display_name: 'Seven', photo_url: seven, twitter: 'https://x.com/Its7Keys' },
 ];
 
-const handleTwitterPopup = (url: string) => {
+const handleExternalLink = (url: string) => {
   if (!url || url === '#') return;
-  const width = 600;
-  const height = 800;
-  const left = window.screen.width / 2 - width / 2;
-  const top = window.screen.height / 2 - height / 2;
-  window.open(
-    url, 
-    'TwitterPopup', 
-    `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,status=yes`
-  );
+  window.open(url, '_blank', 'noopener,noreferrer');
 };
 
 export default function Landing() {
@@ -848,7 +840,7 @@ export default function Landing() {
                  className="text-center group"
                >
                  <div 
-                   onClick={() => handleTwitterPopup(founder.twitter)}
+                   onClick={() => handleExternalLink(founder.twitter)}
                    className="relative mb-6 cursor-pointer"
                  >
                    <div className="absolute -inset-2 bg-indigo-500/20 rounded-[2.5rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -862,7 +854,7 @@ export default function Landing() {
                  </div>
                  <h3 className="text-2xl font-black mb-1 tracking-tight gradient-text">{founder.name}</h3>
                  <div 
-                   onClick={() => handleTwitterPopup(founder.twitter)}
+                   onClick={() => handleExternalLink(founder.twitter)}
                    className="inline-flex items-center gap-1.5 text-slate-500 hover:text-white transition-colors mb-4 group/tw cursor-pointer"
                  >
                    <Twitter className="h-3 w-3 group-hover/tw:text-sky-400 transition-colors" />
@@ -966,7 +958,7 @@ export default function Landing() {
             {[...PLACEHOLDER_CREATORS, ...PLACEHOLDER_CREATORS].map((creator, i) => (
               <div key={`${creator.id}-${i}`} className="creator-carousel-item group">
                 <div 
-                  onClick={() => handleTwitterPopup(creator.twitter)}
+                  onClick={() => handleExternalLink(creator.twitter)}
                   className="block relative w-64 h-80 rounded-[2.5rem] overflow-hidden mb-6 border border-white/10 group-hover:border-indigo-500/50 transition-all duration-500 cursor-pointer shadow-2xl hover:shadow-indigo-500/20"
                 >
                   <img 
@@ -1122,7 +1114,7 @@ export default function Landing() {
                 ].map(person => (
                   <div
                     key={person.name}
-                    onClick={() => handleTwitterPopup(person.twitter)}
+                    onClick={() => handleExternalLink(person.twitter)}
                     className="flex items-center gap-3 group hover:text-white transition-colors cursor-pointer"
                   >
                     <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-indigo-600/20 transition-colors flex-shrink-0">
