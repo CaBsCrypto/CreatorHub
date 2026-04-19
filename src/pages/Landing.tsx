@@ -1037,7 +1037,7 @@ export default function Landing() {
               }
             }}
           >
-            {(featuredCreators.length > 0 ? [...featuredCreators, ...featuredCreators] : [...PLACEHOLDER_CREATORS, ...PLACEHOLDER_CREATORS]).map((creator, i) => (
+            {[...PLACEHOLDER_CREATORS, ...PLACEHOLDER_CREATORS].map((creator, i) => (
               <div key={`${creator.id}-${i}`} className="creator-carousel-item group">
                 <div 
                   onClick={() => handleTwitterPopup(creator.twitter)}
