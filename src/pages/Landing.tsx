@@ -832,12 +832,11 @@ export default function Landing() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto"
+            className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-4xl mx-auto"
           >
              {[
                { name: 'EMINATR1X', role: 'Co-Founder', image: founder1, desc: "I take your project's raw light and bend it into a message people can't unsee.", twitter: 'https://x.com/eminatr1x' },
-               { name: 'CaBs', role: 'Co-Founder', image: founder2, desc: 'Ready to break down complex ideas into simple explanations.', twitter: 'https://x.com/CaBsCrypto' },
-               { name: 'Lady Mufa', role: 'Co-Founder', image: creator1, desc: 'I make Web3 gaming videos, and I build pathways for women to join and thrive.', twitter: 'https://x.com/LadyMufaTV' }
+               { name: 'CaBs', role: 'Co-Founder', image: founder2, desc: 'Ready to break down complex ideas into simple explanations.', twitter: 'https://x.com/CaBsCrypto' }
              ].map((founder, i) => (
                <motion.div 
                  key={i}
@@ -1115,7 +1114,6 @@ export default function Landing() {
                 {[
                   { name: 'EMINATR1X', handle: '@eminatr1x', twitter: 'https://x.com/eminatr1x' },
                   { name: 'CaBs', handle: '@CaBsCrypto', twitter: 'https://x.com/CaBsCrypto' },
-                  { name: 'Lady Mufa', handle: '@LadyMufaTV', twitter: 'https://x.com/LadyMufaTV' },
                 ].map(person => (
                   <div
                     key={person.name}
