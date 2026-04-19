@@ -1,12 +1,32 @@
 @reference "tailwindcss";
 
+/* Sticky glass navbar */
+.glass-nav {
+  @apply sticky top-0 z-50 w-full bg-slate-950/80 backdrop-blur-2xl border-b border-white/5;
+  transition: background 0.3s ease;
+}
+
+/* Custom Cursor Context */
 .landing-container {
-  @apply min-h-screen bg-slate-950 text-white overflow-x-hidden;
+  @apply min-h-screen bg-slate-950 text-white overflow-x-hidden relative;
   background: radial-gradient(circle at 10% 10%, rgba(79, 70, 229, 0.1), transparent 40%),
               radial-gradient(circle at 90% 10%, rgba(244, 63, 94, 0.08), transparent 40%),
               radial-gradient(circle at 50% 50%, rgba(79, 70, 229, 0.05), transparent 60%),
               radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.08), transparent 40%),
               #020617;
+  cursor: none !important;
+}
+
+/* Hide default cursor on all children */
+.landing-container * {
+  cursor: none !important;
+}
+
+/* Restore cursor on mobile */
+@media (pointer: coarse) {
+  .landing-container, .landing-container * {
+    cursor: auto !important;
+  }
 }
 
 /* Nebula Animation */
@@ -52,12 +72,20 @@
   @apply h-2 bg-white/5 rounded-full w-full;
 }
 
-.mockup-item-active {
-  @apply h-2 bg-indigo-500 rounded-full w-full shadow-[0_0_10px_rgba(99,102,241,0.5)];
+.mockup-item-click {
+  @apply w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center transition-all duration-300 mb-4;
+}
+
+.mockup-item-click:hover {
+  @apply bg-white/10 scale-110;
+}
+
+.mockup-item-click.active {
+  @apply bg-indigo-600 shadow-[0_0_15px_rgba(79,70,229,0.5)];
 }
 
 .mockup-card {
-  @apply bg-slate-800/50 rounded-2xl border border-white/5 p-4;
+  @apply bg-slate-800/50 rounded-2xl border border-white/5 p-4 backdrop-blur-sm transition-all duration-500 hover:border-white/10;
 }
 
 .mockup-glow {
@@ -145,6 +173,73 @@
               rgba(15, 23, 42, 0.6);
 }
 
+/* Service Card Premium Redesign */
+.service-card-premium {
+  @apply relative p-12 rounded-[3.5rem] bg-slate-900/60 border border-white/5 backdrop-blur-xl transition-all duration-700 overflow-hidden h-full flex flex-col;
+  box-shadow: 0 30px 100px -20px rgba(0, 0, 0, 0.8),
+              inset 0 1px 1px rgba(255, 255, 255, 0.05);
+}
+
+.service-card-premium:hover {
+  @apply border-indigo-500/30 -translate-y-4;
+  box-shadow: 0 50px 120px -30px rgba(79, 70, 229, 0.25),
+              inset 0 1px 2px rgba(255, 255, 255, 0.1);
+}
+
+.service-icon-container {
+  @apply mb-10 w-20 h-20 rounded-[2rem] flex items-center justify-center relative transition-all duration-700;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
+}
+
+.service-card-premium:hover .service-icon-container {
+  @apply scale-110 -rotate-6 shadow-2xl shadow-indigo-500/10;
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(139, 92, 246, 0.05));
+}
+
+.service-card-premium::before {
+  content: '';
+  @apply absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500/40 to-transparent scale-x-0 transition-transform duration-700 origin-center;
+}
+
+.service-card-premium:hover::before {
+  @apply scale-x-100;
+}
+
+/* Capability Badge */
+.capability-badge {
+  @apply px-5 py-3 bg-white/5 rounded-2xl border border-white/5 text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-3 transition-all duration-500;
+}
+
+.capability-badge:hover {
+  @apply bg-indigo-600/10 border-indigo-500/20 text-white scale-105;
+}
+
+/* Capability Card Large Redesign */
+.capability-card-large {
+  @apply relative p-10 rounded-[3rem] bg-white/[0.02] border border-white/5 backdrop-blur-md transition-all duration-700 overflow-hidden flex flex-col items-center text-center h-full;
+}
+
+.capability-card-large:hover {
+  @apply -translate-y-3 border-indigo-500/30 bg-white/[0.04];
+  box-shadow: 0 40px 100px -20px rgba(79, 70, 229, 0.15);
+}
+
+.capability-icon-large {
+  @apply mb-8 w-20 h-20 rounded-3xl bg-indigo-600/10 flex items-center justify-center transition-all duration-700;
+}
+
+.capability-card-large:hover .capability-icon-large {
+  @apply scale-110 bg-indigo-600/20 rotate-3;
+}
+
+.capability-icon-large svg {
+  @apply h-10 w-10 text-indigo-400 transition-colors duration-700;
+}
+
+.capability-card-large:hover .capability-icon-large svg {
+  @apply text-amber-400;
+}
+
 @keyframes gradient-x {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -152,6 +247,58 @@
 
 .animate-gradient-x {
   animation: gradient-x 15s ease infinite;
+}
+
+/* Vision Section Cinematic Effects */
+.nebula-canvas {
+  @apply absolute inset-0 -z-10 overflow-hidden;
+  background: radial-gradient(circle at 50% 50%, #0a0a1f 0%, #020617 100%);
+}
+
+.light-leak {
+  @apply absolute rounded-full blur-[150px] opacity-20 pointer-events-none;
+  animation: float-slow 20s ease-in-out infinite;
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(10%, 10%) scale(1.1); }
+  66% { transform: translate(-10%, 5%) scale(0.9); }
+}
+
+.prism-text {
+  background: linear-gradient(
+    90deg, 
+    #818cf8 0%, 
+    #c084fc 25%, 
+    #fb7185 50%, 
+    #c084fc 75%, 
+    #818cf8 100%
+  );
+  background-size: 200% auto;
+  @apply bg-clip-text text-transparent transition-all duration-700;
+}
+
+.prism-text:hover {
+  animation: prism-shift 3s linear infinite;
+  filter: drop-shadow(0 0 15px rgba(192, 132, 252, 0.4));
+}
+
+@keyframes prism-shift {
+  to { background-position: 200% center; }
+}
+
+.text-spotlight {
+  @apply text-slate-500 transition-all duration-1000 cursor-default;
+}
+
+.text-spotlight:hover {
+  @apply text-white;
+  text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+}
+
+.cinematic-divider {
+  @apply w-px h-16 bg-gradient-to-b from-indigo-500/0 via-indigo-500/50 to-indigo-500/0 mx-auto;
 }
 
 @keyframes spin-slow {
@@ -209,4 +356,19 @@
 /* Language Toggle Customization */
 .nav-lang-toggle {
   @apply flex items-center p-1 bg-white/5 rounded-full border border-white/10;
+}
+
+/* Scroll indicator bounce */
+@keyframes scroll-bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.4; }
+  50% { transform: translateY(6px); opacity: 1; }
+}
+
+.scroll-indicator {
+  animation: scroll-bounce 2s ease-in-out infinite;
+}
+
+/* Footer link hover highlight */
+footer a:hover {
+  text-decoration: none;
 }

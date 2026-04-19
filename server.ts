@@ -40,7 +40,9 @@ process.on('uncaughtException', (err) => {
 });
 
 const app = express();
-app.use(helmet()); 
+app.use(helmet({
+  contentSecurityPolicy: process.env.NODE_ENV === 'production' ? undefined : false,
+}));
 
 // CORS Hardening
 const allowedOrigins = [

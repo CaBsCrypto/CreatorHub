@@ -1,11 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { 
+  motion, 
+  useScroll, 
+  useTransform, 
+  useSpring, 
+  useMotionValue, 
+  AnimatePresence 
+} from 'framer-motion';
 import { 
   Zap, Users, Globe, Play, Rocket, Trophy, Target, 
   ChevronRight, ArrowRight, Shield, Star, Heart,
   BarChart3, Gamepad2, Sparkles, LayoutDashboard, LogIn,
-  MousePointer2, CheckCircle2, TrendingUp
+  MousePointer2, CheckCircle2, TrendingUp, Twitter, ChevronDown,
+  Activity, BarChart
 } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { supabase } from '../supabase';
@@ -14,10 +22,143 @@ import { useInViewAnimation, revealVariants, staggerContainer } from '../hooks/u
 import './Landing.css';
 
 // Import images
-import founder1 from '../assets/founder_1.png';
-import founder2 from '../assets/founder_2.png';
-import creator1 from '../assets/creator_1.png';
-import creator2 from '../assets/creator_2.png';
+import founder1 from '../assets/eminatr1x.png';
+import founder2 from '../assets/cabs.png';
+import creator1 from '../assets/ladymufa.png';
+import creator2 from '../assets/creator_2.png'; 
+import yagod from '../assets/yagod.png';
+import lizard from '../assets/lizard.png';
+import spadex from '../assets/spadex.png';
+import creator1dory from '../assets/1dory.png';
+import camululis from '../assets/camululis.png';
+import oza from '../assets/oza.png';
+import seven from '../assets/seven.png';
+
+const wordRevealVariants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
+};
+
+// --- Cinematic Glow Cursor ---
+function GlowCursor() {
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const [isHovering, setIsHovering] = useState(false);
+  const [isClicked, setIsClicked] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+
+  const springConfig = { damping: 25, stiffness: 150 };
+  const cursorX = useSpring(mouseX, springConfig);
+  const cursorY = useSpring(mouseY, springConfig);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      mouseX.set(e.clientX);
+      mouseY.set(e.clientY);
+      if (!isVisible) setIsVisible(true);
+
+      // Check if hovering over interactive elements
+      const target = e.target as HTMLElement;
+      const isInteractive = target.closest('button, a, .premium-card, .founder-image, .creator-carousel-item, [role="button"]');
+      setIsHovering(!!isInteractive);
+    };
+
+    const handleMouseDown = () => setIsClicked(true);
+    const handleMouseUp = () => setIsClicked(false);
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousedown', handleMouseDown);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mousedown', handleMouseDown);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [mouseX, mouseY, isVisible]);
+
+  if (typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches) return null;
+
+  return (
+    <motion.div
+      className="fixed top-0 left-0 pointer-events-none z-[9999] mix-blend-difference"
+      style={{
+        x: cursorX,
+        y: cursorY,
+        translateX: '-50%',
+        translateY: '-50%',
+      }}
+    >
+      <motion.div
+        animate={{
+          scale: isClicked ? 0.8 : isHovering ? 2.5 : 1,
+          opacity: isVisible ? 1 : 0,
+        }}
+        transition={{ type: 'spring', damping: 20, stiffness: 100 }}
+        className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center"
+      >
+        <motion.div 
+          animate={{
+            scale: isHovering ? 0 : 1,
+          }}
+          className="w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_10px_white]" 
+        />
+      </motion.div>
+      
+      {/* Outer glow trail */}
+      <motion.div
+        animate={{
+          scale: isHovering ? 4 : 1.5,
+          opacity: isVisible ? 0.15 : 0,
+        }}
+        className="absolute inset-0 rounded-full bg-indigo-500 blur-xl -z-10"
+      />
+    </motion.div>
+  );
+}
+
+// --- Animated Counter Sub-component ---
+function AnimatedCounter({ target, suffix, decimals = 0 }: { target: number; suffix: string; decimals?: number }) {
+  const [display, setDisplay] = useState(0);
+  const divRef = useRef<HTMLDivElement>(null);
+  const started = useRef(false);
+  useEffect(() => {
+    const el = divRef.current;
+    if (!el) return;
+    let animationId = 0;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !started.current) {
+        started.current = true;
+        const startTime = performance.now();
+        const duration = 2000;
+        const tick = (now: number) => {
+          const progress = Math.min((now - startTime) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          setDisplay(eased * target);
+          if (progress < 1) { animationId = requestAnimationFrame(tick); }
+        };
+        animationId = requestAnimationFrame(tick);
+      }
+    }, { threshold: 0.1 });
+    observer.observe(el);
+    return () => { observer.disconnect(); cancelAnimationFrame(animationId); };
+  }, [target]);
+  return (
+    <div ref={divRef} className="flex items-baseline gap-1 justify-center">
+      <div className="stat-value">{decimals > 0 ? display.toFixed(decimals) : Math.round(display)}</div>
+      <span className="text-2xl font-black text-indigo-400">{suffix}</span>
+    </div>
+  );
+}
+
+const PLACEHOLDER_CREATORS = [
+  { id: 'p1', display_name: 'Yagod', photo_url: yagod, twitter: 'https://x.com/YagodNFT' },
+  { id: 'p2', display_name: 'Lizard', photo_url: lizard, twitter: 'https://x.com/TheLizardQueenT' },
+  { id: 'p3', display_name: 'Spadex', photo_url: spadex, twitter: 'https://x.com/FSpadexx' },
+  { id: 'p4', display_name: '1Dory', photo_url: creator1dory, twitter: 'https://x.com/1dory_gg' },
+  { id: 'p5', display_name: 'Camululis', photo_url: camululis, twitter: 'https://x.com/camululis' },
+  { id: 'p6', display_name: 'Oza', photo_url: oza, twitter: 'https://x.com/SoyOzarux' },
+  { id: 'p7', display_name: 'Seven', photo_url: seven, twitter: 'https://x.com/Its7Keys' },
+];
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -29,6 +170,8 @@ export default function Landing() {
   });
   const [loadingStats, setLoadingStats] = useState(true);
   const [featuredCreators, setFeaturedCreators] = useState<any[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [mockupFeature, setMockupFeature] = useState<'roi' | 'creators' | 'reporting'>('roi');
 
   const [language, setLanguage] = useState<'en' | 'es'>('en');
   const t = translations[language];
@@ -74,6 +217,10 @@ export default function Landing() {
       }
     }
     fetchStats();
+    
+    // Page load duration
+    const timer = setTimeout(() => setIsLoaded(true), 100);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleEnterApp = () => {
@@ -89,6 +236,37 @@ export default function Landing() {
 
   return (
     <div className="landing-container scroll-smooth">
+      <GlowCursor />
+
+      {/* Page Entrance Shutter */}
+      <AnimatePresence>
+        {!isLoaded && (
+          <motion.div 
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0, y: -20, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }}
+            className="fixed inset-0 z-[100] bg-slate-950 flex items-center justify-center"
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="flex flex-col items-center gap-6"
+            >
+              <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center animate-pulse shadow-2xl shadow-indigo-500/50">
+                <Rocket className="text-white h-10 w-10" />
+              </div>
+              <div className="h-1 w-32 bg-white/5 rounded-full overflow-hidden">
+                <motion.div 
+                  initial={{ x: '-100%' }}
+                  animate={{ x: '100%' }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  className="w-full h-full bg-indigo-500"
+                />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Dynamic Nebula System */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <div className="nebula-glow w-[800px] h-[800px] -top-96 -left-96 bg-indigo-600/20" />
@@ -176,33 +354,59 @@ export default function Landing() {
               </motion.div>
             </motion.div>
 
-        {/* Background Visual Elements */}
+            {/* Scroll Indicator */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 2, duration: 1 }}
+              className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-slate-600 z-20 cursor-default"
+              onClick={() => document.getElementById('vision')?.scrollIntoView({ behavior: 'smooth' })}
+            >
+              <span className="text-[9px] font-black uppercase tracking-[0.4em]">Scroll</span>
+              <ChevronDown className="h-5 w-5 scroll-indicator" />
+            </motion.div>
+
+        {/* Background Visual Elements with Parallax */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full -z-10 pointer-events-none opacity-40">
            {/* Orbital Component (Centered and Large) */}
-           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[40%] w-[600px] h-[600px] bg-indigo-600/5 blur-[120px] rounded-full" />
-           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 flex items-center justify-center opacity-30">
+           <motion.div 
+             style={{ scale }}
+             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[40%] w-[600px] h-[600px] bg-indigo-600/5 blur-[120px] rounded-full" 
+           />
+           <motion.div 
+             style={{ opacity, scale: useTransform(scrollYProgress, [0, 0.3], [1, 1.2]) }}
+             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 flex items-center justify-center opacity-30"
+           >
               <div className="w-[150%] h-[150%] border border-indigo-500/10 rounded-full animate-spin-slow absolute" />
               <div className="w-[100%] h-[100%] border border-indigo-500/20 rounded-full animate-reverse-spin absolute" />
               <Rocket className="h-12 w-12 text-indigo-500 animate-pulse" />
-           </div>
+           </motion.div>
         </div>
 
-        {/* Floating elements placed relative to the text but out of the way */}
+        {/* Floating elements with enhanced parallax */}
         <motion.div 
+           style={{ 
+             y: useTransform(scrollYProgress, [0, 0.5], [0, -100]),
+             opacity: useTransform(scrollYProgress, [0, 0.2], [0.5, 0])
+           }}
            initial={{ opacity: 0, scale: 0.8 }}
-           animate={{ opacity: 1, scale: 1 }}
+           animate={{ opacity: 0.5, scale: 1 }}
            transition={{ delay: 1 }}
-           className="absolute top-[20%] right-[10%] hidden xl:block p-6 premium-card floating scale-75 opacity-50"
+           className="absolute top-[20%] right-[10%] hidden xl:block p-6 premium-card floating scale-75"
         >
             <div className="text-[10px] font-black text-indigo-400 mb-1 uppercase tracking-widest">Standard</div>
             <div className="text-xl font-black">UMBRA</div>
         </motion.div>
         
         <motion.div 
+           style={{ 
+             y: useTransform(scrollYProgress, [0, 0.5], [0, 100]),
+             opacity: useTransform(scrollYProgress, [0, 0.2], [0.5, 0])
+           }}
            initial={{ opacity: 0, scale: 0.8 }}
-           animate={{ opacity: 1, scale: 1 }}
+           animate={{ opacity: 0.5, scale: 1 }}
            transition={{ delay: 1.2 }}
-           className="absolute bottom-[20%] left-[8%] hidden xl:block p-6 premium-card floating delay-700 scale-75 opacity-50"
+           className="absolute bottom-[20%] left-[8%] hidden xl:block p-6 premium-card floating delay-700 scale-75"
         >
             <div className="flex items-center gap-2 mb-2">
                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
@@ -211,7 +415,7 @@ export default function Landing() {
             <div className="text-xl font-black text-white">
               +{stats.views >= 1000000 
                 ? (stats.views / 1000000).toFixed(1) + 'M' 
-                : (stats.views / 1000).toFixed(0) + 'K'} Views
+                : (stats.views / 1000).toFixed(0) + 'K'} {translations[language].stats.views}
             </div>
         </motion.div>
       </section>
@@ -266,17 +470,18 @@ export default function Landing() {
           className="grid grid-cols-1 md:grid-cols-3 gap-8"
         >
           {[
-            { label: 'Active Creators', value: stats.creators, icon: Users, color: 'text-blue-400', suffix: '+' },
+            { label: 'Active Creators', rawTarget: stats.creators, decimals: 0, icon: Users, color: 'text-blue-400', suffix: '+' },
             { 
               label: 'Views Achieved', 
-              value: stats.views >= 1000000 
-                ? (stats.views / 1000000).toFixed(1)
-                : (stats.views / 1000).toFixed(1), 
+              rawTarget: stats.views >= 1000000 
+                ? stats.views / 1000000 
+                : Math.round(stats.views / 1000),
+              decimals: stats.views >= 1000000 ? 1 : 0,
               icon: Zap, 
               color: 'text-yellow-400',
               suffix: stats.views >= 1000000 ? 'M' : 'K'
             },
-            { label: 'Total Campaigns', value: stats.campaigns, icon: Target, color: 'text-purple-400', suffix: '' }
+            { label: 'Total Campaigns', rawTarget: stats.campaigns, decimals: 0, icon: Target, color: 'text-purple-400', suffix: '' }
           ].map((stat, i) => (
             <motion.div 
               key={stat.label}
@@ -286,10 +491,7 @@ export default function Landing() {
               <div className={`p-4 rounded-2xl bg-white/5 mb-6 ${stat.color} group-hover:scale-110 transition-transform duration-500 shadow-lg shadow-indigo-500/5`}>
                 <stat.icon className="h-8 w-8" />
               </div>
-              <div className="flex items-baseline gap-1">
-                <div className="stat-value">{stat.value}</div>
-                <span className="text-2xl font-black text-indigo-400">{stat.suffix}</span>
-              </div>
+              <AnimatedCounter target={stat.rawTarget} suffix={stat.suffix} decimals={stat.decimals} />
               <div className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mt-2">
                 {stat.label === 'Active Creators' ? t.stats.creators : 
                  stat.label === 'Views Achieved' ? t.stats.views : 
@@ -300,65 +502,97 @@ export default function Landing() {
         </motion.div>
       </section>
 
-      {/* Vision Section (Cinematic Refinement) */}
-      <section id="vision" ref={visionAnim.ref} className="py-32 px-6 relative overflow-hidden bg-slate-950/40">
+      {/* Vision Section (Cinematic Overhaul) */}
+      <section id="vision" ref={visionAnim.ref} className="py-40 px-6 relative overflow-hidden">
+        <div className="nebula-canvas">
+          <div className="light-leak w-96 h-96 bg-indigo-600 top-0 -left-20" />
+          <div className="light-leak w-[500px] h-[500px] bg-purple-600 bottom-0 -right-20 opacity-10" />
+          <div className="light-leak w-64 h-64 bg-cyan-500 top-1/2 left-1/3 opacity-10" />
+        </div>
+
         <div className="max-w-5xl mx-auto text-center relative z-10">
-          <span className="section-label mb-12">{t.vision.label}</span>
+          <span className="section-label mb-16 inline-block">{t.vision.label}</span>
           
           <motion.div 
             initial="hidden"
             animate={visionAnim.controls}
             variants={staggerContainer}
-            className="space-y-24"
+            className="space-y-16"
           >
-            <motion.div variants={revealVariants} className="cinematic-phrase">
-              <h2 className="text-4xl md:text-6xl font-black mb-4 leading-tight">
-                {t.vision.p1} <br/> 
-                <span className="text-indigo-400 glow-text">{t.vision.p1_bold}</span>
+            <motion.div variants={revealVariants} className="cinematic-phrase max-w-3xl mx-auto">
+              <h2 className="text-5xl md:text-7xl font-black mb-6 leading-[0.9] tracking-tighter">
+                {t.vision.p1.split(' ').map((word, i) => (
+                  <motion.span key={i} variants={wordRevealVariants} className="inline-block mr-3">
+                    {word}
+                  </motion.span>
+                ))}
+                <br/> 
+                <motion.span 
+                  variants={wordRevealVariants}
+                  className="text-indigo-400 glow-text block mt-4"
+                  style={{ textShadow: '0 0 50px rgba(99, 102, 241, 0.3)' }}
+                >
+                  {t.vision.p1_bold}
+                </motion.span>
               </h2>
             </motion.div>
 
-            <motion.div variants={revealVariants} className="w-px h-24 bg-gradient-to-b from-indigo-500/50 to-transparent mx-auto" />
+            <motion.div variants={revealVariants} className="cinematic-divider" />
 
-            <motion.div variants={revealVariants} className="cinematic-phrase">
-              <p className="text-2xl md:text-4xl font-light italic leading-relaxed text-slate-300">
+            <motion.div variants={revealVariants} className="cinematic-phrase px-4">
+              <p className="text-3xl md:text-5xl font-extralight italic leading-tight text-spotlight max-w-4xl mx-auto">
                 {t.vision.p2}
               </p>
             </motion.div>
 
-            <motion.div variants={revealVariants} className="w-px h-24 bg-gradient-to-b from-indigo-500/50 to-transparent mx-auto" />
+            <motion.div variants={revealVariants} className="cinematic-divider" />
 
-            <motion.div variants={revealVariants} className="cinematic-phrase">
-              <div className="space-y-8">
-                <p className="text-lg md:text-xl text-slate-400 tracking-[0.2em] uppercase font-black">
+            <motion.div variants={revealVariants} className="cinematic-phrase px-4">
+              <div className="space-y-10">
+                <p className="text-xs md:text-sm text-slate-500 tracking-[0.5em] uppercase font-black opacity-60">
                    {t.vision.p3}
                 </p>
-                <h3 className="text-3xl md:text-5xl font-black gradient-text">
+                <h3 className="text-4xl md:text-7xl font-black prism-text uppercase tracking-tighter leading-none">
                    {t.vision.p4}
                 </h3>
               </div>
             </motion.div>
 
-            <motion.div variants={revealVariants} className="mt-24 pt-24 border-t border-white/5 max-w-2xl mx-auto">
-              <p className="text-slate-400 leading-relaxed">
+            <motion.div variants={revealVariants} className="mt-32 pt-16 border-t border-white/5 max-w-lg mx-auto">
+              <p className="text-slate-400 text-sm leading-relaxed font-medium">
                  {t.vision.p5} <br/>
-                 <span className="text-white font-bold">{t.vision.p5_end}</span>
+                 <span className="text-white font-bold opacity-80">{t.vision.p5_end}</span>
               </p>
             </motion.div>
           </motion.div>
-        </div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full -z-10 opacity-10">
-           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(79,70,229,0.2),transparent_70%)] animate-pulse" />
         </div>
       </section>
 
       {/* Method Section (Updated Service Section) */}
       <section id="about" className="py-32 px-6 max-w-7xl mx-auto">
-        <div className="text-center mb-24">
-          <span className="section-label">{t.method.label}</span>
-          <h2 className="text-4xl md:text-6xl font-black mb-8 leading-tight text-white/90">
+        <div className="text-center mb-32">
+          <motion.span 
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="section-label"
+          >
+            {t.method.label}
+          </motion.span>
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-5xl md:text-7xl font-black mb-8 leading-tight text-white/90 tracking-tighter"
+          >
              {t.method.title1} <br/> <span className="gradient-text">{t.method.title2}</span>
-          </h2>
+          </motion.h2>
+          <motion.div 
+            initial={{ opacity: 0, scaleX: 0 }}
+            whileInView={{ opacity: 1, scaleX: 1 }}
+            viewport={{ once: true }}
+            className="w-24 h-1 bg-indigo-600 mx-auto rounded-full"
+          />
         </div>
 
         <motion.div 
@@ -366,61 +600,92 @@ export default function Landing() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24"
+          className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-32"
         >
            {[
              { 
                title: t.method.step1, 
                desc: t.method.step1_desc, 
                icon: Target, 
-               color: 'from-blue-500/20 to-indigo-500/20 text-blue-400' 
+               color: 'text-blue-400',
+               glow: 'shadow-blue-500/20'
              },
              { 
                title: t.method.step2, 
                desc: t.method.step2_desc, 
                icon: Sparkles, 
-               color: 'from-purple-500/20 to-pink-500/20 text-purple-400' 
+               color: 'text-purple-400',
+               glow: 'shadow-purple-500/20'
              },
              { 
                title: t.method.step3, 
                desc: t.method.step3_desc, 
                icon: BarChart3, 
-               color: 'from-indigo-500/20 to-cyan-500/20 text-cyan-400' 
+               color: 'text-cyan-400',
+               glow: 'shadow-cyan-500/20'
              }
            ].map((service) => (
              <motion.div 
                key={service.title}
                variants={revealVariants}
-               className="premium-card group py-12 px-10 text-center border-white/5 hover:border-white/20 transition-all h-full"
+               className="service-card-premium group"
              >
-               <div className={`mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br ${service.color} flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500`}>
-                  <service.icon className="h-8 w-8" />
+               <div className="service-icon-container">
+                  <service.icon className={`h-10 w-10 ${service.color}`} />
+                  <div className={`absolute inset-0 rounded-full blur-xl opacity-20 ${service.glow}`} />
                </div>
-               <h3 className="text-xl font-black mb-4 group-hover:text-indigo-400 transition-colors tracking-tight">{service.title}</h3>
-               <p className="text-slate-400 text-sm font-medium leading-relaxed">{service.desc}</p>
+               <h3 className="text-2xl font-black mb-6 group-hover:text-indigo-400 transition-colors tracking-tighter uppercase">{service.title}</h3>
+               <p className="text-slate-400 text-base font-medium leading-relaxed mb-auto">{service.desc}</p>
+               
+               <div className="mt-10 flex items-center gap-2 text-indigo-400/50 group-hover:text-indigo-400 transition-all">
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em]">Phase 0{service.title[0]}</span>
+                  <div className="flex-1 h-px bg-white/5 group-hover:bg-indigo-500/20 transition-all" />
+                  <ArrowRight className="h-4 w-4 transform group-hover:translate-x-1 transition-transform" />
+               </div>
              </motion.div>
            ))}
         </motion.div>
 
-        {/* Media Mix Section */}
-        <div className="premium-card bg-slate-900/40 p-12 text-center max-w-4xl mx-auto border-indigo-500/10 hover:border-indigo-500/20">
-           <div className="text-xs font-black uppercase tracking-[0.3em] text-indigo-400 mb-8">{t.method.media_mix}</div>
-           <div className="flex flex-wrap justify-center gap-6 md:gap-12">
-              {[
-                { name: 'Streams', icon: Play },
-                { name: 'Short & Long Video', icon: Gamepad2 },
-                { name: 'Gaming Nights', icon: Trophy },
-                { name: 'Live Casting', icon: Zap },
-                { name: 'Event Organization', icon: Globe }
-              ].map((item) => (
-                <div key={item.name} className="flex flex-col items-center gap-3 group">
-                   <div className="p-4 bg-white/5 rounded-2xl group-hover:bg-indigo-600/20 transition-colors">
-                      <item.icon className="h-6 w-6 text-slate-400 group-hover:text-indigo-400" />
-                   </div>
-                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 group-hover:text-white transition-colors">{item.name}</span>
-                </div>
-              ))}
-           </div>
+        {/* Media Mix Section - Redesigned as "Capabilities Grid" */}
+        <div className="relative mt-32">
+          <div className="absolute inset-x-0 -top-24 h-px bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent" />
+          <div className="text-center mb-20">
+            <h4 className="text-sm font-black uppercase tracking-[0.6em] text-indigo-400 mb-4">{t.method.media_mix}</h4>
+            <h3 className="text-4xl md:text-5xl font-black text-white mb-6 tracking-tighter">Full Spectrum Execution.</h3>
+            <p className="text-slate-400 text-lg font-medium max-w-2xl mx-auto leading-relaxed">
+              We don't just post content; we architect cultural moments across the entire digital landscape.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+             {[
+               { name: 'Streams', icon: Play, desc: t.method.capabilities.streams },
+               { name: 'Short & Long Video', icon: Gamepad2, desc: t.method.capabilities.video },
+               { name: 'Gaming Nights', icon: Trophy, desc: t.method.capabilities.gaming },
+               { name: 'Live Casting', icon: Zap, desc: t.method.capabilities.casting },
+               { name: 'Event Organization', icon: Globe, desc: t.method.capabilities.events }
+             ].map((item, i) => (
+               <motion.div 
+                 key={item.name}
+                 initial={{ opacity: 0, y: 20 }}
+                 whileInView={{ opacity: 1, y: 0 }}
+                 viewport={{ once: true }}
+                 transition={{ delay: i * 0.1 }}
+                 className={`capability-card-large group ${i === 4 ? 'md:col-span-2 lg:col-span-1' : ''}`}
+               >
+                  <div className="capability-icon-large">
+                    <item.icon />
+                  </div>
+                  <h5 className="text-2xl font-black mb-4 tracking-tighter text-white uppercase">{item.name}</h5>
+                  <p className="text-slate-400 text-sm leading-relaxed font-medium">
+                    {item.desc}
+                  </p>
+                  
+                  {/* Subtle background glow for each card */}
+                  <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-indigo-600/5 blur-3xl rounded-full group-hover:bg-indigo-600/20 transition-all duration-700" />
+               </motion.div>
+             ))}
+          </div>
         </div>
       </section>
 
@@ -467,43 +732,142 @@ export default function Landing() {
               <div className="dashboard-mockup group-hover:border-indigo-500/30 transition-all duration-700">
                 <div className="mockup-sidebar">
                   <div className="w-8 h-8 bg-indigo-600 rounded-lg mb-8 shadow-lg shadow-indigo-500/20" />
-                  <div className="mockup-item-active mb-4" />
-                  {[1, 2, 3, 4, 5].map(i => <div key={i} className="mockup-item opacity-40" />)}
+                  <div 
+                    onMouseEnter={() => setMockupFeature('roi')}
+                    className={`mockup-item-click mb-4 ${mockupFeature === 'roi' ? 'active' : ''}`} 
+                  >
+                    <BarChart className="h-2 w-2 text-white" />
+                  </div>
+                  <div 
+                    onMouseEnter={() => setMockupFeature('creators')}
+                    className={`mockup-item-click mb-4 ${mockupFeature === 'creators' ? 'active' : ''}`} 
+                  >
+                    <Users className="h-2 w-2 text-white" />
+                  </div>
+                  <div 
+                    onMouseEnter={() => setMockupFeature('reporting')}
+                    className={`mockup-item-click mb-4 ${mockupFeature === 'reporting' ? 'active' : ''}`} 
+                  >
+                    <Activity className="h-2 w-2 text-white" />
+                  </div>
+                  {[1, 2].map(i => <div key={i} className="mockup-item opacity-40 mb-4" />)}
                 </div>
-                <div className="absolute left-[18%] top-0 bottom-0 right-0 p-8 space-y-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <div className="h-6 bg-white/10 rounded-full w-40" />
+                <div className="absolute left-[18%] top-0 bottom-0 right-0 p-8 flex flex-col">
+                  <div className="flex justify-between items-center mb-8">
+                    <div className="flex flex-col gap-1">
+                      <div className="h-4 bg-white/10 rounded-full w-32" />
+                      <div className="h-2 bg-white/5 rounded-full w-20" />
+                    </div>
                     <div className="flex gap-2">
                       <div className="w-8 h-8 rounded-full bg-white/5" />
-                      <div className="w-8 h-8 rounded-full bg-white/5" />
+                      <div className="w-8 h-8 rounded-full bg-indigo-600/20 flex items-center justify-center">
+                        <Sparkles className="h-3 w-3 text-indigo-400" />
+                      </div>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="mockup-card">
-                      <TrendingUp className="h-4 w-4 text-indigo-400 mb-2" />
-                      <div className="h-4 bg-white/10 rounded w-1/2 mb-2" />
-                      <div className="h-2 bg-indigo-500/40 rounded w-full" />
-                    </div>
-                    <div className="mockup-card">
-                      <BarChart3 className="h-4 w-4 text-emerald-400 mb-2" />
-                      <div className="h-4 bg-white/10 rounded w-2/3 mb-2" />
-                      <div className="h-2 bg-emerald-500/40 rounded w-3/4" />
-                    </div>
-                  </div>
-                  <div className="bg-slate-800/30 rounded-[2rem] border border-white/5 p-6 h-40 flex flex-col justify-end gap-3">
-                    <div className="flex items-end gap-1 h-full">
-                       {[0.3, 0.5, 0.8, 0.4, 0.6, 0.9, 0.7].map((h, i) => (
-                         <div key={i} className="flex-1 bg-gradient-to-t from-indigo-500 to-indigo-400/20 rounded-t-sm" style={{ height: `${h * 100}%` }} />
-                       ))}
-                    </div>
-                    <div className="h-2 bg-white/5 rounded-full w-full" />
-                  </div>
+
+                  <AnimatePresence mode="wait">
+                    {mockupFeature === 'roi' && (
+                      <motion.div 
+                        key="roi"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="space-y-6"
+                      >
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="mockup-card">
+                            <TrendingUp className="h-4 w-4 text-emerald-400 mb-2" />
+                            <div className="text-[10px] font-bold text-slate-500 uppercase mb-1">Growth ROI</div>
+                            <div className="text-xl font-black text-white">+24.8%</div>
+                          </div>
+                          <div className="mockup-card">
+                            <Zap className="h-4 w-4 text-amber-400 mb-2" />
+                            <div className="text-[10px] font-bold text-slate-500 uppercase mb-1">Efficiency</div>
+                            <div className="text-xl font-black text-white">99.2%</div>
+                          </div>
+                        </div>
+                        <div className="bg-slate-800/30 rounded-[2rem] border border-white/5 p-6 h-48 flex flex-col justify-end gap-3 overflow-hidden relative">
+                           <div className="absolute top-4 left-6 text-[8px] font-black uppercase text-indigo-500/50 tracking-widest">Performance Matrix</div>
+                           <div className="flex items-end gap-2 h-full">
+                              {[0.4, 0.7, 0.5, 0.9, 0.6, 0.8, 0.75, 1, 0.85, 0.95].map((h, i) => (
+                                <motion.div 
+                                  key={i} 
+                                  initial={{ height: 0 }}
+                                  animate={{ height: `${h * 100}%` }}
+                                  transition={{ delay: i * 0.05, duration: 1 }}
+                                  className="flex-1 bg-gradient-to-t from-indigo-600 via-indigo-500/40 to-transparent rounded-t-lg" 
+                                />
+                              ))}
+                           </div>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {mockupFeature === 'creators' && (
+                      <motion.div 
+                        key="creators"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="space-y-4"
+                      >
+                         <div className="text-xs font-black text-white/50 uppercase tracking-widest mb-2">Global Network Status</div>
+                         {[1, 2, 3].map(i => (
+                           <div key={i} className="flex items-center gap-4 bg-white/5 p-3 rounded-2xl border border-white/5">
+                              <div className="w-10 h-10 rounded-xl bg-slate-800" />
+                              <div className="flex-1">
+                                 <div className="h-3 bg-white/10 rounded w-24 mb-2" />
+                                 <div className="h-2 bg-white/5 rounded w-16" />
+                              </div>
+                              <div className="w-12 h-2 bg-emerald-500/20 rounded-full" />
+                           </div>
+                         ))}
+                      </motion.div>
+                    )}
+
+                    {mockupFeature === 'reporting' && (
+                      <motion.div 
+                        key="reporting"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="space-y-6"
+                      >
+                         <div className="mockup-card border-indigo-500/30 bg-indigo-500/5">
+                            <div className="flex justify-between items-center mb-4">
+                               <div className="text-[10px] font-black text-indigo-400">CAMPAIGN_SUMMARY_A4.pdf</div>
+                               <div className="h-2 w-10 bg-indigo-500 rounded-full" />
+                            </div>
+                            <div className="space-y-2">
+                               <div className="h-1 bg-white/20 rounded-full w-full" />
+                               <div className="h-1 bg-white/20 rounded-full w-[90%]" />
+                               <div className="h-1 bg-white/20 rounded-full w-[95%]" />
+                               <div className="h-1 bg-white/20 rounded-full w-[80%]" />
+                            </div>
+                         </div>
+                         <div className="flex gap-4">
+                            <div className="flex-1 h-24 bg-white/5 rounded-[1.5rem] border border-white/5 flex flex-col items-center justify-center">
+                               <CheckCircle2 className="h-6 w-6 text-indigo-500 mb-2" />
+                               <div className="text-[8px] font-black text-slate-500">VERIFIED</div>
+                            </div>
+                            <div className="flex-1 h-24 bg-white/5 rounded-[1.5rem] border border-white/5 flex flex-col items-center justify-center">
+                               <Globe className="h-6 w-6 text-emerald-500 mb-2" />
+                               <div className="text-[8px] font-black text-slate-500">DISTRIBUTED</div>
+                            </div>
+                         </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
                 {/* Floating pointer to simulate interaction */}
                 <motion.div 
-                  animate={{ x: [200, 400, 300], y: [150, 100, 200] }}
-                  transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute pointer-events-none"
+                  animate={{ 
+                    x: mockupFeature === 'roi' ? 0 : mockupFeature === 'creators' ? 0 : 0, 
+                    y: mockupFeature === 'roi' ? 80 : mockupFeature === 'creators' ? 120 : 160 
+                  }}
+                  transition={{ duration: 0.5, type: 'spring' }}
+                  className="absolute left-8 pointer-events-none"
                 >
                   <MousePointer2 className="h-6 w-6 text-white drop-shadow-lg" />
                 </motion.div>
@@ -534,22 +898,34 @@ export default function Landing() {
             className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto"
           >
              {[
-               { role: 'CEO & Founder', image: founder1, desc: 'Visionary leadership with over 10 years in the digital and crypto ecosystem.' },
-               { role: 'COO & Strategy', image: founder2, desc: 'Specialist in agency scalability and international talent management.' },
-               { role: t.leadership.founder3_role, image: creator1, desc: t.leadership.founder3_desc }
+               { name: 'EMINATR1X', role: 'Co-Founder', image: founder1, desc: "I take your project's raw light and bend it into a message people can't unsee.", twitter: 'https://x.com/eminatr1x' },
+               { name: 'CaBs', role: 'Co-Founder', image: founder2, desc: 'Ready to break down complex ideas into simple explanations.', twitter: 'https://x.com/CaBsCrypto' },
+               { name: 'Lady Mufa', role: 'Co-Founder', image: creator1, desc: 'I make Web3 gaming videos, and I build pathways for women to join and thrive.', twitter: 'https://x.com/LadyMufaTV' }
              ].map((founder, i) => (
                <motion.div 
                  key={i}
                  variants={revealVariants}
                  className="text-center group"
                >
-                 <div className="relative mb-8">
+                 <div className="relative mb-6">
                    <div className="absolute -inset-2 bg-indigo-500/20 rounded-[2.5rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                   <img src={founder.image} alt="Board Member" className="founder-image relative z-10" />
+                   <img src={founder.image} alt={founder.name} className="founder-image relative z-10" />
                  </div>
-                 <h3 className="text-2xl font-black mb-2 uppercase tracking-tight">{founder.role}</h3>
-                 <p className="text-indigo-400 text-xs font-black uppercase tracking-widest mb-4 opacity-50">Board Member</p>
-                 <p className="text-slate-400 font-medium px-4">{founder.desc}</p>
+                 <h3 className="text-2xl font-black mb-1 tracking-tight gradient-text">{founder.name}</h3>
+                 <a
+                   href={founder.twitter}
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   className="inline-flex items-center gap-1.5 text-slate-500 hover:text-white transition-colors mb-4 group/tw"
+                 >
+                   <Twitter className="h-3 w-3 group-hover/tw:text-sky-400 transition-colors" />
+                   <span className="text-[10px] font-bold">@{founder.twitter.split('/').pop()}</span>
+                 </a>
+                  <p className="text-slate-400 font-medium px-4 text-sm italic leading-relaxed">
+                    <span className="text-indigo-400/60 text-sm font-black not-italic">"</span>
+                    {founder.desc}
+                    <span className="text-indigo-400/60 text-sm font-black not-italic">"</span>
+                  </p>
                </motion.div>
              ))}
           </motion.div>
@@ -560,7 +936,29 @@ export default function Landing() {
       <section className="py-32 px-6 relative overflow-hidden">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
           <div className="order-2 lg:order-1">
-             <div className="premium-card bg-slate-900/50 p-10 relative group">
+             <div className="premium-card bg-slate-900/50 p-10 relative group overflow-hidden">
+                {/* World Map Pings representation */}
+                <div className="absolute inset-0 opacity-20 pointer-events-none">
+                   {[
+                     { t: '20%', l: '30%', d: 0 },
+                     { t: '45%', l: '65%', d: 0.5 },
+                     { t: '60%', l: '20%', d: 1 },
+                     { t: '30%', l: '80%', d: 1.5 },
+                     { t: '70%', l: '50%', d: 2 },
+                   ].map((p, i) => (
+                     <motion.div 
+                       key={i}
+                       initial={{ opacity: 0, scale: 0 }}
+                       whileInView={{ opacity: 1, scale: 1 }}
+                       transition={{ delay: p.d, duration: 0.8, repeat: Infinity, repeatDelay: 3 }}
+                       className="absolute w-3 h-3 bg-indigo-500 rounded-full blur-[2px]"
+                       style={{ top: p.t, left: p.l }}
+                     >
+                        <div className="absolute inset-0 bg-indigo-400 rounded-full animate-ping" />
+                     </motion.div>
+                   ))}
+                </div>
+
                 <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
                   <Globe className="h-40 w-40 text-indigo-500" />
                 </div>
@@ -569,10 +967,16 @@ export default function Landing() {
                   {t.global.card_desc}
                 </p>
                 <div className="flex flex-wrap gap-4">
-                  {['USA', 'Spain', 'Mexico', 'France', 'Japan', 'Brazil'].map(country => (
-                    <span key={country} className="px-4 py-2 bg-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-white/5">
+                  {['USA', 'Spain', 'Mexico', 'France', 'Japan', 'Brazil'].map((country, i) => (
+                    <motion.span 
+                      key={country} 
+                      initial={{ opacity: 0, y: 10 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.1 }}
+                      className="px-4 py-2 bg-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-white/5 hover:bg-indigo-600/10 transition-colors"
+                    >
                       {country}
-                    </span>
+                    </motion.span>
                   ))}
                 </div>
              </div>
@@ -612,9 +1016,14 @@ export default function Landing() {
               }
             }}
           >
-            {[...featuredCreators, ...featuredCreators].map((creator, i) => (
+            {(featuredCreators.length > 0 ? [...featuredCreators, ...featuredCreators] : [...PLACEHOLDER_CREATORS, ...PLACEHOLDER_CREATORS]).map((creator, i) => (
               <div key={`${creator.id}-${i}`} className="creator-carousel-item group">
-                <div className="relative w-64 h-80 rounded-[2.5rem] overflow-hidden mb-6 border border-white/10 group-hover:border-indigo-500/50 transition-colors">
+                <a 
+                  href={creator.twitter || '#'} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="block relative w-64 h-80 rounded-[2.5rem] overflow-hidden mb-6 border border-white/10 group-hover:border-indigo-500/50 transition-colors cursor-pointer"
+                >
                   <img 
                     src={creator.photo_url || creator1} 
                     alt={creator.display_name} 
@@ -626,11 +1035,11 @@ export default function Landing() {
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400">{t.showcase.badge}</span>
                       <div className="p-2 bg-white/10 rounded-full backdrop-blur-md">
-                        <Zap className="h-3 w-3 text-yellow-400" />
+                        <Twitter className="h-3.5 w-3.5 text-white opacity-40 group-hover:text-sky-400 group-hover:opacity-100 transition-all" />
                       </div>
                     </div>
                   </div>
-                </div>
+                </a>
               </div>
             ))}
           </motion.div>
@@ -697,10 +1106,16 @@ export default function Landing() {
               {t.cta.desc}
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-              <button className="px-10 py-5 bg-white text-indigo-600 rounded-full font-black text-sm uppercase tracking-widest hover:scale-105 transition-all shadow-xl">
+              <button 
+                className="px-10 py-5 bg-white text-indigo-600 rounded-full font-black text-sm uppercase tracking-widest hover:scale-105 transition-all shadow-xl"
+                onClick={() => document.querySelector('footer')?.scrollIntoView({ behavior: 'smooth' })}
+              >
                 {t.cta.btn1}
               </button>
-              <button className="px-10 py-5 bg-transparent border-2 border-white/30 rounded-full font-black text-sm uppercase tracking-widest hover:bg-white/10 transition-all">
+              <button 
+                className="px-10 py-5 bg-transparent border-2 border-white/30 rounded-full font-black text-sm uppercase tracking-widest hover:bg-white/10 transition-all"
+                onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
+              >
                 {t.cta.btn2}
               </button>
             </div>
@@ -710,18 +1125,76 @@ export default function Landing() {
 
 
       {/* Footer */}
-      <footer className="py-20 px-6 border-t border-white/5 text-slate-500">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-12">
-          <div className="flex items-center gap-2">
-            <Rocket className="h-6 w-6 text-indigo-500" />
-            <span className="text-xl font-black text-white tracking-tighter">{t.footer.hub}</span>
+      <footer className="py-20 px-8 border-t border-white/5 text-slate-500">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-16 mb-16">
+            {/* Brand */}
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center">
+                  <Rocket className="h-5 w-5 text-white" />
+                </div>
+                <span className="text-lg font-black text-white tracking-tighter">{t.footer.hub}</span>
+              </div>
+              <p className="text-sm text-slate-500 leading-relaxed max-w-xs">
+                The unmistakable standard for creator-driven Web3 marketing excellence.
+              </p>
+            </div>
+            {/* Navigation */}
+            <div>
+              <div className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 mb-6">Navigation</div>
+              <div className="space-y-3">
+                {[
+                  { label: language === 'es' ? 'Visión' : 'Vision', id: 'vision' },
+                  { label: language === 'es' ? 'El Método' : 'The Method', id: 'about' },
+                  { label: language === 'es' ? 'Creadores' : 'Creators', id: 'creators' },
+                ].map(link => (
+                  <button
+                    key={link.id}
+                    onClick={() => document.getElementById(link.id)?.scrollIntoView({ behavior: 'smooth' })}
+                    className="block text-sm hover:text-white transition-colors text-left"
+                  >
+                    {link.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {/* Team / Socials */}
+            <div>
+              <div className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 mb-6">The Founders</div>
+              <div className="space-y-5">
+                {[
+                  { name: 'EMINATR1X', handle: '@eminatr1x', twitter: 'https://x.com/eminatr1x' },
+                  { name: 'CaBs', handle: '@CaBsCrypto', twitter: 'https://x.com/CaBsCrypto' },
+                  { name: 'Lady Mufa', handle: '@LadyMufaTV', twitter: 'https://x.com/LadyMufaTV' },
+                ].map(person => (
+                  <a
+                    key={person.name}
+                    href={person.twitter}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 group hover:text-white transition-colors"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-indigo-600/20 transition-colors flex-shrink-0">
+                      <Twitter className="h-3.5 w-3.5 group-hover:text-sky-400 transition-colors" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-black text-white/80 group-hover:text-white transition-colors">{person.name}</div>
+                      <div className="text-[10px] text-slate-600">{person.handle}</div>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
           </div>
-          <div className="flex gap-12 text-sm font-bold uppercase tracking-widest">
-            <a href="#" className="hover:text-white transition-colors">Twitter</a>
-            <a href="#" className="hover:text-white transition-colors">Discord</a>
-            <a href="#" className="hover:text-white transition-colors">Contact</a>
+          {/* Bottom bar */}
+          <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-xs">{t.footer.rights}</p>
+            <div className="flex items-center gap-2 text-slate-600">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+              <span className="text-[10px] font-black uppercase tracking-widest">All Systems Operational</span>
+            </div>
           </div>
-          <p className="text-xs">{t.footer.rights}</p>
         </div>
       </footer>
     </div>

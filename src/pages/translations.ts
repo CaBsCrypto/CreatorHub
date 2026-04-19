@@ -36,7 +36,14 @@ export const translations = {
       step2_desc: "Creators are briefed to align on message, goals, and deliverables, while preserving creative freedom.",
       step3: "3. REPORTING",
       step3_desc: "Ongoing KPI visibility during the campaign, followed by a final performance report and key takeaways.",
-      media_mix: "Media Mix*"
+      media_mix: "Media Mix*",
+      capabilities: {
+        streams: "High-interaction live broadcasts with real-time engagement.",
+        video: "Short & long-form video content optimized for virality and retention.",
+        gaming: "Competitive and casual events that bring the community together.",
+        casting: "Professional narration for top-tier events and tournaments.",
+        events: "End-to-end planning and execution of digital and physical events."
+      }
     },
     leadership: {
       label: "Leadership",
@@ -122,7 +129,14 @@ export const translations = {
       step2_desc: "Los creadores reciben un briefing para alinear mensaje, objetivos y entregables, preservando su libertad creativa.",
       step3: "3. REPORTES",
       step3_desc: "Visibilidad continua de KPIs durante la campaña, seguida de un reporte final de rendimiento y aprendizajes clave.",
-      media_mix: "Mix de Medios*"
+      media_mix: "Mix de Medios*",
+      capabilities: {
+        streams: "Transmisiones en vivo con alta interacción y engagement en tiempo real.",
+        video: "Contenido de video corto y largo optimizado para viralidad y retención.",
+        gaming: "Eventos competitivos y casuales que unen a la comunidad.",
+        casting: "Narración profesional para eventos y torneos de primer nivel.",
+        events: "Planificación y ejecución integral de eventos digitales y físicos."
+      }
     },
     leadership: {
       label: "Liderazgo",
