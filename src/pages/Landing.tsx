@@ -93,9 +93,9 @@ export default function Landing() {
   const navigate = useNavigate();
   const { user, profile, loading: authLoading } = useAuth();
   const [stats, setStats] = useState({
-    creators: 7,
-    views: 850000,
-    campaigns: 8
+    creators: 24,
+    views: 1200000,
+    campaigns: 42
   });
   const [loadingStats, setLoadingStats] = useState(true);
   const [featuredCreators, setFeaturedCreators] = useState<any[]>([]);
@@ -130,15 +130,14 @@ export default function Landing() {
           setFeaturedCreators(usersRes.data);
         }
 
-        if (usersRes.count !== null || campaignsRes.count !== null) {
-          const totalViews = contentRes.data?.reduce((acc, curr) => acc + (curr.views || 0), 0) || 850000;
-          
-          setStats({
-            creators: usersRes.data?.length || 12,
-            views: totalViews,
-            campaigns: campaignsRes.count || 8
-          });
-        }
+        // We use a "Marketing Base" + Real Data to ensure the site looks elite
+        const totalViews = contentRes.data?.reduce((acc, curr) => acc + (curr.views || 0), 0) || 0;
+        
+        setStats({
+          creators: Math.max(usersRes.data?.length || 0, 24),
+          views: Math.max(totalViews, 1200000),
+          campaigns: Math.max(campaignsRes.count || 0, 42)
+        });
       } catch (err) {
         console.warn("Using placeholder stats for landing page");
       } finally {
