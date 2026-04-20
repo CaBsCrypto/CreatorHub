@@ -543,8 +543,8 @@ export default function Landing() {
             >
               {[
                 { label: 'Phase 01', title: t.method.step1, desc: t.method.step1_desc, icon: Target },
-                { label: 'Phase 02', title: t.method.step2, desc: t.method.step2_desc, icon: Sparkles },
-                { label: 'Phase 03', title: t.method.step3, desc: t.method.step3_desc, icon: BarChart3 }
+                { label: 'Phase 02', title: t.method.step2, desc: t.method.step2_desc, icon: Activity },
+                { label: 'Phase 03', title: t.method.step3, desc: t.method.step3_desc, icon: LayoutDashboard }
               ].map((phase, i) => (
                 <motion.div 
                   key={i}
@@ -553,7 +553,7 @@ export default function Landing() {
                 >
                   <div className="stepper-number">0{i+1}</div>
                   <span className="stepper-label">{phase.label}</span>
-                  <h3 className="text-2xl font-black mb-4 group-hover:text-indigo-400 transition-colors uppercase tracking-tight">{phase.title.replace(`${i+1}. `, '')}</h3>
+                  <h3 className="text-2xl font-black mb-4 group-hover:text-indigo-400 transition-colors uppercase tracking-tight">{phase.title}</h3>
                   <p className="text-slate-400 text-sm font-medium leading-relaxed">{phase.desc}</p>
                 </motion.div>
               ))}
@@ -565,7 +565,7 @@ export default function Landing() {
             <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
               <div className="max-w-xl">
                 <span className="section-label">{t.method.media_mix}</span>
-                <h3 className="text-4xl md:text-5xl font-black tracking-tighter uppercase leading-none">Full Spectrum <br/> Execution.</h3>
+                <h3 className="text-4xl md:text-5xl font-black tracking-tighter uppercase leading-none">{t.method.bento_title.split(' ')[0]} <br/> {t.method.bento_title.split(' ').slice(1).join(' ')}.</h3>
               </div>
               <p className="text-slate-500 text-sm font-bold max-w-sm leading-relaxed mb-1 italic">
                  "We don't just post content; we architect cultural moments across the entire digital landscape."
