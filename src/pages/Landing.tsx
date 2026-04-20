@@ -93,9 +93,9 @@ export default function Landing() {
   const navigate = useNavigate();
   const { user, profile, loading: authLoading } = useAuth();
   const [stats, setStats] = useState({
-    creators: 24,
-    views: 1200000,
-    campaigns: 42
+    creators: 8,
+    views: 103000,
+    campaigns: 3
   });
   const [loadingStats, setLoadingStats] = useState(true);
   const [featuredCreators, setFeaturedCreators] = useState<any[]>([]);
@@ -118,8 +118,6 @@ export default function Landing() {
   useEffect(() => {
     async function fetchStats() {
       try {
-        // We try to fetch real stats, but fall back to "premium placeholders" if it fails
-        // This is safe for a landing page where we want to "WOW" regardless of DB connection
         const [usersRes, contentRes, campaignsRes] = await Promise.all([
           supabase.from('users').select('id, display_name, photo_url, role').eq('role', 'creator').is('deleted_at', null).order('created_at', { ascending: false }).limit(10),
           supabase.from('content').select('views, platform').is('deleted_at', null),
@@ -130,16 +128,16 @@ export default function Landing() {
           setFeaturedCreators(usersRes.data);
         }
 
-        // We use a "Marketing Base" + Real Data to ensure the site looks elite
-        const totalViews = contentRes.data?.reduce((acc, curr) => acc + (curr.views || 0), 0) || 0;
+        const totalViewsFromDB = contentRes.data?.reduce((acc, curr) => acc + (curr.views || 0), 0) || 0;
         
+        // We use the User-Provided Actuals as the reliable floor
         setStats({
-          creators: Math.max(usersRes.data?.length || 0, 24),
-          views: Math.max(totalViews, 1200000),
-          campaigns: Math.max(campaignsRes.count || 0, 42)
+          creators: Math.max(usersRes.data?.length || 0, 8),
+          views: Math.max(totalViewsFromDB, 103000),
+          campaigns: Math.max(campaignsRes.count || 0, 3) 
         });
       } catch (err) {
-        console.warn("Using placeholder stats for landing page");
+        console.warn("Using actual stats fallback for landing page");
       } finally {
         setLoadingStats(false);
       }
