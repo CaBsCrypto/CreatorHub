@@ -515,34 +515,46 @@ export default function Landing() {
         </motion.div>
       </section>
 
-      {/* Vision Section (Axiom Restructure) - Sticky Scroll Focus */}
+      {/* Vision Section (Command Core Redesign) */}
       <section id="vision" ref={visionRef} className="vision-sticky-container">
         <div className="matrix-grid opacity-20" />
         
+        {/* Technical Core Visuals */}
+        <div className="tech-core-container">
+           <motion.div 
+             style={{ scale: useTransform(visionScroll, [0, 1], [0.8, 1.5]), rotate: useTransform(visionScroll, [0, 1], [0, 180]) }}
+             className="tech-core-orbital"
+           >
+              <div className="tech-core-radar" />
+              <div className="tech-core-radar" style={{ animationDirection: 'reverse', width: '80%', height: '80%' }} />
+              <div className="tech-core-radar" style={{ width: '60%', height: '60%', opacity: 0.2 }} />
+           </motion.div>
+        </div>
+
         {/* Cinematic Scan Line */}
         <motion.div 
           style={{ 
-            top: useTransform(visionScroll, [0, 1], ["0%", "100%"]),
-            opacity: useTransform(visionScroll, [0, 0.1, 0.9, 1], [0, 1, 1, 0])
+            top: useTransform(visionScroll, [0, 1], ["-10%", "110%"]),
+            opacity: useTransform(visionScroll, [0, 0.05, 0.95, 1], [0, 1, 1, 0])
           }}
           className="scan-line-vision"
         />
 
         {/* Diagnostic Micro-Labels */}
-        <div className="absolute inset-0 pointer-events-none z-20">
+        <div className="absolute inset-0 pointer-events-none z-40">
            <motion.div 
              style={{ opacity: useTransform(visionScroll, [0, 0.1], [0, 1]) }}
-             className="status-diagnostic top-20 left-20"
+             className="status-diagnostic top-24 left-24"
            >
-              <div className="diagnostic-label">Access_Protocol</div>
-              <div className="diagnostic-value">UMBRA_CORE_v.4.1.2</div>
+              <div className="diagnostic-label">Axiom_Sequence</div>
+              <div className="diagnostic-value">ACTIVE_CORE_v.5</div>
            </motion.div>
            <motion.div 
-             style={{ opacity: useTransform(visionScroll, [0.4, 0.5], [0, 1]) }}
-             className="status-diagnostic bottom-40 right-20"
+             style={{ opacity: useTransform(visionScroll, [0.8, 0.9], [0, 1]) }}
+             className="status-diagnostic bottom-48 right-24"
            >
-              <div className="diagnostic-label">Sync_Status</div>
-              <div className="diagnostic-value text-emerald-400">Stable_Axiom</div>
+              <div className="diagnostic-label">Momentum_Lock</div>
+              <div className="diagnostic-value text-emerald-400">ENGAGED</div>
            </motion.div>
         </div>
 
@@ -550,17 +562,17 @@ export default function Landing() {
           {/* Axiom 01: The Standard */}
           <motion.div 
             style={{ 
-              opacity: useTransform(visionScroll, [0, 0.1, 0.25, 0.35], [0, 1, 1, 0]),
-              x: useTransform(visionScroll, [0, 0.1, 0.25, 0.35], [-100, 0, 0, 100]),
-              filter: useTransform(visionScroll, [0.25, 0.35], ["blur(0px)", "blur(20px)"]),
+              opacity: useTransform(visionScroll, [0, 0.05, 0.28, 0.33], [0, 1, 1, 0]),
+              scale: useTransform(visionScroll, [0, 0.05, 0.28, 0.33], [0.9, 1, 1, 1.1]),
+              filter: useTransform(visionScroll, [0.28, 0.33], ["blur(0px)", "blur(40px)"]),
             }}
             className="axiom-slide"
           >
             <div className="axiom-card">
-              <span className="section-label mb-8">Axiom_01</span>
+              <span className="section-label mb-12">Core_Axiom_01</span>
               <h2 className="axiom-title">
                 {t.vision.p1} <br/>
-                <span className="prism-text drop-shadow-[0_0_50px_rgba(16,185,129,0.3)]">
+                <span className="prism-text drop-shadow-[0_0_60px_rgba(16,185,129,0.4)]">
                   <CharacterReveal text={t.vision.p1_bold} active={true} />
                 </span>
               </h2>
@@ -570,14 +582,14 @@ export default function Landing() {
           {/* Axiom 02: The Impression */}
           <motion.div 
             style={{ 
-              opacity: useTransform(visionScroll, [0.35, 0.45, 0.6, 0.7], [0, 1, 1, 0]),
-              y: useTransform(visionScroll, [0.35, 0.45, 0.6, 0.7], [100, 0, 0, -100]),
-              scale: useTransform(visionScroll, [0.35, 0.45, 0.6, 0.7], [0.8, 1, 1, 0.9]),
+              opacity: useTransform(visionScroll, [0.33, 0.38, 0.61, 0.66], [0, 1, 1, 0]),
+              y: useTransform(visionScroll, [0.33, 0.38, 0.61, 0.66], [50, 0, 0, -50]),
+              scale: useTransform(visionScroll, [0.33, 0.38, 0.61, 0.66], [0.95, 1, 1, 1.05]),
             }}
             className="axiom-slide"
           >
-            <div className="axiom-card border-emerald-500/10">
-              <span className="section-label mb-8">Axiom_02</span>
+            <div className="axiom-card border-emerald-500/20">
+              <span className="section-label mb-12">Core_Axiom_02</span>
               <p className="axiom-description">
                 <CharacterReveal text={t.vision.p2} active={true} />
               </p>
@@ -587,18 +599,19 @@ export default function Landing() {
           {/* Axiom 03: The Momentum */}
           <motion.div 
             style={{ 
-              opacity: useTransform(visionScroll, [0.7, 0.8, 0.95, 1], [0, 1, 1, 0]),
-              scale: useTransform(visionScroll, [0.7, 0.8, 0.95, 1], [0.5, 1, 1, 1.5]),
+              opacity: useTransform(visionScroll, [0.66, 0.71, 0.95, 1], [0, 1, 1, 0]),
+              scale: useTransform(visionScroll, [0.66, 0.71, 0.95, 1], [0.8, 1, 1, 1.8]),
+              filter: useTransform(visionScroll, [0.9, 1], ["blur(0px)", "blur(100px)"]),
             }}
             className="axiom-slide"
           >
-            <div className="axiom-card bg-emerald-600/[0.03] border-emerald-500/20">
+            <div className="axiom-card bg-emerald-600/[0.05] border-emerald-500/40">
               <div className="axiom-inner">
-                <span className="section-label mb-8">Axiom_03</span>
-                <p className="text-base md:text-xl text-emerald-400 tracking-[0.8em] uppercase font-black opacity-60 mb-12">
+                <span className="section-label mb-12">Core_Final_Protocol</span>
+                <p className="text-xl md:text-3xl text-emerald-400 tracking-[0.8em] uppercase font-black opacity-60 mb-16">
                    {t.vision.p3}
                 </p>
-                <h3 className="text-6xl md:text-9xl font-black prism-text uppercase tracking-tighter leading-none drop-shadow-[0_0_80px_rgba(34,211,238,0.4)]">
+                <h3 className="text-7xl md:text-[10rem] font-black prism-text uppercase tracking-tighter leading-none drop-shadow-[0_0_100px_rgba(34,211,238,0.5)]">
                    {t.vision.p4}
                 </h3>
               </div>

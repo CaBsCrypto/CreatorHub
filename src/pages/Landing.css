@@ -160,7 +160,7 @@
 
 /* Cinematic Vision Section - Restructured */
 .vision-sticky-container {
-  @apply relative h-[600vh] bg-slate-950;
+  @apply relative h-[300vh] bg-slate-950;
 }
 
 .vision-sticky-content {
@@ -169,28 +169,42 @@
 
 /* Axiom Slide System */
 .axiom-slide {
-  @apply absolute inset-0 flex flex-col items-center justify-center p-8 z-10;
+  @apply absolute inset-0 flex flex-col items-center justify-center p-8 z-30 transition-all duration-300;
 }
 
 .axiom-card {
-  @apply relative p-12 md:p-20 rounded-[4rem] bg-white/[0.01] border border-white/5 backdrop-blur-3xl overflow-hidden text-center;
-  box-shadow: 0 0 100px -20px rgba(16, 185, 129, 0.1);
+  @apply relative p-12 md:p-24 rounded-[5rem] bg-white/[0.01] border border-white/5 backdrop-blur-3xl overflow-hidden text-center max-w-6xl w-full;
+  box-shadow: 0 0 120px -20px rgba(16, 185, 129, 0.15);
 }
 
 .axiom-inner {
-  @apply relative z-10 max-w-7xl mx-auto;
+  @apply relative z-10 w-full;
 }
 
 .axiom-title {
-  @apply text-5xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85] mb-8;
+  @apply text-6xl md:text-9xl font-black tracking-tighter uppercase leading-[0.8] mb-12;
 }
 
 .axiom-description {
-  @apply text-lg md:text-2xl font-medium text-slate-400 max-w-4xl mx-auto leading-relaxed italic;
+  @apply text-xl md:text-3xl font-medium text-slate-400 max-w-5xl mx-auto leading-relaxed italic;
+}
+
+/* Technical Core Elements */
+.tech-core-container {
+  @apply absolute inset-0 pointer-events-none flex items-center justify-center z-20 opacity-30;
+}
+
+.tech-core-orbital {
+  @apply absolute w-[600px] h-[600px] border border-emerald-500/10 rounded-full flex items-center justify-center;
+}
+
+.tech-core-radar {
+  @apply absolute w-[100%] h-[100%] border border-emerald-500/5 rounded-full animate-spin-slow;
+  background-image: conic-gradient(from 0deg, transparent, rgba(16, 185, 129, 0.05), transparent 40%);
 }
 
 .scan-line-vision {
-  @apply absolute inset-x-0 h-[100px] bg-gradient-to-b from-transparent via-emerald-500/20 to-transparent z-20 pointer-events-none;
+  @apply absolute inset-x-0 h-[150px] bg-gradient-to-b from-transparent via-emerald-500/30 to-transparent z-40 pointer-events-none;
 }
 
 .vision-phrase-layered {
