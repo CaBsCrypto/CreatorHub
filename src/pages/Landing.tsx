@@ -89,6 +89,38 @@ const handleExternalLink = (url: string) => {
   window.open(url, '_blank', 'noopener,noreferrer');
 };
 
+// --- Character Reveal Component ---
+function CharacterReveal({ text, active }: { text: string; active: boolean }) {
+  const [displayText, setDisplayText] = useState('');
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789%@#$";
+  
+  useEffect(() => {
+    if (!active) {
+      setDisplayText('');
+      return;
+    }
+    
+    let iteration = 0;
+    const interval = setInterval(() => {
+      setDisplayText(prev => 
+        text.split("")
+          .map((char, index) => {
+            if (index < iteration) return text[index];
+            return chars[Math.floor(Math.random() * chars.length)];
+          })
+          .join("")
+      );
+      
+      iteration += 1 / 3;
+      if (iteration >= text.length) clearInterval(interval);
+    }, 30);
+    
+    return () => clearInterval(interval);
+  }, [active, text]);
+
+  return <>{displayText}</>;
+}
+
 export default function Landing() {
   const navigate = useNavigate();
   const { user, profile, loading: authLoading } = useAuth();
@@ -487,83 +519,89 @@ export default function Landing() {
       <section id="vision" ref={visionRef} className="vision-sticky-container">
         <div className="matrix-grid opacity-20" />
         
-        {/* Data Stream Background Layer */}
-        <div className="data-stream-container">
-          {[...Array(12)].map((_, i) => (
-            <div 
-              key={i} 
-              className="data-column"
-              style={{ 
-                left: `${(i * 10) + 2}%`, 
-                animationDuration: `${15 + (i * 2)}s`,
-                opacity: 0.2 + (Math.random() * 0.3)
-              }}
-            >
-              {Array(40).fill(0).map(() => Math.random().toString(36).substring(2, 4)).join(' ')}
-            </div>
-          ))}
-        </div>
+        {/* Cinematic Scan Line */}
+        <motion.div 
+          style={{ 
+            top: useTransform(visionScroll, [0, 1], ["0%", "100%"]),
+            opacity: useTransform(visionScroll, [0, 0.1, 0.9, 1], [0, 1, 1, 0])
+          }}
+          className="scan-line-vision"
+        />
 
         {/* Diagnostic Micro-Labels */}
-        <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 pointer-events-none z-20">
            <motion.div 
-             style={{ opacity: useTransform(visionScroll, [0, 0.2], [0, 1]) }}
+             style={{ opacity: useTransform(visionScroll, [0, 0.1], [0, 1]) }}
              className="status-diagnostic top-20 left-20"
            >
               <div className="diagnostic-label">Access_Protocol</div>
-              <div className="diagnostic-value">UMBRA_CORE_v.4.0</div>
+              <div className="diagnostic-value">UMBRA_CORE_v.4.1.2</div>
            </motion.div>
            <motion.div 
-             style={{ opacity: useTransform(visionScroll, [0.4, 0.6], [0, 1]) }}
+             style={{ opacity: useTransform(visionScroll, [0.4, 0.5], [0, 1]) }}
              className="status-diagnostic bottom-40 right-20"
            >
               <div className="diagnostic-label">Sync_Status</div>
-              <div className="diagnostic-value text-emerald-400">Stable_Grid</div>
+              <div className="diagnostic-value text-emerald-400">Stable_Axiom</div>
            </motion.div>
         </div>
 
         <div className="vision-sticky-content">
+          {/* Axiom 01: The Standard */}
           <motion.div 
             style={{ 
-              opacity: useTransform(visionScroll, [0, 0.1, 0.2, 0.3], [0, 1, 1, 0]),
-              scale: useTransform(visionScroll, [0, 0.1, 0.2, 0.3], [0.5, 1, 1, 1.5]),
-              filter: useTransform(visionScroll, [0.25, 0.3], ["blur(0px)", "blur(20px)"]),
+              opacity: useTransform(visionScroll, [0, 0.1, 0.25, 0.35], [0, 1, 1, 0]),
+              x: useTransform(visionScroll, [0, 0.1, 0.25, 0.35], [-100, 0, 0, 100]),
+              filter: useTransform(visionScroll, [0.25, 0.35], ["blur(0px)", "blur(20px)"]),
             }}
-            className="vision-phrase-layered flex flex-col items-center justify-center h-screen w-full"
+            className="axiom-slide"
           >
-            <span className="section-label mb-10">{t.vision.label}</span>
-            <h2 className="text-6xl md:text-9xl font-black leading-[0.8] tracking-tighter uppercase whitespace-pre-line text-center">
-              {t.vision.p1} <br/>
-              <span className="prism-text drop-shadow-[0_0_50px_rgba(16,185,129,0.3)]">{t.vision.p1_bold}</span>
-            </h2>
+            <div className="axiom-card">
+              <span className="section-label mb-8">Axiom_01</span>
+              <h2 className="axiom-title">
+                {t.vision.p1} <br/>
+                <span className="prism-text drop-shadow-[0_0_50px_rgba(16,185,129,0.3)]">
+                  <CharacterReveal text={t.vision.p1_bold} active={true} />
+                </span>
+              </h2>
+            </div>
           </motion.div>
 
+          {/* Axiom 02: The Impression */}
           <motion.div 
             style={{ 
-              opacity: useTransform(visionScroll, [0.35, 0.45, 0.55, 0.65], [0, 1, 1, 0]),
-              y: useTransform(visionScroll, [0.35, 0.45, 0.55, 0.65], [100, 0, 0, -100]),
+              opacity: useTransform(visionScroll, [0.35, 0.45, 0.6, 0.7], [0, 1, 1, 0]),
+              y: useTransform(visionScroll, [0.35, 0.45, 0.6, 0.7], [100, 0, 0, -100]),
+              scale: useTransform(visionScroll, [0.35, 0.45, 0.6, 0.7], [0.8, 1, 1, 0.9]),
             }}
-            className="vision-phrase-layered"
+            className="axiom-slide"
           >
-            <p className="text-3xl md:text-5xl font-extralight italic leading-tight max-w-6xl mx-auto text-center px-6">
-              {t.vision.p2}
-            </p>
-          </motion.div>
-
-          <motion.div 
-            style={{ 
-              opacity: useTransform(visionScroll, [0.7, 0.8, 0.9, 1], [0, 1, 1, 0]),
-              scale: useTransform(visionScroll, [0.7, 0.8], [0.8, 1]),
-            }}
-            className="vision-phrase-layered"
-          >
-            <div className="space-y-12">
-              <p className="text-base md:text-lg text-emerald-400 tracking-[0.8em] uppercase font-black opacity-60">
-                 {t.vision.p3}
+            <div className="axiom-card border-emerald-500/10">
+              <span className="section-label mb-8">Axiom_02</span>
+              <p className="axiom-description">
+                <CharacterReveal text={t.vision.p2} active={true} />
               </p>
-              <h3 className="text-6xl md:text-9xl font-black prism-text uppercase tracking-tighter leading-none drop-shadow-[0_0_80px_rgba(34,211,238,0.4)]">
-                 {t.vision.p4}
-              </h3>
+            </div>
+          </motion.div>
+
+          {/* Axiom 03: The Momentum */}
+          <motion.div 
+            style={{ 
+              opacity: useTransform(visionScroll, [0.7, 0.8, 0.95, 1], [0, 1, 1, 0]),
+              scale: useTransform(visionScroll, [0.7, 0.8, 0.95, 1], [0.5, 1, 1, 1.5]),
+            }}
+            className="axiom-slide"
+          >
+            <div className="axiom-card bg-emerald-600/[0.03] border-emerald-500/20">
+              <div className="axiom-inner">
+                <span className="section-label mb-8">Axiom_03</span>
+                <p className="text-base md:text-xl text-emerald-400 tracking-[0.8em] uppercase font-black opacity-60 mb-12">
+                   {t.vision.p3}
+                </p>
+                <h3 className="text-6xl md:text-9xl font-black prism-text uppercase tracking-tighter leading-none drop-shadow-[0_0_80px_rgba(34,211,238,0.4)]">
+                   {t.vision.p4}
+                </h3>
+              </div>
             </div>
           </motion.div>
         </div>

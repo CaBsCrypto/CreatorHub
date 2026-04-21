@@ -160,11 +160,37 @@
 
 /* Cinematic Vision Section - Restructured */
 .vision-sticky-container {
-  @apply relative h-[400vh] bg-slate-950;
+  @apply relative h-[600vh] bg-slate-950;
 }
 
 .vision-sticky-content {
   @apply sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden;
+}
+
+/* Axiom Slide System */
+.axiom-slide {
+  @apply absolute inset-0 flex flex-col items-center justify-center p-8 z-10;
+}
+
+.axiom-card {
+  @apply relative p-12 md:p-20 rounded-[4rem] bg-white/[0.01] border border-white/5 backdrop-blur-3xl overflow-hidden text-center;
+  box-shadow: 0 0 100px -20px rgba(16, 185, 129, 0.1);
+}
+
+.axiom-inner {
+  @apply relative z-10 max-w-7xl mx-auto;
+}
+
+.axiom-title {
+  @apply text-5xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85] mb-8;
+}
+
+.axiom-description {
+  @apply text-lg md:text-2xl font-medium text-slate-400 max-w-4xl mx-auto leading-relaxed italic;
+}
+
+.scan-line-vision {
+  @apply absolute inset-x-0 h-[100px] bg-gradient-to-b from-transparent via-emerald-500/20 to-transparent z-20 pointer-events-none;
 }
 
 .vision-phrase-layered {
