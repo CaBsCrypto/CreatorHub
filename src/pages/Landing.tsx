@@ -124,7 +124,7 @@ export default function Landing() {
 
       {/* Hero Section V3 (Refined Asymmetric Split) */}
       <section className="hero-split-layout relative z-10">
-        <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
+        <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-32 items-center">
           <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 1 }}>
             <span className="section-label">{t?.hero?.label}</span>
             <h1 className="hero-text mb-10">
