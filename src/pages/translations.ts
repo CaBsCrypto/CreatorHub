@@ -92,6 +92,21 @@ export const translations = {
     footer: {
       hub: "UMBRA CREATOR HUB",
       rights: "© 2026 UMBRA AGENCY. ALL RIGHTS RESERVED."
+    },
+    system: {
+      version: "OS_v.4.1.2",
+      latency: "LATENCY: 14MS",
+      nodes: "NODES: ACTIVE",
+      status: "SYSTEMS_STABLE",
+      feed: "LIVE_FEED",
+      decrypted: "PARTNERSHIP_DECRYPTED"
+    },
+    diagnostics: {
+      engagement: "ENGAGEMENT_VIBRANCY",
+      resonance: "CULTURAL_RESONANCE",
+      reach: "POTENTIAL_YIELD",
+      status: "NODE_STATUS",
+      active: "OPERATIONAL"
     }
   },
   es: {
@@ -187,6 +202,21 @@ export const translations = {
     footer: {
       hub: "UMBRA CREATOR HUB",
       rights: "© 2026 UMBRA AGENCY. TODOS LOS DERECHOS RESERVADOS."
+    },
+    system: {
+      version: "OS_v.4.1.2",
+      latency: "LATENCY: 14MS",
+      nodes: "NODES: ACTIVO",
+      status: "SISTEMAS_ESTABLES",
+      feed: "FEED_VIVO",
+      decrypted: "ALIANZA_DESCIFRADA"
+    },
+    diagnostics: {
+      engagement: "VITALIDAD_ENGAGEMENT",
+      resonance: "RESONANCIA_CULTURAL",
+      reach: "RENDIMIENTO_POTENCIAL",
+      status: "ESTADO_NODO",
+      active: "OPERATIVO"
     }
   }
 };

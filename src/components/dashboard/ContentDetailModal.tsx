@@ -42,52 +42,53 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="relative w-full max-w-5xl bg-white rounded-[3rem] shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-[90vh]"
+            className="relative w-full max-w-5xl bg-white/95 backdrop-blur-3xl rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.2)] border border-white overflow-hidden flex flex-col md:flex-row max-h-[90vh]"
           >
             {/* Close Button */}
             <button 
               onClick={onClose}
-              className="absolute top-6 right-6 z-50 p-3 rounded-2xl bg-white/80 backdrop-blur-md shadow-xl text-gray-400 hover:text-gray-900 transition-all hover:rotate-90 border border-gray-100"
+              className="absolute top-6 right-6 z-50 p-3 rounded-2xl bg-white shadow-2xl text-slate-400 hover:text-slate-900 transition-all hover:rotate-90 border border-slate-100"
             >
               <X className="h-6 w-6" />
             </button>
 
-            {/* Left side: Image */}
-            <div className="w-full md:w-3/5 h-64 md:h-auto bg-slate-900 relative group overflow-hidden">
+            {/* Left side: Visual Content */}
+            <div className="w-full md:w-3/5 h-72 md:h-auto bg-slate-950 relative group overflow-hidden">
               {item.thumbnail ? (
                 <img 
                   src={item.thumbnail} 
                   alt={item.title || 'Content'} 
-                  className="absolute inset-0 w-full h-full object-contain"
+                  className="absolute inset-0 w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
                 />
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <Icon className={`h-24 w-24 ${config.color} opacity-20`} />
+                   <div className={`w-32 h-32 rounded-full ${config.bg} flex items-center justify-center animate-pulse`}>
+                     <Icon className={`h-16 w-16 ${config.color}`} />
+                   </div>
                 </div>
               )}
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent pointer-events-none" />
             </div>
 
-            {/* Right side: Info */}
-            <div className="w-full md:w-2/5 p-8 md:p-10 overflow-y-auto bg-white custom-scrollbar">
-              <div className="flex items-center gap-3 mb-6">
-                <div className={`p-3 rounded-2xl ${config.bg}`}>
-                  <Icon className={`h-6 w-6 ${config.color}`} />
+            {/* Right side: Insights */}
+            <div className="w-full md:w-2/5 p-10 md:p-12 overflow-y-auto bg-white/50 custom-scrollbar">
+              <div className="flex items-center gap-4 mb-8">
+                <div className={`p-4 rounded-2xl ${config.bg} shadow-sm`}>
+                  <Icon className={`h-7 w-7 ${config.color}`} />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] leading-none mb-1">{config.label}</span>
-                  <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest leading-none">
-                    {new Date(item.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
-                  </span>
-                  {item.updated_at && (
-                    <span className="text-[8px] font-medium text-indigo-400 mt-1 uppercase tracking-tighter">
-                      Actualizado: {new Date(item.updated_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+                  <span className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] leading-none mb-1.5">{config.label}</span>
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-3 w-3 text-slate-300" />
+                    <span className="text-[11px] font-black text-slate-900 uppercase tracking-widest leading-none">
+                      {new Date(item.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </span>
-                  )}
+                  </div>
                 </div>
               </div>
 
-              <h2 className="text-3xl font-black text-gray-900 mb-8 tracking-tight leading-none">
-                {item.title || 'Estadísticas'}
+              <h2 className="text-3xl font-black text-slate-900 mb-10 tracking-tighter leading-tight uppercase">
+                {item.title || 'Strategic Metrics'}
               </h2>
 
               {(() => {
@@ -99,49 +100,59 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
                   return (
                     <div className="space-y-6">
                       <div className="grid grid-cols-2 gap-4">
-                        <div className="bg-slate-50 border border-slate-100 rounded-3xl p-5 shadow-sm group">
-                          <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-2 flex items-center gap-2"><Clock className="h-3.5 w-3.5" /> Duración</p>
-                          <p className="text-xl font-black text-slate-900">
+                        <div className="bg-slate-50 border border-slate-100 rounded-[2rem] p-6 shadow-sm group hover:bg-white transition-colors cursor-default">
+                          <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                             <Clock className="h-4 w-4" /> Runtime
+                          </p>
+                          <p className="text-2xl font-black text-slate-900">
                             {Math.floor((item.duration_minutes || 0) / 60)}h {(item.duration_minutes || 0) % 60}m
                           </p>
                         </div>
-                        <div className="bg-slate-50 border border-slate-100 rounded-3xl p-5 shadow-sm">
-                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
-                             <TrendingUp className="h-3.5 w-3.5 text-rose-500" /> Máximo
+                        <div className="bg-slate-50 border border-slate-100 rounded-[2rem] p-6 shadow-sm group hover:bg-white transition-colors cursor-default">
+                          <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                             <TrendingUp className="h-4 w-4" /> Peak CCV
                           </p>
-                          <p className="text-xl font-black text-slate-900">
+                          <p className="text-2xl font-black text-slate-900">
                              {(item.peek_viewers || 0).toLocaleString()}
                           </p>
                         </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
-                        <div className="bg-slate-50 border border-slate-100 rounded-3xl p-5 shadow-sm">
-                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2"><Users className="h-3.5 w-3.5 text-emerald-500" /> Únicos</p>
-                          <p className="text-xl font-black text-slate-900">{(item.unique_viewers || 0).toLocaleString()}</p>
-                        </div>
-                        <div className="bg-slate-50 border border-slate-100 rounded-3xl p-5 shadow-sm">
-                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
-                            {isManual ? <Monitor className="h-3.5 w-3.5 text-purple-500" /> : <TrendingUp className="h-3.5 w-3.5 text-indigo-500" />}
-                            {isManual ? 'Pantallas' : 'Promedio'}
+                        <div className="bg-slate-50 border border-slate-100 rounded-[2rem] p-6 shadow-sm group hover:bg-white transition-colors cursor-default">
+                          <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <Users className="h-4 w-4" /> Uniques
                           </p>
-                          <p className="text-xl font-black text-slate-900">
+                          <p className="text-2xl font-black text-slate-900">{(item.unique_viewers || 0).toLocaleString()}</p>
+                        </div>
+                        <div className="bg-slate-50 border border-slate-100 rounded-[2rem] p-6 shadow-sm group hover:bg-white transition-colors cursor-default">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            {isManual ? <Monitor className="h-4 w-4 text-purple-600" /> : <BarChart3 className="h-4 w-4 text-indigo-600" />}
+                            {isManual ? 'Auditors' : 'Average'}
+                          </p>
+                          <p className="text-2xl font-black text-slate-900">
                             {isManual ? (item.shares_count || 0).toLocaleString() : (item.average_viewers || 0).toLocaleString()}
                           </p>
                         </div>
                       </div>
 
-                      <div className="bg-slate-900 rounded-[2rem] p-6 shadow-xl relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full -mr-16 -mt-16 blur-3xl group-hover:scale-150 transition-transform duration-700" />
-                        <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2 flex items-center gap-2 relative z-10"><Eye className="h-4 w-4" /> Vistas Totales</p>
-                        <p className="text-3xl font-black text-white relative z-10">{(item.views || item.unique_viewers || 0).toLocaleString()}</p>
+                      <div className="bg-indigo-600 rounded-[2.5rem] p-8 shadow-2xl shadow-indigo-200 relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl group-hover:scale-150 transition-transform duration-1000" />
+                        <p className="text-[11px] font-black text-indigo-100 uppercase tracking-[0.2em] mb-3 flex items-center gap-2 relative z-10">
+                          <Eye className="h-5 w-5" /> Total Reach
+                        </p>
+                        <p className="text-4xl font-black text-white relative z-10 tracking-tighter">
+                          {(item.views || item.unique_viewers || 0).toLocaleString()}
+                        </p>
                       </div>
 
-                      {/* Description Section (Optional) */}
                       {(item as any).description && (
-                        <div className="pt-4 border-t border-slate-50">
-                          <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-3">Notas de la sesión</p>
-                          <div className="p-5 bg-slate-50/50 rounded-2xl border border-slate-100 italic text-sm text-slate-600 leading-relaxed font-medium">
+                        <div className="pt-6 border-t border-slate-100">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Strategic Narrative</p>
+                          <div className="p-6 bg-slate-50 italic text-sm text-slate-700 leading-relaxed font-medium rounded-3xl border border-slate-100 relative">
+                             <div className="absolute top-0 left-6 -translate-y-1/2 bg-white px-2 text-indigo-600">
+                               <MessageSquare className="h-4 w-4" />
+                             </div>
                             "{ (item as any).description }"
                           </div>
                         </div>
@@ -151,33 +162,45 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
                 }
 
                 return (
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="bg-slate-50 border border-slate-100 rounded-3xl p-5 shadow-sm group">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2"><Eye className="h-4 w-4 text-indigo-500" /> Vistas</p>
-                      <p className="text-2xl font-black text-slate-900">{(item.views || 0).toLocaleString()}</p>
+                  <div className="space-y-4">
+                    <div className="bg-slate-900 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden group mb-4">
+                       <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                       <p className="text-[11px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-3 flex items-center gap-2 relative z-10">
+                         <Eye className="h-5 w-5" /> Impressions
+                       </p>
+                       <p className="text-5xl font-black text-white relative z-10 tracking-tighter">
+                         {(item.views || 0).toLocaleString()}
+                       </p>
                     </div>
-                    <div className="bg-slate-50 border border-slate-100 rounded-3xl p-5 shadow-sm group">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2"><TrendingUp className="h-4 w-4 text-rose-500" /> Likes</p>
-                      <p className="text-2xl font-black text-slate-900">{(item.likes || 0).toLocaleString()}</p>
-                    </div>
-                    {(item.comments > 0 || item.platform === 'coinmarketcap' || item.platform === 'youtube') && (
-                      <div className="bg-slate-50 border border-slate-100 rounded-3xl p-5 shadow-sm group">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2"><MessageSquare className="h-4 w-4 text-emerald-500" /> Comentarios</p>
-                        <p className="text-2xl font-black text-slate-900">{(item.comments || 0).toLocaleString()}</p>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-slate-50 border border-slate-100 rounded-[2rem] p-6 shadow-sm group hover:bg-white transition-colors cursor-default">
+                        <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                          <TrendingUp className="h-4 w-4" /> Interaction
+                        </p>
+                        <p className="text-2xl font-black text-slate-900">{(item.likes || 0).toLocaleString()}</p>
                       </div>
-                    )}
+                      {(item.comments > 0 || item.platform === 'coinmarketcap' || item.platform === 'youtube') && (
+                        <div className="bg-slate-50 border border-slate-100 rounded-[2rem] p-6 shadow-sm group hover:bg-white transition-colors cursor-default">
+                          <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <MessageSquare className="h-4 w-4" /> Sentiment
+                          </p>
+                          <p className="text-2xl font-black text-slate-900">{(item.comments || 0).toLocaleString()}</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 );
               })()}
 
-              <div className="mt-10 flex gap-3">
+              <div className="mt-12">
                 <a 
                   href={item.url} 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="flex-1 flex items-center justify-center gap-2 py-4 bg-gray-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:bg-black hover:translate-y-[-2px] transition-all"
+                  className="w-full flex items-center justify-center gap-3 py-5 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl hover:bg-black hover:translate-y-[-4px] transition-all active:scale-95"
                 >
-                  <ExternalLink className="h-4 w-4" /> Ver Original
+                  <ExternalLink className="h-4 w-4" /> Verify Analytics
                 </a>
               </div>
             </div>
