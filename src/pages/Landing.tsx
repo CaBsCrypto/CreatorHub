@@ -234,23 +234,21 @@ export default function Landing() {
             <span className="section-label">{t?.leadership?.label}</span>
             <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter">{t?.leadership?.title1} <br/> <span className="gradient-text">{t?.leadership?.title2}</span></h2>
           </div>
-          <div className="leadership-bento">
-             <div className="founder-card-large premium-card group" onClick={() => handleExternalLink('https://x.com/eminatr1x')}>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+             <div className="premium-card group cursor-pointer" onClick={() => handleExternalLink('https://x.com/eminatr1x')}>
                 <div className="founder-img-wrapper"><img src={founder1} alt="EMINATR1X" /></div>
-                <h3 className="text-4xl font-black mb-3 gradient-text">EMINATR1X</h3>
-                <p className="text-slate-400 text-lg italic opacity-80 leading-relaxed">"I take your project's raw light and bend it into a message people can't unsee."</p>
+                <h3 className="text-3xl font-black mb-3 gradient-text">EMINATR1X</h3>
+                <p className="text-slate-400 text-sm italic opacity-80 leading-relaxed">"I take your project's raw light and bend it into a message people can't unsee."</p>
              </div>
-             <div className="founder-card-small flex flex-col gap-8">
-                <div className="premium-card p-8 group h-full flex flex-col justify-end" onClick={() => handleExternalLink('https://x.com/CaBsCrypto')}>
-                   <div className="founder-img-wrapper !aspect-square !mb-4"><img src={founder2} alt="CaBs" /></div>
-                   <h3 className="text-2xl font-black mb-2 gradient-text">CaBs</h3>
-                   <p className="text-slate-500 text-xs italic opacity-80">"Breaking down complex ideas into simple explanations."</p>
-                </div>
-                <div className="premium-card p-8 group h-full flex flex-col justify-end" onClick={() => handleExternalLink('https://x.com/LadyMufaTV')}>
-                   <div className="founder-img-wrapper !aspect-square !mb-4"><img src={creator1} alt="Lady Mufa" /></div>
-                   <h3 className="text-2xl font-black mb-2 gradient-text">Lady Mufa</h3>
-                   <p className="text-slate-500 text-xs italic opacity-80">"Building pathways for women to thrive in Web3 gaming."</p>
-                </div>
+             <div className="premium-card group cursor-pointer" onClick={() => handleExternalLink('https://x.com/CaBsCrypto')}>
+                <div className="founder-img-wrapper"><img src={founder2} alt="CaBs" /></div>
+                <h3 className="text-3xl font-black mb-3 gradient-text">CaBs</h3>
+                <p className="text-slate-400 text-sm italic opacity-80 leading-relaxed">"Ready to break down complex ideas into simple explanations."</p>
+             </div>
+             <div className="premium-card group cursor-pointer" onClick={() => handleExternalLink('https://x.com/LadyMufaTV')}>
+                <div className="founder-img-wrapper"><img src={creator1} alt="Lady Mufa" /></div>
+                <h3 className="text-3xl font-black mb-3 gradient-text">Lady Mufa</h3>
+                <p className="text-slate-400 text-sm italic opacity-80 leading-relaxed">"Building pathways for women to thrive and join the Web3 gaming scene."</p>
              </div>
           </div>
         </div>
