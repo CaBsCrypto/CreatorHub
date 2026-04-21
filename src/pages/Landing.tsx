@@ -146,12 +146,6 @@ export default function Landing() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  const visionRef = useRef(null);
-  const { scrollYProgress: visionScroll } = useScroll({
-    target: visionRef,
-    offset: ["start start", "end end"]
-  });
-
   // Global scroll for hero/navbar
   const { scrollYProgress: globalScroll } = useScroll();
   const heroOpacity = useTransform(globalScroll, [0, 0.2], [1, 0]);
@@ -515,108 +509,120 @@ export default function Landing() {
         </motion.div>
       </section>
 
-      {/* Vision Section (Command Core Redesign) */}
-      <section id="vision" ref={visionRef} className="vision-sticky-container">
-        <div className="matrix-grid opacity-20" />
-        
-        {/* Technical Core Visuals */}
-        <div className="tech-core-container">
-           <motion.div 
-             style={{ scale: useTransform(visionScroll, [0, 1], [0.8, 1.5]), rotate: useTransform(visionScroll, [0, 1], [0, 180]) }}
-             className="tech-core-orbital"
-           >
-              <div className="tech-core-radar" />
-              <div className="tech-core-radar" style={{ animationDirection: 'reverse', width: '80%', height: '80%' }} />
-              <div className="tech-core-radar" style={{ width: '60%', height: '60%', opacity: 0.2 }} />
-           </motion.div>
-        </div>
+      {/* Vision Section (Technical Bento Redesign) */}
+      <section id="vision" className="py-20 bg-[#020617] relative z-10 overflow-hidden">
+        <div className="absolute inset-0 matrix-grid opacity-10" />
+        <div className="max-w-7xl mx-auto px-6 relative z-20">
+          <div className="mb-20">
+            <span className="section-label">{t.vision.label}</span>
+            <h2 className="text-5xl md:text-7xl font-black tracking-tighter uppercase leading-none">
+              Operational <span className="gradient-text">DNA.</span>
+            </h2>
+          </div>
 
-        {/* Cinematic Scan Line */}
-        <motion.div 
-          style={{ 
-            top: useTransform(visionScroll, [0, 1], ["-10%", "110%"]),
-            opacity: useTransform(visionScroll, [0, 0.05, 0.95, 1], [0, 1, 1, 0])
-          }}
-          className="scan-line-vision"
-        />
-
-        {/* Diagnostic Micro-Labels */}
-        <div className="absolute inset-0 pointer-events-none z-40">
-           <motion.div 
-             style={{ opacity: useTransform(visionScroll, [0, 0.1], [0, 1]) }}
-             className="status-diagnostic top-24 left-24"
-           >
-              <div className="diagnostic-label">Axiom_Sequence</div>
-              <div className="diagnostic-value">ACTIVE_CORE_v.5</div>
-           </motion.div>
-           <motion.div 
-             style={{ opacity: useTransform(visionScroll, [0.8, 0.9], [0, 1]) }}
-             className="status-diagnostic bottom-48 right-24"
-           >
-              <div className="diagnostic-label">Momentum_Lock</div>
-              <div className="diagnostic-value text-emerald-400">ENGAGED</div>
-           </motion.div>
-        </div>
-
-        <div className="vision-sticky-content">
-          {/* Axiom 01: The Standard */}
-          <motion.div 
-            style={{ 
-              opacity: useTransform(visionScroll, [0, 0.05, 0.28, 0.33], [0, 1, 1, 0]),
-              scale: useTransform(visionScroll, [0, 0.05, 0.28, 0.33], [0.9, 1, 1, 1.1]),
-              filter: useTransform(visionScroll, [0.28, 0.33], ["blur(0px)", "blur(40px)"]),
-            }}
-            className="axiom-slide"
-          >
-            <div className="axiom-card">
-              <span className="section-label mb-12">Core_Axiom_01</span>
-              <h2 className="axiom-title">
-                {t.vision.p1} <br/>
-                <span className="prism-text drop-shadow-[0_0_60px_rgba(16,185,129,0.4)]">
-                  <CharacterReveal text={t.vision.p1_bold} active={true} />
-                </span>
-              </h2>
-            </div>
-          </motion.div>
-
-          {/* Axiom 02: The Impression */}
-          <motion.div 
-            style={{ 
-              opacity: useTransform(visionScroll, [0.33, 0.38, 0.61, 0.66], [0, 1, 1, 0]),
-              y: useTransform(visionScroll, [0.33, 0.38, 0.61, 0.66], [50, 0, 0, -50]),
-              scale: useTransform(visionScroll, [0.33, 0.38, 0.61, 0.66], [0.95, 1, 1, 1.05]),
-            }}
-            className="axiom-slide"
-          >
-            <div className="axiom-card border-emerald-500/20">
-              <span className="section-label mb-12">Core_Axiom_02</span>
-              <p className="axiom-description">
-                <CharacterReveal text={t.vision.p2} active={true} />
-              </p>
-            </div>
-          </motion.div>
-
-          {/* Axiom 03: The Momentum */}
-          <motion.div 
-            style={{ 
-              opacity: useTransform(visionScroll, [0.66, 0.71, 0.95, 1], [0, 1, 1, 0]),
-              scale: useTransform(visionScroll, [0.66, 0.71, 0.95, 1], [0.8, 1, 1, 1.8]),
-              filter: useTransform(visionScroll, [0.9, 1], ["blur(0px)", "blur(100px)"]),
-            }}
-            className="axiom-slide"
-          >
-            <div className="axiom-card bg-emerald-600/[0.05] border-emerald-500/40">
-              <div className="axiom-inner">
-                <span className="section-label mb-12">Core_Final_Protocol</span>
-                <p className="text-xl md:text-3xl text-emerald-400 tracking-[0.8em] uppercase font-black opacity-60 mb-16">
-                   {t.vision.p3}
-                </p>
-                <h3 className="text-7xl md:text-[10rem] font-black prism-text uppercase tracking-tighter leading-none drop-shadow-[0_0_100px_rgba(34,211,238,0.5)]">
-                   {t.vision.p4}
-                </h3>
+          <div className="vision-bento-grid">
+            {/* Axiom 01: The Standard */}
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              className="axiom-module-card md:col-span-2"
+            >
+              <div className="axiom-module-scan" />
+              <div className="axiom-module-header">
+                <div className="axiom-module-id">MODULE // STANDARD_CORE</div>
+                <div className="axiom-module-stats">
+                   <span>REV_4.2</span>
+                   <span className="text-emerald-500">STABLE</span>
+                </div>
               </div>
-            </div>
-          </motion.div>
+              <div className="flex-1">
+                <h3 className="axiom-module-title text-4xl md:text-7xl">
+                   {t.vision.p1} <br/>
+                   <span className="prism-text font-black">{t.vision.p1_bold}</span>
+                </h3>
+                <div className="axiom-module-graph">
+                   <Zap className="w-full h-full text-emerald-500" />
+                </div>
+              </div>
+              <div className="mt-8 pt-8 border-t border-white/5">
+                 <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2">Protocol Note</div>
+                 <p className="text-xs text-slate-500 font-mono italic">Umbra dictates the meta, it doesn't follow it. Excellence is the only permissible outcome.</p>
+              </div>
+            </motion.div>
+
+            {/* Axiom 02: The Impression */}
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="axiom-module-card"
+            >
+              <div className="axiom-module-scan" />
+              <div className="axiom-module-header">
+                <div className="axiom-module-id">MODULE // IMPRESSION</div>
+              </div>
+              <div className="flex-1">
+                 <h3 className="text-2xl font-black uppercase mb-4 text-emerald-500">Creative_Impact</h3>
+                 <p className="axiom-module-desc">
+                    {t.vision.p2}
+                 </p>
+                 <div className="mt-8 space-y-4">
+                    <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                       <motion.div 
+                         initial={{ width: 0 }}
+                         whileInView={{ width: '92%' }}
+                         className="h-full bg-emerald-500" 
+                       />
+                    </div>
+                    <div className="flex justify-between text-[8px] font-black uppercase text-slate-500">
+                       <span>Retention</span>
+                       <span>92%</span>
+                    </div>
+                 </div>
+              </div>
+            </motion.div>
+
+            {/* Axiom 03: The Momentum (Final Module) */}
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="axiom-module-card md:col-span-3 bg-gradient-to-br from-[#030712] to-emerald-950/20 border-emerald-500/20"
+            >
+              <div className="axiom-module-scan" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div>
+                  <div className="axiom-module-id mb-6">MODULE // MOMENTUM_FLUX</div>
+                  <h3 className="axiom-module-title">{t.vision.p4}</h3>
+                  <p className="axiom-module-desc text-emerald-100/60">{t.vision.p3}</p>
+                </div>
+                <div className="relative">
+                   <div className="absolute inset-0 bg-emerald-500/10 blur-[100px] rounded-full" />
+                   <div className="relative border border-emerald-500/20 rounded-3xl p-8 bg-black/40 backdrop-blur-xl">
+                      <div className="flex justify-between items-end mb-4">
+                         <div>
+                            <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Active Velocity</div>
+                            <div className="text-4xl font-black text-white">+245%</div>
+                         </div>
+                         <TrendingUp className="text-emerald-500 h-10 w-10" />
+                      </div>
+                      <div className="flex gap-1 h-12 items-end">
+                         {[40, 60, 45, 80, 50, 90, 70, 100].map((h, i) => (
+                           <motion.div 
+                             key={i}
+                             initial={{ scaleY: 0 }}
+                             whileInView={{ scaleY: 1 }}
+                             transition={{ delay: i * 0.05 }}
+                             style={{ height: `${h}%`, transformOrigin: 'bottom' }}
+                             className="flex-1 bg-emerald-500/40 rounded-t-sm"
+                           />
+                         ))}
+                      </div>
+                   </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
