@@ -181,24 +181,30 @@ export default function Landing() {
             <span className="section-label">{t?.about?.label}</span>
             <h2 className="text-5xl md:text-8xl font-black tracking-tighter uppercase leading-none">The <span className="gradient-text">Standard.</span></h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <motion.div whileHover={{ y: -10 }} className="premium-card md:col-span-2 min-h-[450px] flex flex-col justify-between">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <motion.div whileHover={{ y: -10 }} className="premium-card min-h-[400px] flex flex-col justify-between group">
+               <div className="absolute top-10 right-12 text-7xl font-black text-white/[0.03] select-none pointer-events-none group-hover:text-indigo-500/10 transition-colors">01</div>
                <div className="p-5 bg-indigo-600/5 border border-indigo-500/10 rounded-3xl w-fit"><Target className="h-8 w-8 text-indigo-500" /></div>
                <div><h3 className="text-4xl font-black mb-6 uppercase tracking-tighter">{t?.about?.p1_title}</h3><p className="text-slate-400 text-lg leading-relaxed font-medium italic opacity-80">"{t?.about?.p1_desc}"</p></div>
             </motion.div>
-            <motion.div whileHover={{ y: -10 }} className="premium-card bg-purple-600/[0.01] space-y-8">
+            <motion.div whileHover={{ y: -10 }} className="premium-card min-h-[400px] flex flex-col justify-between group">
+               <div className="absolute top-10 right-12 text-7xl font-black text-white/[0.03] select-none pointer-events-none group-hover:text-purple-500/10 transition-colors">02</div>
                <div className="p-5 bg-purple-600/5 border border-purple-500/10 rounded-3xl w-fit"><Zap className="h-8 w-8 text-purple-500" /></div>
-               <h3 className="text-3xl font-black uppercase tracking-tighter">{t?.about?.p2_title}</h3><p className="text-slate-400 leading-relaxed text-sm font-medium italic opacity-80">"{t?.about?.p2_desc}"</p>
+               <div><h3 className="text-4xl font-black mb-6 uppercase tracking-tighter">{t?.about?.p2_title}</h3><p className="text-slate-400 text-lg leading-relaxed font-medium italic opacity-80">"{t?.about?.p2_desc}"</p></div>
             </motion.div>
-            <motion.div whileHover={{ y: -10 }} className="premium-card bg-rose-600/[0.01] space-y-8">
+            <motion.div whileHover={{ y: -10 }} className="premium-card min-h-[400px] flex flex-col justify-between group">
+               <div className="absolute top-10 right-12 text-7xl font-black text-white/[0.03] select-none pointer-events-none group-hover:text-rose-500/10 transition-colors">03</div>
                <div className="p-5 bg-rose-600/5 border border-rose-500/10 rounded-3xl w-fit"><TrendingUp className="h-8 w-8 text-rose-500" /></div>
-               <h3 className="text-3xl font-black uppercase tracking-tighter">Exponential_Growth</h3><p className="text-slate-400 leading-relaxed text-sm font-medium italic opacity-80">"Leveraging data transparency to lock in sustainable creator momentum."</p>
+               <div><h3 className="text-4xl font-black mb-6 uppercase tracking-tighter">Exponential Growth</h3><p className="text-slate-400 text-lg leading-relaxed font-medium italic opacity-80">"Leveraging data transparency to lock in sustainable creator momentum."</p></div>
             </motion.div>
-            <motion.div whileHover={{ y: -10 }} className="premium-card md:col-span-2 bg-slate-900 border-none group">
-               <div className="absolute inset-0 bg-indigo-600/[0.02] opacity-0 group-hover:opacity-100 transition-opacity" />
-               <div className="relative z-10">
-                 <div className="flex items-center gap-3 text-indigo-400 mb-8 font-black text-[10px] uppercase tracking-[0.4em] opacity-60"><Shield className="h-4 w-4" /> Elite Governance v2.6</div>
-                 <h3 className="text-4xl md:text-5xl font-black mb-8 leading-[1.1] uppercase tracking-tighter">{t?.about?.p3_title}</h3><p className="text-slate-400 text-lg leading-relaxed max-w-xl font-medium italic opacity-80">"{t?.about?.p3_desc}"</p>
+            <motion.div whileHover={{ y: -10 }} className="premium-card min-h-[400px] flex flex-col justify-between group bg-slate-900 border-none">
+               <div className="absolute top-10 right-12 text-7xl font-black text-white/[0.03] select-none pointer-events-none group-hover:text-indigo-500/10 transition-colors">04</div>
+               <div className="relative z-10 flex flex-col h-full justify-between">
+                 <div>
+                   <div className="p-5 bg-indigo-600/10 border border-indigo-500/20 rounded-3xl w-fit mb-8"><Shield className="h-4 w-4" /></div>
+                   <h3 className="text-4xl font-black mb-6 uppercase tracking-tighter">{t?.about?.p3_title}</h3>
+                 </div>
+                 <p className="text-slate-400 text-lg leading-relaxed font-medium italic opacity-80">"{t?.about?.p3_desc}"</p>
                </div>
             </motion.div>
           </div>
