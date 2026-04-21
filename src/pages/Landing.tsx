@@ -516,9 +516,9 @@ export default function Landing() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-5xl md:text-8xl font-black mb-8 leading-[0.8] text-white tracking-tighter"
+              className="text-5xl md:text-8xl font-black mb-8 leading-[0.8] text-white tracking-tighter uppercase"
             >
-               THE <br/> <span className="gradient-text">ARCHITECTURE.</span>
+               {t.method.main_title.split(' ')[0]} <br/> <span className="gradient-text">{t.method.main_title.split(' ').slice(1).join(' ')}.</span>
             </motion.h2>
             <motion.p
               initial={{ opacity: 0 }}
@@ -732,13 +732,13 @@ export default function Landing() {
                         <div className="grid grid-cols-2 gap-4">
                           <div className="mockup-card">
                             <TrendingUp className="h-4 w-4 text-emerald-400 mb-2" />
-                            <div className="text-[10px] font-bold text-slate-500 uppercase mb-1">Live Posts</div>
-                            <div className="text-xl font-black text-white">24</div>
+                            <div className="text-[10px] font-bold text-slate-500 uppercase mb-1">Live Creators</div>
+                            <div className="text-xl font-black text-white">8</div>
                           </div>
                           <div className="mockup-card">
                             <Zap className="h-4 w-4 text-amber-400 mb-2" />
                             <div className="text-[10px] font-bold text-slate-500 uppercase mb-1">Total Views</div>
-                            <div className="text-xl font-black text-white">850K</div>
+                            <div className="text-xl font-black text-white">103K</div>
                           </div>
                         </div>
                         <div className="bg-slate-800/30 rounded-[2rem] border border-white/5 p-6 h-48 flex flex-col justify-end gap-3 overflow-hidden relative">
@@ -1004,8 +1004,8 @@ export default function Landing() {
               <Heart className="h-10 w-10 text-rose-500 mb-6 group-hover:scale-110 transition-transform relative z-10" />
               <p className="font-bold text-slate-300 relative z-10 leading-relaxed italic">"The unmistakable standard for <br/> agency excellence and <br/> creator empowerment."</p>
               <div className="mt-8 flex flex-col items-center gap-1 relative z-10">
-                <div className="text-[10px] font-black uppercase tracking-widest text-indigo-400">Sarah M.</div>
-                <div className="text-[8px] font-bold uppercase tracking-widest text-slate-600">Leading Strategy Officer</div>
+                <div className="text-[10px] font-black uppercase tracking-widest text-indigo-400">Umbra Selection</div>
+                <div className="text-[8px] font-bold uppercase tracking-widest text-slate-600">Impact Verification System</div>
               </div>
            </motion.div>
         </div>

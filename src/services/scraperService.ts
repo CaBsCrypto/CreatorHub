@@ -345,57 +345,120 @@ export async function fetchInstagramData(url: string) {
 
 export async function fetchCMCData(url: string) {
   const start = Date.now();
+  const GOOGLE_BOT = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
+  
   try {
-    // Extract the post ID from the URL
     const urlObj = new URL(url);
     const pathParts = urlObj.pathname.split('/').filter(Boolean);
-    const postId = pathParts.pop();
+    const postIdFromUrl = pathParts.pop();
 
-    if (!postId || isNaN(Number(postId))) {
-      throw new Error(`Invalid CMC post URL - could not extract postId from: ${url}`);
-    }
-
-    // Use the official CMC API endpoint instead of scraping HTML - much more reliable
-    const apiUrl = `https://api.coinmarketcap.com/content/v3/community/post/details?postId=${postId}`;
-    const apiRes = await axios.get(apiUrl, {
+    // 1. Primary Method: Scrape HTML using Googlebot bypass (Ninja Option)
+    const normalizedUrl = url.endsWith('/') ? url : `${url}/`;
+    console.log(`[CMC Scraper] Ninja Bypass (Googlebot) to: ${normalizedUrl}`);
+    
+    const pageRes = await axios.get(normalizedUrl, {
       headers: { 
-        "User-Agent": USER_AGENT,
-        "Referer": "https://coinmarketcap.com/",
-        "Origin": "https://coinmarketcap.com",
-        "Accept": "application/json"
+        "User-Agent": GOOGLE_BOT,
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5"
       },
-      timeout: 8000
+      timeout: 15000,
+      validateStatus: () => true 
     });
 
-    const postData = apiRes.data?.data;
+    console.log(`[CMC Scraper] HTML Status: ${pageRes.status}, Length: ${pageRes.data?.length || 0}`);
+    const html = pageRes.data || "";
+    let postData: any = null;
+
+    if (pageRes.status === 200 && !html.includes('challenge-form')) {
+      // Try to find the raw JSON state in __NEXT_DATA__
+      const nextDataMatch = html.match(/<script id="__NEXT_DATA__" type="application\/json">([\s\S]*?)<\/script>/);
+      if (nextDataMatch && nextDataMatch[1]) {
+        try {
+          const fullState = JSON.parse(nextDataMatch[1]);
+          const postDetail = fullState.props?.pageProps?.postDetail || fullState.props?.pageProps?.post;
+          
+          if (postDetail && (postDetail.impressionCount !== undefined || postDetail.likeCount !== undefined)) {
+            console.log("[CMC Scraper] Successfully extracted metrics from __NEXT_DATA__");
+            postData = postDetail;
+          } else {
+            // Alternative: dehydratedState for React Query
+            const queries = fullState.props?.pageProps?.dehydratedState?.queries || [];
+            const postQuery = queries.find((q: any) => 
+               q.state?.data?.data && (
+                 q.queryKey?.[1] === postIdFromUrl || 
+                 JSON.stringify(q.queryKey).includes(postIdFromUrl || "")
+               )
+            );
+            if (postQuery) {
+              postData = postQuery.state.data.data;
+              console.log("[CMC Scraper] Successfully extracted from dehydratedState");
+            }
+          }
+        } catch (parseError) {
+          console.warn("[CMC Scraper] JSON parse error, trying regex fallback...");
+        }
+      }
+
+      // Robust Regex Fallback (Ninja Style)
+      if (!postData) {
+        // Match numbers that might be quoted or not
+        const getMetric = (key: string) => {
+          const m = html.match(new RegExp(`"${key}"\\s*:\\s*(\\d+|"(\\d+)")`));
+          if (!m) return 0;
+          return parseInt(m[2] || m[1], 10);
+        };
+
+        const imp = getMetric('impressionCount');
+        const like = getMetric('likeCount');
+        
+        if (imp > 0 || like > 0) {
+           postData = {
+             impressionCount: imp,
+             likeCount: like,
+             commentCount: getMetric('commentCount')
+           };
+           console.log(`[CMC Scraper] Used regex fallback: Impressions=${imp}`);
+        }
+      }
+    }
+
+    // 2. Local Fallback (if bypass failed)
+    if (!postData) {
+       console.log("[CMC Scraper] Bypass failed or returned no data. Falling back to API...");
+       const postId = postIdFromUrl || "";
+       if (postId && !isNaN(Number(postId))) {
+         const apiUrl = `https://api.coinmarketcap.com/content/v3/community/post/details?postId=${postId}`;
+         try {
+           const apiRes = await axios.get(apiUrl, {
+             headers: { "User-Agent": USER_AGENT },
+             timeout: 8000
+           });
+           if (apiRes.data?.data) postData = apiRes.data.data;
+         } catch(e: any) {
+           console.warn(`[CMC Scraper] API Fallback failed: ${e.message}`);
+         }
+       }
+    }
 
     if (!postData) {
-      throw new Error(`CMC API returned no data for postId: ${postId}`);
+      throw new Error(`CMC Extraction failed (WAF or Data missing) for: ${url}`);
     }
 
-    const views    = parseInt(String(postData.impressionCount || 0), 10);
-    const likes    = parseInt(String(postData.likeCount       || 0), 10);
-    const comments = parseInt(String(postData.commentCount    || 0), 10);
-
-    // Get thumbnail from og:image if still needed, but try API first
-    let thumbnail = postData.imageUrls?.[0] || "";
-    if (!thumbnail) {
-      try {
-        const pageRes = await axios.get(url, { headers: { "User-Agent": USER_AGENT }, timeout: 5000 });
-        const thumbMatch = pageRes.data.match(/<meta property="og:image" content="([^"]+)"/);
-        if (thumbMatch) thumbnail = thumbMatch[1];
-      } catch (_) { /* thumbnail is optional */ }
-    }
-
-    const title = (postData.content || "CoinMarketCap Post").substring(0, 100);
+    // PRIORITY: impressionCount (matches UI Views)
+    const views     = parseInt(String(postData.impressionCount ?? postData.viewCount ?? postData.visitCount ?? 0), 10);
+    const likes     = parseInt(String(postData.likeCount       ?? 0), 10);
+    const comments  = parseInt(String(postData.commentCount    ?? 0), 10);
+    const title     = (postData.content || "CoinMarketCap Post").substring(0, 100);
+    const thumbnail = postData.imageUrls?.[0] || "";
 
     const duration = Date.now() - start;
     await logScraperAction(
       'coinmarketcap', url,
       views === 0 ? 'error' : 'success',
-      views === 0 ? 'CMC API returned 0 impressionCount' : undefined,
+      views === 0 ? 'Metrics extracted but views are 0' : undefined,
       duration,
-      { views, likes, comments, postId }
+      { views, likes, source: postData.impressionCount !== undefined ? 'ninja_verified' : 'fallback' }
     );
 
     return { title, views, likes, comments, thumbnail };
