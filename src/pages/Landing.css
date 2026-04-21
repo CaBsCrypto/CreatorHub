@@ -6,10 +6,6 @@
   transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.glass-nav:hover {
-  @apply bg-slate-950/80 border-white/10;
-}
-
 /* Base Container */
 .landing-container {
   @apply min-h-screen bg-slate-950 text-white overflow-x-hidden relative font-sans;
@@ -18,23 +14,29 @@
               #020617;
 }
 
+/* Premium Grain Texture */
+.grain-overlay {
+  @apply fixed inset-0 z-[5] pointer-events-none opacity-[0.03];
+  background-image: url('https://www.transparenttextures.com/patterns/stardust.png');
+}
+
 /* Enhanced Nebula System */
 @keyframes nebula-drift {
   0% { transform: translate(0, 0) scale(1); opacity: 0.3; }
-  33% { transform: translate(5%, 5%) scale(1.1); opacity: 0.5; }
-  66% { transform: translate(-5%, 10%) scale(0.9); opacity: 0.2; }
+  33% { transform: translate(3%, 3%) scale(1.05); opacity: 0.4; }
+  66% { transform: translate(-3%, 6%) scale(0.95); opacity: 0.2; }
   100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
 }
 
 .nebula-glow {
   @apply absolute rounded-full blur-[160px] pointer-events-none mix-blend-screen overflow-hidden;
-  animation: nebula-drift 25s ease-in-out infinite;
+  animation: nebula-drift 30s ease-in-out infinite;
 }
 
 /* Premium Typography */
 .hero-text {
-  @apply text-6xl lg:text-[8rem] font-black tracking-tighter leading-[0.9] transition-all duration-700 uppercase;
-  background: linear-gradient(to bottom, #fff 60%, rgba(255,255,255,0.2));
+  @apply text-6xl lg:text-[8.5rem] font-black tracking-tighter leading-[0.85] transition-all duration-700 uppercase;
+  background: linear-gradient(to bottom, #fff 70%, rgba(255,255,255,0.1));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -44,111 +46,95 @@
   background-size: 200% 200%;
 }
 
-/* Hero Section V3 (Asymmetric) */
+/* Hero Split Layout */
 .hero-split-layout {
   @apply min-h-[90vh] flex items-center pt-24 pb-20 px-6;
 }
 
 .hero-visual-element {
   @apply relative w-full aspect-square max-w-lg mx-auto;
-  perspective: 1000px;
 }
 
 .data-prism {
-  @apply absolute inset-0 border-2 border-indigo-500/20 rounded-[3rem] animate-pulse;
-  transform: rotateX(20deg) rotateY(-20deg);
-  background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, transparent 100%);
+  @apply absolute inset-0 border border-white/5 rounded-[4rem] transition-all duration-1000;
+  background: radial-gradient(circle at center, rgba(79, 70, 229, 0.05) 0%, transparent 70%);
 }
 
-.data-prism::before {
-  content: '';
-  @apply absolute inset-[-20px] border border-purple-500/10 rounded-[4rem] animate-[spin_20s_linear_infinite];
-}
-
-/* Cinematic Spotlight Card */
+/* Premium Card Refinement */
 .premium-card {
-  @apply relative p-10 rounded-[3rem] bg-indigo-500/[0.03] border border-white/5 backdrop-blur-2xl transition-all duration-700 overflow-hidden;
-  box-shadow: 0 30px 100px -20px rgba(0, 0, 0, 0.7);
+  @apply relative p-12 rounded-[4rem] bg-indigo-500/[0.02] border border-white/5 backdrop-blur-3xl transition-all duration-1000 overflow-hidden;
+  box-shadow: 0 40px 100px -30px rgba(0, 0, 0, 0.8);
 }
 
 .premium-card:hover {
-  @apply border-indigo-500/40 -translate-y-3;
-  box-shadow: 0 50px 120px -30px rgba(79, 70, 229, 0.25);
+  @apply border-indigo-500/20 -translate-y-2 bg-indigo-500/[0.03];
+  box-shadow: 0 60px 120px -40px rgba(79, 70, 229, 0.15);
 }
 
-/* Stats Styling Refined */
+/* Stats Styling */
 .stat-container {
-  @apply py-16 border-y border-white/5 bg-white/[0.01] backdrop-blur-3xl;
+  @apply py-20 border-y border-white/5 bg-white/[0.005] backdrop-blur-3xl;
 }
 
 .stat-value {
-  @apply text-7xl lg:text-9xl font-black text-white tracking-tighter mb-2;
-  text-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  @apply text-7xl lg:text-9xl font-black text-white tracking-tighter;
+  text-shadow: 0 15px 45px rgba(0, 0, 0, 0.5);
 }
 
 .stat-label {
-  @apply text-[10px] font-black uppercase tracking-[0.5em] text-indigo-400 opacity-60;
+  @apply text-[10px] font-black uppercase tracking-[0.6em] text-indigo-400/50 mt-4;
 }
 
-/* Creator Carousel Refined */
+/* Asymmetric Bento Leadership */
+.leadership-bento {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 2rem;
+}
+
+.founder-card-large {
+  grid-column: span 8;
+}
+
+.founder-card-small {
+  grid-column: span 4;
+}
+
+@media (max-width: 1024px) {
+  .founder-card-large, .founder-card-small {
+    grid-column: span 12;
+  }
+}
+
+.founder-img-wrapper {
+  @apply relative aspect-[4/5] overflow-hidden rounded-[3.5rem] mb-8 grayscale hover:grayscale-0 transition-all duration-1000;
+}
+
+.founder-img-wrapper img {
+  @apply w-full h-full object-cover scale-[1.01] transition-transform duration-1000;
+}
+
+.founder-img-wrapper:hover img {
+  @apply scale-105;
+}
+
+/* Creator Carousel */
 .creator-carousel-container {
-  @apply w-full overflow-hidden py-16 px-4;
+  @apply w-full overflow-hidden py-24 px-4;
   mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
 }
 
 .creator-track {
-  @apply flex gap-10;
+  @apply flex gap-12;
   width: max-content;
 }
 
 .creator-card-premium {
-  @apply relative w-72 h-[26rem] rounded-[3.5rem] overflow-hidden border border-white/5 transition-all duration-700 bg-slate-900;
-  box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.8);
+  @apply relative w-80 h-[28rem] rounded-[4rem] overflow-hidden border border-white/5 transition-all duration-1000 bg-slate-900;
+  box-shadow: 0 50px 100px -30px rgba(0, 0, 0, 0.9);
 }
 
-.creator-card-premium:hover {
-  @apply border-indigo-500/40 -translate-y-4;
-  box-shadow: 0 60px 100px -30px rgba(79, 70, 229, 0.3);
-}
-
-.creator-card-photo {
-  @apply absolute inset-0 grayscale transition-all duration-1000 group-hover:grayscale-0 group-hover:scale-110;
-}
-
-.creator-card-gradient {
-  @apply absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent opacity-80;
-}
-
-/* Founder Visuals */
-.founder-image {
-  @apply w-full aspect-[4/5] object-cover rounded-[3rem] mb-8 grayscale hover:grayscale-0 transition-all duration-1000 scale-[1.01] hover:scale-105;
-  filter: drop-shadow(0 20px 50px rgba(0,0,0,0.5));
-}
-
-/* Section Label Badge */
+/* Section Labels */
 .section-label {
-  @apply px-4 py-1.5 bg-indigo-600/10 border border-indigo-500/20 rounded-full text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400 mb-8 inline-block;
-}
-
-/* Animations */
-@keyframes prism-shift {
-  to { background-position: 200% center; }
-}
-
-.prism-text {
-  background: linear-gradient(
-    90deg, 
-    #818cf8 0%, 
-    #c084fc 25%, 
-    #fb7185 50%, 
-    #c084fc 75%, 
-    #818cf8 100%
-  );
-  background-size: 200% auto;
-  @apply bg-clip-text text-transparent brightness-125;
-}
-
-.prism-text:hover {
-  animation: prism-shift 4s linear infinite;
-  filter: drop-shadow(0 0 30px rgba(192, 132, 252, 0.4));
+  @apply px-5 py-2 bg-indigo-600/5 border border-indigo-500/10 rounded-full text-[9px] font-black uppercase tracking-[0.5em] text-indigo-400 mb-10 inline-block;
 }
