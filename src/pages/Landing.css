@@ -13,17 +13,17 @@
 /* Base Container */
 .landing-container {
   @apply min-h-screen bg-slate-950 text-white overflow-x-hidden relative font-sans;
-  background: radial-gradient(circle at 0% 0%, rgba(79, 70, 229, 0.15), transparent 50%),
-              radial-gradient(circle at 100% 100%, rgba(244, 63, 94, 0.1), transparent 50%),
+  background: radial-gradient(circle at 0% 0%, rgba(79, 70, 229, 0.1), transparent 50%),
+              radial-gradient(circle at 100% 100%, rgba(244, 63, 94, 0.05), transparent 50%),
               #020617;
 }
 
 /* Enhanced Nebula System */
 @keyframes nebula-drift {
-  0% { transform: translate(0, 0) scale(1); opacity: 0.4; }
-  33% { transform: translate(5%, 5%) scale(1.1); opacity: 0.6; }
-  66% { transform: translate(-5%, 10%) scale(0.9); opacity: 0.3; }
-  100% { transform: translate(0, 0) scale(1); opacity: 0.4; }
+  0% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+  33% { transform: translate(5%, 5%) scale(1.1); opacity: 0.5; }
+  66% { transform: translate(-5%, 10%) scale(0.9); opacity: 0.2; }
+  100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
 }
 
 .nebula-glow {
@@ -33,16 +33,36 @@
 
 /* Premium Typography */
 .hero-text {
-  @apply text-7xl md:text-[10rem] font-black tracking-tighter leading-[0.8] transition-all duration-700 uppercase;
-  background: linear-gradient(to bottom, #fff 50%, rgba(255,255,255,0.1));
+  @apply text-6xl lg:text-[8rem] font-black tracking-tighter leading-[0.9] transition-all duration-700 uppercase;
+  background: linear-gradient(to bottom, #fff 60%, rgba(255,255,255,0.2));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 50px rgba(255, 255, 255, 0.1));
 }
 
 .gradient-text {
   @apply bg-gradient-to-r from-indigo-400 via-purple-400 to-rose-400 bg-clip-text text-transparent;
   background-size: 200% 200%;
+}
+
+/* Hero Section V3 (Asymmetric) */
+.hero-split-layout {
+  @apply min-h-[90vh] flex items-center pt-24 pb-20 px-6;
+}
+
+.hero-visual-element {
+  @apply relative w-full aspect-square max-w-lg mx-auto;
+  perspective: 1000px;
+}
+
+.data-prism {
+  @apply absolute inset-0 border-2 border-indigo-500/20 rounded-[3rem] animate-pulse;
+  transform: rotateX(20deg) rotateY(-20deg);
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, transparent 100%);
+}
+
+.data-prism::before {
+  content: '';
+  @apply absolute inset-[-20px] border border-purple-500/10 rounded-[4rem] animate-[spin_20s_linear_infinite];
 }
 
 /* Cinematic Spotlight Card */
@@ -51,61 +71,29 @@
   box-shadow: 0 30px 100px -20px rgba(0, 0, 0, 0.7);
 }
 
-.premium-card::before {
-  content: '';
-  @apply absolute inset-0 bg-gradient-to-br from-white/[0.05] to-transparent opacity-0 transition-opacity duration-700;
-}
-
 .premium-card:hover {
   @apply border-indigo-500/40 -translate-y-3;
   box-shadow: 0 50px 120px -30px rgba(79, 70, 229, 0.25);
 }
 
-.premium-card:hover::before {
-  @apply opacity-100;
+/* Stats Styling Refined */
+.stat-container {
+  @apply py-16 border-y border-white/5 bg-white/[0.01] backdrop-blur-3xl;
 }
 
-/* Dashboard Mockup - Clean Authority */
-.dashboard-mockup {
-  @apply relative w-full aspect-video bg-slate-900 rounded-[3rem] border border-white/10 overflow-hidden shadow-[0_0_100px_-20px_rgba(79,70,229,0.2)];
-  background: linear-gradient(135deg, #0f172a 0%, #020617 100%);
-  transform-style: preserve-3d;
+.stat-value {
+  @apply text-7xl lg:text-9xl font-black text-white tracking-tighter mb-2;
+  text-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
 }
 
-.mockup-sidebar {
-  @apply absolute left-0 top-0 bottom-0 w-[18%] border-r border-white/5 p-6 space-y-4 hidden sm:block bg-white/[0.01];
-}
-
-.mockup-item-click {
-  @apply w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center transition-all duration-500 cursor-pointer;
-}
-
-.mockup-item-click:hover {
-  @apply bg-white/10 scale-105;
-}
-
-.mockup-item-click.active {
-  @apply bg-indigo-600 shadow-[0_0_30px_rgba(79,70,229,0.5)] scale-110;
-}
-
-.mockup-card {
-  @apply bg-white/[0.03] rounded-3xl border border-white/5 p-6 backdrop-blur-md transition-all duration-500;
-}
-
-.mockup-card:hover {
-  @apply border-white/10 bg-white/[0.05];
-}
-
-/* Founder Visuals */
-.founder-image {
-  @apply w-full aspect-[4/5] object-cover rounded-[3rem] mb-8 grayscale hover:grayscale-0 transition-all duration-1000 scale-[1.01] hover:scale-105;
-  filter: drop-shadow(0 20px 50px rgba(0,0,0,0.5));
+.stat-label {
+  @apply text-[10px] font-black uppercase tracking-[0.5em] text-indigo-400 opacity-60;
 }
 
 /* Creator Carousel Refined */
 .creator-carousel-container {
   @apply w-full overflow-hidden py-16 px-4;
-  mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
 }
 
 .creator-track {
@@ -131,49 +119,15 @@
   @apply absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent opacity-80;
 }
 
-/* Stats Styling */
-.stat-value {
-  @apply text-6xl md:text-8xl font-black text-white tracking-tighter mb-2;
-  text-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+/* Founder Visuals */
+.founder-image {
+  @apply w-full aspect-[4/5] object-cover rounded-[3rem] mb-8 grayscale hover:grayscale-0 transition-all duration-1000 scale-[1.01] hover:scale-105;
+  filter: drop-shadow(0 20px 50px rgba(0,0,0,0.5));
 }
 
 /* Section Label Badge */
 .section-label {
   @apply px-4 py-1.5 bg-indigo-600/10 border border-indigo-500/20 rounded-full text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400 mb-8 inline-block;
-}
-
-/* Bento Grid Architecture */
-.bento-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: minmax(320px, auto);
-  gap: 2rem;
-}
-
-.bento-card {
-  @apply relative p-12 rounded-[4rem] bg-indigo-500/[0.02] border border-white/5 backdrop-blur-3xl transition-all duration-700 overflow-hidden flex flex-col;
-  box-shadow: 0 30px 90px -20px rgba(0, 0, 0, 0.8);
-}
-
-.bento-card:hover {
-  @apply border-indigo-500/30 -translate-y-3 bg-white/[0.01];
-  box-shadow: 0 50px 120px -30px rgba(79, 70, 229, 0.2);
-}
-
-@media (max-width: 1024px) {
-  .bento-grid {
-    grid-template-columns: 1fr;
-    grid-auto-rows: auto;
-  }
-}
-
-/* Phase Stepper Connectors */
-.stepper-item {
-  @apply relative p-12 rounded-[3.5rem] bg-white/[0.02] border border-white/5 transition-all duration-700 hover:bg-white/[0.04] z-10;
-}
-
-.stepper-number {
-  @apply w-16 h-16 rounded-2xl bg-indigo-600 flex items-center justify-center text-3xl font-black mb-10 shadow-2xl shadow-indigo-600/50;
 }
 
 /* Animations */
@@ -198,19 +152,3 @@
   animation: prism-shift 4s linear infinite;
   filter: drop-shadow(0 0 30px rgba(192, 132, 252, 0.4));
 }
-
-.floating-premium {
-  animation: floating-premium 8s ease-in-out infinite;
-}
-
-@keyframes floating-premium {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  33% { transform: translateY(-15px) rotate(1deg); }
-  66% { transform: translateY(-5px) rotate(-1deg); }
-}
-
-/* Matrix Clean Overwrite */
-.matrix-grid { display: none; }
-.scanner-hud { display: none; }
-.system-status-bar { display: none; }
-.technical-hud { display: none; }

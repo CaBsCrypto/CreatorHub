@@ -8,7 +8,7 @@ const translations = {
       dashboard: "Command Center",
     },
     hero: {
-      label: "Industry Standard v2.4",
+      label: "Industry Standard v2.5",
       title1: "THE UNMISTAKABLE",
       title2: "STANDARD.",
       desc: "Umbra selection yields only the most impactful work. Elevating your project above the noise.",
@@ -34,6 +34,11 @@ const translations = {
       title1: "The Minds Behind",
       title2: "the Shadow.",
     },
+    stats: {
+      reach_label: "Global Reach",
+      creators_label: "Elite Creators",
+      campaigns_label: "Selective Campaigns",
+    },
     cta: {
       title: "Ready to take the next step?",
       desc: "Join the elite. Register your creator profile or request a brand audit today.",
@@ -54,7 +59,7 @@ const translations = {
       dashboard: "Centro de Mando",
     },
     hero: {
-      label: "Estándar de la Industria v2.4",
+      label: "Estándar de la Industria v2.5",
       title1: "EL ESTÁNDAR",
       title2: "INCONFUNDIBLE.",
       desc: "La selección de Umbra da vida únicamente al trabajo más impactante. Elevando tu proyecto por encima del ruido.",
@@ -79,6 +84,11 @@ const translations = {
       label: "Liderazgo",
       title1: "Las Mentes Detrás de",
       title2: "la Sombra.",
+    },
+    stats: {
+      reach_label: "Alcance Global",
+      creators_label: "Creadores Élite",
+      campaigns_label: "Campañas Seleccionadas",
     },
     cta: {
       title: "¿Listo para dar el siguiente paso?",

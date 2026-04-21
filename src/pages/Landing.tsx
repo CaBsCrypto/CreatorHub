@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { supabase } from '../supabase';
-import translations from './translations'; // Default import
+import translations from './translations';
 import { useInViewAnimation, revealVariants, staggerContainer } from '../hooks/useInViewAnimation';
 import './Landing.css';
 
@@ -70,7 +70,7 @@ function AnimatedCounter({ target, suffix, decimals = 0 }: { target: number; suf
   }, [target]);
   return (
     <div ref={divRef} className="flex items-baseline gap-1 justify-center">
-      <div className="stat-value">{decimals > 0 ? display.toFixed(decimals) : Math.round(display)}</div>
+      <div className="stat-value">{decimals > 1 ? display.toFixed(decimals) : (decimals > 0 ? display.toFixed(1) : Math.round(display))}</div>
       <span className="text-2xl font-black text-indigo-400">{suffix}</span>
     </div>
   );
@@ -80,19 +80,11 @@ export default function Landing() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [language, setLanguage] = useState<'en' | 'es'>('en');
-  
-  // Robust translation selection with fallback
   const t: any = (translations as any)[language] || (translations as any)['en'];
 
   const statsRef = useRef(null);
-  const { scrollYProgress: statsScroll } = useScroll({
-    target: statsRef,
-    offset: ["start end", "end start"]
-  });
-
-  const { scrollYProgress: globalScroll } = useScroll();
-  const heroOpacity = useTransform(globalScroll, [0, 0.2], [1, 0]);
-  const heroScale = useTransform(globalScroll, [0, 0.2], [1, 0.95]);
+  const { scrollYProgress } = useScroll();
+  const yParallax = useTransform(scrollYProgress, [0, 1], [0, -200]);
 
   const handleEnterApp = () => {
     if (user) {
@@ -112,7 +104,6 @@ export default function Landing() {
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         <div className="nebula-glow top-[-10%] left-[-10%] w-[60%] h-[60%] bg-indigo-600/20" />
         <div className="nebula-glow bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-rose-600/10" />
-        <div className="nebula-glow top-[30%] right-[20%] w-[40%] h-[40%] bg-purple-600/10" />
       </div>
 
       {/* Navbar */}
@@ -122,7 +113,7 @@ export default function Landing() {
             <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/40">
               <Rocket className="h-6 w-6 text-white" />
             </div>
-            <span className="text-xl font-black tracking-tighter uppercase">{t?.nav?.title || "Umbra Hub"}</span>
+            <span className="text-xl font-black tracking-tighter uppercase">{t?.nav?.title}</span>
           </div>
           
           <div className="hidden lg:flex items-center gap-10">
@@ -147,61 +138,88 @@ export default function Landing() {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex flex-col items-center justify-center text-center px-6 pt-20">
-        <motion.div style={{ opacity: heroOpacity, scale: heroScale }} className="relative z-10 max-w-6xl">
+      {/* Hero Section V3 (Asymmetric Split) */}
+      <section className="hero-split-layout relative z-10">
+        <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="section-label"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
           >
-            {t?.hero?.label}
+            <span className="section-label">{t?.hero?.label}</span>
+            <h1 className="hero-text mb-8">
+              {t?.hero?.title1} <br/>
+              <span className="gradient-text">{t?.hero?.title2}</span>
+            </h1>
+            <p className="text-xl text-slate-400 max-w-xl mb-12 font-medium leading-relaxed">
+              {t?.hero?.desc}
+            </p>
+            <div className="flex flex-col sm:flex-row gap-6 items-start">
+              <button 
+                onClick={handleEnterApp}
+                className="px-10 py-5 bg-indigo-600 text-white rounded-full font-black text-sm uppercase tracking-widest flex items-center gap-3 hover:scale-105 transition-all shadow-2xl shadow-indigo-600/40"
+              >
+                {t?.hero?.cta1} <ChevronRight className="h-4 w-4" />
+              </button>
+              <button 
+                onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
+                className="px-10 py-5 bg-white/5 border border-white/10 backdrop-blur-md rounded-full font-black text-sm uppercase tracking-widest hover:bg-white/10 transition-all"
+              >
+                {t?.hero?.cta2}
+              </button>
+            </div>
           </motion.div>
-          <h1 className="hero-text mb-8">
-            {t?.hero?.title1} <br/>
-            <span className="gradient-text">{t?.hero?.title2}</span>
-          </h1>
-          <p className="text-xl md:text-2xl text-slate-400 max-w-3xl mx-auto mb-12 font-medium leading-relaxed">
-            {t?.hero?.desc}
-          </p>
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-            <button 
-              onClick={handleEnterApp}
-              className="px-10 py-5 bg-indigo-600 text-white rounded-full font-black text-sm uppercase tracking-widest flex items-center gap-3 hover:scale-105 transition-all shadow-2xl shadow-indigo-600/40"
-            >
-              {t?.hero?.cta1} <ChevronRight className="h-4 w-4" />
-            </button>
-            <button 
-              onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
-              className="px-10 py-5 bg-white/5 border border-white/10 backdrop-blur-md rounded-full font-black text-sm uppercase tracking-widest hover:bg-white/10 transition-all"
-            >
-              {t?.hero?.cta2}
-            </button>
-          </div>
-        </motion.div>
+
+          <motion.div 
+            style={{ y: yParallax }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, delay: 0.2 }}
+            className="hidden lg:block hero-visual-element"
+          >
+            <div className="data-prism" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <motion.div 
+                animate={{ rotate: 360 }}
+                transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+                className="w-64 h-64 border border-indigo-500/20 rounded-full flex items-center justify-center"
+              >
+                <div className="w-48 h-48 border border-purple-500/10 rounded-full flex items-center justify-center">
+                  <Rocket className="w-12 h-12 text-indigo-500/40" />
+                </div>
+              </motion.div>
+            </div>
+          </motion.div>
+        </div>
       </section>
 
-      {/* Stats Section */}
-      <section ref={statsRef} className="py-32 px-6 relative z-10">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-8">
-            <div className="text-center group">
-              <AnimatedCounter target={100} suffix="M+" />
-              <div className="text-xs font-black uppercase tracking-[0.4em] text-slate-500 mt-4 group-hover:text-indigo-400 transition-colors">Global Reach</div>
+      {/* Stats Section - Real Data Update */}
+      <section ref={statsRef} className="stat-container relative z-20">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-16 lg:gap-0">
+            <div className="text-center group md:border-r border-white/5">
+              <AnimatedCounter target={116.5} suffix="M+" decimals={1} />
+              <div className="stat-label mt-4">
+                {t?.stats?.reach_label || "Global Reach"}
+              </div>
+            </div>
+            <div className="text-center group md:border-r border-white/5">
+              <AnimatedCounter target={8} suffix="" />
+              <div className="stat-label mt-4">
+                {t?.stats?.creators_label || "Elite Creators"}
+              </div>
             </div>
             <div className="text-center group">
-              <AnimatedCounter target={500} suffix="K+" />
-              <div className="text-xs font-black uppercase tracking-[0.4em] text-slate-500 mt-4 group-hover:text-indigo-400 transition-colors">Engagement Peak</div>
-            </div>
-            <div className="text-center group">
-              <AnimatedCounter target={20} suffix="+" />
-              <div className="text-xs font-black uppercase tracking-[0.4em] text-slate-500 mt-4 group-hover:text-indigo-400 transition-colors">Elite Creators</div>
+              <AnimatedCounter target={3} suffix="" />
+              <div className="stat-label mt-4">
+                {t?.stats?.campaigns_label || "Selective Campaigns"}
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* The Method Section - Clean Bento */}
+      {/* The Method Section */}
       <section id="about" className="py-40 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="mb-24 flex flex-col md:flex-row md:items-end justify-between gap-8">
@@ -214,52 +232,29 @@ export default function Landing() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <motion.div 
-               whileHover={{ y: -10 }}
-               className="premium-card md:col-span-2 min-h-[450px] flex flex-col justify-between"
-            >
+            <motion.div whileHover={{ y: -10 }} className="premium-card md:col-span-2 min-h-[450px] flex flex-col justify-between">
                <div className="flex justify-between items-start">
-                  <div className="p-4 bg-indigo-600/10 border border-indigo-500/20 rounded-2xl">
-                    <Target className="h-8 w-8 text-indigo-500" />
-                  </div>
+                  <div className="p-4 bg-indigo-600/10 border border-indigo-500/20 rounded-2xl"><Target className="h-8 w-8 text-indigo-500" /></div>
                </div>
                <div>
                   <h3 className="text-4xl font-black mb-6 uppercase tracking-tighter">{t?.about?.p1_title}</h3>
                   <p className="text-slate-400 text-lg leading-relaxed italic">"{t?.about?.p1_desc}"</p>
                </div>
             </motion.div>
-
-            <motion.div 
-               whileHover={{ y: -10 }}
-               className="premium-card bg-purple-600/[0.03] space-y-8"
-            >
-               <div className="p-4 bg-purple-600/10 border border-purple-500/20 rounded-2xl w-fit">
-                  <Zap className="h-8 w-8 text-purple-500" />
-               </div>
+            <motion.div whileHover={{ y: -10 }} className="premium-card bg-purple-600/[0.03] space-y-8">
+               <div className="p-4 bg-purple-600/10 border border-purple-500/20 rounded-2xl w-fit"><Zap className="h-8 w-8 text-purple-500" /></div>
                <h3 className="text-3xl font-black uppercase tracking-tighter">{t?.about?.p2_title}</h3>
                <p className="text-slate-400 leading-relaxed text-sm italic">"{t?.about?.p2_desc}"</p>
             </motion.div>
-
-            <motion.div 
-               whileHover={{ y: -10 }}
-               className="premium-card bg-rose-600/[0.03] space-y-8"
-            >
-               <div className="p-4 bg-rose-600/10 border border-rose-500/20 rounded-2xl w-fit">
-                  <TrendingUp className="h-8 w-8 text-rose-500" />
-               </div>
+            <motion.div whileHover={{ y: -10 }} className="premium-card bg-rose-600/[0.03] space-y-8">
+               <div className="p-4 bg-rose-600/10 border border-rose-500/20 rounded-2xl w-fit"><TrendingUp className="h-8 w-8 text-rose-500" /></div>
                <h3 className="text-3xl font-black uppercase tracking-tighter">Exponential_Growth</h3>
                <p className="text-slate-400 leading-relaxed text-sm italic">"Leveraging data transparency to lock in sustainable creator momentum."</p>
             </motion.div>
-
-            <motion.div 
-               whileHover={{ y: -10 }}
-               className="premium-card md:col-span-2 bg-slate-900 border-none relative group"
-            >
+            <motion.div whileHover={{ y: -10 }} className="premium-card md:col-span-2 bg-slate-900 border-none relative group">
                <div className="absolute inset-0 bg-indigo-600/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                <div className="relative z-10">
-                 <div className="flex items-center gap-3 text-indigo-400 mb-8 font-black text-xs uppercase tracking-widest">
-                    <Shield className="h-4 w-4" /> Elite Governance v2.0
-                 </div>
+                 <div className="flex items-center gap-3 text-indigo-400 mb-8 font-black text-xs uppercase tracking-widest"><Shield className="h-4 w-4" /> Elite Governance v2.5</div>
                  <h3 className="text-4xl md:text-5xl font-black mb-8 leading-none uppercase tracking-tighter">{t?.about?.p3_title}</h3>
                  <p className="text-slate-400 text-lg leading-relaxed max-w-xl italic">"{t?.about?.p3_desc}"</p>
                </div>
@@ -276,34 +271,12 @@ export default function Landing() {
             The <span className="gradient-text">Force.</span>
           </h2>
         </div>
-
         <div className="creator-carousel-container">
-          <motion.div 
-            className="creator-track"
-            animate={{ 
-              x: [0, -2240], 
-            }}
-            transition={{ 
-              duration: 50,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-          >
+          <motion.div className="creator-track" animate={{ x: [0, -2240] }} transition={{ duration: 50, repeat: Infinity, ease: "linear" }}>
             {[...PLACEHOLDER_CREATORS, ...PLACEHOLDER_CREATORS].map((creator, i) => (
-              <motion.div 
-                key={`${creator.id}-${i}`}
-                className="creator-card-premium group cursor-pointer"
-                onClick={() => handleExternalLink(creator.twitter)}
-              >
-                <div className="creator-card-photo">
-                  <img src={creator.photo_url} className="w-full h-full object-cover" alt={creator.display_name} />
-                </div>
-                <div className="creator-card-gradient" />
-                
-                <div className="absolute top-8 right-8 z-30 p-4 bg-white/10 rounded-2xl backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all hover:bg-sky-500 hover:text-white">
-                  <Twitter className="h-5 w-5" />
-                </div>
-
+              <motion.div key={`${creator.id}-${i}`} className="creator-card-premium group cursor-pointer" onClick={() => handleExternalLink(creator.twitter)}>
+                <div className="creator-card-photo"><img src={creator.photo_url} className="w-full h-full object-cover" alt={creator.display_name} /></div>
+                <div className="creator-card-gradient" /><div className="absolute top-8 right-8 z-30 p-4 bg-white/10 rounded-2xl backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all hover:bg-sky-500 hover:text-white"><Twitter className="h-5 w-5" /></div>
                 <div className="absolute bottom-10 left-10 right-10 z-30">
                   <div className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 mb-2">{creator.badge}</div>
                   <h3 className="text-3xl font-black uppercase tracking-tighter">{creator.display_name}</h3>
@@ -314,7 +287,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Leadership Section */}
+      {/* Founders Section */}
       <section className="py-32 px-6 bg-slate-900/30 border-t border-white/5">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
@@ -330,9 +303,7 @@ export default function Landing() {
                <div key={i} className="text-center group" onClick={() => handleExternalLink(founder.twitter)}>
                  <div className="relative mb-6 cursor-pointer">
                    <img src={founder.image} alt={founder.name} className="founder-image" />
-                   <div className="absolute inset-x-0 bottom-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
-                     <span className="px-3 py-1 bg-white text-indigo-600 rounded-full text-[8px] font-black uppercase">X Profile</span>
-                   </div>
+                   <div className="absolute inset-x-0 bottom-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity"><span className="px-3 py-1 bg-white text-indigo-600 rounded-full text-[8px] font-black uppercase">X Profile</span></div>
                  </div>
                  <h3 className="text-2xl font-black mb-1 gradient-text">{founder.name}</h3>
                  <p className="text-slate-400 text-sm italic leading-relaxed px-4">"{founder.desc}"</p>
@@ -362,43 +333,28 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-16 mb-16">
             <div>
-              <div className="flex items-center gap-3 mb-6">
-                <Rocket className="h-6 w-6 text-indigo-500" />
-                <span className="text-lg font-black text-white">{t?.footer?.hub}</span>
-              </div>
+              <div className="flex items-center gap-3 mb-6"><Rocket className="h-6 w-6 text-indigo-500" /><span className="text-lg font-black text-white">{t?.footer?.hub}</span></div>
               <p className="text-sm leading-relaxed max-w-xs">The unmistakable standard for creator-driven Web3 marketing excellence.</p>
             </div>
             <div>
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center">
-                  <Rocket className="h-5 w-5 text-white" />
-                </div>
+                <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center"><Rocket className="h-5 w-5 text-white" /></div>
                 <span className="text-lg font-black text-white tracking-tighter">{t?.footer?.hub} v2.5</span>
               </div>
-              <p className="text-sm text-slate-500 leading-relaxed max-w-xs">
-                 Restore the authority. Premium Agency Restoration Complete.
-              </p>
+              <p className="text-sm text-slate-500 leading-relaxed max-w-xs">Restore the authority. Premium Agency Restoration Complete.</p>
             </div>
             <div>
               <div className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 mb-6">Connect</div>
               <div className="space-y-5">
-                <div
-                  onClick={() => handleExternalLink('https://x.com/eminatr1x')}
-                  className="flex items-center gap-3 group hover:text-white transition-colors cursor-pointer"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-indigo-600/20 transition-colors flex-shrink-0">
-                    <Twitter className="h-3.5 w-3.5 group-hover:text-sky-400 transition-colors" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-black text-white/80 group-hover:text-white transition-colors">Official X</div>
-                    <div className="text-[10px] text-slate-600">@UmbraAgency</div>
-                  </div>
+                <div onClick={() => handleExternalLink('https://x.com/eminatr1x')} className="flex items-center gap-3 group hover:text-white transition-colors cursor-pointer">
+                  <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-indigo-600/20 transition-colors flex-shrink-0"><Twitter className="h-3.5 w-3.5 group-hover:text-sky-400 transition-colors" /></div>
+                  <div><div className="text-sm font-black text-white/80 group-hover:text-white transition-colors">Official X</div><div className="text-[10px] text-slate-600">@UmbraAgency</div></div>
                 </div>
               </div>
             </div>
           </div>
           <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-xs">{t?.footer?.rights || "© 2026 UMBRA AGENCY. ALL RIGHTS RESERVED."} - Restoration v2.5 (Safety Build)</p>
+            <p className="text-xs">{t?.footer?.rights || "© 2026 UMBRA AGENCY. ALL RIGHTS RESERVED."} - Restoration v2.4 (Force Build)</p>
             <div className="flex items-center gap-2 text-slate-600">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
               <span className="text-[10px] font-black uppercase tracking-widest">Premium Status: Operational</span>
