@@ -22,17 +22,17 @@ import { useInViewAnimation, revealVariants, staggerContainer } from '../hooks/u
 import './Landing.css';
 
 // Import images
-import founder1 from '../assets/eminatr1x.png';
-import founder2 from '../assets/cabs.png';
-import creator1 from '../assets/ladymufa.png';
-import creator2 from '../assets/creator_2.png'; 
-import yagod from '../assets/yagod.png';
-import lizard from '../assets/lizard.png';
-import spadex from '../assets/spadex.png';
-import creator1dory from '../assets/1dory.png';
-import camululis from '../assets/camululis.png';
-import oza from '../assets/oza.png';
-import seven from '../assets/seven.png';
+import founder1 from '../assets/eminatr1x.webp';
+import founder2 from '../assets/cabs.webp';
+import creator1 from '../assets/ladymufa.webp';
+import creator2 from '../assets/creator_2.webp'; 
+import yagod from '../assets/yagod.webp';
+import lizard from '../assets/lizard.webp';
+import spadex from '../assets/spadex.webp';
+import creator1dory from '../assets/1dory.webp';
+import camululis from '../assets/camululis.webp';
+import oza from '../assets/oza.webp';
+import seven from '../assets/seven.webp';
 
 const wordRevealVariants = {
   hidden: { opacity: 0, y: 10 },
@@ -75,13 +75,13 @@ function AnimatedCounter({ target, suffix, decimals = 0 }: { target: number; suf
 }
 
 const PLACEHOLDER_CREATORS = [
-  { id: 'p1', display_name: 'Yagod', photo_url: yagod, twitter: 'https://x.com/YagodNFT' },
-  { id: 'p2', display_name: 'Lizard', photo_url: lizard, twitter: 'https://x.com/TheLizardQueenT' },
-  { id: 'p3', display_name: 'Spadex', photo_url: spadex, twitter: 'https://x.com/FSpadexx' },
-  { id: 'p4', display_name: '1Dory', photo_url: creator1dory, twitter: 'https://x.com/1dory_gg' },
-  { id: 'p5', display_name: 'Camululis', photo_url: camululis, twitter: 'https://x.com/camululis' },
-  { id: 'p6', display_name: 'Oza', photo_url: oza, twitter: 'https://x.com/SoyOzarux' },
-  { id: 'p7', display_name: 'Seven', photo_url: seven, twitter: 'https://x.com/Its7Keys' },
+  { id: 'p1', display_name: 'Yagod', photo_url: yagod, twitter: 'https://x.com/YagodNFT', badge: 'NFT Sentinel' },
+  { id: 'p2', display_name: 'Lizard', photo_url: lizard, twitter: 'https://x.com/TheLizardQueenT', badge: 'Tactical Lead' },
+  { id: 'p3', display_name: 'Spadex', photo_url: spadex, twitter: 'https://x.com/FSpadexx', badge: 'High-Impact' },
+  { id: 'p4', display_name: '1Dory', photo_url: creator1dory, twitter: 'https://x.com/1dory_gg', badge: 'Web3 Catalyst' },
+  { id: 'p5', display_name: 'Camululis', photo_url: camululis, twitter: 'https://x.com/camululis', badge: 'Cultural Core' },
+  { id: 'p6', display_name: 'Oza', photo_url: oza, twitter: 'https://x.com/SoyOzarux', badge: 'Visionary' },
+  { id: 'p7', display_name: 'Seven', photo_url: seven, twitter: 'https://x.com/Its7Keys', badge: 'Meta Strategist' },
 ];
 
 const handleExternalLink = (url: string) => {
@@ -105,15 +105,21 @@ export default function Landing() {
   const [language, setLanguage] = useState<'en' | 'es'>('en');
   const t = translations[language];
 
-  const { scrollYProgress } = useScroll();
-  const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.9]);
+  const visionRef = useRef(null);
+  const { scrollYProgress: visionScroll } = useScroll({
+    target: visionRef,
+    offset: ["start start", "end end"]
+  });
 
-  // Animation hooks for new sections
-  const heroAnim = useInViewAnimation(0.1);
+  // Global scroll for hero/navbar
+  const { scrollYProgress: globalScroll } = useScroll();
+  const heroOpacity = useTransform(globalScroll, [0, 0.2], [1, 0]);
+  const heroScale = useTransform(globalScroll, [0, 0.2], [1, 0.9]);
+
+  // Animation hooks for other visibility-based sections
   const platformAnim = useInViewAnimation(0.2);
   const statsAnim = useInViewAnimation(0.2);
-  const visionAnim = useInViewAnimation(0.3);
+  const creatorsAnim = useInViewAnimation(0.1);
 
   useEffect(() => {
     async function fetchStats() {
@@ -280,15 +286,17 @@ export default function Landing() {
             </motion.div>
 
             {/* Scroll Indicator */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 2, duration: 1 }}
-              className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-slate-600 z-20 cursor-default"
-              onClick={() => document.getElementById('vision')?.scrollIntoView({ behavior: 'smooth' })}
+            <motion.div 
+              style={{ opacity: heroOpacity, scale: heroScale }}
+              className="mt-16 md:mt-24"
             >
-              <span className="text-[9px] font-black uppercase tracking-[0.4em]">Scroll</span>
-              <ChevronDown className="h-5 w-5 scroll-indicator" />
+              <div 
+                className="flex flex-col items-center gap-2 text-slate-600 z-20 cursor-default"
+                onClick={() => document.getElementById('vision')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                <span className="text-[9px] font-black uppercase tracking-[0.4em]">Scroll</span>
+                <ChevronDown className="h-5 w-5 scroll-indicator" />
+              </div>
             </motion.div>
 
         {/* Background Visual Elements with Parallax */}
@@ -331,13 +339,13 @@ export default function Landing() {
            initial={{ opacity: 0, scale: 0.8 }}
            animate={{ opacity: 0.5, scale: 1 }}
            transition={{ delay: 1.2 }}
-           className="absolute bottom-[20%] left-[8%] hidden xl:block p-6 premium-card floating delay-700 scale-75"
+           className="absolute bottom-[20%] left-[8%] hidden xl:block p-8 premium-card floating-premium delay-700 scale-75"
         >
-            <div className="flex items-center gap-2 mb-2">
-               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-               <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Momentum</span>
+            <div className="flex items-center gap-3 mb-3">
+               <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+               <span className="text-[11px] font-black uppercase text-slate-500 tracking-[0.3em]">Momentum</span>
             </div>
-            <div className="text-xl font-black text-white">
+            <div className="text-2xl font-black text-white tracking-widest">
               +{stats.views >= 1000000 
                 ? (stats.views / 1000000).toFixed(1) + 'M' 
                 : (stats.views / 1000).toFixed(0) + 'K'} {translations[language].stats.views}
@@ -431,486 +439,66 @@ export default function Landing() {
         </motion.div>
       </section>
 
-      {/* Vision Section (Cinematic Overhaul) */}
-      <section id="vision" ref={visionAnim.ref} className="py-40 px-6 relative overflow-hidden">
-        <div className="nebula-canvas">
-          <div className="light-leak w-96 h-96 bg-indigo-600 top-0 -left-20" />
-          <div className="light-leak w-[500px] h-[500px] bg-purple-600 bottom-0 -right-20 opacity-10" />
-          <div className="light-leak w-64 h-64 bg-cyan-500 top-1/2 left-1/3 opacity-10" />
-        </div>
-
-        <div className="max-w-5xl mx-auto text-center relative z-10">
-          <span className="section-label mb-16 inline-block">{t.vision.label}</span>
-          
+      {/* Vision Section (Restructured Narrative) - Sticky Scroll */}
+      <section id="vision" ref={visionRef} className="vision-sticky-container">
+        <div className="vision-sticky-content">
           <motion.div 
-            initial="hidden"
-            animate={visionAnim.controls}
-            variants={staggerContainer}
-            className="space-y-16"
+            style={{ 
+              opacity: useTransform(visionScroll, [0.05, 0.15, 0.25, 0.35], [0, 1, 1, 0]),
+              scale: useTransform(visionScroll, [0.05, 0.15, 0.25, 0.35], [0.8, 1, 1, 1.2]),
+            }}
+            className="vision-phrase-layered"
           >
-            <motion.div variants={revealVariants} className="cinematic-phrase max-w-3xl mx-auto">
-              <h2 className="text-5xl md:text-7xl font-black mb-6 leading-[0.9] tracking-tighter">
-                {t.vision.p1.split(' ').map((word, i) => (
-                  <motion.span key={i} variants={wordRevealVariants} className="inline-block mr-3">
-                    {word}
-                  </motion.span>
-                ))}
-                <br/> 
-                <motion.span 
-                  variants={wordRevealVariants}
-                  className="text-indigo-400 glow-text block mt-4"
-                  style={{ textShadow: '0 0 50px rgba(99, 102, 241, 0.3)' }}
-                >
-                  {t.vision.p1_bold}
-                </motion.span>
-              </h2>
-            </motion.div>
-
-            <motion.div variants={revealVariants} className="cinematic-divider" />
-
-            <motion.div variants={revealVariants} className="cinematic-phrase px-4">
-              <p className="text-3xl md:text-5xl font-extralight italic leading-tight text-spotlight max-w-4xl mx-auto">
-                {t.vision.p2}
-              </p>
-            </motion.div>
-
-            <motion.div variants={revealVariants} className="cinematic-divider" />
-
-            <motion.div variants={revealVariants} className="cinematic-phrase px-4">
-              <div className="space-y-10">
-                <p className="text-xs md:text-sm text-slate-500 tracking-[0.5em] uppercase font-black opacity-60">
-                   {t.vision.p3}
-                </p>
-                <h3 className="text-4xl md:text-7xl font-black prism-text uppercase tracking-tighter leading-none">
-                   {t.vision.p4}
-                </h3>
-              </div>
-            </motion.div>
-
-            <motion.div variants={revealVariants} className="mt-32 pt-16 border-t border-white/5 max-w-lg mx-auto">
-              <p className="text-slate-400 text-sm leading-relaxed font-medium">
-                 {t.vision.p5} <br/>
-                 <span className="text-white font-bold opacity-80">{t.vision.p5_end}</span>
-              </p>
-            </motion.div>
+            <span className="section-label mb-8">{t.vision.label}</span>
+            <h2 className="text-6xl md:text-[10rem] font-black leading-none tracking-tighter uppercase whitespace-pre-line">
+              {t.vision.p1} <br/>
+              <span className="prism-text">{t.vision.p1_bold}</span>
+            </h2>
           </motion.div>
-        </div>
-      </section>
 
-      {/* Architecture Section (Unified Strategy & Execution) */}
-      <section id="about" className="py-40 px-6 relative overflow-hidden">
-        {/* Section Decorative Elements */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-indigo-600/5 blur-[120px] rounded-full -z-10" />
+          <motion.div 
+            style={{ 
+              opacity: useTransform(visionScroll, [0.4, 0.5, 0.6, 0.7], [0, 1, 1, 0]),
+              y: useTransform(visionScroll, [0.4, 0.5, 0.6, 0.7], [50, 0, 0, -50]),
+            }}
+            className="vision-phrase-layered"
+          >
+            <p className="text-4xl md:text-7xl font-extralight italic leading-tight max-w-5xl mx-auto text-center">
+              {t.vision.p2}
+            </p>
+          </motion.div>
 
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-32">
-            <motion.span 
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="section-label"
-            >
-              {t.method.label}
-            </motion.span>
-            <motion.h2 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-5xl md:text-8xl font-black mb-8 leading-[0.8] text-white tracking-tighter uppercase"
-            >
-               {t.method.main_title.split(' ')[0]} <br/> <span className="gradient-text">{t.method.main_title.split(' ').slice(1).join(' ')}.</span>
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="text-slate-400 text-xl font-medium max-w-2xl mx-auto leading-relaxed"
-            >
-              A multi-layered ecosystem designed to transform raw potential into cultural momentum.
-            </motion.p>
-          </div>
-
-          {/* Phase Stepper Flow */}
-          <div className="relative">
-            <div className="stepper-connector" />
-            <motion.div 
-              variants={staggerContainer}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              className="phase-stepper"
-            >
-              {[
-                { label: 'Phase 01', title: t.method.step1, desc: t.method.step1_desc, icon: Target },
-                { label: 'Phase 02', title: t.method.step2, desc: t.method.step2_desc, icon: Activity },
-                { label: 'Phase 03', title: t.method.step3, desc: t.method.step3_desc, icon: LayoutDashboard }
-              ].map((phase, i) => (
-                <motion.div 
-                  key={i}
-                  variants={revealVariants}
-                  className="stepper-item group"
-                >
-                  <div className="stepper-number">0{i+1}</div>
-                  <span className="stepper-label">{phase.label}</span>
-                  <h3 className="text-2xl font-black mb-4 group-hover:text-indigo-400 transition-colors uppercase tracking-tight">{phase.title}</h3>
-                  <p className="text-slate-400 text-sm font-medium leading-relaxed">{phase.desc}</p>
-                </motion.div>
-              ))}
-            </motion.div>
-          </div>
-
-          {/* Capabilities Bento Grid */}
-          <div className="mt-40">
-            <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
-              <div className="max-w-xl">
-                <span className="section-label">{t.method.media_mix}</span>
-                <h3 className="text-4xl md:text-5xl font-black tracking-tighter uppercase leading-none">{t.method.bento_title.split(' ')[0]} <br/> {t.method.bento_title.split(' ').slice(1).join(' ')}.</h3>
-              </div>
-              <p className="text-slate-500 text-sm font-bold max-w-sm leading-relaxed mb-1 italic">
-                 "We don't just post content; we architect cultural moments across the entire digital landscape."
+          <motion.div 
+            style={{ 
+              opacity: useTransform(visionScroll, [0.75, 0.85, 0.95, 1], [0, 1, 1, 0]),
+              filter: useTransform(visionScroll, [0.75, 0.85], ["blur(10px)", "blur(0px)"]),
+            }}
+            className="vision-phrase-layered"
+          >
+            <div className="space-y-8">
+              <p className="text-sm md:text-base text-slate-500 tracking-[0.6em] uppercase font-black opacity-40">
+                 {t.vision.p3}
               </p>
+              <h3 className="text-6xl md:text-[10rem] font-black prism-text uppercase tracking-tighter leading-none">
+                 {t.vision.p4}
+              </h3>
             </div>
-
-            <motion.div 
-              variants={staggerContainer}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              className="bento-grid"
-            >
-               {/* 1. STREAMS (Large Focus) */}
-               <motion.div variants={revealVariants} className="bento-card bento-streams group">
-                 <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:opacity-20 transition-opacity">
-                   <Play className="h-40 w-40 text-indigo-500" />
-                 </div>
-                 <div className="relative z-10">
-                   <div className="w-16 h-16 rounded-[1.5rem] bg-indigo-600/10 flex items-center justify-center mb-8">
-                     <Play className="h-8 w-8 text-indigo-400" />
-                   </div>
-                   <h4 className="text-3xl font-black mb-4 uppercase tracking-tighter">Streams</h4>
-                   <p className="text-slate-400 font-medium text-lg leading-relaxed">
-                     {t.method.capabilities.streams}
-                   </p>
-                 </div>
-               </motion.div>
-
-               {/* 2. VIDEO (Wide) */}
-               <motion.div variants={revealVariants} className="bento-card bento-video group">
-                 <div className="flex items-center gap-6 relative z-10">
-                   <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center">
-                     <Gamepad2 className="h-6 w-6 text-indigo-400" />
-                   </div>
-                   <div>
-                     <h4 className="text-xl font-black uppercase tracking-tight">Short & Long Video</h4>
-                     <p className="text-slate-500 text-sm font-medium">{t.method.capabilities.video}</p>
-                   </div>
-                 </div>
-               </motion.div>
-
-               {/* 3. GAMING (Square) */}
-               <motion.div variants={revealVariants} className="bento-card bento-gaming group items-center text-center">
-                  <Trophy className="h-10 w-10 text-amber-400 mb-6 group-hover:scale-110 transition-transform" />
-                  <h4 className="text-sm font-black uppercase tracking-widest mb-2">Gaming Nights</h4>
-                  <div className="h-px w-8 bg-indigo-600/30 mb-4" />
-                  <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wide px-2 leading-relaxed opacity-60">
-                    Community Driven Excellence
-                  </p>
-               </motion.div>
-
-               {/* 4. CASTING (Square) */}
-               <motion.div variants={revealVariants} className="bento-card bento-casting group items-center text-center">
-                  <Zap className="h-10 w-10 text-indigo-400 mb-6 group-hover:rotate-12 transition-transform" />
-                  <h4 className="text-sm font-black uppercase tracking-widest mb-2">Live Casting</h4>
-                  <div className="h-px w-8 bg-indigo-600/30 mb-4" />
-                  <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wide px-2 leading-relaxed opacity-60">
-                    Professional Meta Narration
-                  </p>
-               </motion.div>
-
-               {/* 5. EVENTS (Wide) */}
-               <motion.div variants={revealVariants} className="bento-card bento-events group justify-center">
-                  <div className="flex items-center gap-8 px-4">
-                    <Globe className="h-12 w-12 text-slate-200 group-hover:animate-spin-slow transition-all" />
-                    <div>
-                      <h4 className="text-2xl font-black uppercase tracking-tighter">Event Organization</h4>
-                      <p className="text-slate-400 text-xs font-medium max-w-sm mt-1">{t.method.capabilities.events}</p>
-                    </div>
-                  </div>
-               </motion.div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* NEW: Platform Command Center Section (The Preview) */}
-      <section ref={platformAnim.ref} className="py-32 px-6 relative overflow-hidden bg-slate-950/20">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-            <motion.div 
-              initial="hidden"
-              animate={platformAnim.controls}
-              variants={staggerContainer}
-              className="space-y-8"
-            >
-              <motion.span variants={revealVariants} className="section-label">{t.platform.label}</motion.span>
-              <motion.h2 variants={revealVariants} className="text-4xl md:text-6xl font-black leading-tight">
-                {t.platform.title1} <br/> <span className="gradient-text">{t.platform.title2}</span>
-              </motion.h2>
-              <motion.p variants={revealVariants} className="text-xl text-slate-400 font-medium leading-relaxed max-w-lg">
-                {t.platform.desc}
-              </motion.p>
-              
-              <motion.div variants={revealVariants} className="space-y-4 pt-4">
-                {[t.platform.feature1, t.platform.feature2, t.platform.feature3].map((feat, i) => (
-                  <div key={i} className="flex items-center gap-4 text-white/80 group">
-                    <div className="w-6 h-6 rounded-full bg-indigo-500/20 flex items-center justify-center group-hover:bg-indigo-500 transition-colors">
-                      <CheckCircle2 className="h-3.5 w-3.5 text-indigo-400 group-hover:text-white" />
-                    </div>
-                    <span className="text-sm font-bold tracking-wide uppercase">{feat}</span>
-                  </div>
-                ))}
-              </motion.div>
-            </motion.div>
-
-            <motion.div 
-              initial="hidden"
-              animate={platformAnim.controls}
-              variants={{
-                hidden: { opacity: 0, x: 50, rotateY: 10 },
-                visible: { opacity: 1, x: 0, rotateY: 0, transition: { duration: 1.2, ease: "easeOut" } }
-              }}
-              className="relative group perspective-1000"
-            >
-              {/* Dashboard Mockup (Visual CSS Art) */}
-              <div className="dashboard-mockup group-hover:border-indigo-500/30 transition-all duration-700">
-                <div className="mockup-sidebar">
-                  <div className="w-8 h-8 bg-indigo-600 rounded-lg mb-8 shadow-lg shadow-indigo-500/20" />
-                  <div 
-                    onMouseEnter={() => setMockupFeature('metrics')}
-                    className={`mockup-item-click mb-4 ${mockupFeature === 'metrics' ? 'active' : ''}`} 
-                  >
-                    <BarChart className="h-2 w-2 text-white" />
-                  </div>
-                  <div 
-                    onMouseEnter={() => setMockupFeature('magic-link')}
-                    className={`mockup-item-click mb-4 ${mockupFeature === 'magic-link' ? 'active' : ''}`} 
-                  >
-                    <Star className="h-2 w-2 text-white" />
-                  </div>
-                  <div 
-                    onMouseEnter={() => setMockupFeature('summary')}
-                    className={`mockup-item-click mb-4 ${mockupFeature === 'summary' ? 'active' : ''}`} 
-                  >
-                    <Activity className="h-2 w-2 text-white" />
-                  </div>
-                  {[1, 2].map(i => <div key={i} className="mockup-item opacity-40 mb-4" />)}
-                </div>
-                <div className="absolute left-[18%] top-0 bottom-0 right-0 p-8 flex flex-col">
-                  <div className="flex justify-between items-center mb-8">
-                    <div className="flex flex-col gap-1">
-                      <div className="h-4 bg-white/10 rounded-full w-32" />
-                      <div className="h-2 bg-white/5 rounded-full w-20" />
-                    </div>
-                    <div className="flex gap-2">
-                      <div className="w-8 h-8 rounded-full bg-white/5" />
-                      <div className="w-8 h-8 rounded-full bg-indigo-600/20 flex items-center justify-center">
-                        <Sparkles className="h-3 w-3 text-indigo-400" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <AnimatePresence mode="wait">
-                    {mockupFeature === 'metrics' && (
-                      <motion.div 
-                        key="metrics"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="space-y-6"
-                      >
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="mockup-card">
-                            <TrendingUp className="h-4 w-4 text-emerald-400 mb-2" />
-                            <div className="text-[10px] font-bold text-slate-500 uppercase mb-1">Live Creators</div>
-                            <div className="text-xl font-black text-white">8</div>
-                          </div>
-                          <div className="mockup-card">
-                            <Zap className="h-4 w-4 text-amber-400 mb-2" />
-                            <div className="text-[10px] font-bold text-slate-500 uppercase mb-1">Total Views</div>
-                            <div className="text-xl font-black text-white">103K</div>
-                          </div>
-                        </div>
-                        <div className="bg-slate-800/30 rounded-[2rem] border border-white/5 p-6 h-48 flex flex-col justify-end gap-3 overflow-hidden relative">
-                           <div className="absolute top-4 left-6 text-[8px] font-black uppercase text-indigo-500/50 tracking-widest">Real-time Scraper Activity</div>
-                           <div className="flex items-end gap-2 h-full">
-                              {[0.4, 0.7, 0.5, 0.9, 0.6, 0.8, 0.75, 1, 0.85, 0.95].map((h, i) => (
-                                <motion.div 
-                                  key={i} 
-                                  initial={{ height: 0 }}
-                                  animate={{ height: `${h * 100}%` }}
-                                  transition={{ delay: i * 0.05, duration: 1 }}
-                                  className="flex-1 bg-gradient-to-t from-indigo-600 via-indigo-500/40 to-transparent rounded-t-lg" 
-                                />
-                              ))}
-                           </div>
-                        </div>
-                      </motion.div>
-                    )}
-
-                    {mockupFeature === 'magic-link' && (
-                      <motion.div 
-                        key="magic-link"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="space-y-4"
-                      >
-                         <div className="text-xs font-black text-white/50 uppercase tracking-widest mb-2">Public Portal Status</div>
-                         <div className="bg-slate-800/50 rounded-2xl p-6 border border-indigo-500/30">
-                            <div className="flex items-center justify-between mb-4">
-                               <div className="flex items-center gap-2">
-                                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-                                  <span className="text-[10px] font-black text-white">LIVE_REPORT_X2.umbra</span>
-                               </div>
-                               <button className="px-3 py-1 bg-indigo-600 rounded-full text-[8px] font-black">COPY LINK</button>
-                            </div>
-                            <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                               <div className="w-2/3 h-full bg-indigo-500" />
-                            </div>
-                            <p className="text-[10px] text-slate-500 mt-4 leading-relaxed font-bold">"Shared with client 2 minutes ago."</p>
-                         </div>
-                         <div className="flex gap-4">
-                            {[1, 2].map(i => (
-                               <div key={i} className="flex-1 bg-white/5 h-20 rounded-2xl border border-white/5" />
-                            ))}
-                         </div>
-                      </motion.div>
-                    )}
-
-                    {mockupFeature === 'summary' && (
-                      <motion.div 
-                        key="summary"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="space-y-6"
-                      >
-                         <div className="mockup-card border-indigo-500/30 bg-indigo-500/5">
-                            <div className="flex justify-between items-center mb-4">
-                               <div className="text-[10px] font-black text-indigo-400">CAMPAIGN_SUMMARY.pdf</div>
-                               <div className="h-2 w-10 bg-indigo-500 rounded-full" />
-                            </div>
-                            <div className="space-y-2">
-                               <div className="h-1 bg-white/20 rounded-full w-full" />
-                               <div className="h-1 bg-white/20 rounded-full w-[90%]" />
-                               <div className="h-1 bg-white/20 rounded-full w-[95%]" />
-                               <div className="h-1 bg-white/20 rounded-full w-[80%]" />
-                            </div>
-                         </div>
-                         <div className="flex gap-4">
-                            <div className="flex-1 h-24 bg-white/5 rounded-[1.5rem] border border-white/5 flex flex-col items-center justify-center">
-                               <CheckCircle2 className="h-6 w-6 text-indigo-500 mb-2" />
-                               <div className="text-[8px] font-black text-slate-500">GENERATED</div>
-                            </div>
-                            <div className="flex-1 h-24 bg-white/5 rounded-[1.5rem] border border-white/5 flex flex-col items-center justify-center">
-                               <Globe className="h-6 w-6 text-emerald-500 mb-2" />
-                               <div className="text-[8px] font-black text-slate-500">PUBLISHED</div>
-                            </div>
-                         </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-                {/* Floating pointer to simulate interaction */}
-                <motion.div 
-                  animate={{ 
-                    x: mockupFeature === 'roi' ? 0 : mockupFeature === 'creators' ? 0 : 0, 
-                    y: mockupFeature === 'roi' ? 80 : mockupFeature === 'creators' ? 120 : 160 
-                  }}
-                  transition={{ duration: 0.5, type: 'spring' }}
-                  className="absolute left-8 pointer-events-none"
-                >
-                  <MousePointer2 className="h-6 w-6 text-white drop-shadow-lg" />
-                </motion.div>
-                <div className="mockup-glow" />
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Founders Section */}
-      <section className="py-32 px-6 bg-slate-900/30">
-        <div className="max-w-7xl mx-auto">
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-20"
-          >
-            <span className="section-label">{t.leadership.label}</span>
-            <h2 className="text-4xl md:text-6xl font-black">{t.leadership.title1} <br/> {t.leadership.title2}</h2>
-          </motion.div>
-          <motion.div 
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto"
-          >
-             {[
-               { name: 'EMINATR1X', role: 'Co-Founder', image: founder1, desc: "I take your project's raw light and bend it into a message people can't unsee.", twitter: 'https://x.com/eminatr1x' },
-               { name: 'CaBs', role: 'Co-Founder', image: founder2, desc: 'Ready to break down complex ideas into simple explanations.', twitter: 'https://x.com/CaBsCrypto' },
-               { name: 'Lady Mufa', role: 'Co-Founder', image: creator1, desc: 'I make Web3 gaming videos, and I build pathways for women to join and thrive.', twitter: 'https://x.com/LadyMufaTV' }
-             ].map((founder, i) => (
-               <motion.div 
-                 key={i}
-                 variants={revealVariants}
-                 className="text-center group"
-               >
-                 <div 
-                   onClick={() => handleExternalLink(founder.twitter)}
-                   className="relative mb-6 cursor-pointer"
-                 >
-                   <div className="absolute -inset-2 bg-indigo-500/20 rounded-[2.5rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                   <img src={founder.image} alt={founder.name} className="founder-image relative z-10" />
-                   {/* Subtle Action Overlay */}
-                   <div className="absolute inset-x-0 bottom-4 z-20 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                     <div className="px-3 py-1 bg-white/90 backdrop-blur-md text-indigo-600 rounded-full text-[8px] font-black uppercase tracking-widest translate-y-2 group-hover:translate-y-0 transition-transform">
-                       X Profile
-                     </div>
-                   </div>
-                 </div>
-                 <h3 className="text-2xl font-black mb-1 tracking-tight gradient-text">{founder.name}</h3>
-                 <div 
-                   onClick={() => handleExternalLink(founder.twitter)}
-                   className="inline-flex items-center gap-1.5 text-slate-500 hover:text-white transition-colors mb-4 group/tw cursor-pointer"
-                 >
-                   <Twitter className="h-3 w-3 group-hover/tw:text-sky-400 transition-colors" />
-                   <span className="text-[10px] font-bold">@{founder.twitter.split('/').pop()}</span>
-                 </div>
-                  <p className="text-slate-400 font-medium px-4 text-sm italic leading-relaxed">
-                    <span className="text-indigo-400/60 text-sm font-black not-italic">"</span>
-                    {founder.desc}
-                    <span className="text-indigo-400/60 text-sm font-black not-italic">"</span>
-                  </p>
-               </motion.div>
-             ))}
           </motion.div>
         </div>
       </section>
 
-
-      {/* Creator Carousel Section */}
-      <section id="creators" className="py-32 bg-slate-900/20">
+      {/* Creator Showcase (Moved Up for Immediate Authority) */}
+      <section id="creators" className="py-24 bg-slate-900/20 relative z-10 border-y border-white/5">
         <div className="max-w-7xl mx-auto px-6 mb-16 flex justify-between items-end">
           <div>
             <span className="section-label">{t.showcase.label}</span>
-            <h2 className="text-4xl md:text-5xl font-black">{t.showcase.title}</h2>
+            <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase">{t.showcase.title}</h2>
           </div>
-          <button className="hidden md:flex items-center gap-2 text-indigo-400 font-black uppercase tracking-widest text-xs">
-            {t.showcase.btn} <ChevronRight className="h-4 w-4" />
+          <button 
+            onClick={() => handleEnterApp()}
+            className="hidden md:flex items-center gap-2 text-indigo-400 font-black uppercase tracking-widest text-xs group"
+          >
+            {t.showcase.btn} <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
 
@@ -919,40 +507,19 @@ export default function Landing() {
             className="flex gap-8 px-6"
             animate={{ x: ["0%", "-50%"] }}
             transition={{ 
-              x: {
-                repeat: Infinity,
-                repeatType: "loop",
-                duration: 30,
-                ease: "linear"
-              }
+              x: { repeat: Infinity, repeatType: "loop", duration: 40, ease: "linear" }
             }}
           >
             {[...PLACEHOLDER_CREATORS, ...PLACEHOLDER_CREATORS].map((creator, i) => (
-              <div key={`${creator.id}-${i}`} className="creator-carousel-item group">
-                <div 
-                  onClick={() => handleExternalLink(creator.twitter)}
-                  className="block relative w-64 h-80 rounded-[2.5rem] overflow-hidden mb-6 border border-white/10 group-hover:border-indigo-500/50 transition-all duration-500 cursor-pointer shadow-2xl hover:shadow-indigo-500/20"
-                >
-                  <img 
-                    src={creator.photo_url || creator1} 
-                    alt={creator.display_name} 
-                    className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60" />
-                  <div className="absolute bottom-6 left-6 right-6">
-                    <div className="text-xl font-black mb-1 truncate">{creator.display_name || 'Umbra Creator'}</div>
+              <div key={`${creator.id}-${i}`} className="creator-carousel-item" onClick={() => handleExternalLink(creator.twitter)}>
+                <div className="creator-card-premium group cursor-pointer">
+                  <img src={creator.photo_url || creator1} alt={creator.display_name} className="w-full h-full object-cover transition-all duration-[1.5s] group-hover:scale-110" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent opacity-80" />
+                  <div className="absolute bottom-10 left-8 right-8 z-10">
+                    <div className="text-2xl font-black mb-2 tracking-tighter group-hover:text-indigo-400 transition-colors">{creator.display_name}</div>
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400">{t.showcase.badge}</span>
-                      <div className="p-2 bg-white/10 rounded-full backdrop-blur-md group-hover:bg-indigo-600 transition-colors">
-                        <Twitter className="h-3.5 w-3.5 text-white opacity-40 group-hover:opacity-100 transition-all" />
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Subtle Action Overlay */}
-                  <div className="absolute inset-0 bg-indigo-600/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <div className="px-4 py-2 bg-white text-indigo-600 rounded-full text-[8px] font-black uppercase tracking-widest translate-y-4 group-hover:translate-y-0 transition-transform">
-                      View Profile
+                      <span className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">{creator.badge}</span>
+                      <Twitter className="h-4 w-4 text-white opacity-40 group-hover:opacity-100" />
                     </div>
                   </div>
                 </div>
@@ -962,52 +529,145 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Creators Visual Grid (Repurposed as Secondary Showcase) */}
-      <section className="py-32 px-6 max-w-7xl mx-auto overflow-hidden">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 h-[600px]">
-           <motion.div 
-             initial={{ opacity: 0, x: -50 }}
-             whileInView={{ opacity: 1, x: 0 }}
-             viewport={{ once: true }}
-             className="md:col-span-2 relative group overflow-hidden rounded-[3rem]"
-           >
-              <img src={creator2} alt="Creator Highlights" className="creator-image" />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60" />
-              <div className="absolute bottom-8 left-8">
-                 <div className="text-xs font-black uppercase tracking-[0.2em] text-white/60 mb-1">{t.showcase.secondary_label}</div>
-                 <div className="text-3xl font-black">{t.showcase.secondary_title}</div>
+      {/* The Command Center (Merged Methodology & Platform) */}
+      <section id="about" ref={platformAnim.ref} className="py-40 px-6 relative overflow-hidden bg-slate-900/10">
+        <div className="max-w-7xl mx-auto">
+          {/* Methodology Lead-in */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-40 items-center">
+            <div>
+              <span className="section-label">{t.method.label}</span>
+              <h2 className="text-5xl md:text-7xl font-black mb-8 leading-[0.8] tracking-tighter uppercase">
+                Strategic <br /> <span className="prism-text">Engine.</span>
+              </h2>
+              <div className="space-y-6">
+                 {[
+                   { title: t.method.step1, desc: t.method.step1_desc, icon: Target },
+                   { title: t.method.step2, desc: t.method.step2_desc, icon: Activity },
+                   { title: t.method.step3, desc: t.method.step3_desc, icon: Shield }
+                 ].map((p, i) => (
+                   <div key={i} className="flex gap-4 group">
+                     <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center shrink-0 group-hover:bg-indigo-600 transition-colors">
+                       <p.icon className="h-5 w-5 text-indigo-400 group-hover:text-white" />
+                     </div>
+                     <div>
+                       <h4 className="text-sm font-black uppercase tracking-widest text-white/80">{p.title}</h4>
+                       <p className="text-xs text-slate-500 mt-1 leading-relaxed">{p.desc}</p>
+                     </div>
+                   </div>
+                 ))}
               </div>
-           </motion.div>
-           
-           <motion.div 
-             initial={{ opacity: 0, scale: 0.9 }}
-             whileInView={{ opacity: 1, scale: 1 }}
-             viewport={{ once: true }}
-             className="relative group overflow-hidden rounded-[3rem]"
-           >
-              <div className="absolute inset-0 bg-indigo-600 flex flex-col items-center justify-center text-center p-8 group-hover:bg-indigo-500 transition-colors">
-                 <Trophy className="h-12 w-12 mb-6" />
-                 <div className="text-4xl font-black mb-2">+50M</div>
-                 <div className="text-[10px] font-black uppercase tracking-widest">Global Views 2024</div>
-              </div>
-           </motion.div>
+            </div>
+            
+            <div className="premium-card bg-indigo-600/5 group">
+               <div className="flex items-center gap-2 mb-6">
+                 <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                 <span className="text-[10px] font-black tracking-widest text-indigo-400 uppercase">{t.method.media_mix}</span>
+               </div>
+               <p className="text-xl font-medium leading-relaxed italic text-slate-200">
+                 "We don't just post content; we architect cultural moments across the entire digital landscape."
+               </p>
+               <div className="grid grid-cols-2 gap-4 mt-8">
+                  {['Streams', 'Video', 'Gaming', 'Events'].map(item => (
+                    <div key={item} className="px-4 py-3 bg-white/5 rounded-2xl border border-white/5 text-[10px] font-black uppercase tracking-widest text-white/50 group-hover:border-indigo-500/30 transition-colors">
+                      {item}
+                    </div>
+                  ))}
+               </div>
+            </div>
+          </div>
 
-           <motion.div 
-             initial={{ opacity: 0, x: 50 }}
-             whileInView={{ opacity: 1, x: 0 }}
-             viewport={{ once: true }}
-             className="relative group overflow-hidden rounded-[3rem] bg-slate-900 border border-white/5 flex flex-col items-center justify-center p-8 text-center hover:border-indigo-500/30 transition-all shadow-2xl shadow-indigo-500/5 group"
-           >
-              <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
-                <Heart className="h-24 w-24 text-rose-500" />
+          {/* Platform Preview */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+            <div className="space-y-8">
+              <span className="section-label">{t.platform.label}</span>
+              <h2 className="text-4xl md:text-6xl font-black leading-tight">
+                {t.platform.title1} <br/> <span className="gradient-text">{t.platform.title2}</span>
+              </h2>
+              <p className="text-xl text-slate-400 font-medium leading-relaxed max-w-lg">
+                {t.platform.desc}
+              </p>
+              <div className="space-y-4 pt-4">
+                {[t.platform.feature1, t.platform.feature2, t.platform.feature3].map((feat, i) => (
+                  <div key={i} className="flex items-center gap-4 text-white/80 group">
+                    <div className="w-6 h-6 rounded-full bg-indigo-500/20 flex items-center justify-center group-hover:bg-indigo-600 transition-colors">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-indigo-400 group-hover:text-white" />
+                    </div>
+                    <span className="text-sm font-bold tracking-wide uppercase">{feat}</span>
+                  </div>
+                ))}
               </div>
-              <Heart className="h-10 w-10 text-rose-500 mb-6 group-hover:scale-110 transition-transform relative z-10" />
-              <p className="font-bold text-slate-300 relative z-10 leading-relaxed italic">"The unmistakable standard for <br/> agency excellence and <br/> creator empowerment."</p>
-              <div className="mt-8 flex flex-col items-center gap-1 relative z-10">
-                <div className="text-[10px] font-black uppercase tracking-widest text-indigo-400">Umbra Selection</div>
-                <div className="text-[8px] font-bold uppercase tracking-widest text-slate-600">Impact Verification System</div>
+            </div>
+
+            <div className="relative group perspective-1000">
+              <div className="dashboard-mockup group-hover:border-indigo-500/30 transition-all duration-700">
+                <div className="mockup-sidebar">
+                  <div className="w-8 h-8 bg-indigo-600 rounded-lg mb-8" />
+                  {['metrics', 'magic-link', 'summary'].map((id) => (
+                    <div key={id} onMouseEnter={() => setMockupFeature(id as any)} className={`mockup-item-click mb-4 ${mockupFeature === id ? 'active' : ''}`}>
+                       {id === 'metrics' && <Activity className="h-2 w-2 text-white" />}
+                       {id === 'magic-link' && <Star className="h-2 w-2 text-white" />}
+                       {id === 'summary' && <Target className="h-2 w-2 text-white" />}
+                    </div>
+                  ))}
+                </div>
+                <div className="absolute left-[18%] top-0 bottom-0 right-0 p-8">
+                  <AnimatePresence mode="wait">
+                    {mockupFeature === 'metrics' && (
+                      <motion.div key="metrics" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                        <div className="grid grid-cols-2 gap-4 mb-6">
+                           <div className="mockup-card"><div className="text-[8px] font-black text-slate-500">VIEWS</div><div className="text-xl font-black">{stats.views >= 1000 ? (stats.views/1000).toFixed(0) + 'K' : stats.views}</div></div>
+                           <div className="mockup-card"><div className="text-[8px] font-black text-slate-500">CREATORS</div><div className="text-xl font-black">{stats.creators}</div></div>
+                        </div>
+                        <div className="bg-slate-800/30 rounded-3xl p-6 h-40 flex items-end gap-2">
+                           {[0.5, 0.8, 0.6, 0.9, 0.7, 0.85, 1].map((h, i) => <motion.div key={i} initial={{ height: 0 }} animate={{ height: `${h * 100}%` }} className="flex-1 bg-indigo-500/40 rounded-t-lg" />)}
+                        </div>
+                      </motion.div>
+                    )}
+                    {mockupFeature === 'magic-link' && (
+                       <motion.div key="magic-link" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                          <div className="bg-indigo-600/10 border border-indigo-500/30 rounded-2xl p-4">
+                             <div className="flex justify-between items-center mb-2">
+                                <span className="text-[10px] font-black">REPORT_X.pdf</span>
+                                <div className="px-2 py-0.5 bg-indigo-600 rounded-full text-[8px] font-black">LIVE</div>
+                             </div>
+                             <div className="h-1 bg-white/10 rounded-full w-full" />
+                          </div>
+                       </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+                <div className="mockup-glow" />
               </div>
-           </motion.div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Founders Section */}
+      <section className="py-32 px-6 bg-slate-900/30 border-t border-white/5">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-20">
+            <span className="section-label">{t.leadership.label}</span>
+            <h2 className="text-4xl md:text-6xl font-black">{t.leadership.title1} <br/> {t.leadership.title2}</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto">
+             {[
+               { name: 'EMINATR1X', image: founder1, desc: "I take your project's raw light and bend it into a message people can't unsee.", twitter: 'https://x.com/eminatr1x' },
+               { name: 'CaBs', image: founder2, desc: 'Ready to break down complex ideas into simple explanations.', twitter: 'https://x.com/CaBsCrypto' },
+               { name: 'Lady Mufa', image: creator1, desc: 'I make Web3 gaming videos, and I build pathways for women to join and thrive.', twitter: 'https://x.com/LadyMufaTV' }
+             ].map((founder, i) => (
+               <div key={i} className="text-center group" onClick={() => handleExternalLink(founder.twitter)}>
+                 <div className="relative mb-6 cursor-pointer">
+                   <img src={founder.image} alt={founder.name} className="founder-image" />
+                   <div className="absolute inset-x-0 bottom-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+                     <span className="px-3 py-1 bg-white text-indigo-600 rounded-full text-[8px] font-black uppercase">X Profile</span>
+                   </div>
+                 </div>
+                 <h3 className="text-2xl font-black mb-1 gradient-text">{founder.name}</h3>
+                 <p className="text-slate-400 text-sm italic leading-relaxed px-4">"{founder.desc}"</p>
+               </div>
+             ))}
+          </div>
         </div>
       </section>
 
@@ -1015,36 +675,29 @@ export default function Landing() {
       <section className="py-20 px-6">
         <div className="max-w-5xl mx-auto premium-card bg-indigo-600 text-center relative overflow-hidden group">
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20" />
-          <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 blur-[100px] rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="relative z-10 py-10">
             <h2 className="text-4xl md:text-6xl font-black mb-8 leading-tight">{t.cta.title}</h2>
-            <p className="text-lg text-white/80 mb-12 max-w-xl mx-auto font-medium">
-              {t.cta.desc}
-            </p>
+            <p className="text-lg text-white/80 mb-12 max-w-xl mx-auto font-medium">{t.cta.desc}</p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-              <button 
-                className="px-10 py-5 bg-white text-indigo-600 rounded-full font-black text-sm uppercase tracking-widest hover:scale-105 transition-all shadow-xl"
-                onClick={() => document.querySelector('footer')?.scrollIntoView({ behavior: 'smooth' })}
-              >
-                {t.cta.btn1}
-              </button>
-              <button 
-                className="px-10 py-5 bg-transparent border-2 border-white/30 rounded-full font-black text-sm uppercase tracking-widest hover:bg-white/10 transition-all"
-                onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
-              >
-                {t.cta.btn2}
-              </button>
+              <button className="px-10 py-5 bg-white text-indigo-600 rounded-full font-black text-sm uppercase tracking-widest hover:scale-105 transition-all shadow-xl" onClick={handleEnterApp}>{t.cta.btn1}</button>
+              <button className="px-10 py-5 bg-transparent border-2 border-white/30 rounded-full font-black text-sm uppercase tracking-widest hover:bg-white/10 transition-all" onClick={() => document.getElementById('creators')?.scrollIntoView({ behavior: 'smooth' })}>{t.cta.btn2}</button>
             </div>
           </div>
         </div>
       </section>
 
-
       {/* Footer */}
-      <footer className="py-20 px-8 border-t border-white/5 text-slate-500">
+      <footer className="py-20 px-8 border-t border-white/5 text-slate-500 bg-slate-950">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-16 mb-16">
-            {/* Brand */}
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <Rocket className="h-6 w-6 text-indigo-500" />
+                <span className="text-lg font-black text-white">{t.footer.hub}</span>
+              </div>
+              <p className="text-sm leading-relaxed max-w-xs">{t.nav.desc || "The standard for creator excellence."}</p>
+            </div>
+            {/* Detailed Brand Info */}
             <div>
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center">
