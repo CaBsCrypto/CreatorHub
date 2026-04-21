@@ -158,19 +158,65 @@
   box-shadow: 0 60px 100px -30px rgba(16, 185, 129, 0.3);
 }
 
-/* Elite Roster Section */
+/* Talent Cinematic Carousel Styles */
+.talent-carousel-wrapper {
+  @apply relative w-full overflow-hidden py-24;
+}
 
-.prism-text {
-  background: linear-gradient(
-    90deg, 
-    #10b981 0%, 
-    #2dd4bf 25%, 
-    #22d3ee 50%, 
-    #2dd4bf 75%, 
-    #10b981 100%
-  );
-  background-size: 200% auto;
-  @apply bg-clip-text text-transparent brightness-125;
+.talent-track {
+  @apply flex gap-8 px-6;
+  width: max-content;
+}
+
+.talent-card-cinematic {
+  @apply relative w-[350px] h-[500px] rounded-[3rem] bg-[#030712] border border-white/5 overflow-hidden group transition-all duration-700 cursor-pointer;
+  box-shadow: 0 40px 100px -30px rgba(0,0,0,0.8);
+}
+
+.talent-card-cinematic:hover {
+  @apply border-emerald-500/40 -translate-y-4;
+  box-shadow: 0 0 80px -20px rgba(16, 185, 129, 0.2);
+}
+
+.talent-card-image-focus {
+  @apply absolute inset-0 z-0 grayscale transition-all duration-1000 group-hover:grayscale-0 group-hover:scale-110;
+}
+
+.talent-card-overlay {
+  @apply absolute inset-0 z-10 bg-gradient-to-t from-[#020617] via-[#020617]/40 to-transparent;
+}
+
+.talent-card-info {
+  @apply absolute bottom-0 left-0 right-0 p-10 z-20;
+}
+
+.talent-diagnostic-header {
+  @apply absolute top-8 left-8 right-8 flex justify-between items-center z-20 pointer-events-none;
+}
+
+.talent-status-node {
+  @apply flex items-center gap-2 px-3 py-1 rounded-full bg-black/60 border border-white/10 backdrop-blur-md;
+}
+
+.talent-status-pulse {
+  @apply w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse;
+}
+
+.talent-card-name {
+  @apply text-4xl font-black uppercase tracking-tighter mb-2;
+}
+
+.talent-card-badge {
+  @apply text-[10px] font-black text-emerald-500 tracking-[0.3em] uppercase opacity-80;
+}
+
+.talent-card-social {
+  @apply absolute top-8 right-8 p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl z-30 transition-all hover:bg-emerald-600 hover:text-white hover:scale-110;
+}
+
+/* Horizontal Scroll Adjustments */
+.carousel-mask {
+  mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
 }
 
 .prism-text:hover {

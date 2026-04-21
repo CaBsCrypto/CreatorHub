@@ -509,105 +509,70 @@ export default function Landing() {
         </motion.div>
       </section>
 
-      {/* Elite Roster Bento Showcase (The Force) */}
+      {/* Elite Roster Cinematic Carousel (The Force) */}
       <section id="creators" className="py-40 bg-[#020617] relative z-10 overflow-hidden">
         <div className="absolute inset-0 matrix-grid opacity-10" />
-        <div className="max-w-7xl mx-auto px-6 relative z-20">
-          <div className="mb-24">
+        <div className="relative z-20">
+          <div className="max-w-7xl mx-auto px-6 mb-20">
             <span className="section-label">{t.showcase.label}</span>
             <h2 className="text-5xl md:text-7xl font-black tracking-tighter uppercase leading-none">
               The <span className="gradient-text">Force.</span>
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Featured Lead Card */}
+          <div className="talent-carousel-wrapper carousel-mask">
             <motion.div 
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              className="lg:col-span-2 bento-card p-0 h-[600px] group cursor-pointer overflow-hidden border-emerald-500/10"
-              onClick={() => handleExternalLink(PLACEHOLDER_CREATORS[0].twitter)}
+              className="talent-track"
+              animate={{ 
+                x: [0, -2674], // Seamless loop: (350px + 32px gap) * 7 creators = 2674
+              }}
+              transition={{ 
+                duration: 50,
+                repeat: Infinity,
+                ease: "linear"
+              }}
+              drag="x"
+              dragConstraints={{ left: -5348, right: 0 }}
             >
-              <div className="absolute inset-0 z-10 glitch-hover">
-                <img src={PLACEHOLDER_CREATORS[0].photo_url} className="w-full h-full object-cover transition-all duration-[2s] group-hover:scale-110 grayscale group-hover:grayscale-0" />
-              </div>
-              
-              <div className="creator-diagnostic-overlay">
-                <div className="diagnostic-grid">
-                  <div className="diagnostic-stat-item">
-                    <div className="flex justify-between items-center text-[10px] font-black text-emerald-400 mb-2">
-                       <span>{t.diagnostics.engagement}</span>
-                       <span className="text-white">+98%</span>
-                    </div>
-                    <div className="diag-bar-container"><div className="diag-bar-fill w-[98%]" /></div>
-                  </div>
-                  <div className="diagnostic-stat-item">
-                    <div className="flex justify-between items-center text-[10px] font-black text-emerald-400 mb-2">
-                       <span>{t.diagnostics.resonance}</span>
-                       <span className="text-white">+94%</span>
-                    </div>
-                    <div className="diag-bar-container"><div className="diag-bar-fill w-[94%]" /></div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="absolute inset-x-0 bottom-0 p-10 bg-gradient-to-t from-[#020617] via-[#020617]/50 to-transparent z-20">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="diagnostic-tag">NODE: ACTIVE</div>
-                    <div className="diagnostic-tag">ROLE: LEAD_OPERATOR</div>
-                  </div>
-                  <h3 className="text-4xl font-black mb-6 uppercase tracking-tighter">{PLACEHOLDER_CREATORS[0].display_name}</h3>
-                  <div className="flex gap-4">
-                     <div className="px-5 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest">NFT Specialist</div>
-                     <div className="px-5 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest">Alpha Intel</div>
-                  </div>
-              </div>
-
-              <div className="absolute top-10 right-10 p-4 rounded-2xl bg-[#020617]/80 backdrop-blur-md border border-emerald-500/20 z-30">
-                 <Twitter className="h-6 w-6 text-emerald-400" />
-              </div>
-            </motion.div>
-
-            {/* Tactical Grid */}
-            <div className="lg:col-span-2 grid grid-cols-2 gap-6">
-              {PLACEHOLDER_CREATORS.slice(1, 5).map((creator, i) => (
-                <motion.div
-                  key={creator.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                  className="bento-card group p-0 overflow-hidden cursor-pointer h-[287px] border-white/5"
+              {[...PLACEHOLDER_CREATORS, ...PLACEHOLDER_CREATORS].map((creator, i) => (
+                <div 
+                  key={`${creator.id}-${i}`}
+                  className="talent-card-cinematic"
                   onClick={() => handleExternalLink(creator.twitter)}
                 >
-                  <div className="absolute inset-0 glitch-hover z-10">
-                    <img src={creator.photo_url} className="w-full h-full object-cover transition-all duration-[1.5s] group-hover:scale-110 grayscale hover:grayscale-0" />
+                  <div className="talent-diagnostic-header">
+                     <div className="talent-status-node">
+                        <div className="talent-status-pulse" />
+                        <span className="text-[8px] font-black uppercase text-white/40 tracking-widest">Node_Active</span>
+                     </div>
+                     <div className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">ID_{i+1}_X</div>
+                  </div>
+
+                  <div className="talent-card-image-focus">
+                    <img src={creator.photo_url} className="w-full h-full object-cover" alt={creator.display_name} />
                   </div>
                   
-                  <div className="creator-diagnostic-overlay p-6">
-                    <div className="diagnostic-stat-item">
-                      <div className="text-[8px] font-black text-emerald-400 mb-1">{t.diagnostics.reach}</div>
-                      <div className="text-xs font-black text-white">{(85 + (i * 3))}%</div>
-                      <div className="diag-bar-container mt-2"><div className="diag-bar-fill" style={{ width: `${85 + (i * 3)}%` }} /></div>
+                  <div className="talent-card-overlay" />
+
+                  <div className="talent-card-social">
+                    <Twitter className="h-5 w-5" />
+                  </div>
+
+                  <div className="talent-card-info">
+                    <div className="talent-card-badge">
+                       <CharacterReveal text={creator.badge} active={true} />
+                    </div>
+                    <h3 className="talent-card-name">
+                       {creator.display_name}
+                    </h3>
+                    
+                    <div className="flex gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-all duration-700">
+                       <div className="px-3 py-1 bg-white/5 border border-white/10 rounded-lg text-[6px] font-black uppercase tracking-widest">High_Retention</div>
+                       <div className="px-3 py-1 bg-white/5 border border-white/10 rounded-lg text-[6px] font-black uppercase tracking-widest">Growth_Locked</div>
                     </div>
                   </div>
-
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/20 to-transparent z-20" />
-                  <div className="absolute top-6 right-6 z-30">
-                    <div className="diagnostic-tag">ID: 00{i+1}</div>
-                  </div>
-                  <div className="absolute bottom-6 left-6 right-6 z-30">
-                    <div className="text-[9px] font-black text-emerald-500 uppercase tracking-widest mb-1">{creator.badge}</div>
-                    <div className="text-lg font-black uppercase tracking-tighter">{creator.display_name}</div>
-                  </div>
-                </motion.div>
+                </div>
               ))}
-            </div>
-
-            {/* Bottom Row Marquee for High-Density feel */}
-            <div className="col-span-4 mt-8 bento-card p-8 flex items-center justify-between group bg-emerald-600/5 border-emerald-500/10">
-               <div className="space-y-2">
-                 <div className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.3em]">Momentum</div>
-                 <div className="text-2xl font-black uppercase tracking-tighter">Scale with the standard.</div>
                </div>
                <button 
                  onClick={handleEnterApp}
