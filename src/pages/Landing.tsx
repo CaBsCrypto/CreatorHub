@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { supabase } from '../supabase';
-import { translations } from './translations';
+import translations from './translations'; // Default import
 import { useInViewAnimation, revealVariants, staggerContainer } from '../hooks/useInViewAnimation';
 import './Landing.css';
 
@@ -24,7 +24,6 @@ import './Landing.css';
 import founder1 from '../assets/eminatr1x.webp';
 import founder2 from '../assets/cabs.webp';
 import creator1 from '../assets/ladymufa.webp';
-import creator2 from '../assets/creator_2.webp'; 
 import yagod from '../assets/yagod.webp';
 import lizard from '../assets/lizard.webp';
 import spadex from '../assets/spadex.webp';
@@ -81,7 +80,9 @@ export default function Landing() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [language, setLanguage] = useState<'en' | 'es'>('en');
-  const t = translations[language];
+  
+  // Robust translation selection with fallback
+  const t: any = (translations as any)[language] || (translations as any)['en'];
 
   const statsRef = useRef(null);
   const { scrollYProgress: statsScroll } = useScroll({
@@ -89,7 +90,6 @@ export default function Landing() {
     offset: ["start end", "end start"]
   });
 
-  // Global scroll for hero/navbar
   const { scrollYProgress: globalScroll } = useScroll();
   const heroOpacity = useTransform(globalScroll, [0, 0.2], [1, 0]);
   const heroScale = useTransform(globalScroll, [0, 0.2], [1, 0.95]);
@@ -122,12 +122,12 @@ export default function Landing() {
             <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/40">
               <Rocket className="h-6 w-6 text-white" />
             </div>
-            <span className="text-xl font-black tracking-tighter uppercase">{t.nav.title}</span>
+            <span className="text-xl font-black tracking-tighter uppercase">{t?.nav?.title || "Umbra Hub"}</span>
           </div>
           
           <div className="hidden lg:flex items-center gap-10">
-            <button onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })} className="text-sm font-black uppercase tracking-widest hover:text-indigo-400 transition-colors">{t.nav.method}</button>
-            <button onClick={() => document.getElementById('creators')?.scrollIntoView({ behavior: 'smooth' })} className="text-sm font-black uppercase tracking-widest hover:text-indigo-400 transition-colors">{t.nav.talents}</button>
+            <button onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })} className="text-sm font-black uppercase tracking-widest hover:text-indigo-400 transition-colors">{t?.nav?.method}</button>
+            <button onClick={() => document.getElementById('creators')?.scrollIntoView({ behavior: 'smooth' })} className="text-sm font-black uppercase tracking-widest hover:text-indigo-400 transition-colors">{t?.nav?.talents}</button>
           </div>
 
           <div className="flex items-center gap-6">
@@ -141,7 +141,7 @@ export default function Landing() {
               onClick={handleEnterApp}
               className="px-8 py-3 bg-white text-slate-950 rounded-full font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-white/10"
             >
-              {user ? t.nav.dashboard : t.nav.login}
+              {user ? (t?.nav?.dashboard || "Command Center") : (t?.nav?.login || "Login")}
             </button>
           </div>
         </div>
@@ -155,27 +155,27 @@ export default function Landing() {
             animate={{ opacity: 1, y: 0 }}
             className="section-label"
           >
-            {t.hero.label}
+            {t?.hero?.label}
           </motion.div>
           <h1 className="hero-text mb-8">
-            {t.hero.title1} <br/>
-            <span className="gradient-text">{t.hero.title2}</span>
+            {t?.hero?.title1} <br/>
+            <span className="gradient-text">{t?.hero?.title2}</span>
           </h1>
           <p className="text-xl md:text-2xl text-slate-400 max-w-3xl mx-auto mb-12 font-medium leading-relaxed">
-            {t.hero.desc}
+            {t?.hero?.desc}
           </p>
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
             <button 
               onClick={handleEnterApp}
               className="px-10 py-5 bg-indigo-600 text-white rounded-full font-black text-sm uppercase tracking-widest flex items-center gap-3 hover:scale-105 transition-all shadow-2xl shadow-indigo-600/40"
             >
-              {t.hero.cta1} <ChevronRight className="h-4 w-4" />
+              {t?.hero?.cta1} <ChevronRight className="h-4 w-4" />
             </button>
             <button 
               onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
               className="px-10 py-5 bg-white/5 border border-white/10 backdrop-blur-md rounded-full font-black text-sm uppercase tracking-widest hover:bg-white/10 transition-all"
             >
-              {t.hero.cta2}
+              {t?.hero?.cta2}
             </button>
           </div>
         </motion.div>
@@ -206,7 +206,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto">
           <div className="mb-24 flex flex-col md:flex-row md:items-end justify-between gap-8">
             <div className="max-w-2xl">
-              <span className="section-label">{t.about.label}</span>
+              <span className="section-label">{t?.about?.label}</span>
               <h2 className="text-5xl md:text-8xl font-black tracking-tighter uppercase leading-none">
                 The <span className="gradient-text">Standard.</span>
               </h2>
@@ -224,8 +224,8 @@ export default function Landing() {
                   </div>
                </div>
                <div>
-                  <h3 className="text-4xl font-black mb-6 uppercase tracking-tighter">{t.about.p1_title}</h3>
-                  <p className="text-slate-400 text-lg leading-relaxed italic">"{t.about.p1_desc}"</p>
+                  <h3 className="text-4xl font-black mb-6 uppercase tracking-tighter">{t?.about?.p1_title}</h3>
+                  <p className="text-slate-400 text-lg leading-relaxed italic">"{t?.about?.p1_desc}"</p>
                </div>
             </motion.div>
 
@@ -236,8 +236,8 @@ export default function Landing() {
                <div className="p-4 bg-purple-600/10 border border-purple-500/20 rounded-2xl w-fit">
                   <Zap className="h-8 w-8 text-purple-500" />
                </div>
-               <h3 className="text-3xl font-black uppercase tracking-tighter">{t.about.p2_title}</h3>
-               <p className="text-slate-400 leading-relaxed text-sm italic">"{t.about.p2_desc}"</p>
+               <h3 className="text-3xl font-black uppercase tracking-tighter">{t?.about?.p2_title}</h3>
+               <p className="text-slate-400 leading-relaxed text-sm italic">"{t?.about?.p2_desc}"</p>
             </motion.div>
 
             <motion.div 
@@ -260,18 +260,18 @@ export default function Landing() {
                  <div className="flex items-center gap-3 text-indigo-400 mb-8 font-black text-xs uppercase tracking-widest">
                     <Shield className="h-4 w-4" /> Elite Governance v2.0
                  </div>
-                 <h3 className="text-4xl md:text-5xl font-black mb-8 leading-none uppercase tracking-tighter">{t.about.p3_title}</h3>
-                 <p className="text-slate-400 text-lg leading-relaxed max-w-xl italic">"{t.about.p3_desc}"</p>
+                 <h3 className="text-4xl md:text-5xl font-black mb-8 leading-none uppercase tracking-tighter">{t?.about?.p3_title}</h3>
+                 <p className="text-slate-400 text-lg leading-relaxed max-w-xl italic">"{t?.about?.p3_desc}"</p>
                </div>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Elite Roster Horizontal Carousel (The Force) */}
+      {/* Elite Roster Horizontal Carousel */}
       <section id="creators" className="py-40 bg-slate-950 relative overflow-hidden border-t border-white/5">
         <div className="max-w-7xl mx-auto px-6 mb-20">
-          <span className="section-label">{t.showcase.label}</span>
+          <span className="section-label">{t?.showcase?.label}</span>
           <h2 className="text-5xl md:text-7xl font-black tracking-tighter uppercase leading-none">
             The <span className="gradient-text">Force.</span>
           </h2>
@@ -281,7 +281,7 @@ export default function Landing() {
           <motion.div 
             className="creator-track"
             animate={{ 
-              x: [0, -2240], // (288px width + 40px gap) * 7 creators = 2296px, adjusted for seamless loop
+              x: [0, -2240], 
             }}
             transition={{ 
               duration: 50,
@@ -314,12 +314,12 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Founders Section */}
+      {/* Leadership Section */}
       <section className="py-32 px-6 bg-slate-900/30 border-t border-white/5">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
-            <span className="section-label">{t.leadership.label}</span>
-            <h2 className="text-4xl md:text-6xl font-black">{t.leadership.title1} <br/> {t.leadership.title2}</h2>
+            <span className="section-label">{t?.leadership?.label}</span>
+            <h2 className="text-4xl md:text-6xl font-black">{t?.leadership?.title1} <br/> {t?.leadership?.title2}</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto">
              {[
@@ -347,11 +347,11 @@ export default function Landing() {
         <div className="max-w-5xl mx-auto premium-card bg-indigo-600 text-center relative overflow-hidden group">
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20" />
           <div className="relative z-10 py-10">
-            <h2 className="text-4xl md:text-6xl font-black mb-8 leading-tight">{t.cta.title}</h2>
-            <p className="text-lg text-white/80 mb-12 max-w-xl mx-auto font-medium">{t.cta.desc}</p>
+            <h2 className="text-4xl md:text-6xl font-black mb-8 leading-tight">{t?.cta?.title}</h2>
+            <p className="text-lg text-white/80 mb-12 max-w-xl mx-auto font-medium">{t?.cta?.desc}</p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-              <button className="px-10 py-5 bg-white text-indigo-600 rounded-full font-black text-sm uppercase tracking-widest hover:scale-105 transition-all shadow-xl" onClick={handleEnterApp}>{t.cta.btn1}</button>
-              <button className="px-10 py-5 bg-transparent border-2 border-white/30 rounded-full font-black text-sm uppercase tracking-widest hover:bg-white/10 transition-all" onClick={() => document.getElementById('creators')?.scrollIntoView({ behavior: 'smooth' })}>{t.cta.btn2}</button>
+              <button className="px-10 py-5 bg-white text-indigo-600 rounded-full font-black text-sm uppercase tracking-widest hover:scale-105 transition-all shadow-xl" onClick={handleEnterApp}>{t?.cta?.btn1}</button>
+              <button className="px-10 py-5 bg-transparent border-2 border-white/30 rounded-full font-black text-sm uppercase tracking-widest hover:bg-white/10 transition-all" onClick={() => document.getElementById('creators')?.scrollIntoView({ behavior: 'smooth' })}>{t?.cta?.btn2}</button>
             </div>
           </div>
         </div>
@@ -364,49 +364,41 @@ export default function Landing() {
             <div>
               <div className="flex items-center gap-3 mb-6">
                 <Rocket className="h-6 w-6 text-indigo-500" />
-                <span className="text-lg font-black text-white">{t.footer.hub}</span>
+                <span className="text-lg font-black text-white">{t?.footer?.hub}</span>
               </div>
               <p className="text-sm leading-relaxed max-w-xs">The unmistakable standard for creator-driven Web3 marketing excellence.</p>
             </div>
-            {/* Detailed Brand Info */}
             <div>
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center">
                   <Rocket className="h-5 w-5 text-white" />
                 </div>
-                <span className="text-lg font-black text-white tracking-tighter">{t.footer.hub} v2.0</span>
+                <span className="text-lg font-black text-white tracking-tighter">{t?.footer?.hub} v2.5</span>
               </div>
               <p className="text-sm text-slate-500 leading-relaxed max-w-xs">
                  Restore the authority. Premium Agency Restoration Complete.
               </p>
             </div>
-            {/* Team / Socials */}
             <div>
               <div className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 mb-6">Connect</div>
               <div className="space-y-5">
-                {[
-                  { name: 'Official X', handle: '@UmbraAgency', twitter: 'https://x.com/eminatr1x' },
-                ].map(person => (
-                  <div
-                    key={person.name}
-                    onClick={() => handleExternalLink(person.twitter)}
-                    className="flex items-center gap-3 group hover:text-white transition-colors cursor-pointer"
-                  >
-                    <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-indigo-600/20 transition-colors flex-shrink-0">
-                      <Twitter className="h-3.5 w-3.5 group-hover:text-sky-400 transition-colors" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-black text-white/80 group-hover:text-white transition-colors">{person.name}</div>
-                      <div className="text-[10px] text-slate-600">{person.handle}</div>
-                    </div>
+                <div
+                  onClick={() => handleExternalLink('https://x.com/eminatr1x')}
+                  className="flex items-center gap-3 group hover:text-white transition-colors cursor-pointer"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-indigo-600/20 transition-colors flex-shrink-0">
+                    <Twitter className="h-3.5 w-3.5 group-hover:text-sky-400 transition-colors" />
                   </div>
-                ))}
+                  <div>
+                    <div className="text-sm font-black text-white/80 group-hover:text-white transition-colors">Official X</div>
+                    <div className="text-[10px] text-slate-600">@UmbraAgency</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          {/* Bottom bar */}
           <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-xs">{t.footer.rights} - Restoration v2.4 (Force Build)</p>
+            <p className="text-xs">{t?.footer?.rights || "© 2026 UMBRA AGENCY. ALL RIGHTS RESERVED."} - Restoration v2.5 (Safety Build)</p>
             <div className="flex items-center gap-2 text-slate-600">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
               <span className="text-[10px] font-black uppercase tracking-widest">Premium Status: Operational</span>

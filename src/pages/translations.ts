@@ -1,4 +1,4 @@
-export const translations = {
+const translations = {
   en: {
     nav: {
       title: "Umbra Hub",
@@ -92,3 +92,5 @@ export const translations = {
     }
   }
 };
+
+export default translations;
