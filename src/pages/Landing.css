@@ -158,76 +158,7 @@
   box-shadow: 0 60px 100px -30px rgba(16, 185, 129, 0.3);
 }
 
-/* Technical Vision Bento Section */
-.vision-bento-grid {
-  @apply grid grid-cols-1 md:grid-cols-3 gap-8 py-40;
-}
-
-.axiom-module-card {
-  @apply relative rounded-[3rem] bg-[#030712] border border-white/5 overflow-hidden p-10 flex flex-col group transition-all duration-500 hover:-translate-y-2;
-  box-shadow: 0 40px 100px -20px rgba(0,0,0,0.5);
-}
-
-.axiom-module-card:hover {
-  @apply border-emerald-500/30;
-  box-shadow: 0 0 80px -20px rgba(16, 185, 129, 0.1);
-}
-
-.axiom-module-header {
-  @apply flex justify-between items-start mb-12;
-}
-
-.axiom-module-id {
-  @apply text-[10px] font-black text-emerald-500 tracking-[0.3em] uppercase;
-}
-
-.axiom-module-stats {
-  @apply text-[10px] font-black text-slate-500 flex gap-4 uppercase;
-}
-
-.axiom-module-title {
-  @apply text-3xl md:text-5xl font-black tracking-tighter uppercase leading-none mb-6;
-}
-
-.axiom-module-desc {
-  @apply text-base md:text-lg text-slate-400 font-medium leading-relaxed italic opacity-80 group-hover:opacity-100 transition-opacity;
-}
-
-.axiom-module-graph {
-  @apply absolute bottom-0 right-0 w-64 h-64 opacity-5 pointer-events-none group-hover:opacity-10 transition-opacity duration-1000;
-}
-
-.axiom-module-scan {
-  @apply absolute left-0 right-0 h-[2px] bg-emerald-500/20 top-0 pointer-events-none -translate-y-full group-hover:animate-scan-slow;
-}
-
-@keyframes scan-slow {
-  0% { transform: translateY(0); opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { transform: translateY(500px); opacity: 0; }
-}
-
-.animate-scan-slow {
-  animation: scan-slow 3s linear infinite;
-}
-
-.vision-phrase-layered {
-  @apply absolute inset-0 flex flex-col items-center justify-center p-8 text-center pointer-events-none;
-}
-
-.vision-phrase-layered > * {
-  @apply pointer-events-auto;
-}
-
-.vision-spotlight {
-  @apply text-slate-500 transition-all duration-1000 cursor-default font-extralight;
-}
-
-.vision-spotlight:hover {
-  @apply text-white;
-  text-shadow: 0 0 50px rgba(255, 255, 255, 0.4);
-}
+/* Elite Roster Section */
 
 .prism-text {
   background: linear-gradient(
