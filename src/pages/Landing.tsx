@@ -159,7 +159,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-16 lg:gap-0">
             <div className="text-center group lg:border-r border-white/5">
-              <AnimatedCounter target={116.5} suffix="M+" decimals={1} />
+              <AnimatedCounter target={116} suffix="K+" decimals={0} />
               <div className="stat-label">{t?.stats?.reach_label}</div>
             </div>
             <div className="text-center group lg:border-r border-white/5">
