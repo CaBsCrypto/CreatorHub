@@ -75,6 +75,30 @@ function AnimatedCounter({ target, suffix, decimals = 0 }: { target: number; suf
   );
 }
 
+const UmbraLogo = () => (
+  <div className="relative group cursor-pointer flex items-center justify-center w-10 h-10">
+    {/* Shadow Layer (The Umbra) */}
+    <div className="absolute top-1 right-[-4px] w-6 h-7 border-2 border-indigo-500/20 rounded-sm skew-x-[-12deg] blur-[1px] opacity-0 group-hover:opacity-100 transition-all duration-700" />
+    
+    {/* Main Body */}
+    <svg viewBox="0 0 40 40" className="w-8 h-8 relative z-10 drop-shadow-[0_0_8px_rgba(129,140,248,0.3)]">
+      <path 
+        d="M 8 8 V 32 H 32 V 8 H 26 V 24 H 14 V 8 Z" 
+        fill="white" 
+        className="group-hover:fill-indigo-400 transition-colors duration-500"
+      />
+      {/* Gold Highlight on edges */}
+      <path 
+        d="M 8 8 V 32 H 32 V 8 H 26 V 24 H 14 V 8 Z" 
+        fill="none" 
+        stroke="rgba(255,215,0,0.4)" 
+        strokeWidth="0.5"
+        className="opacity-0 group-hover:opacity-100 transition-opacity duration-1000"
+      />
+    </svg>
+  </div>
+);
+
 export default function Landing() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -104,13 +128,18 @@ export default function Landing() {
 
       {/* Navbar */}
       <nav className="glass-nav">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/40">
-              <Rocket className="h-6 w-6 text-white" />
-            </div>
-            <span className="text-xl font-black tracking-tighter uppercase">{t?.nav?.title}</span>
-          </div>
+        <div className="max-w-7xl mx-auto flex justify-between items-center px-6 h-full relative z-50">
+          <motion.div 
+            whileHover={{ scale: 1.02 }}
+            className="flex items-center gap-4 cursor-pointer group"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          >
+            <UmbraLogo />
+            <span className="text-2xl font-black tracking-[0.2em] relative overflow-hidden uppercase">
+              <span className="relative z-10">Umbra</span>
+              <div className="absolute bottom-0 left-0 w-0 h-[2px] bg-indigo-500 group-hover:w-full transition-all duration-500" />
+            </span>
+          </motion.div>
           <div className="hidden lg:flex items-center gap-10">
             <button onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })} className="text-xs font-black uppercase tracking-[0.3em] hover:text-indigo-400 transition-colors">{t?.nav?.method}</button>
             <button onClick={() => document.getElementById('creators')?.scrollIntoView({ behavior: 'smooth' })} className="text-xs font-black uppercase tracking-[0.3em] hover:text-indigo-400 transition-colors">{t?.nav?.talents}</button>
