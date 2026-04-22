@@ -7,10 +7,10 @@ const ShadowLine = ({ type, mousePos }: { type: string; mousePos: { x: number; y
     const dy = mousePos.y - 0.5;
     const skew = dx * 40;
     const opacity = 0.4 - dy * 0.2;
-    return { skew, opacity };
+    return { skew, opacity, dx, dy };
   };
 
-  const { skew, opacity } = calculateShadow();
+  const { skew, opacity, dx, dy } = calculateShadow();
 
   if (type === 'singularity') {
     return (
