@@ -169,16 +169,41 @@ export default function Landing() {
               <button onClick={() => document.getElementById('creators')?.scrollIntoView({ behavior: 'smooth' })} className="px-12 py-5 bg-white/5 border border-white/10 backdrop-blur-md rounded-full font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all">{t?.hero?.cta2}</button>
             </div>
           </motion.div>
-          <motion.div style={{ y: yParallax }} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.5, ease: "easeOut" }} className="hidden lg:block hero-visual-element">
-            <div className="data-prism" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="relative">
-                <motion.div animate={{ rotate: 360 }} transition={{ duration: 40, repeat: Infinity, ease: "linear" }} className="w-80 h-80 border border-indigo-500/10 rounded-full flex items-center justify-center">
-                   <motion.div animate={{ rotate: -360 }} transition={{ duration: 25, repeat: Infinity, ease: "linear" }} className="w-56 h-56 border border-purple-500/10 rounded-full flex items-center justify-center">
-                      <Rocket className="w-16 h-16 text-indigo-500/30" />
-                   </motion.div>
-                </motion.div>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }} 
+            animate={{ opacity: 1, scale: 1 }} 
+            transition={{ duration: 1.5, ease: "easeOut" }} 
+            className="hidden lg:flex hero-visual-element items-center justify-center cursor-crosshair"
+            onMouseMove={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              const dx = (e.clientX - rect.left) / rect.width - 0.5;
+              document.documentElement.style.setProperty('--hero-shadow-skew', `${dx * 40}deg`);
+            }}
+            onMouseLeave={() => {
+              document.documentElement.style.setProperty('--hero-shadow-skew', '-15deg');
+            }}
+          >
+            <div className="data-prism opacity-20" />
+            <div className="relative z-10 scale-[1.5]">
+              <div className="relative flex flex-col items-center group">
+                <div className="w-[3.5px] h-48 bg-gradient-to-b from-yellow-200 via-yellow-400 to-yellow-600 shadow-[0_0_35px_rgba(254,240,138,0.5)] relative z-10" />
+                <motion.div 
+                  initial={{ skewX: -15 }}
+                  style={{ 
+                    skewX: 'var(--hero-shadow-skew, -15deg)',
+                    opacity: 0.9 
+                  }}
+                  className="absolute top-48 w-16 h-32 border-b-[4px] border-x-[4px] border-indigo-600 rounded-b-sm blur-[0.3px] transform-origin-top transition-all duration-300 ease-out"
+                />
+                
+                {/* Secondary 'Umbra' Glow */}
+                <div className="absolute top-48 w-20 h-40 border-b-[1px] border-x-[1px] border-indigo-500/20 rounded-b-md blur-[12px] opacity-60" />
               </div>
+            </div>
+            
+            <div className="absolute bottom-10 text-center space-y-1">
+              <div className="text-[10px] font-black tracking-[1.2em] text-white/20 uppercase">Umbra Brand Identity</div>
+              <div className="text-[8px] font-bold tracking-[0.4em] text-indigo-500/40 uppercase italic">Interactive Standard</div>
             </div>
           </motion.div>
         </div>
