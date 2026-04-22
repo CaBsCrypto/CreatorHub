@@ -19,6 +19,7 @@ import { supabase } from '../supabase';
 import translations from './translations';
 import { useInViewAnimation, revealVariants, staggerContainer } from '../hooks/useInViewAnimation';
 import './Landing.css';
+import BrandingLab from '../components/BrandingLab';
 
 // Import images
 import founder1 from '../assets/eminatr1x.webp';
@@ -182,6 +183,8 @@ export default function Landing() {
           </motion.div>
         </div>
       </section>
+
+      <BrandingLab />
 
       {/* Stats Section - Verified Data */}
       <section ref={statsRef} className="stat-container relative z-20">
