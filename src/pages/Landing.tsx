@@ -257,7 +257,7 @@ export default function Landing() {
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }} 
             animate={{ opacity: 1, scale: 1 }} 
-            style={{ y: yParallax }}
+            style={{ y: useTransform(scrollYProgress, [0, 1], [-50, -350]) }}
             transition={{ duration: 1.5, ease: "easeOut" }} 
             className="hidden lg:flex hero-visual-element items-center justify-center cursor-crosshair group"
             onMouseMove={handleMouseMove}
@@ -266,12 +266,12 @@ export default function Landing() {
             <div className="data-prism opacity-20 border-emerald-500/20 group-hover:border-emerald-500/40 group-hover:bg-emerald-500/[0.02] transition-all duration-700" />
             
             {/* The Interactive Shadow Line */}
-            <div className="relative z-10 scale-[1.2]">
+            <div className="relative z-10 scale-[1.2] -mt-20">
               <ShadowLine mousePos={mousePos} />
             </div>
             
             {/* Logo Placeholder / Centerpiece */}
-            <div className="absolute top-10 flex flex-col items-center gap-2 z-20">
+            <div className="absolute top-2 flex flex-col items-center gap-2 z-20">
               <UmbraLogo />
               <div className="text-[10px] font-black tracking-[0.4em] text-white/40 uppercase">Umbra_Agency</div>
             </div>
