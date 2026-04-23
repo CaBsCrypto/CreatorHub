@@ -34,11 +34,11 @@ const ShadowLine = ({ mousePos }: { type: string; mousePos: { x: number; y: numb
 
   return (
     <div className="relative flex flex-col items-center group">
-      <div className="w-[3px] h-48 bg-gradient-to-b from-yellow-200 via-yellow-400 to-yellow-600 shadow-[0_0_35px_rgba(254,240,138,0.4)] relative z-10" />
+      <div className="w-[3px] h-40 bg-gradient-to-b from-yellow-200 via-yellow-400 to-yellow-600 shadow-[0_0_35px_rgba(254,240,138,0.4)] relative z-10" />
       <motion.div 
         animate={{ skewX: skew, scaleY: 1 + Math.abs(dx) }}
         style={{ opacity }}
-        className="absolute top-48 w-16 h-32 border-b-[3px] border-x-[3px] border-emerald-500/40 rounded-b-sm blur-[1px] transform-origin-top"
+        className="absolute top-40 w-16 h-32 border-b-[3px] border-x-[3px] border-emerald-500/40 rounded-b-sm blur-[1px] transform-origin-top"
       />
     </div>
   );
@@ -266,12 +266,12 @@ export default function Landing() {
             <div className="data-prism opacity-20 border-emerald-500/20 group-hover:border-emerald-500/40 group-hover:bg-emerald-500/[0.02] transition-all duration-700" />
             
             {/* The Interactive Shadow Line */}
-            <div className="relative z-10 scale-[1.2] -mt-20">
+            <div className="relative z-10 scale-[1.2] -mt-32">
               <ShadowLine mousePos={mousePos} />
             </div>
             
             {/* Logo Placeholder / Centerpiece */}
-            <div className="absolute top-2 flex flex-col items-center gap-2 z-20">
+            <div className="absolute top-2 flex flex-col items-center gap-1 z-20">
               <UmbraLogo />
               <div className="text-[10px] font-black tracking-[0.4em] text-white/40 uppercase">Umbra_Agency</div>
             </div>
