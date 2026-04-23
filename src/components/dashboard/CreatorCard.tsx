@@ -26,7 +26,7 @@ interface CreatorCardProps {
   onViewProfile?: () => void;
 }
 
-const CreatorCard: React.FC<CreatorCardProps> = ({ creator, index, userRole, onEditAudience, onViewProfile }) => {
+const CreatorCard = React.memo(({ creator, index, userRole, onEditAudience, onViewProfile }: CreatorCardProps) => {
   const RankIcon = creator.rank.icon;
   
   const roleIndicator = userRole === 'admin' 
@@ -128,6 +128,6 @@ const CreatorCard: React.FC<CreatorCardProps> = ({ creator, index, userRole, onE
       </div>
     </motion.div>
   );
-};
+});
 
 export default CreatorCard;

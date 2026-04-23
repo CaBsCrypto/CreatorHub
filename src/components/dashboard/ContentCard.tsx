@@ -49,7 +49,7 @@ const platformConfig = {
   baseapp: { icon: Globe, color: 'text-cyan-500', bg: 'from-cyan-950/20 to-slate-950' }
 };
 
-const ContentCard: React.FC<ContentCardProps> = ({ item, campaignName, onEdit, onDelete, onClick, index }) => {
+const ContentCard = React.memo(({ item, campaignName, onEdit, onDelete, onClick, index }: ContentCardProps) => {
   const { icon: PlatformIcon, color: platformColor, bg: platformBg } = platformConfig[item.platform] || { icon: Globe, color: 'text-slate-400', bg: 'from-slate-900 to-slate-950' };
   const isGamenight = item.platform === 'discord' || item.platform === 'baseapp';
 
@@ -72,6 +72,7 @@ const ContentCard: React.FC<ContentCardProps> = ({ item, campaignName, onEdit, o
             <img 
               src={item.thumbnail} 
               alt={item.title || 'Thumbnail'} 
+              loading="lazy"
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-60 group-hover:opacity-80"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
@@ -159,6 +160,6 @@ const ContentCard: React.FC<ContentCardProps> = ({ item, campaignName, onEdit, o
       </div>
     </motion.div>
   );
-};
+});
 
 export default ContentCard;

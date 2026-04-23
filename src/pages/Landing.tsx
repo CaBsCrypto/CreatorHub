@@ -21,7 +21,7 @@ import { useInViewAnimation, revealVariants, staggerContainer } from '../hooks/u
 import './Landing.css';
 
 // Shadow Line Component for Hero Interaction
-const ShadowLine = ({ type, mousePos }: { type: string; mousePos: { x: number; y: number } }) => {
+const ShadowLine = ({ mousePos }: { type: string; mousePos: { x: number; y: number } }) => {
   const calculateShadow = () => {
     const dx = mousePos.x - 0.5;
     const dy = mousePos.y - 0.5;
@@ -32,45 +32,13 @@ const ShadowLine = ({ type, mousePos }: { type: string; mousePos: { x: number; y
 
   const { skew, opacity, dx, dy } = calculateShadow();
 
-  if (type === 'singularity') {
-    return (
-      <div className="relative flex flex-col items-center group">
-        <div className="w-[3px] h-48 bg-gradient-to-b from-yellow-200 via-yellow-400 to-yellow-600 shadow-[0_0_35px_rgba(254,240,138,0.4)] relative z-10" />
-        <motion.div 
-          animate={{ skewX: skew, scaleY: 1 + Math.abs(dx) }}
-          style={{ opacity }}
-          className="absolute top-48 w-16 h-32 border-b-[3px] border-x-[3px] border-emerald-500/40 rounded-b-sm blur-[1px] transform-origin-top"
-        />
-      </div>
-    );
-  }
-
-  if (type === 'trinity') {
-    return (
-      <div className="relative flex items-end gap-2 group">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="flex flex-col items-center relative">
-            <div className="w-[2px] h-36 bg-gradient-to-b from-yellow-100 via-yellow-300 to-yellow-500 relative z-10" />
-            <motion.div 
-              animate={{ skewX: skew * (1 + i * 0.1), scaleY: 0.8 + i * 0.1 }}
-              style={{ opacity: opacity * 0.6 }}
-              className="absolute top-36 w-12 h-20 border-b-[1.5px] border-x-[1.5px] border-emerald-400/30 rounded-b-sm blur-[2px] transform-origin-top"
-            />
-          </div>
-        ))}
-      </div>
-    );
-  }
-
   return (
     <div className="relative flex flex-col items-center group">
-      <div className="w-[4px] h-48 bg-white/10 backdrop-blur-md border border-white/20 relative z-10 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-yellow-400/20 to-transparent animate-pulse" />
-      </div>
+      <div className="w-[3px] h-48 bg-gradient-to-b from-yellow-200 via-yellow-400 to-yellow-600 shadow-[0_0_35px_rgba(254,240,138,0.4)] relative z-10" />
       <motion.div 
-        animate={{ skewX: skew, scaleY: 1.2 }}
+        animate={{ skewX: skew, scaleY: 1 + Math.abs(dx) }}
         style={{ opacity }}
-        className="absolute top-48 w-20 h-32 border-b-[3px] border-x-[3px] border-emerald-400/20 rounded-b-lg blur-[4px] bg-gradient-to-r from-emerald-500/5 via-rose-500/5 to-emerald-500/5"
+        className="absolute top-48 w-16 h-32 border-b-[3px] border-x-[3px] border-emerald-500/40 rounded-b-sm blur-[1px] transform-origin-top"
       />
     </div>
   );
@@ -209,7 +177,6 @@ export default function Landing() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [language, setLanguage] = useState<'en' | 'es'>('en');
-  const [activeTab, setActiveTab] = useState(0);
   const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
   const containerRef = useRef<HTMLDivElement>(null);
   
@@ -218,12 +185,6 @@ export default function Landing() {
   const statsRef = useRef(null);
   const { scrollYProgress } = useScroll();
   const yParallax = useTransform(scrollYProgress, [0, 1], [0, -300]);
-
-  const variants = [
-    { title: "Singularity", type: "singularity" },
-    { title: "Trinity", type: "trinity" },
-    { title: "Spectrum", type: "spectrum" }
-  ];
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!containerRef.current) return;
@@ -306,24 +267,13 @@ export default function Landing() {
             
             {/* The Interactive Shadow Line */}
             <div className="relative z-10 scale-[1.2]">
-              <ShadowLine type={variants[activeTab].type} mousePos={mousePos} />
+              <ShadowLine mousePos={mousePos} />
             </div>
             
-            {/* Tab Controls Overlay */}
-            <div className="absolute top-10 flex gap-2 z-20">
-              {variants.map((v, i) => (
-                <button 
-                  key={i}
-                  onClick={(e) => { e.stopPropagation(); setActiveTab(i); }}
-                  className={`px-4 py-1.5 rounded-full border text-[8px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${
-                    activeTab === i 
-                    ? 'bg-white text-slate-950 border-white shadow-[0_0_20px_rgba(255,255,255,0.3)]' 
-                    : 'bg-slate-950/40 border-white/10 hover:border-white/30 text-white/40 backdrop-blur-md'
-                  }`}
-                >
-                  {v.title}
-                </button>
-              ))}
+            {/* Logo Placeholder / Centerpiece */}
+            <div className="absolute top-10 flex flex-col items-center gap-2 z-20">
+              <UmbraLogo />
+              <div className="text-[10px] font-black tracking-[0.4em] text-white/40 uppercase">Umbra_Agency</div>
             </div>
 
             <div className="absolute bottom-10 text-center space-y-1">

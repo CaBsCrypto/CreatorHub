@@ -19,7 +19,7 @@ const PLATFORMS = [
   { id: 'tiktok', label: 'TikTok', icon: Zap, color: 'text-gray-900', bg: 'bg-gray-100' }
 ];
 
-export default function CreatorSearchModal({ isOpen, onClose }: CreatorSearchModalProps) {
+const CreatorSearchModal = React.memo(({ isOpen, onClose }: CreatorSearchModalProps) => {
   const [username, setUsername] = useState('');
   const [selectedPlatform, setSelectedPlatform] = useState('twitch');
   const [isSearching, setIsSearching] = useState(false);
@@ -165,7 +165,7 @@ export default function CreatorSearchModal({ isOpen, onClose }: CreatorSearchMod
                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                 className="space-y-6"
               >
-                {/* Profile Header *                {/* Profile Header */}
+                {/* Profile Header */}
                 <div className="flex items-center gap-6 p-6 bg-white/5 rounded-[2rem] border border-white/10 shadow-sm relative overflow-hidden group">
                   <div className="w-24 h-24 rounded-3xl bg-slate-900 overflow-hidden ring-4 ring-white/5 flex-shrink-0 border border-white/5">
                     {result.image ? (
@@ -277,4 +277,6 @@ export default function CreatorSearchModal({ isOpen, onClose }: CreatorSearchMod
       </motion.div>
     </div>
   );
-}
+});
+
+export default CreatorSearchModal;

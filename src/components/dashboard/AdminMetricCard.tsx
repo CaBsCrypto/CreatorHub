@@ -15,7 +15,7 @@ interface AdminMetricCardProps {
   onClick?: () => void;
 }
 
-const AdminMetricCard: React.FC<AdminMetricCardProps> = ({ 
+const AdminMetricCard = React.memo(({ 
   title, 
   value, 
   trend, 
@@ -23,7 +23,7 @@ const AdminMetricCard: React.FC<AdminMetricCardProps> = ({
   color, 
   delay = 0,
   onClick
-}) => {
+}: AdminMetricCardProps) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -52,6 +52,6 @@ const AdminMetricCard: React.FC<AdminMetricCardProps> = ({
       </div>
     </motion.div>
   );
-};
+});
 
 export default AdminMetricCard;

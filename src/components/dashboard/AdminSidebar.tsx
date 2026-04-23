@@ -22,7 +22,7 @@ interface AdminSidebarProps {
 
 const SUPERADMIN_EMAIL = 'cabscryptocontacto@gmail.com';
 
-const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab, resetFilters, user }) => {
+const AdminSidebar = React.memo(({ activeTab, setActiveTab, resetFilters, user }: AdminSidebarProps) => {
   const displayItems = React.useMemo(() => {
     if (user?.email === SUPERADMIN_EMAIL) {
       return [...sidebarItems, { id: 'scraper', label: 'Nodes_Health', icon: ShieldCheck }];
@@ -118,6 +118,6 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab, re
       </div>
     </>
   );
-};
+});
 
 export default AdminSidebar;

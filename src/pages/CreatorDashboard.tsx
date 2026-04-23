@@ -34,8 +34,11 @@ export default function CreatorDashboard() {
   const { success, error: toastError, info } = useToast();
   const [filters, setFilter, setFilters, resetFilters] = useFilterParams({ campaign: 'all', tab: 'overview' });
   const activeTab = filters.tab || 'overview';
-  const setActiveTab = (tab: string) => setFilter('tab', tab);
-  const { campaigns, content, filteredContent, metrics, campaignStats, refresh, loading } = useDashboardData('creator', { campaign: filters.campaign });
+  const setActiveTab = useCallback((tab: string) => setFilter('tab', tab), [setFilter]);
+  
+  const dashboardFilters = useMemo(() => ({ campaign: filters.campaign }), [filters.campaign]);
+  
+  const { campaigns, content, filteredContent, metrics, campaignStats, refresh, loading } = useDashboardData('creator', dashboardFilters);
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
@@ -54,7 +57,7 @@ export default function CreatorDashboard() {
       if (metrics.totalPosts >= AGENCY_TIERS[i].minPosts || metrics.totalViews >= AGENCY_TIERS[i].minViews) return i;
     }
     return 0;
-  }, [metrics]);
+  }, [metrics.totalPosts, metrics.totalViews]);
 
   const myRank = AGENCY_TIERS[currentRankIndex];
 
@@ -71,7 +74,7 @@ export default function CreatorDashboard() {
     }
   }, [viewingContent]);
 
-  const handleSavePayment = async (data: any) => {
+  const handleSavePayment = useCallback(async (data: any) => {
     setIsSavingPayment(true);
     try {
       const { error } = await supabase
@@ -97,9 +100,9 @@ export default function CreatorDashboard() {
     } finally {
       setIsSavingPayment(false);
     }
-  };
+  }, [user?.id, refresh, success, toastError]);
 
-  const handleRefresh = async () => {
+  const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);
     info("Sincronizando tus métricas...");
     try {
@@ -144,9 +147,9 @@ export default function CreatorDashboard() {
     } finally {
       setIsRefreshing(false);
     }
-  };
+  }, [user?.id, refresh, success, toastError, info]);
 
-  const handleCopyShareLink = async (token: string, e: React.MouseEvent, type: 'review' | 'slug' = 'review') => {
+  const handleCopyShareLink = useCallback(async (token: string, e: React.MouseEvent, type: 'review' | 'slug' = 'review') => {
     e.stopPropagation();
     try {
       const BASE_URL = window.location.origin;
@@ -157,7 +160,7 @@ export default function CreatorDashboard() {
     } catch (err) {
       toastError("No se pudo copiar el enlace.");
     }
-  };
+  }, [success, toastError]);
 
     if (loading) {
       return (

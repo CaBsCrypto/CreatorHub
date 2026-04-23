@@ -21,14 +21,14 @@ interface RankCardProps {
   totalViews: number;
 }
 
-const RankCard: React.FC<RankCardProps> = ({
+const RankCard = React.memo(({
   tiers,
   currentRankIndex,
   previewRankIndex,
   onPreviewRank,
   totalPosts,
   totalViews
-}) => {
+}: RankCardProps) => {
   const activeRank = previewRankIndex !== null ? tiers[previewRankIndex] : tiers[currentRankIndex];
   const nextRank = currentRankIndex < tiers.length - 1 ? tiers[currentRankIndex + 1] : null;
 
@@ -176,6 +176,6 @@ const RankCard: React.FC<RankCardProps> = ({
       </div>
     </motion.div>
   );
-};
+});
 
 export default RankCard;

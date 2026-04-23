@@ -19,7 +19,7 @@ interface AdminHeaderProps {
   setIsAddingUser: (isOpen: boolean) => void;
 }
 
-const AdminHeader: React.FC<AdminHeaderProps> = ({
+const AdminHeader = React.memo(({
   filters,
   setFilter,
   resetFilters,
@@ -33,7 +33,7 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({
   setIsAnalyzingCreator,
   setIsCreatingCampaign,
   setIsAddingUser
-}) => {
+}: AdminHeaderProps) => {
   const { platform, campaign, creator, pay_month, team_role } = filters;
 
   const activeFiltersCount = [platform, campaign, creator, pay_month, team_role].filter(f => f !== 'all').length;
@@ -118,6 +118,6 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({
       </div>
     </header>
   );
-};
+});
 
 export default AdminHeader;

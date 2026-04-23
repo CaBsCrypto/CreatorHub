@@ -21,7 +21,7 @@ interface CampaignCardProps {
   onEditNotes?: (campaign: any) => void;
 }
 
-const CampaignCard: React.FC<CampaignCardProps> = ({
+const CampaignCard = React.memo(({
   campaign,
   totalViews = 0,
   totalPosts = 0,
@@ -36,7 +36,7 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
   onCopyLink,
   onClearNote,
   onEditNotes
-}) => {
+}: CampaignCardProps) => {
   const [showNotes, setShowNotes] = React.useState(false);
   return (
     <motion.div
@@ -215,6 +215,6 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
       </div>
     </motion.div>
   );
-};
+});
 
 export default CampaignCard;

@@ -7,7 +7,7 @@ export function useContentActions(refresh: () => void) {
   const { success, error: toastError } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleTwitchUpload = async (
+  const handleTwitchUpload = useCallback(async (
     file: File, 
     user_id: string,
     creator_id: string | null, 
@@ -79,9 +79,9 @@ export function useContentActions(refresh: () => void) {
     } finally {
       setIsProcessing(false);
     }
-  };
+  }, [refresh, success, toastError]);
 
-  const handleContentSubmit = async (
+  const handleContentSubmit = useCallback(async (
     data: any, 
     user_id: string,
     editingContent: Content | null,
@@ -252,7 +252,7 @@ export function useContentActions(refresh: () => void) {
     } finally {
       setIsProcessing(false);
     }
-  };
+  }, [refresh, success, toastError]);
 
   return {
     isProcessing,

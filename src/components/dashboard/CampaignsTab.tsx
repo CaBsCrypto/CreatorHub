@@ -3,18 +3,7 @@ import { BarChart3 } from 'lucide-react';
 import CampaignCard from './CampaignCard';
 import { CardSkeleton } from './Skeleton';
 
-const CampaignsTab: React.FC<{
-  campaignStats: any[];
-  role?: 'admin' | 'creator';
-  onDelete: (id: string) => void;
-  onEdit: (campaign: any) => void;
-  onEditNotes?: (campaign: any) => void;
-  setFilters: (filters: any) => void;
-  setSelectedCampaignReport: (id: string) => void;
-  onCopyLink: (token: string, e: React.MouseEvent, type?: 'review' | 'slug') => void;
-  onClearNote?: (id: string) => void;
-  isLoading?: boolean;
-}> = ({
+const CampaignsTab = React.memo(({
   campaignStats,
   role = 'admin',
   onDelete,
@@ -25,6 +14,17 @@ const CampaignsTab: React.FC<{
   onCopyLink,
   onClearNote,
   isLoading
+}: {
+  campaignStats: any[];
+  role?: 'admin' | 'creator';
+  onDelete: (id: string) => void;
+  onEdit: (campaign: any) => void;
+  onEditNotes?: (campaign: any) => void;
+  setFilters: (filters: any) => void;
+  setSelectedCampaignReport: (id: string) => void;
+  onCopyLink: (token: string, e: React.MouseEvent, type?: 'review' | 'slug') => void;
+  onClearNote?: (id: string) => void;
+  isLoading?: boolean;
 }) => {
   const [searchTerm, setSearchTerm] = React.useState('');
 
@@ -106,6 +106,6 @@ const CampaignsTab: React.FC<{
       )}
     </div>
   );
-};
+});
 
 export default CampaignsTab;

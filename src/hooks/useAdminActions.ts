@@ -45,7 +45,7 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
   const [twitchPreview, setTwitchPreview] = useState<string | null>(null);
 
   // Campaign Handlers
-  const handleDeleteCampaign = async (id: string) => {
+  const handleDeleteCampaign = useCallback(async (id: string) => {
     if (!window.confirm('¿Mover esta campaña a la papelera? Su contenido no será afectado.')) return;
     const { error } = await supabase.from('campaigns').update({ deleted_at: new Date().toISOString() }).eq('id', id);
     if (error) {
@@ -54,18 +54,18 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
       success("Campaña movida a la papelera");
       refresh();
     }
-  };
+  }, [refresh, toastError, success]);
 
-  const generateSecureSlug = (name: string) => {
+  const generateSecureSlug = useCallback((name: string) => {
     const base = name.toLowerCase().trim()
       .replace(/[^\w\s-]/g, '')
       .replace(/[\s_-]+/g, '-')
       .replace(/^-+|-+$/g, '');
     const randomSuffix = Math.floor(1000 + Math.random() * 9000);
     return `${base}-${randomSuffix}`;
-  };
+  }, []);
 
-  const handleCreateCampaign = async (e: React.FormEvent) => {
+  const handleCreateCampaign = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     const finalSlug = newCampaign.slug || generateSecureSlug(newCampaign.name);
     
@@ -100,9 +100,9 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
       setNewCampaign({ name: '', description: '', client_id: '', twitter_url: '', contact_info: '', budget: 0, slug: '', notes: '', assigned_creator_ids: [] });
       refresh();
     }
-  };
+  }, [newCampaign, currentUser?.id, generateSecureSlug, refresh, success, toastError]);
 
-  const handleEditCampaign = async (campaign: Campaign) => {
+  const handleEditCampaign = useCallback(async (campaign: Campaign) => {
     setEditingCampaignId(campaign.id);
     
     // Fetch current assignments
@@ -125,9 +125,9 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
       assigned_creator_ids: assignedIds as any
     });
     setIsEditingCampaign(true);
-  };
+  }, []);
 
-  const handleUpdateCampaign = async (e: React.FormEvent) => {
+  const handleUpdateCampaign = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingCampaignId) return;
 
@@ -166,10 +166,10 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
       setNewCampaign({ name: '', description: '', client_id: '', twitter_url: '', contact_info: '', budget: 0, slug: '', notes: '', assigned_creator_ids: [] });
       refresh();
     }
-  };
+  }, [editingCampaignId, newCampaign, refresh, success, toastError]);
 
   // User Handlers
-  const handleAddUser = async (e: React.FormEvent) => {
+  const handleAddUser = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -228,9 +228,9 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
     } catch (err: any) {
       toastError("Error al añadir usuario: " + err.message);
     }
-  };
+  }, [newUser, refresh, success, toastError]);
 
-  const handleUpdateUserRole = async (managingUser: UserProfile | null, newRole: UserRole, setManagingUser: (u: UserProfile | null) => void) => {
+  const handleUpdateUserRole = useCallback(async (managingUser: UserProfile | null, newRole: UserRole, setManagingUser: (u: UserProfile | null) => void) => {
     if (!managingUser) return;
     const { data: updatedData, error } = await supabase
       .from('users')
@@ -245,9 +245,9 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
       setManagingUser({ ...managingUser, role: newRole });
       refresh();
     }
-  };
+  }, [refresh, success, toastError]);
 
-  const handleRemoveUser = async (managingUser: UserProfile | null, setManagingUser: (u: UserProfile | null) => void, setDeletedUserIds: React.Dispatch<React.SetStateAction<string[]>>) => {
+  const handleRemoveUser = useCallback(async (managingUser: UserProfile | null, setManagingUser: (u: UserProfile | null) => void, setDeletedUserIds: React.Dispatch<React.SetStateAction<string[]>>) => {
     if (!managingUser) return;
     const confirmMsg = `¿Estás seguro de que quieres eliminar a ${managingUser.display_name || managingUser.email}?\n\nSu contenido será preservado en las campañas (sin creador asignado).`;
     if (!window.confirm(confirmMsg)) return;
@@ -271,9 +271,9 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
     } catch (err: any) {
       toastError("Error al eliminar: " + (err.message || "Verifica dependencias."));
     }
-  };
+  }, [currentUser?.id, refresh, success, toastError]);
 
-  const handleSaveTwitch = async () => {
+  const handleSaveTwitch = useCallback(async () => {
     if (!twitchStats) return;
     const { error } = await supabase.from('content').insert([{
       platform: 'twitch',
@@ -291,9 +291,9 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
       success("Estadísticas de Twitch guardadas");
       setIsTwitchModalOpen(false);
     }
-  };
+  }, [currentUser?.id, refresh, success, toastError, twitchPreview, twitchStats]);
   
-  const handleUpdateUserPayment = async (userId: string, data: Partial<UserProfile>) => {
+  const handleUpdateUserPayment = useCallback(async (userId: string, data: Partial<UserProfile>) => {
     const { error } = await supabase
       .from('users')
       .update({
@@ -316,9 +316,9 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
       refresh();
       return true;
     }
-  };
+  }, [refresh, success, toastError]);
 
-  const handleCreatePayment = async (e: React.FormEvent) => {
+  const handleCreatePayment = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     const isGuest = newPayment.creator_id === 'guest';
     
@@ -353,7 +353,7 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
       });
       refresh();
     }
-  };
+  }, [newPayment, refresh, success, toastError]);
 
   return {
     // States

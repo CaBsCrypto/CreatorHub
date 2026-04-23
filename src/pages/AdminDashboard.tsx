@@ -96,17 +96,19 @@ export default function AdminDashboard() {
     zero_views: 'false'
   });
   const activeTab = filters.tab as typeof ADMIN_TABS[number];
-  const setActiveTab = (tab: typeof ADMIN_TABS[number]) => setFilter('tab', tab);
-  
-  const { 
-    campaigns, content, users, payments, metrics, creatorStats, campaignStats, 
-    refresh, filteredContent, deletedContent, deletedCampaigns, deletedUsers, auditLogs, loading 
-  } = useDashboardData('admin', { 
+  const setActiveTab = useCallback((tab: typeof ADMIN_TABS[number]) => setFilter('tab', tab), [setFilter]);
+
+  const dashboardFilters = useMemo(() => ({ 
     platform: filters.platform, 
     campaign: filters.campaign, 
     creator: filters.creator,
     showOnlyZeroViews: filters.zero_views === 'true'
-  });
+  }), [filters.platform, filters.campaign, filters.creator, filters.zero_views]);
+
+  const { 
+    campaigns, content, users, payments, metrics, creatorStats, campaignStats, 
+    refresh, filteredContent, deletedContent, deletedCampaigns, deletedUsers, auditLogs, loading 
+  } = useDashboardData('admin', dashboardFilters);
 
   const { isProcessing: isProcessingContent, handleTwitchUpload, handleContentSubmit } = useContentActions(refresh);
   
@@ -172,7 +174,7 @@ export default function AdminDashboard() {
     return result;
   }, [users, deletedUserIds, teamRole]);
 
-  const handleCopyShareLink = async (token: string, e: React.MouseEvent, type: 'review' | 'slug' = 'review') => {
+  const handleCopyShareLink = useCallback(async (token: string, e: React.MouseEvent, type: 'review' | 'slug' = 'review') => {
     e.stopPropagation();
     try {
       const BASE_URL = window.location.origin;
@@ -183,7 +185,7 @@ export default function AdminDashboard() {
     } catch (err) {
       toastError("No se pudo copiar el enlace.");
     }
-  };
+  }, [success, toastError]);
 
   const groupedLogs = useMemo(() => {
     const groups: Record<string, any[]> = {};
@@ -215,7 +217,7 @@ export default function AdminDashboard() {
   }, [auditLogs]);
 
 
-  const handleUpdateAlias = async (alias: string) => {
+  const handleUpdateAlias = useCallback(async (alias: string) => {
     if (!managingUser) return;
     try {
       const { error } = await supabase
@@ -229,9 +231,9 @@ export default function AdminDashboard() {
     } catch (err: any) {
       toastError("Error al guardar apodo: " + err.message);
     }
-  };
+  }, [managingUser, refresh, success, toastError]);
 
-  const handleRestore = async (table: 'content' | 'campaign' | 'user', item: any) => {
+  const handleRestore = useCallback(async (table: 'content' | 'campaign' | 'user', item: any) => {
     const tableName = table === 'content' ? 'content' : table === 'campaign' ? 'campaigns' : 'users';
     const { error } = await supabase.from(tableName).update({ deleted_at: null }).eq('id', item.id);
     if (!error) {
@@ -241,9 +243,9 @@ export default function AdminDashboard() {
     } else {
       toastError("Error al restaurar");
     }
-  };
+  }, [refresh, success, toastError]);
 
-  const handlePermanentDelete = async (table: 'content' | 'campaign' | 'user', item: any) => {
+  const handlePermanentDelete = useCallback(async (table: 'content' | 'campaign' | 'user', item: any) => {
     if (confirm("¿Estás seguro de eliminar permanentemente? Esta acción es irreversible.")) {
       const tableName = table === 'content' ? 'content' : table === 'campaign' ? 'campaigns' : 'users';
       const { error } = await supabase.from(tableName).delete().eq('id', item.id);
@@ -255,9 +257,9 @@ export default function AdminDashboard() {
         toastError("Error al eliminar");
       }
     }
-  };
+  }, [refresh, success, toastError]);
 
-  const handleClearNote = async (id: string) => {
+  const handleClearNote = useCallback(async (id: string) => {
     if (confirm("¿Estás seguro de eliminar la nota de esta campaña?")) {
       try {
         const { error } = await supabase
@@ -271,7 +273,7 @@ export default function AdminDashboard() {
         toastError("Error al eliminar nota: " + err.message);
       }
     }
-  };
+  }, [refresh, success, toastError]);
 
   return (
     <div className="flex min-h-screen bg-slate-950 selection:bg-emerald-500/30 selection:text-emerald-400">

@@ -14,7 +14,7 @@ interface CreatorsTabProps {
   isLoading?: boolean;
 }
 
-const CreatorsTab: React.FC<CreatorsTabProps> = ({
+const CreatorsTab = React.memo(({
   creatorStats,
   searchTerm,
   setFilter,
@@ -23,7 +23,7 @@ const CreatorsTab: React.FC<CreatorsTabProps> = ({
   setManagingUser,
   setEditingAudienceUser,
   isLoading
-}) => {
+}: CreatorsTabProps) => {
   return (
     <div className="space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-1000">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-4">
@@ -65,6 +65,6 @@ const CreatorsTab: React.FC<CreatorsTabProps> = ({
       </div>
     </div>
   );
-};
+});
 
 export default CreatorsTab;
