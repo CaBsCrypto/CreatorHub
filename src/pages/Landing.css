@@ -138,3 +138,58 @@
 .section-label {
   @apply px-5 py-2 bg-emerald-600/5 border border-emerald-500/10 rounded-full text-[9px] font-black uppercase tracking-[0.5em] text-emerald-400 mb-10 inline-block;
 }
+
+/* Method Bento Grid Redesign */
+.method-bento {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 2rem;
+}
+
+.method-card-large {
+  grid-column: span 8;
+  @apply relative p-12 rounded-[3.5rem] bg-indigo-500/[0.02] border border-white/5 backdrop-blur-3xl transition-all duration-1000 overflow-hidden min-h-[420px] flex flex-col justify-between;
+  box-shadow: 0 40px 100px -30px rgba(0, 0, 0, 0.8);
+}
+
+.method-card-small {
+  grid-column: span 4;
+  @apply relative p-10 rounded-[3.5rem] bg-indigo-500/[0.02] border border-white/5 backdrop-blur-3xl transition-all duration-1000 overflow-hidden min-h-[420px] flex flex-col justify-between;
+  box-shadow: 0 40px 100px -30px rgba(0, 0, 0, 0.8);
+}
+
+@media (max-width: 1024px) {
+  .method-card-large, .method-card-small {
+    grid-column: span 12;
+  }
+}
+
+.method-card-large:hover, .method-card-small:hover {
+  @apply border-emerald-500/20 -translate-y-2 bg-emerald-500/[0.03];
+  box-shadow: 0 60px 120px -40px rgba(16, 185, 129, 0.15);
+}
+
+/* Micro-visualizations Animations */
+@keyframes pulse-scan {
+  0% { transform: translateY(-100%); opacity: 0; }
+  50% { opacity: 0.5; }
+  100% { transform: translateY(100%); opacity: 0; }
+}
+
+.data-scanner-line {
+  @apply absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-emerald-500 to-transparent;
+  animation: pulse-scan 3s ease-in-out infinite;
+}
+
+@keyframes bar-grow {
+  0% { height: 10%; opacity: 0.5; }
+  50% { height: 90%; opacity: 1; }
+  100% { height: 10%; opacity: 0.5; }
+}
+
+.fake-bar {
+  @apply w-full bg-emerald-500/20 rounded-t-sm transition-all duration-700;
+}
+.method-card-small:hover .fake-bar {
+  @apply bg-emerald-500/40 shadow-[0_0_15px_rgba(16,185,129,0.3)];
+}

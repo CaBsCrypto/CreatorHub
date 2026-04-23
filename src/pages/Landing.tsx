@@ -312,32 +312,84 @@ export default function Landing() {
             <span className="section-label">{t?.about?.label}</span>
             <h2 className="text-5xl md:text-8xl font-black tracking-tighter uppercase leading-none">The <span className="gradient-text">Standard.</span></h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-            <motion.div whileHover={{ y: -10 }} className="premium-card min-h-[400px] flex flex-col justify-between group">
-               <div className="absolute top-10 right-12 text-7xl font-black text-white/[0.03] select-none pointer-events-none group-hover:text-emerald-500/10 transition-colors">01</div>
-               <div className="p-5 bg-emerald-600/5 border border-emerald-500/10 rounded-3xl w-fit"><Target className="h-8 w-8 text-emerald-500" /></div>
-               <div><h3 className="text-4xl font-black mb-6 uppercase tracking-tighter">{t?.about?.p1_title}</h3><p className="text-slate-400 text-lg leading-relaxed font-medium italic opacity-80">"{t?.about?.p1_desc}"</p></div>
-            </motion.div>
-            <motion.div whileHover={{ y: -10 }} className="premium-card min-h-[400px] flex flex-col justify-between group">
-               <div className="absolute top-10 right-12 text-7xl font-black text-white/[0.03] select-none pointer-events-none group-hover:text-purple-500/10 transition-colors">02</div>
-               <div className="p-5 bg-purple-600/5 border border-purple-500/10 rounded-3xl w-fit"><Zap className="h-8 w-8 text-purple-500" /></div>
-               <div><h3 className="text-4xl font-black mb-6 uppercase tracking-tighter">{t?.about?.p2_title}</h3><p className="text-slate-400 text-lg leading-relaxed font-medium italic opacity-80">"{t?.about?.p2_desc}"</p></div>
-            </motion.div>
-            <motion.div whileHover={{ y: -10 }} className="premium-card min-h-[400px] flex flex-col justify-between group">
-               <div className="absolute top-10 right-12 text-7xl font-black text-white/[0.03] select-none pointer-events-none group-hover:text-rose-500/10 transition-colors">03</div>
-               <div className="p-5 bg-rose-600/5 border border-rose-500/10 rounded-3xl w-fit"><TrendingUp className="h-8 w-8 text-rose-500" /></div>
-               <div><h3 className="text-4xl font-black mb-6 uppercase tracking-tighter">{t?.about?.p4_title}</h3><p className="text-slate-400 text-lg leading-relaxed font-medium italic opacity-80">"{t?.about?.p4_desc}"</p></div>
-            </motion.div>
-            <motion.div whileHover={{ y: -10 }} className="premium-card min-h-[400px] flex flex-col justify-between group bg-slate-900 border-none">
-               <div className="absolute top-10 right-12 text-7xl font-black text-white/[0.03] select-none pointer-events-none group-hover:text-emerald-500/10 transition-colors">04</div>
-               <div className="relative z-10 flex flex-col h-full justify-between">
-                 <div>
-                   <div className="p-5 bg-emerald-600/10 border border-emerald-500/20 rounded-3xl w-fit mb-8"><Shield className="h-4 w-4" /></div>
-                   <h3 className="text-4xl font-black mb-6 uppercase tracking-tighter">{t?.about?.p3_title}</h3>
+          <div className="method-bento">
+            {/* Card 1: Scraped Performance (Large) */}
+            <div className="method-card-large group">
+               <div className="absolute top-8 right-10 text-8xl font-black text-white/[0.02] select-none pointer-events-none group-hover:text-purple-500/5 transition-colors duration-700">01</div>
+               <div className="flex justify-between items-start mb-12">
+                 <div className="p-4 bg-purple-500/10 border border-purple-500/20 rounded-2xl"><Zap className="h-6 w-6 text-purple-400" /></div>
+                 
+                 {/* Fake Scanner Animation */}
+                 <div className="w-32 h-16 bg-slate-950/50 rounded-xl border border-white/5 relative overflow-hidden flex items-center justify-center opacity-40 group-hover:opacity-100 transition-opacity duration-700">
+                    <div className="data-scanner-line" />
+                    <div className="text-[10px] font-mono text-purple-400/50 uppercase tracking-widest z-10">Scraping...</div>
                  </div>
-                 <p className="text-slate-400 text-lg leading-relaxed font-medium italic opacity-80">"{t?.about?.p3_desc}"</p>
                </div>
-            </motion.div>
+               <div>
+                 <h3 className="text-3xl lg:text-5xl font-black mb-4 uppercase tracking-tighter text-white">{t?.about?.p2_title}</h3>
+                 <p className="text-slate-300 text-lg leading-relaxed font-medium max-w-xl">{t?.about?.p2_desc}</p>
+               </div>
+            </div>
+
+            {/* Card 2: Exponential Growth (Small) */}
+            <div className="method-card-small group">
+               <div className="absolute top-8 right-10 text-8xl font-black text-white/[0.02] select-none pointer-events-none group-hover:text-emerald-500/5 transition-colors duration-700">02</div>
+               <div className="mb-12">
+                 <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl w-fit"><TrendingUp className="h-6 w-6 text-emerald-400" /></div>
+               </div>
+               
+               {/* Fake Bar Chart */}
+               <div className="absolute bottom-32 right-10 w-24 h-24 flex items-end justify-between gap-1 opacity-20 group-hover:opacity-100 transition-opacity duration-700 z-0">
+                  <div className="fake-bar" style={{ height: '30%' }} />
+                  <div className="fake-bar" style={{ height: '50%', animationDelay: '0.2s' }} />
+                  <div className="fake-bar" style={{ height: '80%', animationDelay: '0.4s' }} />
+                  <div className="fake-bar" style={{ height: '100%', animationDelay: '0.6s' }} />
+               </div>
+
+               <div className="relative z-10 mt-auto">
+                 <h3 className="text-2xl lg:text-3xl font-black mb-4 uppercase tracking-tighter text-white">{t?.about?.p4_title}</h3>
+                 <p className="text-slate-300 text-base leading-relaxed font-medium">{t?.about?.p4_desc}</p>
+               </div>
+            </div>
+
+            {/* Card 3: Strategic Execution (Small) */}
+            <div className="method-card-small group">
+               <div className="absolute top-8 right-10 text-8xl font-black text-white/[0.02] select-none pointer-events-none group-hover:text-cyan-500/5 transition-colors duration-700">03</div>
+               <div className="mb-12">
+                 <div className="p-4 bg-cyan-500/10 border border-cyan-500/20 rounded-2xl w-fit"><Target className="h-6 w-6 text-cyan-400" /></div>
+               </div>
+               <div className="relative z-10 mt-auto">
+                 <h3 className="text-2xl lg:text-3xl font-black mb-4 uppercase tracking-tighter text-white">{t?.about?.p1_title}</h3>
+                 <p className="text-slate-300 text-base leading-relaxed font-medium">{t?.about?.p1_desc}</p>
+               </div>
+            </div>
+
+            {/* Card 4: Precision Reporting (Large) */}
+            <div className="method-card-large group bg-slate-900/50">
+               <div className="absolute top-8 right-10 text-8xl font-black text-white/[0.02] select-none pointer-events-none group-hover:text-emerald-500/5 transition-colors duration-700">04</div>
+               
+               {/* Fake Dashboard UI */}
+               <div className="absolute top-12 right-12 w-48 h-32 bg-slate-950/80 rounded-2xl border border-white/5 p-4 flex flex-col gap-2 opacity-50 group-hover:opacity-100 transition-all duration-700 group-hover:scale-105 origin-top-right z-0">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <div className="text-[8px] font-mono text-slate-400 uppercase">Live Metrics</div>
+                  </div>
+                  <div className="h-4 bg-white/5 rounded-full w-3/4" />
+                  <div className="h-4 bg-white/5 rounded-full w-1/2" />
+                  <div className="mt-auto flex justify-between items-end">
+                    <div className="text-xs font-black text-emerald-400">98.4%</div>
+                    <div className="w-16 h-8 bg-emerald-500/10 rounded-lg border border-emerald-500/20" />
+                  </div>
+               </div>
+
+               <div className="relative z-10 h-full flex flex-col justify-between">
+                 <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl w-fit mb-12"><Shield className="h-6 w-6 text-emerald-400" /></div>
+                 <div>
+                   <h3 className="text-3xl lg:text-5xl font-black mb-4 uppercase tracking-tighter text-white">{t?.about?.p3_title}</h3>
+                   <p className="text-slate-300 text-lg leading-relaxed font-medium max-w-xl">{t?.about?.p3_desc}</p>
+                 </div>
+               </div>
+            </div>
           </div>
         </div>
       </section>
