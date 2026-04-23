@@ -16,29 +16,32 @@ const StatsCard: React.FC<StatsCardProps> = ({
   value, 
   trend, 
   icon: Icon, 
-  iconColor = "text-indigo-600",
+  iconColor = "text-emerald-500",
   delay = 0 
 }) => {
   return (
     <motion.div 
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay }}
-      className="relative overflow-hidden bg-white p-6 rounded-3xl shadow-sm border border-gray-100 group hover:shadow-xl hover:border-indigo-100 transition-all duration-300"
+      transition={{ delay, duration: 0.5 }}
+      className="relative overflow-hidden glass-dark p-8 rounded-[2.5rem] border border-white/5 group hover:border-emerald-500/30 transition-all duration-500"
     >
-      <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-        <Icon className={`h-16 w-16 ${iconColor}`} />
+      <div className="absolute -top-4 -right-4 p-4 opacity-[0.03] group-hover:opacity-10 transition-opacity rotate-12 group-hover:rotate-0 duration-700">
+        <Icon className={`h-24 w-24 ${iconColor}`} />
       </div>
       <div className="relative z-10">
-        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">{label}</p>
-        <h3 className="text-3xl font-black text-gray-900 leading-none">{value}</h3>
+        <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] mb-3">{label}</p>
+        <h3 className="text-4xl font-black text-white leading-none tracking-tighter">{value}</h3>
         {trend && (
-          <p className="text-[10px] font-bold text-indigo-500 mt-2 flex items-center gap-1">
+          <p className="text-[10px] font-bold text-emerald-400 mt-4 flex items-center gap-2 italic">
             <TrendingUp className="h-3 w-3" />
             {trend}
           </p>
         )}
       </div>
+      
+      {/* Interactive Bottom Line */}
+      <div className="absolute bottom-0 left-0 w-0 h-[2px] bg-emerald-500 group-hover:w-full transition-all duration-700" />
     </motion.div>
   );
 };

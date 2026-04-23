@@ -41,7 +41,7 @@ process.on('uncaughtException', (err) => {
 
 const app = express();
 app.use(helmet({
-  contentSecurityPolicy: process.env.NODE_ENV === 'production' ? undefined : false,
+  contentSecurityPolicy: false,
 }));
 
 // CORS Hardening

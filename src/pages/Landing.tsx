@@ -12,14 +12,69 @@ import {
   ChevronRight, ArrowRight, Shield, Star, Heart,
   BarChart3, Gamepad2, Sparkles, LayoutDashboard, LogIn,
   MousePointer2, CheckCircle2, TrendingUp, Twitter, ChevronDown,
-  Activity, BarChart
+  Activity
 } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { supabase } from '../supabase';
 import translations from './translations';
 import { useInViewAnimation, revealVariants, staggerContainer } from '../hooks/useInViewAnimation';
 import './Landing.css';
-import BrandingLab from '../components/BrandingLab';
+
+// Shadow Line Component for Hero Interaction
+const ShadowLine = ({ type, mousePos }: { type: string; mousePos: { x: number; y: number } }) => {
+  const calculateShadow = () => {
+    const dx = mousePos.x - 0.5;
+    const dy = mousePos.y - 0.5;
+    const skew = dx * 40;
+    const opacity = 0.4 - dy * 0.2;
+    return { skew, opacity, dx, dy };
+  };
+
+  const { skew, opacity, dx, dy } = calculateShadow();
+
+  if (type === 'singularity') {
+    return (
+      <div className="relative flex flex-col items-center group">
+        <div className="w-[3px] h-48 bg-gradient-to-b from-yellow-200 via-yellow-400 to-yellow-600 shadow-[0_0_35px_rgba(254,240,138,0.4)] relative z-10" />
+        <motion.div 
+          animate={{ skewX: skew, scaleY: 1 + Math.abs(dx) }}
+          style={{ opacity }}
+          className="absolute top-48 w-16 h-32 border-b-[3px] border-x-[3px] border-emerald-500/40 rounded-b-sm blur-[1px] transform-origin-top"
+        />
+      </div>
+    );
+  }
+
+  if (type === 'trinity') {
+    return (
+      <div className="relative flex items-end gap-2 group">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="flex flex-col items-center relative">
+            <div className="w-[2px] h-36 bg-gradient-to-b from-yellow-100 via-yellow-300 to-yellow-500 relative z-10" />
+            <motion.div 
+              animate={{ skewX: skew * (1 + i * 0.1), scaleY: 0.8 + i * 0.1 }}
+              style={{ opacity: opacity * 0.6 }}
+              className="absolute top-36 w-12 h-20 border-b-[1.5px] border-x-[1.5px] border-emerald-400/30 rounded-b-sm blur-[2px] transform-origin-top"
+            />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative flex flex-col items-center group">
+      <div className="w-[4px] h-48 bg-white/10 backdrop-blur-md border border-white/20 relative z-10 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-yellow-400/20 to-transparent animate-pulse" />
+      </div>
+      <motion.div 
+        animate={{ skewX: skew, scaleY: 1.2 }}
+        style={{ opacity }}
+        className="absolute top-48 w-20 h-32 border-b-[3px] border-x-[3px] border-emerald-400/20 rounded-b-lg blur-[4px] bg-gradient-to-r from-emerald-500/5 via-rose-500/5 to-emerald-500/5"
+      />
+    </div>
+  );
+};
 
 // Import images
 import founder1 from '../assets/eminatr1x.webp';
@@ -71,44 +126,113 @@ function AnimatedCounter({ target, suffix, decimals = 0 }: { target: number; suf
   return (
     <div ref={divRef} className="flex items-baseline gap-1 justify-center">
       <div className="stat-value">{decimals > 1 ? display.toFixed(decimals) : (decimals > 0 ? display.toFixed(1) : Math.round(display))}</div>
-      <span className="text-2xl font-black text-indigo-400">{suffix}</span>
+      <span className="text-2xl font-black text-emerald-400">{suffix}</span>
     </div>
   );
 }
 
-const UmbraLogo = () => (
-  <div className="relative group cursor-pointer flex items-center justify-center w-10 h-10">
-    {/* Shadow Layer (The Umbra) */}
-    <div className="absolute top-1 right-[-4px] w-6 h-7 border-2 border-indigo-500/20 rounded-sm skew-x-[-12deg] blur-[1px] opacity-0 group-hover:opacity-100 transition-all duration-700" />
-    
-    {/* Main Body */}
-    <svg viewBox="0 0 40 40" className="w-8 h-8 relative z-10 drop-shadow-[0_0_8px_rgba(129,140,248,0.3)]">
-      <path 
-        d="M 8 8 V 32 H 32 V 8 H 26 V 24 H 14 V 8 Z" 
-        fill="white" 
-        className="group-hover:fill-indigo-400 transition-colors duration-500"
+const UmbraLogo = () => {
+  const [isHovered, setIsHovered] = useState(false);
+  
+  return (
+    <div 
+      className="relative flex items-center justify-center w-16 h-16 cursor-pointer group"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* The Corona (Atmospheric Glow) */}
+      <motion.div 
+        animate={{ 
+          scale: isHovered ? [1.2, 1.4, 1.2] : 1.2,
+          opacity: isHovered ? 0.6 : 0.3,
+        }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute inset-0 bg-emerald-500/20 blur-[20px] rounded-full"
       />
-      {/* Gold Highlight on edges */}
-      <path 
-        d="M 8 8 V 32 H 32 V 8 H 26 V 24 H 14 V 8 Z" 
-        fill="none" 
-        stroke="rgba(255,215,0,0.4)" 
-        strokeWidth="0.5"
-        className="opacity-0 group-hover:opacity-100 transition-opacity duration-1000"
+
+      {/* The Eclipse Corona (Sharp Rim) */}
+      <motion.div 
+        animate={{ 
+          rotate: isHovered ? 360 : 0,
+          scale: isHovered ? 1.1 : 1
+        }}
+        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        className="absolute w-10 h-10 border border-emerald-400/30 rounded-full shadow-[0_0_15px_rgba(52,211,153,0.2)]"
       />
-    </svg>
-  </div>
-);
+
+      {/* The Obsidian Disc (The Umbra) */}
+      <motion.div 
+        animate={{ 
+          x: isHovered ? 4 : 0,
+          y: isHovered ? -2 : 0,
+          scale: isHovered ? 0.95 : 1
+        }}
+        transition={{ type: "spring", stiffness: 100, damping: 20 }}
+        className="relative w-8 h-8 bg-slate-950 rounded-full z-10 border border-white/5 shadow-2xl flex items-center justify-center overflow-hidden"
+      >
+        {/* Internal Light Leak */}
+        <motion.div 
+          animate={{ 
+            opacity: isHovered ? 1 : 0.4,
+            scale: isHovered ? 1.5 : 1
+          }}
+          className="absolute inset-0 bg-[radial-gradient(circle_at_0%_0%,rgba(52,211,153,0.1),transparent_70%)]"
+        />
+        
+        {/* Subtle Brand Mark (U) inside the shadow */}
+        <div className="text-[8px] font-black text-white/10 uppercase tracking-widest mt-1">U</div>
+      </motion.div>
+
+      {/* The Shadow Line Projection */}
+      <motion.div 
+        animate={{ 
+          height: isHovered ? 40 : 20,
+          opacity: isHovered ? 0.4 : 0.1,
+          skewX: -20
+        }}
+        className="absolute top-10 left-1/2 w-[1px] bg-gradient-to-b from-emerald-500 to-transparent blur-[1px] origin-top"
+      />
+
+      {/* Precision Flare */}
+      <motion.div 
+        animate={{ 
+          opacity: isHovered ? 1 : 0,
+          scale: isHovered ? 1 : 0
+        }}
+        className="absolute -top-1 -right-1 w-2 h-2 bg-white blur-[2px] rounded-full z-20 shadow-[0_0_10px_white]"
+      />
+    </div>
+  );
+};
 
 export default function Landing() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [language, setLanguage] = useState<'en' | 'es'>('en');
+  const [activeTab, setActiveTab] = useState(0);
+  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
+  const containerRef = useRef<HTMLDivElement>(null);
+  
   const t: any = (translations as any)[language] || (translations as any)['en'];
 
   const statsRef = useRef(null);
   const { scrollYProgress } = useScroll();
   const yParallax = useTransform(scrollYProgress, [0, 1], [0, -300]);
+
+  const variants = [
+    { title: "Singularity", type: "singularity" },
+    { title: "Trinity", type: "trinity" },
+    { title: "Spectrum", type: "spectrum" }
+  ];
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    setMousePos({
+      x: (e.clientX - rect.left) / rect.width,
+      y: (e.clientY - rect.top) / rect.height
+    });
+  };
 
   const handleEnterApp = () => {
     if (user) { navigate('/dashboard'); } else { navigate('/login'); }
@@ -123,7 +247,7 @@ export default function Landing() {
       {/* Texture & Glow */}
       <div className="grain-overlay" />
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="nebula-glow top-[-10%] left-[-10%] w-[70%] h-[70%] bg-indigo-600/10" />
+        <div className="nebula-glow top-[-10%] left-[-10%] w-[70%] h-[70%] bg-emerald-600/10" />
         <div className="nebula-glow bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-rose-600/05" />
       </div>
 
@@ -132,18 +256,18 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto flex justify-between items-center px-6 h-full relative z-50">
           <motion.div 
             whileHover={{ scale: 1.02 }}
-            className="flex items-center gap-4 cursor-pointer group"
+            className="flex items-center gap-2 cursor-pointer group"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           >
             <UmbraLogo />
             <span className="text-2xl font-black tracking-[0.2em] relative overflow-hidden uppercase">
               <span className="relative z-10">Umbra</span>
-              <div className="absolute bottom-0 left-0 w-0 h-[2px] bg-indigo-500 group-hover:w-full transition-all duration-500" />
+              <div className="absolute bottom-0 left-0 w-0 h-[2px] bg-emerald-500 group-hover:w-full transition-all duration-500" />
             </span>
           </motion.div>
           <div className="hidden lg:flex items-center gap-10">
-            <button onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })} className="text-xs font-black uppercase tracking-[0.3em] hover:text-indigo-400 transition-colors">{t?.nav?.method}</button>
-            <button onClick={() => document.getElementById('creators')?.scrollIntoView({ behavior: 'smooth' })} className="text-xs font-black uppercase tracking-[0.3em] hover:text-indigo-400 transition-colors">{t?.nav?.talents}</button>
+            <button onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })} className="text-xs font-black uppercase tracking-[0.3em] hover:text-emerald-400 transition-colors">{t?.nav?.method}</button>
+            <button onClick={() => document.getElementById('creators')?.scrollIntoView({ behavior: 'smooth' })} className="text-xs font-black uppercase tracking-[0.3em] hover:text-emerald-400 transition-colors">{t?.nav?.talents}</button>
           </div>
           <div className="flex items-center gap-6">
             <button onClick={() => setLanguage(language === 'en' ? 'es' : 'en')} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-xs font-black hover:bg-white/10 transition-all uppercase">{language}</button>
@@ -165,51 +289,51 @@ export default function Landing() {
               {t?.hero?.desc}
             </p>
             <div className="flex flex-col sm:flex-row gap-6 items-start">
-              <button onClick={handleEnterApp} className="px-12 py-5 bg-indigo-600 text-white rounded-full font-black text-xs uppercase tracking-widest flex items-center gap-4 hover:scale-105 transition-all shadow-2xl shadow-indigo-600/50">{t?.hero?.cta1} <ArrowRight className="h-4 w-4" /></button>
+              <button onClick={handleEnterApp} className="px-12 py-5 bg-emerald-600 text-white rounded-full font-black text-xs uppercase tracking-widest flex items-center gap-4 hover:scale-105 transition-all shadow-2xl shadow-emerald-600/50">{t?.hero?.cta1} <ArrowRight className="h-4 w-4" /></button>
               <button onClick={() => document.getElementById('creators')?.scrollIntoView({ behavior: 'smooth' })} className="px-12 py-5 bg-white/5 border border-white/10 backdrop-blur-md rounded-full font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all">{t?.hero?.cta2}</button>
             </div>
           </motion.div>
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }} 
             animate={{ opacity: 1, scale: 1 }} 
+            style={{ y: yParallax }}
             transition={{ duration: 1.5, ease: "easeOut" }} 
-            className="hidden lg:flex hero-visual-element items-center justify-center cursor-crosshair"
-            onMouseMove={(e) => {
-              const rect = e.currentTarget.getBoundingClientRect();
-              const dx = (e.clientX - rect.left) / rect.width - 0.5;
-              document.documentElement.style.setProperty('--hero-shadow-skew', `${dx * 40}deg`);
-            }}
-            onMouseLeave={() => {
-              document.documentElement.style.setProperty('--hero-shadow-skew', '-15deg');
-            }}
+            className="hidden lg:flex hero-visual-element items-center justify-center cursor-crosshair group"
+            onMouseMove={handleMouseMove}
+            ref={containerRef}
           >
-            <div className="data-prism opacity-20" />
-            <div className="relative z-10 scale-[1.5]">
-              <div className="relative flex flex-col items-center group">
-                <div className="w-[3.5px] h-48 bg-gradient-to-b from-yellow-200 via-yellow-400 to-yellow-600 shadow-[0_0_35px_rgba(254,240,138,0.5)] relative z-10" />
-                <motion.div 
-                  initial={{ skewX: -15 }}
-                  style={{ 
-                    skewX: 'var(--hero-shadow-skew, -15deg)',
-                    opacity: 0.9 
-                  }}
-                  className="absolute top-48 w-16 h-32 border-b-[4px] border-x-[4px] border-indigo-600 rounded-b-sm blur-[0.3px] transform-origin-top transition-all duration-300 ease-out"
-                />
-                
-                {/* Secondary 'Umbra' Glow */}
-                <div className="absolute top-48 w-20 h-40 border-b-[1px] border-x-[1px] border-indigo-500/20 rounded-b-md blur-[12px] opacity-60" />
-              </div>
+            <div className="data-prism opacity-20 border-emerald-500/20 group-hover:border-emerald-500/40 group-hover:bg-emerald-500/[0.02] transition-all duration-700" />
+            
+            {/* The Interactive Shadow Line */}
+            <div className="relative z-10 scale-[1.2]">
+              <ShadowLine type={variants[activeTab].type} mousePos={mousePos} />
             </div>
             
+            {/* Tab Controls Overlay */}
+            <div className="absolute top-10 flex gap-2 z-20">
+              {variants.map((v, i) => (
+                <button 
+                  key={i}
+                  onClick={(e) => { e.stopPropagation(); setActiveTab(i); }}
+                  className={`px-4 py-1.5 rounded-full border text-[8px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${
+                    activeTab === i 
+                    ? 'bg-white text-slate-950 border-white shadow-[0_0_20px_rgba(255,255,255,0.3)]' 
+                    : 'bg-slate-950/40 border-white/10 hover:border-white/30 text-white/40 backdrop-blur-md'
+                  }`}
+                >
+                  {v.title}
+                </button>
+              ))}
+            </div>
+
             <div className="absolute bottom-10 text-center space-y-1">
               <div className="text-[10px] font-black tracking-[1.2em] text-white/20 uppercase">Umbra Brand Identity</div>
-              <div className="text-[8px] font-bold tracking-[0.4em] text-indigo-500/40 uppercase italic">Interactive Standard</div>
+              <div className="text-[8px] font-bold tracking-[0.4em] text-emerald-500/40 uppercase italic">Interactive Standard</div>
             </div>
           </motion.div>
         </div>
       </section>
 
-      <BrandingLab />
 
       {/* Stats Section - Verified Data */}
       <section ref={statsRef} className="stat-container relative z-20">
@@ -240,8 +364,8 @@ export default function Landing() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
             <motion.div whileHover={{ y: -10 }} className="premium-card min-h-[400px] flex flex-col justify-between group">
-               <div className="absolute top-10 right-12 text-7xl font-black text-white/[0.03] select-none pointer-events-none group-hover:text-indigo-500/10 transition-colors">01</div>
-               <div className="p-5 bg-indigo-600/5 border border-indigo-500/10 rounded-3xl w-fit"><Target className="h-8 w-8 text-indigo-500" /></div>
+               <div className="absolute top-10 right-12 text-7xl font-black text-white/[0.03] select-none pointer-events-none group-hover:text-emerald-500/10 transition-colors">01</div>
+               <div className="p-5 bg-emerald-600/5 border border-emerald-500/10 rounded-3xl w-fit"><Target className="h-8 w-8 text-emerald-500" /></div>
                <div><h3 className="text-4xl font-black mb-6 uppercase tracking-tighter">{t?.about?.p1_title}</h3><p className="text-slate-400 text-lg leading-relaxed font-medium italic opacity-80">"{t?.about?.p1_desc}"</p></div>
             </motion.div>
             <motion.div whileHover={{ y: -10 }} className="premium-card min-h-[400px] flex flex-col justify-between group">
@@ -252,13 +376,13 @@ export default function Landing() {
             <motion.div whileHover={{ y: -10 }} className="premium-card min-h-[400px] flex flex-col justify-between group">
                <div className="absolute top-10 right-12 text-7xl font-black text-white/[0.03] select-none pointer-events-none group-hover:text-rose-500/10 transition-colors">03</div>
                <div className="p-5 bg-rose-600/5 border border-rose-500/10 rounded-3xl w-fit"><TrendingUp className="h-8 w-8 text-rose-500" /></div>
-               <div><h3 className="text-4xl font-black mb-6 uppercase tracking-tighter">Exponential Growth</h3><p className="text-slate-400 text-lg leading-relaxed font-medium italic opacity-80">"Leveraging data transparency to lock in sustainable creator momentum."</p></div>
+               <div><h3 className="text-4xl font-black mb-6 uppercase tracking-tighter">{t?.about?.p4_title}</h3><p className="text-slate-400 text-lg leading-relaxed font-medium italic opacity-80">"{t?.about?.p4_desc}"</p></div>
             </motion.div>
             <motion.div whileHover={{ y: -10 }} className="premium-card min-h-[400px] flex flex-col justify-between group bg-slate-900 border-none">
-               <div className="absolute top-10 right-12 text-7xl font-black text-white/[0.03] select-none pointer-events-none group-hover:text-indigo-500/10 transition-colors">04</div>
+               <div className="absolute top-10 right-12 text-7xl font-black text-white/[0.03] select-none pointer-events-none group-hover:text-emerald-500/10 transition-colors">04</div>
                <div className="relative z-10 flex flex-col h-full justify-between">
                  <div>
-                   <div className="p-5 bg-indigo-600/10 border border-indigo-500/20 rounded-3xl w-fit mb-8"><Shield className="h-4 w-4" /></div>
+                   <div className="p-5 bg-emerald-600/10 border border-emerald-500/20 rounded-3xl w-fit mb-8"><Shield className="h-4 w-4" /></div>
                    <h3 className="text-4xl font-black mb-6 uppercase tracking-tighter">{t?.about?.p3_title}</h3>
                  </div>
                  <p className="text-slate-400 text-lg leading-relaxed font-medium italic opacity-80">"{t?.about?.p3_desc}"</p>
@@ -281,7 +405,7 @@ export default function Landing() {
                 <div className="creator-card-photo"><img src={creator.photo_url} className="w-full h-full object-cover" alt={creator.display_name} /></div>
                 <div className="creator-card-gradient" /><div className="absolute top-10 right-10 z-30 p-4 bg-white/5 rounded-2xl backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all hover:bg-sky-500 hover:text-white"><Twitter className="h-5 w-5" /></div>
                 <div className="absolute bottom-12 left-12 right-12 z-30">
-                  <div className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400 mb-3">{creator.badge}</div>
+                  <div className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-400 mb-3">{creator.badge}</div>
                   <h3 className="text-3xl font-black uppercase tracking-tighter">{creator.display_name}</h3>
                 </div>
               </motion.div>
@@ -319,13 +443,14 @@ export default function Landing() {
 
       {/* CTA Section */}
       <section className="py-24 px-6">
-        <div className="max-w-5xl mx-auto premium-card bg-indigo-600 text-center relative overflow-hidden group">
+        <div className="max-w-5xl mx-auto premium-card bg-emerald-600 text-center relative overflow-hidden group">
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 via-cyan-600 to-emerald-700 opacity-90" />
           <div className="relative z-10 py-12">
             <h2 className="text-4xl md:text-7xl font-black mb-10 leading-tight tracking-tighter uppercase">{t?.cta?.title}</h2>
             <p className="text-lg text-white/80 mb-14 max-w-xl mx-auto font-medium">{t?.cta?.desc}</p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-              <button className="px-12 py-5 bg-white text-indigo-600 rounded-full font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-xl" onClick={handleEnterApp}>{t?.cta?.btn1}</button>
+              <button className="px-12 py-5 bg-white text-emerald-600 rounded-full font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-xl" onClick={handleEnterApp}>{t?.cta?.btn1}</button>
               <button className="px-12 py-5 bg-transparent border-2 border-white/20 rounded-full font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all" onClick={() => document.getElementById('creators')?.scrollIntoView({ behavior: 'smooth' })}>{t?.cta?.btn2}</button>
             </div>
           </div>
@@ -337,11 +462,11 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-16 mb-20">
             <div className="md:col-span-2">
-              <div className="flex items-center gap-4 mb-8"><Rocket className="h-8 w-8 text-indigo-500" /><span className="text-2xl font-black text-white tracking-tighter">{t?.footer?.hub}</span></div>
+              <div className="flex items-center gap-4 mb-8"><Rocket className="h-8 w-8 text-emerald-500" /><span className="text-2xl font-black text-white tracking-tighter">{t?.footer?.hub}</span></div>
               <p className="text-sm leading-relaxed max-w-sm opacity-60">The unmistakable standard for creator-driven Web3 marketing excellence. Building the future of cultural resonance.</p>
             </div>
             <div>
-              <div className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400 mb-8">Navigation</div>
+              <div className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-400 mb-8">Navigation</div>
               <ul className="space-y-4 text-xs font-black uppercase tracking-widest">
                 <li><button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="hover:text-white transition-colors">Back to top</button></li>
                 <li><button onClick={() => document.getElementById('creators')?.scrollIntoView({behavior:'smooth'})} className="hover:text-white transition-colors">The Force</button></li>
@@ -349,9 +474,9 @@ export default function Landing() {
               </ul>
             </div>
             <div>
-              <div className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400 mb-8">Connect</div>
+              <div className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-400 mb-8">Connect</div>
               <div onClick={() => handleExternalLink('https://x.com/eminatr1x')} className="flex items-center gap-4 group cursor-pointer">
-                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-indigo-600/20 transition-colors"><Twitter className="h-4 w-4 group-hover:text-sky-400 transition-colors" /></div>
+                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-emerald-600/20 transition-colors"><Twitter className="h-4 w-4 group-hover:text-cyan-400 transition-colors" /></div>
                 <div><div className="text-sm font-black text-white/80 group-hover:text-white transition-colors">Official X</div><div className="text-[10px] opacity-40">@UmbraAgency</div></div>
               </div>
             </div>

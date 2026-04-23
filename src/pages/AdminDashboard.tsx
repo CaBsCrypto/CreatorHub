@@ -44,18 +44,22 @@ const ActivityTab = React.lazy(() => import('../components/dashboard/ActivityTab
 const ScraperLogsTab = React.lazy(() => import('../components/dashboard/ScraperLogsTab'));
 
 const TabLoader = () => (
-  <div className="flex items-center justify-center py-20">
-    <div className="w-8 h-8 rounded-full border-2 border-indigo-200 border-t-indigo-600 animate-spin" />
+  <div className="flex flex-col items-center justify-center py-40 gap-6">
+    <div className="relative">
+      <div className="w-16 h-16 rounded-full border-2 border-emerald-500/10 border-t-emerald-500 animate-spin" />
+      <div className="absolute inset-0 bg-emerald-500/20 blur-2xl animate-pulse" />
+    </div>
+    <p className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.5em] animate-pulse italic">Synchronizing_Nodes...</p>
   </div>
 );
 
 const PLATFORM_COLORS: Record<string, string> = {
-  tiktok: '#0f172a', // Dark Slate/Black
-  instagram: '#e1306c', // Pink
-  youtube: '#ff0000', // Red
-  x: '#1da1f2', // Twitter Blue
-  twitch: '#9146ff', // Purple
-  coinmarketcap: '#0d3efd' // Blue
+  tiktok: '#ffffff', 
+  instagram: '#e1306c', 
+  youtube: '#ff0000', 
+  x: '#ffffff', 
+  twitch: '#9146ff', 
+  coinmarketcap: '#10b981' 
 };
 
 const ADMIN_TABS = ['overview', 'campaigns', 'content', 'creators', 'payments', 'team', 'activity', 'trash', 'scraper'] as const;
@@ -64,8 +68,6 @@ type AdminTab = typeof ADMIN_TABS[number];
 export default function AdminDashboard() {
   const { user } = useAuth();
   const { success, error: toastError, info } = useToast();
-  
-  // Tab management moved to filters hook for atomic state updates
   
   // Modals state
   const [viewingContent, setViewingContent] = useState<ContentItem | null>(null);
@@ -170,7 +172,6 @@ export default function AdminDashboard() {
     return result;
   }, [users, deletedUserIds, teamRole]);
 
-  // ... groupedLogs logic kept here as it's purely for presentation in the tab ...
   const handleCopyShareLink = async (token: string, e: React.MouseEvent, type: 'review' | 'slug' = 'review') => {
     e.stopPropagation();
     try {
@@ -273,7 +274,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex min-h-screen bg-slate-950 selection:bg-emerald-500/30 selection:text-emerald-400">
       <AdminSidebar 
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
@@ -281,7 +282,7 @@ export default function AdminDashboard() {
         user={user}
       />
 
-      <main className="flex-1 p-4 md:p-8 lg:p-12 overflow-y-auto pb-32 lg:pb-12 bg-gray-50/30">
+      <main className="flex-1 p-6 md:p-10 lg:p-16 overflow-y-auto pb-40 lg:pb-16">
         <AdminHeader 
           filters={filters}
           setFilter={setFilter}

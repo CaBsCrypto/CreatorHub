@@ -33,8 +33,8 @@ const DiscordFormSection: React.FC<DiscordFormSectionProps> = ({
           required
           value={formData.title}
           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-          placeholder={platform === 'baseapp' ? "Título del Video (ej. Demo 1)" : "Título de la Jornada (ej. Torneo #1)"}
-          className="block w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/30 text-sm font-semibold text-slate-700 focus:ring-1 focus:ring-indigo-500 focus:bg-white transition-all placeholder:text-slate-400 outline-none"
+          placeholder={platform === 'baseapp' ? "Operation Blueprint (e.g. Demo 1)" : "Mission Log Title (e.g. Scrims #1)"}
+          className="block w-full px-4 py-3 rounded-xl border border-white/10 bg-white/5 text-sm font-semibold text-white focus:ring-1 focus:ring-indigo-500/50 focus:bg-white/10 transition-all placeholder:text-slate-600 outline-none uppercase tracking-tight"
         />
       </div>
 
@@ -43,39 +43,37 @@ const DiscordFormSection: React.FC<DiscordFormSectionProps> = ({
         <textarea
           value={formData.description || ''}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          placeholder="Descripción / Notas de la sesión (ej. Resultados del evento, detalles del ganador...)"
+          placeholder="Strategic summary / Intel briefing notes (e.g. Winner details, event metrics...)"
           rows={3}
-          className="block w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/30 text-sm font-semibold text-slate-700 focus:ring-1 focus:ring-indigo-500 focus:bg-white transition-all placeholder:text-slate-400 outline-none resize-none"
+          className="block w-full px-4 py-3 rounded-xl border border-white/10 bg-white/5 text-sm font-semibold text-white focus:ring-1 focus:ring-indigo-500/50 focus:bg-white/10 transition-all placeholder:text-slate-600 outline-none resize-none font-mono"
         />
       </div>
 
       {/* Large Upload Box (Only for Discord) */}
       {platform === 'discord' && (
         <div 
-          className="relative border border-dashed border-slate-300 rounded-2xl p-6 flex flex-col items-center justify-center hover:border-indigo-400 hover:bg-slate-50/50 transition-all cursor-pointer bg-slate-50/20 group"
+          className="relative border border-dashed border-white/10 rounded-2xl p-6 flex flex-col items-center justify-center hover:border-emerald-500/50 hover:bg-white/5 transition-all cursor-pointer bg-white/5 group overflow-hidden"
           onClick={() => document.getElementById('discord-upload-modal')?.click()}
         >
           {twitchPreview ? (
-            <div className="relative group/img">
+            <div className="relative group/img w-full flex justify-center">
               {twitchFile?.type.startsWith('video') ? (
                  <div className="flex flex-col items-center">
-                   <Monitor className="h-8 w-8 text-indigo-500 mb-2" />
-                   <p className="text-[10px] font-bold text-slate-700">Video Adjuntado</p>
+                   <Monitor className="h-8 w-8 text-emerald-500 mb-2" />
+                   <p className="text-[10px] font-black text-white uppercase tracking-widest">Video Stream Injected</p>
                  </div>
               ) : (
-                <img src={twitchPreview} alt="Preview" className="max-h-32 rounded-xl border border-slate-100 transition-transform group-hover/img:scale-[1.02]" />
+                <img src={twitchPreview} alt="Preview" className="max-h-32 rounded-xl border border-white/10 transition-transform group-hover/img:scale-[1.02] grayscale hover:grayscale-0" />
               )}
-              <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover/img:opacity-100 transition-opacity rounded-xl flex items-center justify-center">
+              <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover/img:opacity-100 transition-opacity rounded-xl flex items-center justify-center backdrop-blur-sm">
                 <Plus className="h-6 w-6 text-white" />
               </div>
             </div>
           ) : (
             <div className="flex flex-col items-center">
-              <Plus className="h-6 w-6 text-slate-300 mb-2 group-hover:text-indigo-500 transition-colors" />
-              <p className="text-[11px] font-semibold text-slate-500 mb-1">
-                Subir captura de resultados
-              </p>
-              <p className="text-[9px] text-slate-400 uppercase font-bold tracking-widest">PNG, JPG</p>
+              <Plus className="h-6 w-6 text-slate-700 mb-2 group-hover:text-emerald-500 transition-colors" />
+              <p className="text-[10px] font-black text-slate-500 mb-1 uppercase tracking-widest">Capture Intelligence</p>
+              <p className="text-[8px] text-slate-700 uppercase font-black tracking-[0.3em]">Telemetry.JPG</p>
             </div>
           )}
           <input
@@ -89,12 +87,13 @@ const DiscordFormSection: React.FC<DiscordFormSectionProps> = ({
       )}
 
       {/* Metrics Grid (Only for Discord) */}
+      {/* Metrics Grid (Only for Discord) */}
       {platform === 'discord' && (
-        <div className="p-3 bg-slate-50/50 rounded-2xl border border-slate-100">
+        <div className="p-3 bg-white/5 rounded-2xl border border-white/5">
           <div className="grid grid-cols-2 gap-2 mb-2">
-            <div className="bg-white border border-slate-200 rounded-xl p-2.5">
-              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
-                Duración Total
+            <div className="bg-slate-900 border border-white/5 rounded-xl p-2.5">
+              <label className="block text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1.5 ml-0.5">
+                Operation Uptime
               </label>
               <div className="flex gap-1 items-center">
                 <input
@@ -106,9 +105,9 @@ const DiscordFormSection: React.FC<DiscordFormSectionProps> = ({
                     const m = (formData.duration_minutes || 0) % 60;
                     setFormData({ ...formData, duration_minutes: (h * 60) + m });
                   }}
-                  className="w-full bg-slate-50/50 py-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-slate-700"
+                  className="w-full bg-white/5 py-1 rounded text-xs focus:ring-1 focus:ring-emerald-500/50 transition-all font-black text-center outline-none [appearance:textfield] text-white font-mono"
                 />
-                <span className="text-slate-300 font-bold">:</span>
+                <span className="text-slate-700 font-bold">:</span>
                 <input
                   type="number"
                   placeholder="M"
@@ -119,48 +118,48 @@ const DiscordFormSection: React.FC<DiscordFormSectionProps> = ({
                     const m = parseInt(e.target.value) || 0;
                     setFormData({ ...formData, duration_minutes: (h * 60) + m });
                   }}
-                  className="w-full bg-slate-50/50 py-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-slate-700"
+                  className="w-full bg-white/5 py-1 rounded text-xs focus:ring-1 focus:ring-emerald-500/50 transition-all font-black text-center outline-none [appearance:textfield] text-white font-mono"
                 />
               </div>
             </div>
             
-            <div className="bg-white border border-slate-200 rounded-xl p-2.5">
-              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
-                Usu. Simultáneos
+            <div className="bg-slate-900 border border-white/5 rounded-xl p-2.5">
+              <label className="block text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1.5 ml-0.5">
+                Concurrent Users
               </label>
               <input
                 type="number"
                 value={formData.peek_viewers || ''}
                 onChange={(e) => setFormData({ ...formData, peek_viewers: parseInt(e.target.value) || 0 })}
-                className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
+                className="block w-full bg-white/5 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-emerald-500/50 transition-all font-black text-center outline-none [appearance:textfield] text-white font-mono"
                 placeholder="0"
               />
             </div>
           </div>
           
           <div className="grid grid-cols-2 gap-2">
-            <div className="bg-white border border-slate-200 rounded-xl p-2.5">
-              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
-                Usu. Únicos
+            <div className="bg-slate-900 border border-white/5 rounded-xl p-2.5">
+              <label className="block text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1.5 ml-0.5">
+                Unique Entities
               </label>
               <input
                 type="number"
                 value={formData.unique_viewers || ''}
                 onChange={(e) => setFormData({ ...formData, unique_viewers: parseInt(e.target.value) || 0 })}
-                className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
+                className="block w-full bg-white/5 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-emerald-500/50 transition-all font-black text-center outline-none [appearance:textfield] text-white font-mono"
                 placeholder="0"
               />
             </div>
             
-            <div className="bg-white border border-slate-200 rounded-xl p-2.5">
-              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
-                Pantallas Comp.
+            <div className="bg-slate-900 border border-white/5 rounded-xl p-2.5">
+              <label className="block text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1.5 ml-0.5">
+                Signal Shares
               </label>
               <input
                 type="number"
                 value={formData.shares_count || ''}
                 onChange={(e) => setFormData({ ...formData, shares_count: parseInt(e.target.value) || 0 })}
-                className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
+                className="block w-full bg-white/5 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-emerald-500/50 transition-all font-black text-center outline-none [appearance:textfield] text-white font-mono"
                 placeholder="0"
               />
             </div>
@@ -171,14 +170,14 @@ const DiscordFormSection: React.FC<DiscordFormSectionProps> = ({
       {/* Optional Link Section */}
       <div className="relative group">
         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-          <ExternalLink className="h-4 w-4 text-slate-300" />
+          <ExternalLink className="h-4 w-4 text-slate-500" />
         </div>
         <input
           type="url"
           value={formData.url}
           onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-          placeholder={platform === 'baseapp' ? "URL del Post (opcional)" : "Link de la Jornada (opcional)"}
-          className="block w-full pl-10.5 rounded-xl border-slate-200 bg-slate-50/30 py-3 text-sm font-medium text-slate-700 focus:ring-1 focus:ring-indigo-500 transition-all outline-none"
+          placeholder={platform === 'baseapp' ? "Post Transmission URL (optional)" : "Mission Log URL (optional)"}
+          className="block w-full pl-10.5 rounded-xl border-white/10 bg-white/5 py-3 text-sm font-medium text-white focus:ring-1 focus:ring-indigo-500/50 focus:bg-white/10 transition-all outline-none font-mono"
         />
       </div>
     </div>

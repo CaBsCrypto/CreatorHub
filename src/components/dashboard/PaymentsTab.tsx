@@ -36,33 +36,40 @@ const PaymentsTab: React.FC<PaymentsTabProps> = ({
   const campaignsById = React.useMemo(() => Object.fromEntries(campaigns.map(c => [c.id, c])), [campaigns]);
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-1000">
       {/* Payment Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm relative overflow-hidden group">
-          <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-emerald-50 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
-          <p className="relative z-10 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Total Pagado</p>
-          <span className="relative z-10 text-3xl font-black text-gray-900">${filteredPayments.reduce((s, p) => s + Number(p.amount), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="glass-dark p-8 rounded-[3rem] border border-white/5 relative overflow-hidden group hover:border-emerald-500/30 transition-all duration-700">
+          <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000" />
+          <p className="relative z-10 text-[10px] font-black text-slate-600 uppercase tracking-[0.4em] mb-4 italic">Total_Aggregated_Payout</p>
+          <span className="relative z-10 text-4xl font-black text-white group-hover:text-emerald-400 transition-colors tracking-tighter tabular-nums">${filteredPayments.reduce((s, p) => s + Number(p.amount), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
         </div>
-        <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
-          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Pagos Registrados</p>
-          <span className="text-3xl font-black text-gray-900">{filteredPayments.length}</span>
+        <div className="glass-dark p-8 rounded-[3rem] border border-white/5 group hover:border-white/20 transition-all duration-700">
+          <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.4em] mb-4 italic">Transaction_Records</p>
+          <span className="text-4xl font-black text-white tabular-nums group-hover:text-emerald-400 transition-colors">{filteredPayments.length}</span>
         </div>
-        <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
-          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Creadores Pagados</p>
-          <span className="text-3xl font-black text-gray-900">{new Set(filteredPayments.map(p => p.creator_id)).size}</span>
+        <div className="glass-dark p-8 rounded-[3rem] border border-white/5 group hover:border-white/20 transition-all duration-700">
+          <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.4em] mb-4 italic">Paid_Agents_Count</p>
+          <span className="text-4xl font-black text-white tabular-nums group-hover:text-emerald-400 transition-colors">{new Set(filteredPayments.map(p => p.creator_id)).size}</span>
         </div>
       </div>
 
-      {/* Add Payment */}
-      <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-8">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <h3 className="text-xl font-black text-gray-900 flex items-center gap-2"><DollarSign className="h-5 w-5 text-emerald-500" /> Registrar Pago</h3>
-            {/* Calculator removed per user request */}
+      {/* Add Payment Section */}
+      <div className="glass-dark rounded-[3.5rem] border border-white/5 p-10 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(#fff_1px,transparent_1px)] opacity-[0.02] [background-size:20px_20px]" />
+        
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 relative z-10">
+          <div className="flex items-center gap-5">
+            <div className="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center border border-emerald-500/20 shadow-[0_0_20px_rgba(16,185,129,0.1)]">
+              <DollarSign className="h-7 w-7 text-emerald-500" />
+            </div>
+            <h3 className="text-2xl font-black text-white uppercase tracking-tighter italic">Register_Payout_Protocol</h3>
           </div>
-          <button onClick={() => setIsAddingPayment(!isAddingPayment)} className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all active:scale-95">
-            <Plus className="h-4 w-4" /> Nuevo Pago
+          <button 
+            onClick={() => setIsAddingPayment(!isAddingPayment)} 
+            className={`flex items-center gap-3 px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 active:scale-95 shadow-2xl ${isAddingPayment ? 'bg-rose-500 text-white' : 'bg-emerald-500 text-slate-950'}`}
+          >
+            {isAddingPayment ? 'Close_Form' : <><Plus className="h-4 w-4" /> Initialize_Transfer</>}
           </button>
         </div>
 
@@ -72,133 +79,160 @@ const PaymentsTab: React.FC<PaymentsTabProps> = ({
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden"
+              className="overflow-hidden relative z-10"
               onSubmit={onSubmit}
             >
-              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-4">
-                <select required value={newPayment.creator_id} onChange={e => setNewPayment({...newPayment, creator_id: e.target.value})} className="px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500">
-                  <option value="">Creador *</option>
-                  {users.map(u => (
-                    <option key={u.id} value={u.id}>{u.admin_alias || u.display_name || u.email} ({u.role})</option>
-                  ))}
-                  <option value="guest">Externo / Invitado</option>
-                </select>
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
+                <div className="space-y-2">
+                  <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest ml-1">Assigned_Agent</label>
+                  <select required value={newPayment.creator_id} onChange={e => setNewPayment({...newPayment, creator_id: e.target.value})} className="w-full px-5 py-4 bg-slate-900/80 border border-white/5 rounded-2xl text-xs font-black text-white uppercase tracking-widest focus:border-emerald-500/50 outline-none appearance-none transition-all">
+                    <option value="">Select_Agent *</option>
+                    {users.map(u => (
+                      <option key={u.id} value={u.id} className="bg-slate-950">{u.admin_alias || u.display_name || u.email} [{u.role.toUpperCase()}]</option>
+                    ))}
+                    <option value="guest" className="bg-slate-950">External_Guest</option>
+                  </select>
+                </div>
+
                 {newPayment.creator_id === 'guest' && (
-                  <input required type="text" placeholder="Nombre Invitado *" value={newPayment.guest_name} onChange={e => setNewPayment({...newPayment, guest_name: e.target.value})} className="px-4 py-3 bg-indigo-50/50 border border-indigo-100 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500" />
+                  <div className="space-y-2">
+                    <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest ml-1">Guest_ID</label>
+                    <input required type="text" placeholder="GUEST_NAME_*" value={newPayment.guest_name} onChange={e => setNewPayment({...newPayment, guest_name: e.target.value})} className="w-full px-5 py-4 bg-emerald-500/5 border border-emerald-500/20 rounded-2xl text-xs font-black text-white uppercase tracking-widest focus:border-emerald-500/50 outline-none transition-all" />
+                  </div>
                 )}
-                <input required type="text" inputMode="decimal" placeholder="Monto *" value={newPayment.amount} onChange={e => { const v = e.target.value; if (v === '' || /^\d*\.?\d{0,2}$/.test(v)) setNewPayment({...newPayment, amount: v}); }} className="px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500" />
-                <select value={newPayment.currency} onChange={e => setNewPayment({...newPayment, currency: e.target.value})} className="px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500">
-                  <option value="USDT">USDT</option>
-                  <option value="BNB">BNB</option>
-                  <option value="USD">USD</option>
-                  <option value="ETH">ETH</option>
-                  <option value="SOL">SOL</option>
-                </select>
-                <input type="text" placeholder="Concepto" value={newPayment.concept} onChange={e => setNewPayment({...newPayment, concept: e.target.value})} className="px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500" />
-                <select value={newPayment.campaign_id} onChange={e => setNewPayment({...newPayment, campaign_id: e.target.value})} className="px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500">
-                  <option value="">Campaña (opcional)</option>
-                  {campaigns.map(c => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
-                </select>
-                <input required type="date" value={newPayment.paid_at} onChange={e => setNewPayment({...newPayment, paid_at: e.target.value})} className="px-4 py-3 bg-gray-50 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500" />
+
+                <div className="space-y-2">
+                  <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest ml-1">Payout_Amount</label>
+                  <input required type="text" inputMode="decimal" placeholder="0.00 *" value={newPayment.amount} onChange={e => { const v = e.target.value; if (v === '' || /^\d*\.?\d{0,2}$/.test(v)) setNewPayment({...newPayment, amount: v}); }} className="w-full px-5 py-4 bg-slate-900/80 border border-white/5 rounded-2xl text-xs font-black text-emerald-400 uppercase tracking-widest focus:border-emerald-500/50 outline-none transition-all tabular-nums" />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest ml-1">Asset_Unit</label>
+                  <select value={newPayment.currency} onChange={e => setNewPayment({...newPayment, currency: e.target.value})} className="w-full px-5 py-4 bg-slate-900/80 border border-white/5 rounded-2xl text-xs font-black text-white uppercase tracking-widest focus:border-emerald-500/50 outline-none appearance-none transition-all">
+                    <option value="USDT">USDT_STABLE</option>
+                    <option value="BNB">BNB_NODE</option>
+                    <option value="USD">USD_FIAT</option>
+                    <option value="ETH">ETH_NETWORK</option>
+                    <option value="SOL">SOL_NETWORK</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest ml-1">Operation_Context</label>
+                  <select value={newPayment.campaign_id} onChange={e => setNewPayment({...newPayment, campaign_id: e.target.value})} className="w-full px-5 py-4 bg-slate-900/80 border border-white/5 rounded-2xl text-xs font-black text-white uppercase tracking-widest focus:border-emerald-500/50 outline-none appearance-none transition-all">
+                    <option value="">STANDALONE_OP</option>
+                    {campaigns.map(c => (
+                      <option key={c.id} value={c.id} className="bg-slate-950">{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest ml-1">Timestamp</label>
+                  <input required type="date" value={newPayment.paid_at} onChange={e => setNewPayment({...newPayment, paid_at: e.target.value})} className="w-full px-5 py-4 bg-slate-900/80 border border-white/5 rounded-2xl text-xs font-black text-white uppercase tracking-widest focus:border-emerald-500/50 outline-none transition-all invert brightness-200" />
+                </div>
+
+                <div className="space-y-2 lg:col-span-2">
+                  <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest ml-1">Transfer_Manifest</label>
+                  <input type="text" placeholder="CONCEPT_DESC" value={newPayment.concept} onChange={e => setNewPayment({...newPayment, concept: e.target.value})} className="w-full px-5 py-4 bg-slate-900/80 border border-white/5 rounded-2xl text-xs font-black text-white uppercase tracking-widest focus:border-emerald-500/50 outline-none transition-all italic" />
+                </div>
               </div>
-              <div className="flex justify-end pb-6 border-b border-gray-50 mb-6">
-                <button type="submit" className="px-8 py-3 bg-emerald-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-emerald-700 transition-all active:scale-95 shadow-lg shadow-emerald-100">✓ Guardar Pago</button>
+              <div className="flex justify-end pb-8 border-b border-white/5 mb-8">
+                <button type="submit" className="px-12 py-5 bg-white text-slate-950 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-emerald-400 transition-all duration-500 active:scale-95 shadow-[0_20px_50px_rgba(0,0,0,0.3)] italic">
+                  Commit_Transaction_Entry
+                </button>
               </div>
             </motion.form>
           )}
         </AnimatePresence>
 
         {/* Payments Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left min-w-[700px]">
+        <div className="overflow-x-auto relative z-10">
+          <table className="w-full text-left min-w-[900px]">
             <thead>
-              <tr className="bg-gray-50/50">
-                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Creador</th>
-                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Monto</th>
-                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Moneda</th>
-                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Concepto</th>
-                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Campaña</th>
-                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Fecha</th>
-                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest"></th>
+              <tr className="border-b border-white/5">
+                <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-[0.3em] italic">Agent_Entity</th>
+                <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-[0.3em] italic">Aggregated_Value</th>
+                <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-[0.3em] italic">Asset_Unit</th>
+                <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-[0.3em] italic">Manifest</th>
+                <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-[0.3em] italic">Context</th>
+                <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-[0.3em] italic">Timestamp</th>
+                <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-[0.3em] italic"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-white/5">
               {filteredPayments.map(p => {
                 const creator = usersById[p.creator_id];
                 const camp = campaignsById[p.campaign_id];
                 const canViewProfile = !!creator && !!onViewProfile;
 
                 return (
-                  <tr key={p.id} className="hover:bg-gray-50/50 transition-colors group/row">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        {/* Interactive Avatar */}
+                  <tr key={p.id} className="hover:bg-white/5 transition-colors group/row">
+                    <td className="px-8 py-6">
+                      <div className="flex items-center gap-4">
                         <div 
                           onClick={() => canViewProfile && onViewProfile(p.creator_id)}
-                          className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs overflow-hidden transition-all duration-300 ${
+                          className={`w-11 h-11 rounded-xl flex items-center justify-center font-black text-[10px] overflow-hidden transition-all duration-500 border border-white/5 ${
                             canViewProfile 
-                              ? 'cursor-pointer hover:scale-110 hover:ring-2 hover:ring-indigo-200 ring-0 ring-offset-2 ring-offset-white' 
+                              ? 'cursor-pointer hover:scale-110 hover:border-emerald-500/50 shadow-2xl' 
                               : ''
-                          } ${!p.creator_id ? 'bg-amber-50 text-amber-600' : 'bg-indigo-50 text-indigo-600'}`}
+                          } ${!p.creator_id ? 'bg-slate-900 text-emerald-500' : 'bg-slate-900 text-white'}`}
                         >
                           {creator?.photo_url ? (
-                            <img src={creator.photo_url} alt="" className="w-full h-full object-cover" />
+                            <img src={creator.photo_url} alt="" className="w-full h-full object-cover grayscale opacity-80 group-hover/row:grayscale-0 group-hover/row:opacity-100 transition-all duration-700" />
                           ) : (
                             !p.creator_id ? (p.guest_name?.charAt(0) || '?') : (creator?.display_name?.charAt(0) || '?')
                           )}
                         </div>
 
-                        {/* Interactive Name */}
-                        <div className="flex flex-col">
+                        <div className="flex flex-col gap-0.5">
                           <span 
                             onClick={() => canViewProfile && onViewProfile(p.creator_id)}
-                            className={`text-sm font-bold text-gray-900 transition-colors ${
-                              canViewProfile ? 'cursor-pointer hover:text-indigo-600' : ''
+                            className={`text-sm font-black text-white uppercase tracking-tighter transition-colors ${
+                              canViewProfile ? 'cursor-pointer group-hover/row:text-emerald-400' : ''
                             }`}
                           >
                             {!p.creator_id ? (
                               <>
                                 {p.guest_name} 
-                                <span className="ml-2 text-[9px] font-black text-amber-500 uppercase tracking-widest bg-amber-50 px-2 py-0.5 rounded-md border border-amber-100">Externo</span>
+                                <span className="ml-3 text-[8px] font-black text-emerald-500 uppercase tracking-widest bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 italic">EXT_NODE</span>
                               </>
                             ) : (
-                              creator?.admin_alias || creator?.display_name || creator?.email || 'Desconocido'
+                              creator?.admin_alias || creator?.display_name || creator?.email || 'SYSTEM_ERR'
                             )}
                           </span>
                           {creator?.role && (
-                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-tight leading-none mt-0.5">
-                              {creator.role}
+                            <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest italic leading-none">
+                              LVL_{creator.role.toUpperCase()}
                             </span>
                           )}
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm font-black text-emerald-600">${Number(p.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-                    <td className="px-6 py-4"><span className="px-2 py-1 bg-gray-100 rounded-lg text-[10px] font-black text-gray-600 uppercase">{p.currency}</span></td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{p.concept || '—'}</td>
-                    <td className="px-6 py-4">{camp ? <span className="px-2 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-[10px] font-black uppercase">{camp.name}</span> : '—'}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{new Date(p.paid_at).toLocaleDateString()}</td>
-                    <td className="px-6 py-4">
+                    <td className="px-8 py-6 text-base font-black text-emerald-400 tabular-nums">${Number(p.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                    <td className="px-8 py-6"><span className="px-3 py-1 bg-white text-slate-950 rounded-lg text-[9px] font-black uppercase tracking-widest italic">{p.currency}</span></td>
+                    <td className="px-8 py-6 text-xs font-medium text-slate-400 italic max-w-[200px] truncate">{p.concept || '—'}</td>
+                    <td className="px-8 py-6">{camp ? <span className="px-3 py-1 bg-slate-900 text-white border border-white/10 rounded-lg text-[9px] font-black uppercase tracking-widest italic">{camp.name}</span> : '—'}</td>
+                    <td className="px-8 py-6 text-[11px] font-black text-slate-500 tabular-nums">{new Date(p.paid_at).toLocaleDateString()}</td>
+                    <td className="px-8 py-6">
                       <button onClick={async () => {
                         if (!window.confirm('¿Eliminar este pago?')) return;
                         const { error } = await supabase.from('payments').delete().eq('id', p.id);
                         if (error) toastError('Error: ' + error.message);
                         else { success('Pago eliminado'); refresh(); }
-                      }} className="p-2 text-gray-300 hover:text-rose-500 rounded-xl transition-colors"><Trash2 className="h-4 w-4" /></button>
+                      }} className="p-3 text-slate-800 hover:text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all duration-500 group-hover/row:scale-110"><Trash2 className="h-4 w-4" /></button>
                     </td>
                   </tr>
                 );
               })}
               {filteredPayments.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="py-20 text-center">
-                    <div className="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center mx-auto mb-4">
-                      <Wallet className="h-8 w-8 text-gray-200" />
+                  <td colSpan={7} className="py-40 text-center">
+                    <div className="w-24 h-24 glass-dark rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 border border-white/5">
+                      <Wallet className="h-10 w-10 text-slate-800" />
                     </div>
-                    <h3 className="text-lg font-black text-gray-900">No hay pagos coincidentes</h3>
-                    <p className="text-sm text-gray-400">Intenta cambiar los filtros seleccionados.</p>
+                    <h3 className="text-xl font-black text-white uppercase tracking-[0.4em] italic">No_Transaction_Nodes_Detected</h3>
+                    <p className="text-sm text-slate-600 mt-3 font-medium">Initialize new payout protocol or verify parameters.</p>
                   </td>
                 </tr>
               )}

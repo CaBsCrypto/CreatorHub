@@ -25,20 +25,22 @@ const CreatorsTab: React.FC<CreatorsTabProps> = ({
   isLoading
 }) => {
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex items-center justify-between gap-4 mb-4">
-        <div className="relative flex-1 max-w-lg group">
-          <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-300 group-focus-within:text-indigo-500 transition-colors" />
+    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-1000">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-4">
+        <div className="relative flex-1 max-w-2xl group">
+          <div className="absolute inset-0 bg-emerald-500/5 blur-2xl group-focus-within:bg-emerald-500/10 transition-all duration-700" />
+          <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 group-focus-within:text-emerald-500 transition-all duration-500 relative z-10" />
           <input 
             type="text" 
-            placeholder="Buscar creadores..." 
-            className="w-full pl-14 pr-6 py-4.5 rounded-[1.75rem] bg-white border border-slate-100/80 text-base font-medium placeholder:text-gray-300 focus:ring-4 focus:ring-indigo-50/50 focus:border-indigo-200 transition-all shadow-sm shadow-slate-100/50 outline-none" 
+            placeholder="Search_Agents_Database..." 
+            className="w-full pl-16 pr-8 py-6 rounded-[2rem] glass-dark border border-white/5 text-lg font-black uppercase tracking-[0.2em] placeholder:text-slate-600 focus:border-emerald-500/30 focus:shadow-[0_0_40px_rgba(16,185,129,0.1)] transition-all outline-none relative z-10 text-white italic" 
             value={searchTerm} 
             onChange={e => setFilter('search', e.target.value)} 
           />
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8">
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 sm:gap-10">
         {isLoading ? (
           <>
             <CardSkeleton />

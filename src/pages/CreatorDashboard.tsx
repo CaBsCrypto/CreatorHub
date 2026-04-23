@@ -190,37 +190,45 @@ export default function CreatorDashboard() {
     }
 
     return (
-      <div className="relative z-0 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 p-4 md:p-0 pb-20 md:pb-6">
+      <div className="relative z-0 space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700 p-4 md:p-0 pb-20 md:pb-6">
+        {/* Cinematic Overlays */}
+        <div className="grain-overlay opacity-[0.02]" />
+        
         {/* Header Section */}
-        <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-          <div className="cursor-pointer" onClick={() => { setActiveTab('overview'); resetFilters(); }}>
-            <h1 className="text-2xl font-black text-gray-900 leading-tight tracking-tight hover:text-indigo-600 transition-colors">Hola, {profile?.display_name || 'Creador'}</h1>
-            <p className="text-sm font-medium text-gray-500 flex items-center gap-2 mt-0.5">
-              <span className={`w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse`} />
-              Tu carrera en Umbra: <span className="text-indigo-600 font-bold uppercase tracking-widest text-[10px]">{myRank.name}</span>
+        <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 relative z-10">
+          <div className="cursor-pointer group" onClick={() => { setActiveTab('overview'); resetFilters(); }}>
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.8)] animate-pulse" />
+              <h1 className="text-3xl font-black text-white leading-tight tracking-tighter uppercase group-hover:text-emerald-400 transition-colors">
+                {profile?.display_name || 'Creador'}
+              </h1>
+            </div>
+            <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] ml-5">
+              Protocol Level: <span className="text-emerald-500 italic">{myRank.name}</span>
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row items-center gap-2 w-full lg:w-auto">
-            <button onClick={handleRefresh} disabled={isRefreshing} className={`flex-1 lg:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-white text-gray-900 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-sm ring-1 ring-gray-100 hover:bg-gray-50 transition-all ${isRefreshing ? 'opacity-50 cursor-not-allowed' : ''}`}>
-              <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-              Sincronizar Métricas
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+            <button onClick={handleRefresh} disabled={isRefreshing} className={`flex-1 lg:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest border border-white/5 hover:bg-slate-800 transition-all ${isRefreshing ? 'opacity-50 cursor-not-allowed' : ''}`}>
+              <RefreshCw className={`h-4 w-4 text-emerald-500 ${isRefreshing ? 'animate-spin' : ''}`} />
+              Sync_Metrics
             </button>
-            <button onClick={() => setIsContentModalOpen(true)} className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-2xl shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95">
+            <button onClick={() => setIsContentModalOpen(true)} className="flex-1 lg:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-white text-slate-950 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-white/5 active:scale-95">
               <Plus className="h-4 w-4" />
-              Nuevo Contenido
+              Add_Content
             </button>
           </div>
         </header>
+
         {/* Main Tabs Navigation */}
         <div 
-          className="flex items-center gap-2 p-1.5 bg-gray-100/50 rounded-2xl w-full lg:w-fit overflow-x-auto no-scrollbar relative z-10 pointer-events-auto"
+          className="flex items-center gap-3 p-2 bg-slate-900/50 backdrop-blur-3xl rounded-3xl w-full lg:w-fit overflow-x-auto no-scrollbar relative z-10 border border-white/5"
           style={{ isolation: 'isolate' }}
         >
           {[
-            { id: 'overview', label: 'Resumen', icon: LayoutDashboard },
-            { id: 'campaigns', label: 'Campañas', icon: BarChart3 },
-            { id: 'content', label: 'Mi Contenido', icon: ListIcon },
-            { id: 'journey', label: 'Mi Camino', icon: Trophy }
+            { id: 'overview', label: 'Summary', icon: LayoutDashboard },
+            { id: 'campaigns', label: 'Campaigns', icon: BarChart3 },
+            { id: 'content', label: 'Repository', icon: ListIcon },
+            { id: 'journey', label: 'Evolution', icon: Trophy }
           ].map(tab => (
             <button
               key={tab.id}
@@ -229,13 +237,13 @@ export default function CreatorDashboard() {
                 e.stopPropagation();
                 setActiveTab(tab.id);
               }}
-              className={`flex-none flex items-center gap-2.5 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 pointer-events-auto cursor-pointer ${
+              className={`flex-none flex items-center gap-3 px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-500 pointer-events-auto cursor-pointer ${
                 activeTab === tab.id 
-                  ? 'bg-white text-indigo-600 shadow-[0_8px_20px_-4px_rgba(79,70,229,0.15)] ring-1 ring-gray-100/50' 
-                  : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+                  ? 'bg-emerald-600 text-white shadow-xl shadow-emerald-600/20' 
+                  : 'text-slate-500 hover:text-white hover:bg-white/5'
               }`}
             >
-              <tab.icon className={`h-4 w-4 ${activeTab === tab.id ? 'text-indigo-600' : 'text-gray-400'}`} />
+              <tab.icon className={`h-4 w-4 ${activeTab === tab.id ? 'text-white' : 'text-slate-500'}`} />
               {tab.label}
             </button>
           ))}
@@ -273,48 +281,48 @@ export default function CreatorDashboard() {
               />
             </div>
             {!profile?.payment_method ? (
-              <div className="h-full bg-gradient-to-br from-rose-500 via-pink-600 to-orange-500 p-6 rounded-3xl shadow-xl shadow-rose-100 flex flex-col justify-between relative overflow-hidden group min-h-[300px]">
-                <div className="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
+              <div className="h-full bg-gradient-to-br from-emerald-600 via-cyan-600 to-emerald-700 p-8 rounded-[2.5rem] shadow-2xl flex flex-col justify-between relative overflow-hidden group min-h-[350px]">
+                <div className="absolute -right-8 -top-8 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000" />
                 <div className="relative z-10">
-                  <div className="flex items-center gap-2 text-white/80 mb-3">
-                    <AlertCircle className="h-4 w-4 text-amber-300 animate-pulse" />
-                    <span className="text-[9px] font-black uppercase tracking-[0.2em]">Pendiente</span>
+                  <div className="flex items-center gap-3 text-white/80 mb-6">
+                    <AlertCircle className="h-5 w-5 text-yellow-300 animate-pulse" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.4em]">Node_Incomplete</span>
                   </div>
-                  <h3 className="text-2xl font-black text-white mb-3 leading-tight tracking-tight drop-shadow-sm">Activa tus Pagos</h3>
-                  <p className="text-white/70 text-xs font-medium mb-6">Configura un método para recibir tus recompensas y acumular beneficios.</p>
+                  <h3 className="text-3xl font-black text-white mb-4 leading-tight tracking-tighter uppercase">Activate_Payments</h3>
+                  <p className="text-white/70 text-xs font-medium mb-8 leading-relaxed italic">Configura un método para recibir tus recompensas y acumular beneficios de red.</p>
                 </div>
                 <button 
                   onClick={() => setIsPaymentModalOpen(true)}
-                  className="w-full py-3.5 bg-white text-indigo-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 transition-all shadow-lg active:scale-95"
+                  className="w-full py-5 bg-white text-slate-950 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-[1.02] transition-all shadow-xl active:scale-95"
                 >
-                  Configurar Ahora
+                  Configure_Now
                 </button>
               </div>
             ) : (
-              <div className="h-full bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex flex-col justify-between relative overflow-hidden group min-h-[300px]">
-                <div className="absolute -right-12 -bottom-12 w-48 h-48 bg-emerald-50 rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-opacity" />
+              <div className="h-full glass-dark p-8 rounded-[2.5rem] border border-white/5 shadow-2xl flex flex-col justify-between relative overflow-hidden group min-h-[350px]">
+                <div className="absolute -right-12 -bottom-12 w-56 h-56 bg-emerald-500/05 rounded-full blur-3xl group-hover:bg-emerald-500/10 transition-all duration-1000" />
                 <div className="relative z-10">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-black text-gray-900 flex items-center gap-2">
-                      <Wallet className="h-4 w-4 text-indigo-500" /> Pagos
+                  <div className="flex items-center justify-between mb-8">
+                    <h3 className="text-xl font-black text-white flex items-center gap-3 uppercase tracking-tighter">
+                      <Wallet className="h-5 w-5 text-emerald-500" /> Wallet_Node
                     </h3>
-                    <div className="p-1.5 bg-emerald-50 rounded-lg">
-                      <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />
+                    <div className="p-2 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
+                      <CheckCircle className="h-4 w-4 text-emerald-500" />
                     </div>
                   </div>
                   
-                  <div className="space-y-3 mb-6 max-h-[180px] overflow-y-auto no-scrollbar pr-1">
-                    <div className="p-3 bg-gray-50 rounded-2xl border border-gray-100">
-                      <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 flex justify-between">
-                        <span>Método Principal</span>
-                        {profile.wallet_note && <span className="text-indigo-500">{profile.wallet_note}</span>}
+                  <div className="space-y-4 mb-8 max-h-[200px] overflow-y-auto no-scrollbar pr-2">
+                    <div className="p-4 bg-white/5 rounded-2xl border border-white/5 group-hover:border-emerald-500/20 transition-colors">
+                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em] mb-2 flex justify-between">
+                        <span>Primary_Method</span>
+                        {profile.wallet_note && <span className="text-emerald-500 italic">{profile.wallet_note}</span>}
                       </p>
-                      <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center justify-between gap-3">
                         <div className="min-w-0">
-                          <p className="text-[10px] font-black text-gray-900 uppercase truncate">
+                          <p className="text-xs font-black text-white uppercase truncate">
                             {profile.payment_method === 'binance' ? 'Binance Pay' : `${profile.wallet_network}`}
                           </p>
-                          <p className="text-[10px] font-medium text-gray-500 truncate">
+                          <p className="text-[10px] font-medium text-slate-400 truncate mt-1">
                             {profile.payment_method === 'binance' ? profile.binance_id : profile.wallet_address}
                           </p>
                         </div>
@@ -323,25 +331,25 @@ export default function CreatorDashboard() {
                             const val = profile.payment_method === 'binance' ? profile.binance_id : profile.wallet_address;
                             if (val) { navigator.clipboard.writeText(val); success("Copiado!"); }
                           }}
-                          className="p-1.5 hover:bg-white rounded-lg transition-colors text-gray-400 hover:text-indigo-600"
+                          className="p-2 hover:bg-emerald-500/10 rounded-xl transition-colors text-slate-500 hover:text-emerald-400"
                         >
-                          <RefreshCw className="h-3 w-3" />
+                          <RefreshCw className="h-4 w-4" />
                         </button>
                       </div>
                     </div>
 
                     {profile.wallet_address_2 && (
-                      <div className="p-3 bg-gray-50 rounded-2xl border border-gray-100 animate-in fade-in slide-in-from-top-2">
-                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 flex justify-between">
-                          <span>Wallet Secundaria</span>
-                          {profile.wallet_2_note && <span className="text-indigo-500">{profile.wallet_2_note}</span>}
+                      <div className="p-4 bg-white/5 rounded-2xl border border-white/5 group-hover:border-emerald-500/20 transition-colors">
+                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em] mb-2 flex justify-between">
+                          <span>Secondary_Method</span>
+                          {profile.wallet_2_note && <span className="text-emerald-500 italic">{profile.wallet_2_note}</span>}
                         </p>
-                        <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center justify-between gap-3">
                           <div className="min-w-0">
-                            <p className="text-[10px] font-black text-gray-900 uppercase truncate">
+                            <p className="text-xs font-black text-white uppercase truncate">
                               {profile.wallet_network_2}
                             </p>
-                            <p className="text-[10px] font-medium text-gray-500 truncate">
+                            <p className="text-[10px] font-medium text-slate-400 truncate mt-1">
                               {profile.wallet_address_2}
                             </p>
                           </div>
@@ -349,9 +357,9 @@ export default function CreatorDashboard() {
                             onClick={() => {
                               if (profile.wallet_address_2) { navigator.clipboard.writeText(profile.wallet_address_2); success("Copiado!"); }
                             }}
-                            className="p-1.5 hover:bg-white rounded-lg transition-colors text-gray-400 hover:text-indigo-600"
+                            className="p-2 hover:bg-emerald-500/10 rounded-xl transition-colors text-slate-500 hover:text-emerald-400"
                           >
-                            <RefreshCw className="h-3 w-3" />
+                            <RefreshCw className="h-4 w-4" />
                           </button>
                         </div>
                       </div>
@@ -361,9 +369,9 @@ export default function CreatorDashboard() {
                 
                 <button 
                   onClick={() => setIsPaymentModalOpen(true)}
-                  className="w-full py-3.5 bg-gray-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all active:scale-95"
+                  className="w-full py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all border border-white/5 active:scale-95"
                 >
-                  Cambiar Método
+                  Modify_Method
                 </button>
               </div>
             )}

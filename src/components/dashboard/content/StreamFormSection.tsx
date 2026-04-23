@@ -26,26 +26,26 @@ const StreamFormSection: React.FC<StreamFormSectionProps> = ({
           required
           value={formData.title}
           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-          placeholder="Título del Stream (ej. Stream 24/03)"
-          className="block w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/30 text-sm font-semibold text-slate-700 focus:ring-1 focus:ring-indigo-500 focus:bg-white transition-all placeholder:text-slate-400 outline-none"
+          placeholder="Mission Broadcast Title (e.g. Protocol Alpha)"
+          className="block w-full px-4 py-3 rounded-xl border border-white/10 bg-white/5 text-sm font-semibold text-white focus:ring-1 focus:ring-emerald-500/50 focus:bg-white/10 transition-all placeholder:text-slate-600 outline-none uppercase tracking-tight"
         />
       </div>
 
-      <div className="flex items-center gap-1 p-1 bg-slate-100/50 rounded-xl ring-1 ring-slate-200/50">
+      <div className="flex items-center gap-1 p-1 bg-white/5 rounded-xl ring-1 ring-white/10">
         <button
           type="button"
           onClick={() => setStreamPlatform('twitch')}
-          className={`flex-1 flex items-center justify-center gap-2 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all ${
-            streamPlatform === 'twitch' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-400 hover:text-slate-600'
+          className={`flex-1 flex items-center justify-center gap-2 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
+            streamPlatform === 'twitch' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-slate-500 hover:text-slate-300'
           }`}
         >
-          <Globe className="h-3 w-3" /> Stream
+          <Globe className="h-3 w-3" /> Twitch
         </button>
         <button
           type="button"
           onClick={() => setStreamPlatform('tiktok')}
-          className={`flex-1 flex items-center justify-center gap-2 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all ${
-            streamPlatform === 'tiktok' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-400 hover:text-slate-600'
+          className={`flex-1 flex items-center justify-center gap-2 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
+            streamPlatform === 'tiktok' ? 'bg-slate-800 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'
           }`}
         >
           <Music2 className="h-3 w-3" /> TikTok
@@ -53,21 +53,21 @@ const StreamFormSection: React.FC<StreamFormSectionProps> = ({
       </div>
       
       <div 
-        className="relative border border-dashed border-slate-300 rounded-2xl p-6 flex flex-col items-center justify-center hover:border-indigo-400 hover:bg-slate-50/50 transition-all cursor-pointer bg-slate-50/20 group"
+        className="relative border border-dashed border-white/10 rounded-2xl p-6 flex flex-col items-center justify-center hover:border-emerald-500/50 hover:bg-white/5 transition-all cursor-pointer bg-white/5 group overflow-hidden"
         onClick={() => document.getElementById('twitch-upload-modal')?.click()}
       >
         {twitchPreview ? (
-          <div className="relative group/img">
-            <img src={twitchPreview} alt="Preview" className="max-h-32 rounded-xl border border-slate-100 transition-transform group-hover/img:scale-[1.02]" />
-            <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover/img:opacity-100 transition-opacity rounded-xl flex items-center justify-center">
+          <div className="relative group/img w-full flex justify-center">
+            <img src={twitchPreview} alt="Preview" className="max-h-32 rounded-xl border border-white/10 transition-transform group-hover/img:scale-[1.02] grayscale hover:grayscale-0" />
+            <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover/img:opacity-100 transition-opacity rounded-xl flex items-center justify-center backdrop-blur-sm">
               <Plus className="h-6 w-6 text-white" />
             </div>
           </div>
         ) : (
           <div className="flex flex-col items-center">
-            <Plus className="h-6 w-6 text-slate-300 mb-2 group-hover:text-indigo-500 transition-colors" />
-            <p className="text-[11px] font-semibold text-slate-500 mb-1">Subir captura de resultados</p>
-            <p className="text-[9px] text-slate-400 uppercase font-bold tracking-widest">PNG, JPG</p>
+            <Plus className="h-6 w-6 text-slate-700 mb-2 group-hover:text-emerald-500 transition-colors" />
+            <p className="text-[10px] font-black text-slate-500 mb-1 uppercase tracking-widest">Inject Results Capture</p>
+            <p className="text-[8px] text-slate-700 uppercase font-black tracking-[0.3em]">Telemetry.JPG</p>
           </div>
         )}
         <input
@@ -79,11 +79,11 @@ const StreamFormSection: React.FC<StreamFormSectionProps> = ({
         />
       </div>
 
-      <div className="p-3 bg-slate-50/50 rounded-2xl border border-slate-100">
+      <div className="p-3 bg-white/5 rounded-2xl border border-white/5">
         <div className="grid grid-cols-3 gap-2">
-          <div className="bg-white border border-slate-200 rounded-xl p-2.5">
-            <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
-              {streamPlatform === 'tiktok' ? 'Tiempo' : 'Duración'}
+          <div className="bg-slate-900 border border-white/5 rounded-xl p-2.5">
+            <label className="block text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1.5 ml-0.5">
+              {streamPlatform === 'tiktok' ? 'Session' : 'Uptime'}
             </label>
             <div className="flex gap-1 items-center">
               <input
@@ -95,9 +95,9 @@ const StreamFormSection: React.FC<StreamFormSectionProps> = ({
                   const m = formData.duration_minutes % 60;
                   setFormData({ ...formData, duration_minutes: (h * 60) + m });
                 }}
-                className="w-full bg-slate-50/50 py-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-slate-700"
+                className="w-full bg-white/5 py-1 rounded text-xs focus:ring-1 focus:ring-emerald-500/50 transition-all font-black text-center outline-none [appearance:textfield] text-white font-mono"
               />
-              <span className="text-slate-300 font-bold">:</span>
+              <span className="text-slate-700 font-bold">:</span>
               <input
                 type="number"
                 placeholder="M"
@@ -108,13 +108,13 @@ const StreamFormSection: React.FC<StreamFormSectionProps> = ({
                   const m = parseInt(e.target.value) || 0;
                   setFormData({ ...formData, duration_minutes: (h * 60) + m });
                 }}
-                className="w-full bg-slate-50/50 py-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-slate-700"
+                className="w-full bg-white/5 py-1 rounded text-xs focus:ring-1 focus:ring-emerald-500/50 transition-all font-black text-center outline-none [appearance:textfield] text-white font-mono"
               />
             </div>
           </div>
-          <div className="bg-white border border-slate-200 rounded-xl p-2.5">
-            <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
-              {streamPlatform === 'tiktok' ? 'Vistas' : 'Avg View'}
+          <div className="bg-slate-900 border border-white/5 rounded-xl p-2.5">
+            <label className="block text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1.5 ml-0.5">
+              {streamPlatform === 'tiktok' ? 'Reach' : 'Avg Tele'}
             </label>
             <input
               type="number"
@@ -124,13 +124,13 @@ const StreamFormSection: React.FC<StreamFormSectionProps> = ({
                 if (streamPlatform === 'tiktok') setFormData({ ...formData, views: v });
                 else setFormData({ ...formData, average_viewers: v });
               }}
-              className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
+              className="block w-full bg-white/5 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-emerald-500/50 transition-all font-black text-center outline-none [appearance:textfield] text-white font-mono"
               placeholder="0"
             />
           </div>
-          <div className="bg-white border border-slate-200 rounded-xl p-2.5">
-            <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
-              {streamPlatform === 'tiktok' ? 'Únicos' : 'Peak'}
+          <div className="bg-slate-900 border border-white/5 rounded-xl p-2.5">
+            <label className="block text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1.5 ml-0.5">
+              {streamPlatform === 'tiktok' ? 'Unique' : 'Peak'}
             </label>
             <input
               type="number"
@@ -140,7 +140,7 @@ const StreamFormSection: React.FC<StreamFormSectionProps> = ({
                 if (streamPlatform === 'tiktok') setFormData({ ...formData, unique_viewers: v });
                 else setFormData({ ...formData, peek_viewers: v });
               }}
-              className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
+              className="block w-full bg-white/5 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-emerald-500/50 transition-all font-black text-center outline-none [appearance:textfield] text-white font-mono"
               placeholder="0"
             />
           </div>
@@ -148,19 +148,19 @@ const StreamFormSection: React.FC<StreamFormSectionProps> = ({
 
         <div className={`grid gap-2 mt-2 ${streamPlatform === 'twitch' ? 'grid-cols-3' : 'grid-cols-2'}`}>
           {streamPlatform === 'twitch' && (
-            <div className="bg-white border border-slate-200 rounded-xl p-2.5 shadow-sm">
-              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">Únicos</label>
+            <div className="bg-slate-900 border border-white/5 rounded-xl p-2.5 shadow-sm">
+              <label className="block text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1.5 ml-0.5">Unique</label>
               <input
                 type="number"
                 value={formData.unique_viewers || ''}
                 onChange={(e) => setFormData({ ...formData, unique_viewers: parseInt(e.target.value) || 0 })}
-                className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
+                className="block w-full bg-white/5 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-emerald-500/50 transition-all font-black text-center outline-none [appearance:textfield] text-white font-mono"
                 placeholder="0"
               />
             </div>
           )}
-          <div className="bg-white border border-slate-200 rounded-xl p-2.5 shadow-sm">
-            <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
+          <div className="bg-slate-900 border border-white/5 rounded-xl p-2.5 shadow-sm">
+            <label className="block text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1.5 ml-0.5">
               {streamPlatform === 'tiktok' ? 'Likes' : 'Chatters'}
             </label>
             <input
@@ -171,13 +171,13 @@ const StreamFormSection: React.FC<StreamFormSectionProps> = ({
                 if (streamPlatform === 'tiktok') setFormData({ ...formData, likes: v });
                 else setFormData({ ...formData, unique_chatters: v });
               }}
-              className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
+              className="block w-full bg-white/5 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-emerald-500/50 transition-all font-black text-center outline-none [appearance:textfield] text-white font-mono"
               placeholder="0"
             />
           </div>
-          <div className="bg-white border border-slate-200 rounded-xl p-2.5 shadow-sm">
-            <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
-              {streamPlatform === 'tiktok' ? 'Coment' : 'Vistas V.'}
+          <div className="bg-slate-900 border border-white/5 rounded-xl p-2.5 shadow-sm">
+            <label className="block text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1.5 ml-0.5">
+              {streamPlatform === 'tiktok' ? 'Coment' : 'VOD Views'}
             </label>
             <input
               type="number"
@@ -187,7 +187,7 @@ const StreamFormSection: React.FC<StreamFormSectionProps> = ({
                 if (streamPlatform === 'tiktok') setFormData({ ...formData, comments: v });
                 else setFormData({ ...formData, views: v });
               }}
-              className="block w-full bg-slate-50/50 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-center outline-none [appearance:textfield] text-slate-700"
+              className="block w-full bg-white/5 py-1 px-1 rounded text-xs focus:ring-1 focus:ring-emerald-500/50 transition-all font-black text-center outline-none [appearance:textfield] text-white font-mono"
               placeholder="0"
             />
           </div>

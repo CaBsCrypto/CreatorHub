@@ -39,67 +39,67 @@ interface ContentCardProps {
 import DiscordIcon from '../icons/DiscordIcon';
 
 const platformConfig = {
-  youtube: { icon: Youtube, color: 'text-red-500', bg: 'from-red-50 to-white' },
-  instagram: { icon: Instagram, color: 'text-pink-500', bg: 'from-pink-50 to-white' },
-  tiktok: { icon: Music2, color: 'text-gray-900', bg: 'from-gray-100 to-white' },
-  x: { icon: Twitter, color: 'text-indigo-900', bg: 'from-indigo-50 to-white' },
-  coinmarketcap: { icon: Globe, color: 'text-indigo-600', bg: 'from-indigo-50 to-white' },
-  twitch: { icon: Globe, color: 'text-purple-600', bg: 'from-purple-50 to-white' },
-  discord: { icon: DiscordIcon, color: 'text-indigo-500', bg: 'from-indigo-50 to-white' },
-  baseapp: { icon: Globe, color: 'text-blue-600', bg: 'from-blue-50 to-white' }
+  youtube: { icon: Youtube, color: 'text-red-500', bg: 'from-red-950/20 to-slate-950' },
+  instagram: { icon: Instagram, color: 'text-pink-500', bg: 'from-pink-950/20 to-slate-950' },
+  tiktok: { icon: Music2, color: 'text-white', bg: 'from-slate-900 to-slate-950' },
+  x: { icon: Twitter, color: 'text-white', bg: 'from-slate-900 to-slate-950' },
+  coinmarketcap: { icon: Globe, color: 'text-emerald-500', bg: 'from-emerald-950/20 to-slate-950' },
+  twitch: { icon: Globe, color: 'text-purple-500', bg: 'from-purple-950/20 to-slate-950' },
+  discord: { icon: DiscordIcon, color: 'text-indigo-400', bg: 'from-indigo-950/20 to-slate-950' },
+  baseapp: { icon: Globe, color: 'text-cyan-500', bg: 'from-cyan-950/20 to-slate-950' }
 };
 
 const ContentCard: React.FC<ContentCardProps> = ({ item, campaignName, onEdit, onDelete, onClick, index }) => {
-  const { icon: PlatformIcon, color: platformColor, bg: platformBg } = platformConfig[item.platform] || { icon: Globe, color: 'text-gray-400', bg: 'from-gray-50 to-white' };
+  const { icon: PlatformIcon, color: platformColor, bg: platformBg } = platformConfig[item.platform] || { icon: Globe, color: 'text-slate-400', bg: 'from-slate-900 to-slate-950' };
   const isGamenight = item.platform === 'discord' || item.platform === 'baseapp';
 
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.05 * index }}
+      transition={{ delay: 0.05 * index, duration: 0.5 }}
       onClick={onClick}
-      className={`group relative flex flex-col rounded-[2.5rem] bg-white overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 cursor-pointer ${
+      className={`group relative flex flex-col rounded-[2.5rem] glass-dark overflow-hidden shadow-2xl transition-all duration-700 cursor-pointer border ${
         isGamenight 
-          ? 'ring-2 ring-indigo-500 shadow-[0_0_25px_rgba(99,102,241,0.25)]' 
-          : 'ring-1 ring-gray-100 hover:ring-indigo-100'
+          ? 'border-emerald-500 shadow-[0_0_40px_rgba(16,185,129,0.2)]' 
+          : 'border-white/5 hover:border-emerald-500/30'
       }`}
     >
-      {/* Generic Premium Header */}
-      <div className={`relative h-32 w-full bg-gradient-to-br ${platformBg} flex items-center justify-center overflow-hidden`}>
+      {/* Header Section */}
+      <div className={`relative h-40 w-full bg-gradient-to-br ${platformBg} flex items-center justify-center overflow-hidden`}>
         {item.thumbnail ? (
           <>
             <img 
               src={item.thumbnail} 
               alt={item.title || 'Thumbnail'} 
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-60 group-hover:opacity-80"
             />
-            <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px] group-hover:backdrop-blur-0 transition-all duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
           </>
         ) : (
-          <div className={`absolute inset-0 flex items-center justify-center opacity-[0.03] group-hover:opacity-[0.07] transition-opacity duration-500`}>
-            <PlatformIcon className="h-48 w-48 -rotate-12" />
+          <div className={`absolute inset-0 flex items-center justify-center opacity-[0.05] group-hover:opacity-[0.1] transition-opacity duration-1000`}>
+            <PlatformIcon className="h-64 w-64 -rotate-12" />
           </div>
         )}
         
         <div className="relative z-10 flex flex-col items-center">
-          <div className="w-12 h-12 rounded-2xl bg-white shadow-xl flex items-center justify-center mb-2 ring-1 ring-gray-100">
-            <PlatformIcon className={`h-6 w-6 ${platformColor}`} />
+          <div className="w-16 h-16 rounded-[1.5rem] bg-slate-900/80 backdrop-blur-xl shadow-2xl flex items-center justify-center mb-3 border border-white/10 group-hover:scale-110 transition-transform duration-500">
+            <PlatformIcon className={`h-8 w-8 ${platformColor}`} />
           </div>
-          <span className={`text-[9px] font-black uppercase tracking-[0.2em] ${item.thumbnail ? 'text-white' : 'text-gray-400'}`}>
+          <span className={`text-[10px] font-black uppercase tracking-[0.4em] ${item.thumbnail ? 'text-white' : 'text-slate-500'}`}>
             {item.platform === 'twitch' ? 'stream' : item.platform === 'discord' ? 'jornada' : item.platform === 'baseapp' ? 'video' : item.platform}
           </span>
         </div>
 
         {isGamenight && (
-          <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600/90 backdrop-blur-md text-white rounded-xl shadow-lg border border-white/20 scale-90 origin-top-left animate-in fade-in zoom-in-75 duration-500">
-            <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
-            <span className="text-[10px] font-black uppercase tracking-widest leading-none">GAMENIGHT</span>
+          <div className="absolute top-6 left-6 z-20 flex items-center gap-2.5 px-4 py-2 bg-emerald-600 backdrop-blur-md text-white rounded-xl shadow-2xl border border-white/20 animate-in fade-in zoom-in-75 duration-700">
+            <div className="w-2 h-2 bg-white rounded-full animate-pulse shadow-[0_0_12px_rgba(255,255,255,0.8)]" />
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] leading-none">GAMENIGHT</span>
           </div>
         )}
 
-        {/* Action Buttons overlay */}
-        <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300 z-[9999]">
+        {/* Action Buttons */}
+        <div className="absolute top-6 right-6 flex gap-3 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-500 z-30">
           <button 
             type="button"
             onClick={(e) => { 
@@ -107,7 +107,7 @@ const ContentCard: React.FC<ContentCardProps> = ({ item, campaignName, onEdit, o
               e.stopPropagation(); 
               onEdit(item); 
             }} 
-            className="p-2.5 rounded-xl bg-white shadow-xl text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-all pointer-events-auto cursor-pointer ring-1 ring-gray-100"
+            className="p-3 rounded-xl bg-white text-slate-950 shadow-2xl hover:scale-110 transition-all active:scale-95"
           >
             <Edit2 className="h-4 w-4" />
           </button>
@@ -118,42 +118,42 @@ const ContentCard: React.FC<ContentCardProps> = ({ item, campaignName, onEdit, o
               e.stopPropagation(); 
               onDelete(item.id); 
             }} 
-            className="p-2.5 rounded-xl bg-white shadow-xl text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all pointer-events-auto cursor-pointer ring-1 ring-gray-100"
+            className="p-3 rounded-xl bg-rose-600 text-white shadow-2xl hover:scale-110 transition-all active:scale-95"
           >
             <Trash2 className="h-4 w-4" />
           </button>
         </div>
       </div>
 
-      <div className="p-7 flex flex-col flex-1">
+      <div className="p-8 flex flex-col flex-1">
         <div className="flex-1">
-          <p className="text-[9px] font-black text-indigo-600 mb-2 tracking-[0.3em] uppercase">
-            {campaignName || 'General'}
+          <p className="text-[10px] font-black text-emerald-500 mb-3 tracking-[0.4em] uppercase italic">
+            {campaignName || 'General_Node'}
           </p>
-          <h3 className="text-base font-black text-gray-900 leading-snug line-clamp-2 group-hover:text-indigo-600 transition-colors">
+          <h3 className="text-lg font-black text-white leading-snug line-clamp-2 group-hover:text-emerald-400 transition-colors uppercase tracking-tight">
             {item.title || item.url}
           </h3>
         </div>
         
-        <div className="mt-8 flex items-center justify-between border-t border-gray-50 pt-5">
-          <div className="flex items-center gap-6">
+        <div className="mt-10 flex items-center justify-between border-t border-white/5 pt-6">
+          <div className="flex items-center gap-8">
             <div className="flex flex-col">
-              <span className="text-xl font-black text-gray-900 leading-none">{item.views?.toLocaleString() || 0}</span>
-              <span className="text-[9px] font-bold text-gray-400 uppercase mt-1.5 tracking-widest">Views</span>
+              <span className="text-2xl font-black text-white leading-none tracking-tighter">{item.views?.toLocaleString() || 0}</span>
+              <span className="text-[10px] font-bold text-slate-500 uppercase mt-2 tracking-[0.2em]">Impact</span>
             </div>
-            <div className="w-[1px] h-8 bg-gray-100" />
+            <div className="w-[1px] h-10 bg-white/5" />
             <div className="flex flex-col">
-              <span className="text-xl font-black text-gray-900 leading-none">
+              <span className="text-2xl font-black text-white leading-none tracking-tighter">
                 {item.platform === 'twitch' || item.platform === 'discord' ? (item.peek_viewers || 0).toLocaleString() : (item.likes || 0).toLocaleString()}
               </span>
-              <span className="text-[9px] font-bold text-gray-400 uppercase mt-1.5 tracking-widest">
-                {item.platform === 'twitch' || item.platform === 'discord' ? 'Peak' : 'Likes'}
+              <span className="text-[10px] font-bold text-slate-500 uppercase mt-2 tracking-[0.2em]">
+                {item.platform === 'twitch' || item.platform === 'discord' ? 'Peak' : 'Engage'}
               </span>
             </div>
           </div>
           
-          <div className="flex items-center gap-1.5 text-[10px] font-black text-indigo-600 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
-             Detalle <ExternalLink className="h-3.5 w-3.5" />
+          <div className="flex items-center gap-3 text-[10px] font-black text-emerald-500 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0 italic">
+             Access <ExternalLink className="h-4 w-4" />
           </div>
         </div>
       </div>

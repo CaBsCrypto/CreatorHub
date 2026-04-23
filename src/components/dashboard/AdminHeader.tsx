@@ -39,31 +39,35 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({
   const activeFiltersCount = [platform, campaign, creator, pay_month, team_role].filter(f => f !== 'all').length;
 
   return (
-    <header className="flex flex-col items-start gap-10 mb-16">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full gap-4 animate-in fade-in slide-in-from-left-4 duration-700">
+    <header className="flex flex-col items-start gap-12 mb-20">
+      <div className="flex flex-col md:flex-row md:items-center justify-between w-full gap-8 animate-in fade-in slide-in-from-left-6 duration-1000">
         <div>
-          <h1 className="text-4xl lg:text-5xl font-black text-gray-900 leading-tight tracking-tight mb-2">Panel de Control</h1>
-          <p className="text-base font-bold text-gray-400 max-w-md">Gestiona la agencia, creadores y campañas activas.</p>
+          <h1 className="text-5xl lg:text-7xl font-black text-white leading-none tracking-tighter uppercase mb-4">
+            Command_<span className="text-emerald-500">Center</span>
+          </h1>
+          <p className="text-lg font-medium text-slate-500 max-w-xl italic">
+            Monitorización centralizada de la red de creadores, despliegue de campañas y sincronización de protocolos.
+          </p>
         </div>
         <div className="flex-shrink-0">
           <ScraperHealthWidget />
         </div>
       </div>
       
-      <div className="flex flex-wrap items-center justify-start gap-4 w-full animate-in fade-in slide-in-from-bottom-4 duration-700 relative">
+      <div className="flex flex-wrap items-center justify-start gap-5 w-full animate-in fade-in slide-in-from-bottom-6 duration-1000 relative">
         <div className="relative w-full sm:w-auto">
           <button 
             onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)} 
-            className={`w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-wider transition-all active:scale-95 border-2 whitespace-nowrap ${
+            className={`w-full flex items-center justify-center gap-3 px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 border-2 whitespace-nowrap active:scale-95 ${
               isFilterMenuOpen || activeFiltersCount > 0
-                ? 'bg-indigo-600 text-white border-indigo-600 shadow-xl shadow-indigo-100' 
-                : 'bg-white text-gray-900 border-slate-100 shadow-sm hover:bg-slate-50 hover:border-slate-200'
+                ? 'bg-white text-slate-950 border-white shadow-[0_0_30px_rgba(255,255,255,0.2)]' 
+                : 'bg-slate-900/50 text-slate-400 border-white/5 hover:bg-slate-800 hover:border-white/20'
             }`}
           >
             <Filter className="h-4 w-4" /> 
-            <span>Filtros</span>
+            <span>Filters_Protocol</span>
             {activeFiltersCount > 0 && (
-              <span className="ml-1 w-5 h-5 bg-rose-500 text-white text-[10px] rounded-full flex items-center justify-center flex-shrink-0">
+              <span className="ml-2 w-5 h-5 bg-emerald-500 text-slate-950 text-[10px] rounded-full flex items-center justify-center flex-shrink-0 animate-pulse font-black">
                 {activeFiltersCount}
               </span>
             )}
@@ -85,31 +89,31 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({
 
         <button 
           onClick={() => setIsAnalyzingCreator(true)} 
-          className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 bg-indigo-50/50 text-indigo-600 rounded-2xl text-[11px] font-black uppercase tracking-wider hover:bg-indigo-100/50 transition-all active:scale-95 border-2 border-indigo-100/50 whitespace-nowrap"
+          className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-slate-900/50 text-slate-400 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-slate-800 hover:text-white transition-all duration-500 border-2 border-white/5 hover:border-white/20 active:scale-95 whitespace-nowrap"
         >
-          <Search className="h-4 w-4" /> Analizar
+          <Search className="h-4 w-4 text-emerald-500" /> Analysis_Node
         </button>
         
         <button 
           onClick={() => setIsCreatingCampaign(true)} 
-          className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 bg-indigo-600 text-white rounded-2xl text-[11px] font-black uppercase tracking-wider shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all active:scale-95 border-2 border-indigo-600 whitespace-nowrap"
+          className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-emerald-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] shadow-2xl shadow-emerald-600/20 hover:bg-emerald-500 transition-all duration-500 border-2 border-emerald-500/50 active:scale-95 whitespace-nowrap"
         >
-          <Plus className="h-4 w-4" /> Nueva Campaña
+          <Plus className="h-4 w-4" /> Deploy_Campaign
         </button>
         
         <button 
           onClick={() => setIsAddingUser(true)} 
-          className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 bg-white text-gray-900 rounded-2xl text-[11px] font-black uppercase tracking-wider shadow-sm border-2 border-slate-100 hover:bg-slate-50 hover:border-slate-200 transition-all active:scale-95 whitespace-nowrap"
+          className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-slate-950 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] shadow-xl border-2 border-white/10 hover:border-white/30 transition-all duration-500 active:scale-95 whitespace-nowrap"
         >
-          <Users className="h-4 w-4" /> Añadir Miembro
+          <Users className="h-4 w-4 text-emerald-500" /> New_Agent
         </button>
 
         <a 
           href="/" 
           target="_blank"
-          className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 bg-emerald-50 text-emerald-600 rounded-2xl text-[11px] font-black uppercase tracking-wider hover:bg-emerald-100 transition-all active:scale-95 border-2 border-emerald-100 whitespace-nowrap"
+          className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-slate-900/50 text-slate-500 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-emerald-500/10 hover:text-emerald-400 transition-all duration-500 border-2 border-white/5 hover:border-emerald-500/20 active:scale-95 whitespace-nowrap"
         >
-          <Globe className="h-4 w-4" /> Ver Página Pública
+          <Globe className="h-4 w-4" /> Public_Portal
         </a>
       </div>
     </header>

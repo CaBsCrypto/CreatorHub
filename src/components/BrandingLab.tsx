@@ -19,7 +19,7 @@ const ShadowLine = ({ type, mousePos }: { type: string; mousePos: { x: number; y
         <motion.div 
           animate={{ skewX: skew, scaleY: 1 + Math.abs(dx) }}
           style={{ opacity }}
-          className="absolute top-32 w-10 h-24 border-b-2 border-x-2 border-indigo-500/40 rounded-b-sm blur-[1px] transform-origin-top"
+          className="absolute top-32 w-10 h-24 border-b-2 border-x-2 border-emerald-500/40 rounded-b-sm blur-[1px] transform-origin-top"
         />
       </div>
     );
@@ -34,7 +34,7 @@ const ShadowLine = ({ type, mousePos }: { type: string; mousePos: { x: number; y
             <motion.div 
               animate={{ skewX: skew * (1 + i * 0.1), scaleY: 0.8 + i * 0.1 }}
               style={{ opacity: opacity * 0.6 }}
-              className="absolute top-24 w-8 h-12 border-b-[1px] border-x-[1px] border-indigo-400/30 rounded-b-sm blur-[2px] transform-origin-top"
+              className="absolute top-24 w-8 h-12 border-b-[1px] border-x-[1px] border-emerald-400/30 rounded-b-sm blur-[2px] transform-origin-top"
             />
           </div>
         ))}
@@ -50,7 +50,7 @@ const ShadowLine = ({ type, mousePos }: { type: string; mousePos: { x: number; y
       <motion.div 
         animate={{ skewX: skew, scaleY: 1.2 }}
         style={{ opacity }}
-        className="absolute top-32 w-12 h-20 border-b-2 border-x-2 border-indigo-400/20 rounded-b-lg blur-[4px] bg-gradient-to-r from-indigo-500/5 via-rose-500/5 to-indigo-500/5"
+        className="absolute top-32 w-12 h-20 border-b-2 border-x-2 border-emerald-400/20 rounded-b-lg blur-[4px] bg-gradient-to-r from-emerald-500/5 via-rose-500/5 to-emerald-500/5"
       />
     </div>
   );
@@ -82,10 +82,10 @@ export default function BrandingLab() {
         <div className="grid lg:grid-cols-2 gap-20 items-center">
           <div className="space-y-10" onMouseMove={handleMouseMove} ref={containerRef}>
             <div className="space-y-2">
-              <span className="text-xs font-black tracking-[0.5em] text-indigo-500 uppercase">Identity Lab v1.0</span>
+              <span className="text-xs font-black tracking-[0.5em] text-emerald-500 uppercase">Identity Lab v1.0</span>
               <h2 className="text-5xl font-black tracking-tighter uppercase leading-none">
                 The Shadow <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-white to-rose-400">Concept</span>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-white to-rose-400">Concept</span>
               </h2>
             </div>
 
@@ -117,7 +117,7 @@ export default function BrandingLab() {
             
             <div className="absolute bottom-10 text-center space-y-1">
               <div className="text-[10px] font-black tracking-[0.4em] text-white/20 uppercase">Umbra Innovation</div>
-              <div className="text-[8px] font-bold tracking-[0.2em] text-indigo-500/40 uppercase italic">Refinement Stage</div>
+              <div className="text-[8px] font-bold tracking-[0.2em] text-emerald-500/40 uppercase italic">Refinement Stage</div>
             </div>
           </div>
         </div>

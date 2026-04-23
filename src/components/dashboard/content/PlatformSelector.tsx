@@ -22,22 +22,22 @@ const PlatformSelector: React.FC<PlatformSelectorProps> = ({
   return (
     <div>
       <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-3 ml-1">
-        Plataforma
+        Transmission Protocol
       </label>
-      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-8 gap-2">
         {availablePlatforms.map((p) => (
           <button
             key={p.id}
             type="button"
             onClick={() => onSelect(p.id)}
-            className={`flex flex-col items-center justify-center p-2.5 rounded-xl border transition-all duration-200 ${
+            className={`flex flex-col items-center justify-center p-2.5 rounded-xl border transition-all duration-300 ${
               selectedPlatform === p.id
-                ? 'border-indigo-600 bg-indigo-50/50 shadow-sm'
-                : 'border-slate-100 bg-white hover:border-slate-200 hover:bg-slate-50'
+                ? 'border-emerald-500/50 bg-emerald-500/10 shadow-lg shadow-emerald-500/5'
+                : 'border-white/5 bg-white/5 hover:border-white/20 hover:bg-white/10'
             }`}
           >
-            <p.icon className={`h-5 w-5 mb-1.5 ${selectedPlatform === p.id ? 'text-indigo-600' : p.color}`} />
-            <span className={`text-[9px] font-bold uppercase tracking-widest ${selectedPlatform === p.id ? 'text-indigo-600' : 'text-slate-400'}`}>
+            <p.icon className={`h-4 w-4 mb-1.5 transition-colors ${selectedPlatform === p.id ? 'text-emerald-400' : 'text-slate-500'}`} />
+            <span className={`text-[8px] font-black uppercase tracking-[0.2em] transition-colors ${selectedPlatform === p.id ? 'text-emerald-400' : 'text-slate-500'}`}>
               {p.label}
             </span>
           </button>

@@ -35,19 +35,19 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-gray-900/60 backdrop-blur-md"
+            className="fixed inset-0 bg-slate-950/60 backdrop-blur-md"
           />
           
           <motion.div 
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="relative w-full max-w-5xl bg-white/95 backdrop-blur-3xl rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.2)] border border-white overflow-hidden flex flex-col md:flex-row max-h-[90vh]"
+            className="relative w-full max-w-5xl bg-slate-950/80 backdrop-blur-xl rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] border border-white/5 overflow-hidden flex flex-col md:flex-row max-h-[90vh] ring-1 ring-white/10"
           >
             {/* Close Button */}
             <button 
               onClick={onClose}
-              className="absolute top-6 right-6 z-50 p-3 rounded-2xl bg-white shadow-2xl text-slate-400 hover:text-slate-900 transition-all hover:rotate-90 border border-slate-100"
+              className="absolute top-6 right-6 z-50 p-3 rounded-2xl bg-slate-900 shadow-2xl text-slate-400 hover:text-white transition-all hover:rotate-90 border border-white/10"
             >
               <X className="h-6 w-6" />
             </button>
@@ -71,23 +71,23 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
             </div>
 
             {/* Right side: Insights */}
-            <div className="w-full md:w-2/5 p-10 md:p-12 overflow-y-auto bg-white/50 custom-scrollbar">
+            <div className="w-full md:w-2/5 p-10 md:p-12 overflow-y-auto bg-transparent custom-scrollbar">
               <div className="flex items-center gap-4 mb-8">
-                <div className={`p-4 rounded-2xl ${config.bg} shadow-sm`}>
+                <div className={`p-4 rounded-2xl ${config.bg.replace('bg-', 'bg-').replace('-50', '-500/10')} border border-white/5 shadow-sm`}>
                   <Icon className={`h-7 w-7 ${config.color}`} />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] leading-none mb-1.5">{config.label}</span>
+                  <span className="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em] leading-none mb-1.5">{config.label}</span>
                   <div className="flex items-center gap-2">
-                    <Clock className="h-3 w-3 text-slate-300" />
-                    <span className="text-[11px] font-black text-slate-900 uppercase tracking-widest leading-none">
+                    <Clock className="h-3 w-3 text-slate-600" />
+                    <span className="text-[11px] font-black text-white uppercase tracking-widest leading-none font-mono">
                       {new Date(item.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </span>
                   </div>
                 </div>
               </div>
 
-              <h2 className="text-3xl font-black text-slate-900 mb-10 tracking-tighter leading-tight uppercase">
+              <h2 className="text-3xl font-black text-white mb-10 tracking-tighter leading-tight uppercase">
                 {item.title || 'Strategic Metrics'}
               </h2>
 
@@ -100,57 +100,57 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
                   return (
                     <div className="space-y-6">
                       <div className="grid grid-cols-2 gap-4">
-                        <div className="bg-slate-50 border border-slate-100 rounded-[2rem] p-6 shadow-sm group hover:bg-white transition-colors cursor-default">
-                          <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <div className="bg-white/5 border border-white/10 rounded-[2rem] p-6 shadow-sm group hover:bg-white/10 transition-colors cursor-default">
+                          <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-3 flex items-center gap-2">
                              <Clock className="h-4 w-4" /> Runtime
                           </p>
-                          <p className="text-2xl font-black text-slate-900">
+                          <p className="text-2xl font-black text-white font-mono">
                             {Math.floor((item.duration_minutes || 0) / 60)}h {(item.duration_minutes || 0) % 60}m
                           </p>
                         </div>
-                        <div className="bg-slate-50 border border-slate-100 rounded-[2rem] p-6 shadow-sm group hover:bg-white transition-colors cursor-default">
+                        <div className="bg-white/5 border border-white/10 rounded-[2rem] p-6 shadow-sm group hover:bg-white/10 transition-colors cursor-default">
                           <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-3 flex items-center gap-2">
                              <TrendingUp className="h-4 w-4" /> Peak CCV
                           </p>
-                          <p className="text-2xl font-black text-slate-900">
+                          <p className="text-2xl font-black text-white font-mono">
                              {(item.peek_viewers || 0).toLocaleString()}
                           </p>
                         </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
-                        <div className="bg-slate-50 border border-slate-100 rounded-[2rem] p-6 shadow-sm group hover:bg-white transition-colors cursor-default">
-                          <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <div className="bg-white/5 border border-white/10 rounded-[2rem] p-6 shadow-sm group hover:bg-white/10 transition-colors cursor-default">
+                          <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-3 flex items-center gap-2">
                             <Users className="h-4 w-4" /> Uniques
                           </p>
-                          <p className="text-2xl font-black text-slate-900">{(item.unique_viewers || 0).toLocaleString()}</p>
+                          <p className="text-2xl font-black text-white font-mono">{(item.unique_viewers || 0).toLocaleString()}</p>
                         </div>
-                        <div className="bg-slate-50 border border-slate-100 rounded-[2rem] p-6 shadow-sm group hover:bg-white transition-colors cursor-default">
-                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                            {isManual ? <Monitor className="h-4 w-4 text-purple-600" /> : <BarChart3 className="h-4 w-4 text-indigo-600" />}
+                        <div className="bg-white/5 border border-white/10 rounded-[2rem] p-6 shadow-sm group hover:bg-white/10 transition-colors cursor-default">
+                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            {isManual ? <Monitor className="h-4 w-4 text-purple-400" /> : <BarChart3 className="h-4 w-4 text-indigo-400" />}
                             {isManual ? 'Auditors' : 'Average'}
                           </p>
-                          <p className="text-2xl font-black text-slate-900">
+                          <p className="text-2xl font-black text-white font-mono">
                             {isManual ? (item.shares_count || 0).toLocaleString() : (item.average_viewers || 0).toLocaleString()}
                           </p>
                         </div>
                       </div>
 
-                      <div className="bg-indigo-600 rounded-[2.5rem] p-8 shadow-2xl shadow-indigo-200 relative overflow-hidden group">
+                      <div className="bg-indigo-600 rounded-[2.5rem] p-8 shadow-2xl shadow-indigo-500/20 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl group-hover:scale-150 transition-transform duration-1000" />
                         <p className="text-[11px] font-black text-indigo-100 uppercase tracking-[0.2em] mb-3 flex items-center gap-2 relative z-10">
                           <Eye className="h-5 w-5" /> Total Reach
                         </p>
-                        <p className="text-4xl font-black text-white relative z-10 tracking-tighter">
+                        <p className="text-4xl font-black text-white relative z-10 tracking-tighter font-mono">
                           {(item.views || item.unique_viewers || 0).toLocaleString()}
                         </p>
                       </div>
 
                       {(item as any).description && (
-                        <div className="pt-6 border-t border-slate-100">
-                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Strategic Narrative</p>
-                          <div className="p-6 bg-slate-50 italic text-sm text-slate-700 leading-relaxed font-medium rounded-3xl border border-slate-100 relative">
-                             <div className="absolute top-0 left-6 -translate-y-1/2 bg-white px-2 text-indigo-600">
+                        <div className="pt-6 border-t border-white/5">
+                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Strategic Narrative</p>
+                          <div className="p-6 bg-white/5 italic text-sm text-slate-300 leading-relaxed font-medium rounded-3xl border border-white/5 relative">
+                             <div className="absolute top-0 left-6 -translate-y-1/2 bg-slate-950 px-2 text-indigo-400">
                                <MessageSquare className="h-4 w-4" />
                              </div>
                             "{ (item as any).description }"
@@ -174,18 +174,18 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
                     </div>
                     
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-slate-50 border border-slate-100 rounded-[2rem] p-6 shadow-sm group hover:bg-white transition-colors cursor-default">
+                      <div className="bg-white/5 border border-white/10 rounded-[2rem] p-6 shadow-sm group hover:bg-white/10 transition-colors cursor-default">
                         <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-3 flex items-center gap-2">
                           <TrendingUp className="h-4 w-4" /> Interaction
                         </p>
-                        <p className="text-2xl font-black text-slate-900">{(item.likes || 0).toLocaleString()}</p>
+                        <p className="text-2xl font-black text-white font-mono">{(item.likes || 0).toLocaleString()}</p>
                       </div>
                       {(item.comments > 0 || item.platform === 'coinmarketcap' || item.platform === 'youtube') && (
-                        <div className="bg-slate-50 border border-slate-100 rounded-[2rem] p-6 shadow-sm group hover:bg-white transition-colors cursor-default">
-                          <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <div className="bg-white/5 border border-white/10 rounded-[2rem] p-6 shadow-sm group hover:bg-white/10 transition-colors cursor-default">
+                          <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-3 flex items-center gap-2">
                             <MessageSquare className="h-4 w-4" /> Sentiment
                           </p>
-                          <p className="text-2xl font-black text-slate-900">{(item.comments || 0).toLocaleString()}</p>
+                          <p className="text-2xl font-black text-white font-mono">{(item.comments || 0).toLocaleString()}</p>
                         </div>
                       )}
                     </div>
@@ -198,7 +198,7 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
                   href={item.url} 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="w-full flex items-center justify-center gap-3 py-5 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl hover:bg-black hover:translate-y-[-4px] transition-all active:scale-95"
+                  className="w-full flex items-center justify-center gap-3 py-5 bg-white/5 text-white border border-white/10 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl hover:bg-white/10 hover:translate-y-[-4px] transition-all active:scale-95"
                 >
                   <ExternalLink className="h-4 w-4" /> Verify Analytics
                 </a>

@@ -23,6 +23,8 @@ const translations = {
       p2_desc: "We deploy our transparency engine to scrape live engagement data, ensuring every view is accounted for.",
       p3_title: "Precision Reporting",
       p3_desc: "Results are served through unified portals, providing a crystal-clear summary of your campaign's ROI.",
+      p4_title: "Exponential Growth",
+      p4_desc: "Leveraging data transparency to lock in sustainable creator momentum.",
     },
     showcase: {
       label: "Showcase",
@@ -74,6 +76,8 @@ const translations = {
       p2_desc: "Desplegamos nuestro motor de transparencia para escanear datos en vivo, asegurando que cada vista se contabilice.",
       p3_title: "Reportes de Precisión",
       p3_desc: "Los resultados se entregan en portales unificados, ofreciendo un resumen cristalino del ROI.",
+      p4_title: "Crecimiento Exponencial",
+      p4_desc: "Aprovechamos la transparencia de datos para asegurar un impulso sostenible para el creador.",
     },
     showcase: {
       label: "Exhibición",

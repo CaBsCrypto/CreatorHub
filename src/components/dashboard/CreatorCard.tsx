@@ -29,111 +29,102 @@ interface CreatorCardProps {
 const CreatorCard: React.FC<CreatorCardProps> = ({ creator, index, userRole, onEditAudience, onViewProfile }) => {
   const RankIcon = creator.rank.icon;
   
-  // Refined border classes based on role with soft shadows
-  const borderClass = userRole === 'admin' 
-    ? 'border-rose-200 shadow-sm shadow-rose-50/50' 
+  const roleIndicator = userRole === 'admin' 
+    ? 'border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.1)]' 
     : userRole === 'manager' 
-      ? 'border-amber-200 shadow-sm shadow-amber-50/50' 
-      : 'border-slate-100 shadow-sm shadow-slate-50/50';
+      ? 'border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.1)]' 
+      : 'border-white/5';
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ delay: index * 0.05, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
       onClick={onViewProfile}
-      className={`group bg-white rounded-[2.5rem] border ${borderClass} p-6 sm:p-7 hover:shadow-[0_20px_50px_rgba(79,70,229,0.1)] hover:border-indigo-200 transition-all duration-500 relative overflow-hidden cursor-pointer hover:-translate-y-1`}
+      className={`group relative glass-dark rounded-[2.5rem] border ${roleIndicator} p-8 hover:border-emerald-500/40 transition-all duration-700 cursor-pointer overflow-hidden`}
     >
-      {/* Decorative gradient blob */}
-      <div className={`absolute -top-12 -right-12 w-40 h-40 bg-gradient-to-br ${creator.rank.color} opacity-[0.03] group-hover:opacity-10 rounded-full transition-opacity duration-700 blur-2xl`} />
+      {/* Technical Grid Overlay */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:20px_20px]" />
+      
+      {/* Glow Effect */}
+      <div className={`absolute -top-24 -right-24 w-48 h-48 bg-emerald-500/5 rounded-full blur-3xl group-hover:bg-emerald-500/10 transition-all duration-1000`} />
 
       <div className="relative z-10 flex flex-col">
         {/* Header Section */}
-        <div className="flex items-start justify-between mb-8">
-          <div className="flex items-center gap-4">
+        <div className="flex items-start justify-between mb-10">
+          <div className="flex items-center gap-5">
             {/* Avatar & Rank Badge */}
             <div className="relative shrink-0">
-              <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${creator.rank.color} p-[2.5px] shadow-sm transform group-hover:rotate-3 transition-transform duration-500`}>
-                <div className="w-full h-full bg-white rounded-[0.85rem] flex items-center justify-center overflow-hidden">
+              <div className="w-20 h-20 rounded-2xl bg-slate-900 border border-white/10 p-1 group-hover:border-emerald-500/30 transition-all duration-500 group-hover:scale-105 group-hover:-rotate-3">
+                <div className="w-full h-full bg-slate-950 rounded-xl flex items-center justify-center overflow-hidden">
                   {(creator as any).photo_url ? (
-                    <img src={(creator as any).photo_url} alt={creator.name} className="w-full h-full object-cover" />
+                    <img src={(creator as any).photo_url} alt={creator.name} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 grayscale group-hover:grayscale-0 transition-all duration-700" />
                   ) : (
-                    <span className={`text-xl font-black bg-gradient-to-br ${creator.rank.color} bg-clip-text text-transparent`}>
+                    <span className="text-2xl font-black text-emerald-500/50 group-hover:text-emerald-500 transition-colors">
                       {creator.name.charAt(0).toUpperCase()}
                     </span>
                   )}
                 </div>
               </div>
-              <div className={`absolute -bottom-1 -right-1 w-7 h-7 rounded-lg bg-gradient-to-br ${creator.rank.color} flex items-center justify-center border-2 border-white shadow-md`}>
-                <RankIcon className="h-3.5 w-3.5 text-white" />
+              <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center border-4 border-slate-950 shadow-2xl group-hover:scale-110 transition-transform">
+                <RankIcon className="h-4 w-4 text-slate-950" />
               </div>
             </div>
 
             {/* Name and ID */}
-            <div>
-              <div className="flex flex-col gap-1">
-                <h3 className="text-xl font-black text-gray-900 group-hover:text-indigo-600 transition-colors leading-tight tracking-tight">
-                  {creator.name}
-                </h3>
-                <div className="flex items-center gap-2">
-                  <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-gradient-to-r ${creator.rank.color} text-white shadow-sm`}>
-                    {creator.rank.name}
-                  </span>
-                </div>
-                <div className="flex items-center gap-1 mt-1">
-                   <Globe className="h-3 w-3 text-gray-300" />
-                   <span className="text-[10px] font-bold text-gray-400/80 font-mono tracking-tighter">ID: {creator.creator_id.slice(0, 8)}...</span>
-                </div>
+            <div className="flex flex-col gap-1.5">
+              <h3 className="text-2xl font-black text-white tracking-tighter leading-none group-hover:text-emerald-400 transition-colors">
+                {creator.name}
+              </h3>
+              <div className="flex items-center gap-3">
+                <span className="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] bg-white text-slate-950 italic">
+                  {creator.rank.name}_PROTOCOL
+                </span>
+              </div>
+              <div className="flex items-center gap-2 mt-1">
+                 <span className="text-[10px] font-black text-slate-600 font-mono tracking-widest uppercase">NODE_ID: <span className="text-emerald-500/40">{creator.creator_id.slice(0, 8)}</span></span>
               </div>
             </div>
           </div>
 
-          {/* Wallet / Payment Indicator */}
-          <div className={`flex items-center justify-center w-10 h-10 rounded-2xl border transition-all duration-300 ${
+          {/* Wallet / Status */}
+          <div className={`flex items-center justify-center w-12 h-12 rounded-2xl border transition-all duration-500 ${
             creator.paymentId 
-              ? 'bg-amber-50 border-amber-100 text-amber-500 shadow-sm shadow-amber-100/50' 
-              : 'bg-slate-50 border-slate-100 text-slate-300'
+              ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' 
+              : 'bg-slate-900 border-white/5 text-slate-700'
           }`}>
             <Wallet className="h-5 w-5" />
           </div>
         </div>
 
-        {/* Metrics Section - Vertical Stack matching screenshot */}
-        <div className="flex flex-col gap-6">
-          {/* Main Metric: Views */}
+        {/* Metrics Grid */}
+        <div className="grid grid-cols-2 gap-8 pt-8 border-t border-white/5">
           <div className="flex flex-col">
-            <span className="text-2xl font-black text-gray-900 leading-none tracking-tight">
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-2 italic">Views_Aggregated</span>
+            <span className="text-3xl font-black text-white leading-none tracking-tighter tabular-nums">
               {creator.views.toLocaleString()}
             </span>
-            <span className="text-[10px] font-extrabold text-gray-400 uppercase mt-1.5 tracking-[0.1em]">
-              Vistas Totales
-            </span>
           </div>
 
-          <div className="flex items-center gap-8">
-            {/* Posts */}
-            <div className="flex flex-col">
-              <span className="text-xl font-black text-gray-800 leading-none">
+          <div className="flex flex-col">
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-2 italic">Content_Nodes</span>
+            <div className="flex items-end gap-3">
+              <span className="text-3xl font-black text-white leading-none tracking-tighter tabular-nums">
                 {creator.contentCount}
               </span>
-              <span className="text-[10px] font-extrabold text-gray-400 uppercase mt-1.5 tracking-[0.1em]">
-                Posts
-              </span>
+              {creator.totalPaid !== undefined && creator.totalPaid > 0 && (
+                <div className="flex flex-col items-end pb-0.5">
+                  <span className="text-[10px] font-black text-emerald-500 leading-none">
+                    +${creator.totalPaid.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                  </span>
+                </div>
+              )}
             </div>
-
-            {/* Pagado - Conditional */}
-            {creator.totalPaid !== undefined && creator.totalPaid > 0 && (
-              <div className="flex flex-col animate-in fade-in slide-in-from-top-2 duration-700">
-                <span className="text-xl font-black text-indigo-600 leading-none">
-                  ${creator.totalPaid.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                </span>
-                <span className="text-[10px] font-extrabold text-indigo-400/80 uppercase mt-1.5 tracking-[0.1em]">
-                  Pagado
-                </span>
-              </div>
-            )}
           </div>
         </div>
+
+        {/* Action Reveal Overlay */}
+        <div className="absolute inset-x-0 bottom-0 h-1 bg-emerald-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
       </div>
     </motion.div>
   );
