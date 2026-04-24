@@ -148,13 +148,13 @@
 
 .method-card-large {
   grid-column: span 8;
-  @apply relative p-12 rounded-[3.5rem] bg-indigo-500/[0.02] border border-white/5 backdrop-blur-3xl transition-all duration-1000 overflow-hidden min-h-[420px] flex flex-col justify-between;
+  @apply relative p-12 rounded-[3.5rem] bg-slate-900/80 border border-white/5 backdrop-blur-2xl transition-all duration-1000 overflow-hidden min-h-[420px] flex flex-col justify-between;
   box-shadow: 0 40px 100px -30px rgba(0, 0, 0, 0.8);
 }
 
 .method-card-small {
   grid-column: span 4;
-  @apply relative p-10 rounded-[3.5rem] bg-indigo-500/[0.02] border border-white/5 backdrop-blur-3xl transition-all duration-1000 overflow-hidden min-h-[420px] flex flex-col justify-between;
+  @apply relative p-10 rounded-[3.5rem] bg-slate-900/80 border border-white/5 backdrop-blur-2xl transition-all duration-1000 overflow-hidden min-h-[420px] flex flex-col justify-between;
   box-shadow: 0 40px 100px -30px rgba(0, 0, 0, 0.8);
 }
 
@@ -165,8 +165,21 @@
 }
 
 .method-card-large:hover, .method-card-small:hover {
-  @apply border-emerald-500/20 -translate-y-2 bg-emerald-500/[0.03];
-  box-shadow: 0 60px 120px -40px rgba(16, 185, 129, 0.15);
+  @apply -translate-y-2;
+  box-shadow: 0 60px 120px -40px rgba(0, 0, 0, 0.4);
+}
+
+.card-theme-cyan:hover { @apply border-cyan-500/30 bg-cyan-500/[0.02]; }
+.card-theme-purple:hover { @apply border-purple-500/30 bg-purple-500/[0.02]; }
+.card-theme-emerald:hover { @apply border-emerald-500/30 bg-emerald-500/[0.02]; }
+
+/* Strategy Modal Styles */
+.strategy-modal-overlay {
+  @apply fixed inset-0 z-[150] flex items-center justify-center p-6 bg-slate-950/80 backdrop-blur-xl;
+}
+
+.strategy-modal-content {
+  @apply relative w-full max-w-2xl bg-slate-900 border border-white/10 rounded-[3rem] p-12 shadow-2xl overflow-hidden;
 }
 
 /* Micro-visualizations Animations */
