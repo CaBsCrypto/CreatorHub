@@ -233,8 +233,8 @@ export default function Landing() {
             <button onClick={() => document.getElementById('leadership')?.scrollIntoView({ behavior: 'smooth' })} className="text-xs font-black uppercase tracking-[0.3em] hover:text-emerald-400 transition-colors">{t?.nav?.minds}</button>
           </div>
           <div className="flex items-center gap-6">
-            <button onClick={() => setLanguage(language === 'en' ? 'es' : 'en')} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-xs font-black hover:bg-white/10 transition-all uppercase">{language}</button>
-            <button onClick={handleEnterApp} className="px-8 py-3 bg-white text-slate-950 rounded-full font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-white/10">{user ? (t?.nav?.dashboard || "Command Center") : (t?.nav?.login || "Login")}</button>
+            <button onClick={() => setLanguage(language === 'en' ? 'es' : 'en')} className="w-10 h-10 rounded-full bg-slate-900/50 border border-emerald-500/10 flex items-center justify-center text-xs font-black hover:bg-slate-900 transition-all uppercase">{language}</button>
+            <button onClick={handleEnterApp} className="px-8 py-3 bg-emerald-500 text-slate-950 rounded-full font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-emerald-500/10">{user ? (t?.nav?.dashboard || "Command Center") : (t?.nav?.login || "Login")}</button>
           </div>
         </div>
       </nav>
@@ -253,7 +253,7 @@ export default function Landing() {
             </p>
             <div className="flex flex-col sm:flex-row gap-6 items-start">
               <button onClick={handleEnterApp} className="px-12 py-5 bg-emerald-600 text-white rounded-full font-black text-xs uppercase tracking-widest flex items-center gap-4 hover:scale-105 transition-all shadow-2xl shadow-emerald-600/50">{t?.hero?.cta1} <ArrowRight className="h-4 w-4" /></button>
-              <button onClick={() => document.getElementById('creators')?.scrollIntoView({ behavior: 'smooth' })} className="px-12 py-5 bg-white/5 border border-white/10 backdrop-blur-md rounded-full font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all">{t?.hero?.cta2}</button>
+              <button onClick={() => document.getElementById('creators')?.scrollIntoView({ behavior: 'smooth' })} className="px-12 py-5 bg-slate-900/50 border border-emerald-500/10 rounded-full font-black text-xs uppercase tracking-widest hover:bg-slate-900 transition-all">{t?.hero?.cta2}</button>
             </div>
           </motion.div>
           <motion.div 
@@ -291,11 +291,11 @@ export default function Landing() {
       <section ref={statsRef} className="stat-container relative z-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-16 lg:gap-0">
-            <div className="text-center group lg:border-r border-white/5">
+            <div className="text-center group lg:border-r border-emerald-500/10">
               <AnimatedCounter target={116} suffix="K+" decimals={0} />
               <div className="stat-label">{t?.stats?.reach_label}</div>
             </div>
-            <div className="text-center group lg:border-r border-white/5">
+            <div className="text-center group lg:border-r border-emerald-500/10">
               <AnimatedCounter target={8} suffix="" />
               <div className="stat-label">{t?.stats?.creators_label}</div>
             </div>
@@ -420,7 +420,7 @@ export default function Landing() {
       </section>
 
       {/* Elite Roster Carousel */}
-      <section id="creators" className="py-48 bg-slate-950 relative overflow-hidden border-t border-white/5">
+      <section id="creators" className="py-48 bg-slate-950 relative overflow-hidden border-t border-emerald-500/10">
         <div className="max-w-7xl mx-auto px-6 mb-24">
           <span className="section-label">{t?.showcase?.label}</span>
           <h2 className="text-5xl md:text-7xl font-black tracking-tighter uppercase leading-none">The <span className="gradient-text">Force.</span></h2>
@@ -430,7 +430,7 @@ export default function Landing() {
             {[...PLACEHOLDER_CREATORS, ...PLACEHOLDER_CREATORS].map((creator, i) => (
               <motion.div key={`${creator.id}-${i}`} className="creator-card-premium group cursor-pointer" onClick={() => handleExternalLink(creator.twitter)}>
                 <div className="creator-card-photo"><img src={creator.photo_url} className="w-full h-full object-cover" alt={creator.display_name} /></div>
-                <div className="creator-card-gradient" /><div className="absolute top-10 right-10 z-30 p-4 bg-white/5 rounded-2xl backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all hover:bg-sky-500 hover:text-white"><Twitter className="h-5 w-5" /></div>
+                <div className="creator-card-gradient" /><div className="absolute top-10 right-10 z-30 p-4 bg-slate-900/50 rounded-2xl opacity-0 group-hover:opacity-100 transition-all hover:bg-sky-500 hover:text-white"><Twitter className="h-5 w-5" /></div>
                 <div className="absolute bottom-12 left-12 right-12 z-30">
                   <div className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-400 mb-3">{creator.badge}</div>
                   <h3 className="text-3xl font-black uppercase tracking-tighter">{creator.display_name}</h3>
@@ -442,7 +442,7 @@ export default function Landing() {
       </section>
 
       {/* Leadership Asymmetric Bento */}
-      <section id="leadership" className="py-40 px-6 bg-slate-900/10 border-t border-white/5">
+      <section id="leadership" className="py-40 px-6 bg-slate-900/10 border-t border-emerald-500/10">
         <div className="max-w-7xl mx-auto">
           <div className="mb-24 text-center">
             <span className="section-label">{t?.leadership?.label}</span>
@@ -477,7 +477,7 @@ export default function Landing() {
             <h2 className="text-4xl md:text-7xl font-black mb-10 leading-tight tracking-tighter uppercase">{t?.cta?.title}</h2>
             <p className="text-lg text-white/80 mb-14 max-w-xl mx-auto font-medium">{t?.cta?.desc}</p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-              <button className="px-12 py-5 bg-white text-emerald-600 rounded-full font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-xl" onClick={handleEnterApp}>{t?.cta?.btn1}</button>
+              <button className="px-12 py-5 bg-emerald-500 text-slate-950 rounded-full font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-xl" onClick={handleEnterApp}>{t?.cta?.btn1}</button>
               <button className="px-12 py-5 bg-transparent border-2 border-white/20 rounded-full font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all" onClick={() => document.getElementById('creators')?.scrollIntoView({ behavior: 'smooth' })}>{t?.cta?.btn2}</button>
             </div>
           </div>
@@ -485,7 +485,7 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="py-24 px-8 border-t border-white/5 text-slate-500 bg-slate-950 relative z-20">
+      <footer className="py-24 px-8 border-t border-emerald-500/10 text-slate-500 bg-slate-950 relative z-20">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-16 mb-20">
             <div className="md:col-span-2">
@@ -573,7 +573,7 @@ export default function Landing() {
 
                 <button 
                   onClick={() => setSelectedStrategy(null)}
-                  className="w-full py-5 bg-white text-slate-950 rounded-full font-black text-xs uppercase tracking-widest hover:scale-[1.02] transition-all mt-8"
+                  className="w-full py-5 bg-emerald-500 text-slate-950 rounded-full font-black text-xs uppercase tracking-widest hover:scale-[1.02] transition-all mt-8"
                 >
                   Return to Dashboard
                 </button>
