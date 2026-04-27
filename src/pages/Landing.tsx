@@ -21,7 +21,7 @@ import { useInViewAnimation, revealVariants, staggerContainer } from '../hooks/u
 import './Landing.css';
 
 // Shadow Line Component for Hero Interaction
-const ShadowLine = ({ mousePos }: { type: string; mousePos: { x: number; y: number } }) => {
+const ShadowLine = ({ mousePos }: { mousePos: { x: number; y: number } }) => {
   const calculateShadow = () => {
     const dx = mousePos.x - 0.5;
     const dy = mousePos.y - 0.5;
@@ -37,7 +37,7 @@ const ShadowLine = ({ mousePos }: { type: string; mousePos: { x: number; y: numb
       <div className="w-[3px] h-40 bg-gradient-to-b from-yellow-200 via-yellow-400 to-yellow-600 shadow-[0_0_35px_rgba(254,240,138,0.4)] relative z-10" />
       <motion.div 
         animate={{ skewX: skew, scaleY: 1 + Math.abs(dx) }}
-        style={{ opacity }}
+        style={{ opacity: Math.max(0.1, opacity) }}
         className="absolute top-40 w-16 h-32 border-b-[3px] border-x-[3px] border-emerald-500/40 rounded-b-sm blur-[1px] transform-origin-top"
       />
     </div>
@@ -426,7 +426,7 @@ export default function Landing() {
           <h2 className="text-5xl md:text-7xl font-black tracking-tighter uppercase leading-none">The <span className="gradient-text">Force.</span></h2>
         </div>
         <div className="creator-carousel-container">
-          <motion.div className="creator-track" animate={{ x: [0, -2240] }} transition={{ duration: 60, repeat: Infinity, ease: "linear" }}>
+          <motion.div className="creator-track" animate={{ x: [0, -2576] }} transition={{ duration: 60, repeat: Infinity, ease: "linear" }}>
             {[...PLACEHOLDER_CREATORS, ...PLACEHOLDER_CREATORS].map((creator, i) => (
               <motion.div key={`${creator.id}-${i}`} className="creator-card-premium group cursor-pointer" onClick={() => handleExternalLink(creator.twitter)}>
                 <div className="creator-card-photo"><img src={creator.photo_url} className="w-full h-full object-cover" alt={creator.display_name} /></div>

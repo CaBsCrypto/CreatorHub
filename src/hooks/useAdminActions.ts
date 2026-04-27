@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { supabase, UserRole, UserProfile, Campaign } from '../supabase';
 import { useToast } from './useToast';
 

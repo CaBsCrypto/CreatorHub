@@ -41,6 +41,37 @@
   .premium-hover {
     @apply hover:shadow-[0_60px_120px_-40px_rgba(16,185,129,0.2)] hover:border-emerald-500/30 transition-all duration-700 hover:-translate-y-1;
   }
+
+  .matrix-glow {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.1), 0 0 40px rgba(16, 185, 129, 0.05);
+  }
+
+  .matrix-border {
+    @apply border border-emerald-500/10 hover:border-emerald-500/30 transition-all duration-500;
+  }
+
+  .glass-morphism {
+    @apply bg-slate-950/40 backdrop-blur-xl border border-white/5 shadow-2xl;
+  }
+}
+
+.grain-overlay {
+  @apply fixed inset-0 pointer-events-none z-[100] opacity-[0.03];
+  background-image: url("https://www.transparenttextures.com/patterns/carbon-fibre.png");
+}
+
+.data-scanner-line {
+  @apply absolute top-0 left-0 w-full h-[1px] bg-emerald-500/40 blur-[1px] z-20;
+  animation: scan 4s linear infinite;
+}
+
+@keyframes scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(500%); }
+}
+
+.nebula-glow {
+  @apply absolute rounded-full blur-[120px] pointer-events-none opacity-20;
 }
 
 .hide-scrollbar::-webkit-scrollbar {

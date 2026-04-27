@@ -30,9 +30,13 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-md transition-opacity" onClick={onClose}></div>
-      <div className="relative w-full max-w-lg rounded-[2.5rem] bg-slate-950/80 backdrop-blur-xl p-8 shadow-2xl ring-1 ring-white/10 border border-white/5 animate-in zoom-in-95 slide-in-from-bottom-8 duration-300">
-        <div className="flex justify-between items-center mb-6">
+      <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm transition-opacity" onClick={onClose}></div>
+      <div className="relative w-full max-w-lg rounded-[2.5rem] bg-slate-950/80 backdrop-blur-2xl p-8 shadow-2xl ring-1 ring-white/10 border border-white/5 animate-in zoom-in-95 slide-in-from-bottom-8 duration-500">
+        {/* Cinematic Background Elements */}
+        <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-emerald-500/10 to-transparent pointer-events-none opacity-20" />
+        <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-emerald-500/05 rounded-full blur-[60px] pointer-events-none" />
+        
+        <div className="relative z-10 flex justify-between items-center mb-6">
           <h2 className="text-2xl font-black text-white flex items-center gap-2 uppercase tracking-tight">
             <Users className="h-6 w-6 text-emerald-500" /> New Identity
           </h2>

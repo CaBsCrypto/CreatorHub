@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { supabase, Content, Campaign } from '../supabase';
 import { useToast } from './useToast';
 import { normalizeUrl } from '../utils/urlParser';
