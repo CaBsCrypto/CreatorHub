@@ -86,7 +86,7 @@ export default function UserHistoryModal({
         initial={{ opacity: 0 }} 
         animate={{ opacity: 1 }} 
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-slate-950/60 backdrop-blur-md" 
+        className="fixed inset-0 bg-slate-50/60 backdrop-blur-md" 
         onClick={onClose}
       />
       
@@ -94,21 +94,21 @@ export default function UserHistoryModal({
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative w-full max-w-4xl bg-slate-950/80 backdrop-blur-xl ring-1 ring-white/10 border border-white/5 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+        className="relative w-full max-w-4xl bg-slate-50/80 backdrop-blur-xl ring-1 ring-white/10 border border-slate-200 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
       >
         {/* Header Decoration */}
         <div className={`absolute top-0 left-0 w-full h-1.5 ${
           user.role === 'admin' ? 'bg-rose-500' : 
-          user.role === 'manager' ? 'bg-amber-500' : 'bg-emerald-500'
+          user.role === 'manager' ? 'bg-amber-500' : 'bg-indigo-600'
         }`} />
         
         {/* Modal Header */}
         <div className="p-8 pb-4 flex justify-between items-start">
           <div className="flex items-center gap-6">
-            <div className={`w-20 h-20 rounded-3xl flex items-center justify-center overflow-hidden flex-shrink-0 border border-white/10 ${
+            <div className={`w-20 h-20 rounded-3xl flex items-center justify-center overflow-hidden flex-shrink-0 border border-slate-200 ${
               !user.photo_url ? (
                 user.role === 'admin' ? 'bg-rose-500/10 text-rose-500' : 
-                user.role === 'manager' ? 'bg-amber-500/10 text-amber-500' : 'bg-emerald-500/10 text-emerald-500'
+                user.role === 'manager' ? 'bg-amber-500/10 text-amber-500' : 'bg-indigo-50 text-indigo-600'
               ) : ''
             }`}>
               {user.photo_url ? (
@@ -123,20 +123,20 @@ export default function UserHistoryModal({
                 <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
                   user.role === 'admin' ? 'bg-rose-500/10 text-rose-500 border border-rose-500/20' :
                   user.role === 'manager' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' :
-                  'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
+                  'bg-indigo-50 text-indigo-600 border border-indigo-200'
                 }`}>
                   {user.role}
                 </span>
               </h2>
               <div className="flex items-center gap-4 mt-2 text-slate-500 font-bold font-mono text-[10px] uppercase tracking-widest">
-                <span className="flex items-center gap-1.5 bg-white/5 px-2 py-1 rounded-lg border border-white/5"><Mail className="h-3.5 w-3.5 text-indigo-400" /> {user.email}</span>
-                <span className="flex items-center gap-1.5 bg-white/5 px-2 py-1 rounded-lg border border-white/5"><Calendar className="h-3.5 w-3.5 text-emerald-400" /> Node Active Since {new Date(user.created_at).toLocaleDateString()}</span>
+                <span className="flex items-center gap-1.5 bg-white/5 px-2 py-1 rounded-lg border border-slate-200"><Mail className="h-3.5 w-3.5 text-indigo-400" /> {user.email}</span>
+                <span className="flex items-center gap-1.5 bg-white/5 px-2 py-1 rounded-lg border border-slate-200"><Calendar className="h-3.5 w-3.5 text-indigo-600" /> Node Active Since {new Date(user.created_at).toLocaleDateString()}</span>
               </div>
             </div>
             
             {/* Alias Editor */}
             {onUpdateAlias && (
-              <div className="mt-6 flex items-center gap-3 bg-white/5 p-4 rounded-2xl border border-white/5 max-w-sm">
+              <div className="mt-6 flex items-center gap-3 bg-white/5 p-4 rounded-2xl border border-slate-200 max-w-sm">
                 <div className="flex-1">
                   <label className="block text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1.5 ml-1">Internal Alias</label>
                   <input 
@@ -144,7 +144,7 @@ export default function UserHistoryModal({
                     placeholder="e.g. ALPHA-CREATOR"
                     value={adminAlias}
                     onChange={(e) => setAdminAlias(e.target.value)}
-                    className="w-full px-4 py-2 bg-slate-900 border border-white/10 rounded-xl text-xs text-white focus:ring-1 focus:ring-emerald-500/50 outline-none font-mono uppercase placeholder:text-slate-800"
+                    className="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs text-white focus:ring-1 focus:ring-emerald-500/50 outline-none font-mono uppercase placeholder:text-slate-800"
                   />
                 </div>
                 <button 
@@ -161,7 +161,7 @@ export default function UserHistoryModal({
               </div>
             )}
           </div>
-          <button onClick={onClose} className="p-3 rounded-2xl hover:bg-white/5 text-slate-400 transition-all hover:rotate-90">
+          <button onClick={onClose} className="p-3 rounded-2xl hover:bg-white/5 text-slate-500 transition-all hover:rotate-90">
             <X className="h-6 w-6" />
           </button>
         </div>
@@ -171,7 +171,7 @@ export default function UserHistoryModal({
           <div className="lg:col-span-2 space-y-6">
             <div>
               <h3 className="text-xs font-black text-white uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                <Zap className="h-4 w-4 text-emerald-500" /> Operational History
+                <Zap className="h-4 w-4 text-indigo-600" /> Operational History
               </h3>
               
               <div className="space-y-3">
@@ -182,10 +182,10 @@ export default function UserHistoryModal({
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.05 }}
-                      className="p-4 bg-white/5 rounded-[1.5rem] border border-white/5 flex items-center justify-between hover:bg-white/10 hover:border-white/10 transition-all group/item"
+                      className="p-4 bg-white/5 rounded-[1.5rem] border border-slate-200 flex items-center justify-between hover:bg-white/10 hover:border-slate-200 transition-all group/item"
                     >
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center shadow-sm border border-white/5">
+                        <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm border border-slate-200">
                           {item.platform === 'youtube' ? <Youtube className="h-6 w-6 text-red-500" /> :
                            item.platform === 'instagram' ? <Instagram className="h-6 w-6 text-pink-500" /> :
                            <Globe className="h-6 w-6 text-indigo-400" />}
@@ -202,14 +202,14 @@ export default function UserHistoryModal({
                         target="_blank" 
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
-                        className="p-2 text-slate-500 hover:text-emerald-400 opacity-0 group-hover:opacity-100 transition-all"
+                        className="p-2 text-slate-500 hover:text-indigo-600 opacity-0 group-hover:opacity-100 transition-all"
                       >
                         <ExternalLink className="h-4 w-4" />
                       </a>
                     </motion.div>
                   ))
                 ) : (
-                  <div className="py-12 text-center bg-white/5 rounded-[2rem] border border-dashed border-white/10">
+                  <div className="py-12 text-center bg-white/5 rounded-[2rem] border border-dashed border-slate-200">
                     <Zap className="h-8 w-8 text-slate-700 mx-auto mb-2" />
                     <p className="text-sm font-medium text-slate-500 uppercase tracking-widest text-[10px]">No active telemetry data detected.</p>
                   </div>
@@ -218,9 +218,9 @@ export default function UserHistoryModal({
             </div>
 
             {userPayments !== undefined && (
-              <div className="pt-6 border-t border-white/5">
+              <div className="pt-6 border-t border-slate-200">
                 <h3 className="text-xs font-black text-white uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                  <DollarSign className="h-4 w-4 text-emerald-500" /> Disbursement Ledger
+                  <DollarSign className="h-4 w-4 text-indigo-600" /> Disbursement Ledger
                 </h3>
                 <div className="space-y-3">
                   {userPayments.length > 0 ? (
@@ -230,19 +230,19 @@ export default function UserHistoryModal({
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: i * 0.05 }}
-                        className="p-4 bg-emerald-500/5 rounded-[1.5rem] border border-emerald-500/10 flex flex-col gap-2 hover:bg-emerald-500/10 transition-all"
+                        className="p-4 bg-indigo-600/5 rounded-[1.5rem] border border-indigo-100 flex flex-col gap-2 hover:bg-indigo-50 transition-all"
                       >
                         <div className="flex items-center justify-between">
-                          <span className="text-lg font-black text-emerald-400 font-mono">${p.amount} {p.currency}</span>
-                          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-slate-900 px-2 py-1 rounded-full border border-white/5">
+                          <span className="text-lg font-black text-indigo-600 font-mono">${p.amount} {p.currency}</span>
+                          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-white px-2 py-1 rounded-full border border-slate-200">
                             {new Date(p.paid_at).toLocaleDateString()}
                           </span>
                         </div>
-                        {p.concept && <p className="text-xs font-medium text-slate-400 italic">{p.concept}</p>}
+                        {p.concept && <p className="text-xs font-medium text-slate-500 italic">{p.concept}</p>}
                       </motion.div>
                     ))
                   ) : (
-                    <div className="py-8 text-center bg-white/5 rounded-[2rem] border border-dashed border-white/10">
+                    <div className="py-8 text-center bg-white/5 rounded-[2rem] border border-dashed border-slate-200">
                       <Wallet className="h-6 w-6 text-slate-700 mx-auto mb-2" />
                       <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Zero historical disbursements</p>
                     </div>
@@ -255,9 +255,9 @@ export default function UserHistoryModal({
           {/* Sidebar Area: Management */}
           <div className="space-y-8">
             {/* Payment Information */}
-            <div className="bg-emerald-500/5 p-6 rounded-[2rem] border border-emerald-500/20">
+            <div className="bg-indigo-600/5 p-6 rounded-[2rem] border border-indigo-200">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-[10px] font-black text-emerald-400 uppercase tracking-widest flex items-center gap-2">
+                <h3 className="text-[10px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-2">
                   <Wallet className="h-3 w-3" /> Settlement Protocol
                 </h3>
                 {onUpdatePayment && (
@@ -273,7 +273,7 @@ export default function UserHistoryModal({
               {isEditingPayment ? (
                 <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
                   <div>
-                    <label className="block text-[8px] font-black text-emerald-500/50 uppercase tracking-[0.2em] mb-1">Gateway Method</label>
+                    <label className="block text-[8px] font-black text-indigo-600/50 uppercase tracking-[0.2em] mb-1">Gateway Method</label>
                     <div className="flex gap-2">
                       {(['binance', 'wallet'] as const).map(m => (
                         <button
@@ -282,7 +282,7 @@ export default function UserHistoryModal({
                           className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
                             editPaymentData.payment_method === m 
                               ? 'bg-emerald-600 text-white border-emerald-600' 
-                              : 'bg-white/5 text-emerald-400 border-white/10 hover:bg-white/10'
+                              : 'bg-white/5 text-indigo-600 border-slate-200 hover:bg-white/10'
                           }`}
                         >
                           {m === 'binance' ? 'Binance' : 'Wallet'}
@@ -293,12 +293,12 @@ export default function UserHistoryModal({
 
                   {editPaymentData.payment_method === 'binance' ? (
                     <div>
-                      <label className="block text-[8px] font-black text-emerald-500/50 uppercase tracking-[0.2em] mb-1">Binance Protocol ID</label>
+                      <label className="block text-[8px] font-black text-indigo-600/50 uppercase tracking-[0.2em] mb-1">Binance Protocol ID</label>
                       <input 
                         type="text" 
                         value={editPaymentData.binance_id}
                         onChange={(e) => setEditPaymentData(prev => ({ ...prev, binance_id: e.target.value }))}
-                        className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-bold text-white focus:ring-2 focus:ring-emerald-500/50 outline-none font-mono"
+                        className="w-full px-3 py-2 bg-white/5 border border-slate-200 rounded-xl text-[10px] font-bold text-white focus:ring-2 focus:ring-emerald-500/50 outline-none font-mono"
                         placeholder="Binance ID"
                       />
                     </div>
@@ -306,33 +306,33 @@ export default function UserHistoryModal({
                     <>
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-[8px] font-black text-emerald-500/50 uppercase tracking-[0.2em] mb-1">Network (Primary)</label>
+                          <label className="block text-[8px] font-black text-indigo-600/50 uppercase tracking-[0.2em] mb-1">Network (Primary)</label>
                           <input 
                             type="text" 
                             value={editPaymentData.wallet_network}
                             onChange={(e) => setEditPaymentData(prev => ({ ...prev, wallet_network: e.target.value }))}
-                            className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-bold text-white focus:ring-2 focus:ring-emerald-500/50 outline-none font-mono"
+                            className="w-full px-3 py-2 bg-white/5 border border-slate-200 rounded-xl text-[10px] font-bold text-white focus:ring-2 focus:ring-emerald-500/50 outline-none font-mono"
                             placeholder="e.g., Solana"
                           />
                         </div>
                         <div>
-                          <label className="block text-[8px] font-black text-emerald-500/50 uppercase tracking-[0.2em] mb-1">Tag (Primary)</label>
+                          <label className="block text-[8px] font-black text-indigo-600/50 uppercase tracking-[0.2em] mb-1">Tag (Primary)</label>
                           <input 
                             type="text" 
                             value={editPaymentData.wallet_note}
                             onChange={(e) => setEditPaymentData(prev => ({ ...prev, wallet_note: e.target.value }))}
-                            className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-bold text-white focus:ring-2 focus:ring-emerald-500/50 outline-none font-mono"
+                            className="w-full px-3 py-2 bg-white/5 border border-slate-200 rounded-xl text-[10px] font-bold text-white focus:ring-2 focus:ring-emerald-500/50 outline-none font-mono"
                             placeholder="Main Node"
                           />
                         </div>
                       </div>
                       <div>
-                        <label className="block text-[8px] font-black text-emerald-500/50 uppercase tracking-[0.2em] mb-1">Address (Primary)</label>
+                        <label className="block text-[8px] font-black text-indigo-600/50 uppercase tracking-[0.2em] mb-1">Address (Primary)</label>
                         <input 
                           type="text" 
                           value={editPaymentData.wallet_address}
                           onChange={(e) => setEditPaymentData(prev => ({ ...prev, wallet_address: e.target.value }))}
-                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-bold text-white focus:ring-2 focus:ring-emerald-500/50 outline-none font-mono"
+                          className="w-full px-3 py-2 bg-white/5 border border-slate-200 rounded-xl text-[10px] font-bold text-white focus:ring-2 focus:ring-emerald-500/50 outline-none font-mono"
                           placeholder="0x..."
                         />
                       </div>
@@ -340,37 +340,37 @@ export default function UserHistoryModal({
                   )}
 
                   {/* Wallet 2 Section - Always editable if exists or if adding */}
-                  <div className="pt-4 border-t border-emerald-500/20 mt-4">
-                    <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-3">Auxiliary Destination (Optional)</p>
+                  <div className="pt-4 border-t border-indigo-200 mt-4">
+                    <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-3">Auxiliary Destination (Optional)</p>
                     <div className="grid grid-cols-2 gap-3 mb-3">
                       <div>
-                        <label className="block text-[8px] font-black text-emerald-500/50 uppercase tracking-[0.2em] mb-1">Network (Aux)</label>
+                        <label className="block text-[8px] font-black text-indigo-600/50 uppercase tracking-[0.2em] mb-1">Network (Aux)</label>
                         <input 
                           type="text" 
                           value={editPaymentData.wallet_network_2 || ''}
                           onChange={(e) => setEditPaymentData(prev => ({ ...prev, wallet_network_2: e.target.value }))}
-                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-bold text-white focus:ring-2 focus:ring-emerald-500/50 outline-none font-mono"
+                          className="w-full px-3 py-2 bg-white/5 border border-slate-200 rounded-xl text-[10px] font-bold text-white focus:ring-2 focus:ring-emerald-500/50 outline-none font-mono"
                           placeholder="e.g., Ethereum"
                         />
                       </div>
                       <div>
-                        <label className="block text-[8px] font-black text-emerald-500/50 uppercase tracking-[0.2em] mb-1">Tag (Aux)</label>
+                        <label className="block text-[8px] font-black text-indigo-600/50 uppercase tracking-[0.2em] mb-1">Tag (Aux)</label>
                         <input 
                           type="text" 
                           value={editPaymentData.wallet_2_note || ''}
                           onChange={(e) => setEditPaymentData(prev => ({ ...prev, wallet_2_note: e.target.value }))}
-                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-bold text-white focus:ring-2 focus:ring-emerald-500/50 outline-none font-mono"
+                          className="w-full px-3 py-2 bg-white/5 border border-slate-200 rounded-xl text-[10px] font-bold text-white focus:ring-2 focus:ring-emerald-500/50 outline-none font-mono"
                           placeholder="Secondary"
                         />
                       </div>
                     </div>
                     <div>
-                      <label className="block text-[8px] font-black text-emerald-500/50 uppercase tracking-[0.2em] mb-1">Address (Aux)</label>
+                      <label className="block text-[8px] font-black text-indigo-600/50 uppercase tracking-[0.2em] mb-1">Address (Aux)</label>
                       <input 
                         type="text" 
                         value={editPaymentData.wallet_address_2 || ''}
                         onChange={(e) => setEditPaymentData(prev => ({ ...prev, wallet_address_2: e.target.value }))}
-                        className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-bold text-white focus:ring-2 focus:ring-emerald-500/50 outline-none font-mono"
+                        className="w-full px-3 py-2 bg-white/5 border border-slate-200 rounded-xl text-[10px] font-bold text-white focus:ring-2 focus:ring-emerald-500/50 outline-none font-mono"
                         placeholder="0x..."
                       />
                     </div>
@@ -397,7 +397,7 @@ export default function UserHistoryModal({
               ) : (
                 <div className="space-y-4 animate-in fade-in duration-300">
                   <div>
-                    <p className="text-[8px] font-black text-emerald-500/50 uppercase tracking-[0.2em] mb-1">Protocol</p>
+                    <p className="text-[8px] font-black text-indigo-600/50 uppercase tracking-[0.2em] mb-1">Protocol</p>
                     <p className="text-xs font-black text-white uppercase tracking-wider">
                       {user.payment_method === 'binance' ? 'Binance Pay' : 'Digital Asset Wallet'}
                     </p>
@@ -405,9 +405,9 @@ export default function UserHistoryModal({
 
                   {user.payment_method === 'binance' ? (
                     <div>
-                      <p className="text-[8px] font-black text-emerald-500/50 uppercase tracking-[0.2em] mb-1">Binance Access ID</p>
-                      <div className="flex items-center justify-between gap-2 p-2 bg-white/5 rounded-lg border border-white/10">
-                        <code className="text-[10px] font-bold text-emerald-400 truncate font-mono">{user.binance_id}</code>
+                      <p className="text-[8px] font-black text-indigo-600/50 uppercase tracking-[0.2em] mb-1">Binance Access ID</p>
+                      <div className="flex items-center justify-between gap-2 p-2 bg-white/5 rounded-lg border border-slate-200">
+                        <code className="text-[10px] font-bold text-indigo-600 truncate font-mono">{user.binance_id}</code>
                         <button 
                           onClick={() => {
                             if (user.binance_id) {
@@ -415,7 +415,7 @@ export default function UserHistoryModal({
                               success("Copied: " + user.binance_id);
                             }
                           }}
-                          className="p-1.5 hover:bg-white/10 rounded-md transition-colors text-emerald-400"
+                          className="p-1.5 hover:bg-white/10 rounded-md transition-colors text-indigo-600"
                         >
                           <RefreshCw className="h-3 w-3" />
                         </button>
@@ -423,17 +423,17 @@ export default function UserHistoryModal({
                     </div>
                   ) : (
                     <>
-                      <div className="p-3 bg-white/5 rounded-xl border border-white/10 relative group/wallet">
+                      <div className="p-3 bg-white/5 rounded-xl border border-slate-200 relative group/wallet">
                         <div className="flex justify-between items-start mb-1">
-                          <p className="text-[8px] font-black text-emerald-500/50 uppercase tracking-[0.2em]">Node (Primary) • {user.wallet_network}</p>
+                          <p className="text-[8px] font-black text-indigo-600/50 uppercase tracking-[0.2em]">Node (Primary) • {user.wallet_network}</p>
                           {user.wallet_note && (
-                            <span className="text-[7px] font-black px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 rounded-full uppercase tracking-tighter">
+                            <span className="text-[7px] font-black px-1.5 py-0.5 bg-indigo-100 text-indigo-600 rounded-full uppercase tracking-tighter">
                               {user.wallet_note}
                             </span>
                           )}
                         </div>
                         <div className="flex items-center justify-between gap-2">
-                          <code className="text-[10px] font-black text-emerald-400 truncate font-mono bg-slate-900 px-2 py-1 rounded border border-white/5">{user.wallet_address}</code>
+                          <code className="text-[10px] font-black text-indigo-600 truncate font-mono bg-white px-2 py-1 rounded border border-slate-200">{user.wallet_address}</code>
                           <button 
                             onClick={() => {
                               if (user.wallet_address) {
@@ -441,7 +441,7 @@ export default function UserHistoryModal({
                                 success("Copied to clipboard");
                               }
                             }}
-                            className="p-1 hover:bg-white/10 rounded transition-colors text-emerald-400"
+                            className="p-1 hover:bg-white/10 rounded transition-colors text-indigo-600"
                           >
                             <RefreshCw className="h-3 w-3" />
                           </button>
@@ -449,17 +449,17 @@ export default function UserHistoryModal({
                       </div>
 
                       {user.wallet_address_2 && (
-                        <div className="p-3 bg-white/5 rounded-xl border border-white/10 relative group/wallet mt-2">
+                        <div className="p-3 bg-white/5 rounded-xl border border-slate-200 relative group/wallet mt-2">
                           <div className="flex justify-between items-start mb-1">
-                            <p className="text-[8px] font-black text-emerald-500/50 uppercase tracking-[0.2em]">Node (Aux) • {user.wallet_network_2}</p>
+                            <p className="text-[8px] font-black text-indigo-600/50 uppercase tracking-[0.2em]">Node (Aux) • {user.wallet_network_2}</p>
                             {user.wallet_2_note && (
-                              <span className="text-[7px] font-black px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 rounded-full uppercase tracking-tighter">
+                              <span className="text-[7px] font-black px-1.5 py-0.5 bg-indigo-100 text-indigo-600 rounded-full uppercase tracking-tighter">
                                 {user.wallet_2_note}
                               </span>
                             )}
                           </div>
                           <div className="flex items-center justify-between gap-2">
-                            <code className="text-[10px] font-bold text-emerald-400 truncate font-mono">{user.wallet_address_2}</code>
+                            <code className="text-[10px] font-bold text-indigo-600 truncate font-mono">{user.wallet_address_2}</code>
                             <button 
                               onClick={() => {
                                 if (user.wallet_address_2) {
@@ -467,7 +467,7 @@ export default function UserHistoryModal({
                                   success("Copied: " + user.wallet_address_2);
                                 }
                               }}
-                              className="p-1 hover:bg-white/10 rounded transition-colors text-emerald-400"
+                              className="p-1 hover:bg-white/10 rounded transition-colors text-indigo-600"
                             >
                               <RefreshCw className="h-3 w-3" />
                             </button>
@@ -491,7 +491,7 @@ export default function UserHistoryModal({
             )}
 
             {/* Role Management */}
-            <div className="bg-white/5 p-6 rounded-[2rem] border border-white/5">
+            <div className="bg-white/5 p-6 rounded-[2rem] border border-slate-200">
               <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Privilege Authorization</h3>
               <div className="space-y-2">
                 {roles.map(r => (
@@ -502,7 +502,7 @@ export default function UserHistoryModal({
                     className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
                       selectedRole === r 
                         ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' 
-                        : 'bg-white/5 text-slate-500 hover:bg-white/10 border border-white/5'
+                        : 'bg-white/5 text-slate-500 hover:bg-white/10 border border-slate-200'
                     }`}
                   >
                     <span className="capitalize">{r}</span>
@@ -534,7 +534,7 @@ export default function UserHistoryModal({
               {!isConfirmingDelete ? (
                 <button 
                   onClick={() => setIsConfirmingDelete(true)}
-                  className="w-full px-4 py-3 bg-white/5 text-rose-500 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-600 hover:text-white transition-all shadow-sm"
+                  className="w-full px-4 py-3 bg-white/5 text-rose-500 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-600 hover:text-white transition-all shadow-sm"
                 >
                   Deauthorize Node
                 </button>
@@ -555,7 +555,7 @@ export default function UserHistoryModal({
                     </button>
                     <button 
                       onClick={() => { setIsConfirmingDelete(false); setDeleteConfirmStep(0); }}
-                      className="px-3 py-2 bg-white/5 text-slate-500 border border-white/10 rounded-lg text-[9px] font-black uppercase tracking-widest"
+                      className="px-3 py-2 bg-white/5 text-slate-500 border border-slate-200 rounded-lg text-[9px] font-black uppercase tracking-widest"
                     >
                       Abort
                     </button>

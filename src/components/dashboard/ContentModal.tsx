@@ -221,8 +221,8 @@ const ContentModal: React.FC<ContentModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
-      <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-md animate-in fade-in" onClick={onClose} />
-      <div className="relative w-full max-w-lg rounded-[2.5rem] bg-slate-950/80 backdrop-blur-xl p-6 sm:p-8 shadow-2xl ring-1 ring-white/10 border border-white/5 animate-in zoom-in-95 slide-in-from-bottom-10 overflow-y-auto max-h-[min(90vh,calc(100vh-2rem))]">
+      <div className="fixed inset-0 bg-slate-50/60 backdrop-blur-md animate-in fade-in" onClick={onClose} />
+      <div className="relative w-full max-w-lg rounded-[2.5rem] bg-slate-50/80 backdrop-blur-xl p-6 sm:p-8 shadow-2xl ring-1 ring-white/10 border border-slate-200 animate-in zoom-in-95 slide-in-from-bottom-10 overflow-y-auto max-h-[min(90vh,calc(100vh-2rem))]">
         <div className="flex justify-between items-start mb-4">
           <div>
             <h2 className="text-xl font-black text-white uppercase tracking-tight">{editingContent ? 'Edit Intelligence' : 'New Content Link'}</h2>
@@ -250,13 +250,13 @@ const ContentModal: React.FC<ContentModalProps> = ({
                   <select
                     value={formData.creator_id}
                     onChange={(e) => setFormData({ ...formData, creator_id: e.target.value })}
-                    className="block w-full rounded-xl border-white/10 bg-white/5 py-2.5 px-4 text-sm font-medium text-white outline-none focus:bg-white/10 focus:ring-1 focus:ring-emerald-500/50"
+                    className="block w-full rounded-xl border-slate-200 bg-white/5 py-2.5 px-4 text-sm font-medium text-white outline-none focus:bg-white/10 focus:ring-1 focus:ring-emerald-500/50"
                   >
-                    <option value="" className="bg-slate-900">Primary Identity</option>
+                    <option value="" className="bg-white">Primary Identity</option>
                     {users.map(u => (
-                      <option key={u.id} value={u.id} className="bg-slate-900">{u.admin_alias || u.display_name || u.email.split('@')[0]}</option>
+                      <option key={u.id} value={u.id} className="bg-white">{u.admin_alias || u.display_name || u.email.split('@')[0]}</option>
                     ))}
-                    <option value="guest" className="bg-slate-900">External Entity</option>
+                    <option value="guest" className="bg-white">External Entity</option>
                   </select>
                 </div>
               )}
@@ -269,7 +269,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
                   type="text" required value={formData.guest_name}
                   onChange={e => setFormData({ ...formData, guest_name: e.target.value })}
                   placeholder="e.g. Identity Proxy"
-                  className="block w-full rounded-xl border-white/10 bg-white/5 py-2.5 px-4 text-sm font-medium text-white outline-none focus:bg-white/10 focus:ring-1 focus:ring-emerald-500/50"
+                  className="block w-full rounded-xl border-slate-200 bg-white/5 py-2.5 px-4 text-sm font-medium text-white outline-none focus:bg-white/10 focus:ring-1 focus:ring-emerald-500/50"
                 />
               </div>
             )}
@@ -308,15 +308,15 @@ const ContentModal: React.FC<ContentModalProps> = ({
                     type="url" required value={formData.url}
                     onChange={(e) => setFormData({ ...formData, url: e.target.value })}
                     placeholder="https://network.protocol/link"
-                    className="block w-full pl-10.5 rounded-xl border-white/10 bg-white/5 py-3 text-sm font-medium text-white outline-none focus:bg-white/10 focus:ring-1 focus:ring-emerald-500/50 transition-all font-mono"
+                    className="block w-full pl-10.5 rounded-xl border-slate-200 bg-white/5 py-3 text-sm font-medium text-white outline-none focus:bg-white/10 focus:ring-1 focus:ring-emerald-500/50 transition-all font-mono"
                   />
                 </div>
               )}
             </div>
           </div>
 
-          <div className="flex gap-3 pt-4 border-t border-white/5">
-            <button type="button" onClick={onClose} className="flex-1 px-4 py-3 rounded-xl border border-white/10 text-[10px] font-black text-slate-500 uppercase tracking-widest hover:bg-white/5 hover:text-white transition-all">
+          <div className="flex gap-3 pt-4 border-t border-slate-200">
+            <button type="button" onClick={onClose} className="flex-1 px-4 py-3 rounded-xl border border-slate-200 text-[10px] font-black text-slate-500 uppercase tracking-widest hover:bg-white/5 hover:text-white transition-all">
               Abort
             </button>
             <button type="submit" disabled={isProcessing} className="flex-[2] px-4 py-3 rounded-xl bg-indigo-600 text-[10px] font-black uppercase tracking-widest text-white shadow-xl shadow-indigo-600/20 hover:bg-indigo-700 disabled:opacity-50 transition-all flex items-center justify-center gap-2">

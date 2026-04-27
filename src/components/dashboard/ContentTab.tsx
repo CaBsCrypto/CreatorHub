@@ -111,39 +111,39 @@ const ContentTab: React.FC<ContentTabProps> = ({
 
   return (
     <div id="content-section" className="space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-1000">
-      <div className="glass-dark p-6 md:p-8 rounded-[3rem] border border-white/5 space-y-6">
+      <div className="glass-dark p-6 md:p-8 rounded-[3rem] border border-slate-200 space-y-6">
         <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
           <div className="flex flex-wrap items-center gap-4 flex-1">
             <div className="relative flex-1 min-w-[280px] max-w-xl group">
-              <div className="absolute inset-0 bg-emerald-500/5 blur-xl group-focus-within:bg-emerald-500/10 transition-all duration-700" />
-              <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 group-focus-within:text-emerald-500 transition-all duration-500 relative z-10" />
+              <div className="absolute inset-0 bg-indigo-600/5 blur-xl group-focus-within:bg-indigo-50 transition-all duration-700" />
+              <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 group-focus-within:text-indigo-600 transition-all duration-500 relative z-10" />
               <input
                 type="text"
                 placeholder="Search_Content_Nodes..."
                 value={searchTerm}
                 onChange={(e) => setFilter('search', e.target.value)}
-                className="w-full pl-16 pr-8 py-5 bg-slate-900/50 border border-white/5 focus:border-emerald-500/30 rounded-2xl text-sm font-black uppercase tracking-widest placeholder:text-slate-700 outline-none transition-all relative z-10 text-white italic"
+                className="w-full pl-16 pr-8 py-5 bg-white border border-slate-200 focus:border-indigo-200 rounded-2xl text-sm font-black uppercase tracking-widest placeholder:text-slate-700 outline-none transition-all relative z-10 text-white italic"
               />
             </div>
             
-            <div className="flex items-center gap-2 p-1.5 bg-slate-950 rounded-2xl border border-white/5 relative z-10">
+            <div className="flex items-center gap-2 p-1.5 bg-slate-50 rounded-2xl border border-slate-200 relative z-10">
               <button 
                 onClick={() => setFilter('view', 'grid')}
-                className={`p-3 rounded-xl transition-all duration-500 ${viewMode === 'grid' ? 'bg-emerald-500 text-slate-950 shadow-[0_0_20px_rgba(16,185,129,0.4)]' : 'text-slate-600 hover:text-white'}`}
+                className={`p-3 rounded-xl transition-all duration-500 ${viewMode === 'grid' ? 'bg-indigo-600 text-white shadow-[0_0_20px_rgba(16,185,129,0.4)]' : 'text-slate-600 hover:text-white'}`}
                 title="Grid_View"
               >
                 <LayoutGrid className="h-5 w-5" />
               </button>
               <button 
                 onClick={() => setFilter('view', 'gallery')}
-                className={`p-3 rounded-xl transition-all duration-500 ${viewMode === 'gallery' ? 'bg-emerald-500 text-slate-950 shadow-[0_0_20px_rgba(16,185,129,0.4)]' : 'text-slate-600 hover:text-white'}`}
+                className={`p-3 rounded-xl transition-all duration-500 ${viewMode === 'gallery' ? 'bg-indigo-600 text-white shadow-[0_0_20px_rgba(16,185,129,0.4)]' : 'text-slate-600 hover:text-white'}`}
                 title="Gallery_View"
               >
                 <ImageIcon className="h-5 w-5" />
               </button>
               <button 
                 onClick={() => setFilter('view', 'compact')}
-                className={`p-3 rounded-xl transition-all duration-500 ${viewMode === 'compact' ? 'bg-emerald-500 text-slate-950 shadow-[0_0_20px_rgba(16,185,129,0.4)]' : 'text-slate-600 hover:text-white'}`}
+                className={`p-3 rounded-xl transition-all duration-500 ${viewMode === 'compact' ? 'bg-indigo-600 text-white shadow-[0_0_20px_rgba(16,185,129,0.4)]' : 'text-slate-600 hover:text-white'}`}
                 title="List_View"
               >
                 <ListIcon className="h-5 w-5" />
@@ -154,7 +154,7 @@ const ContentTab: React.FC<ContentTabProps> = ({
           <div className="flex items-center gap-4 relative z-10">
             <button 
               onClick={() => setFilter('zero_views', filterZeroViews ? 'false' : 'true')}
-              className={`flex items-center justify-center gap-3 px-6 py-5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 active:scale-95 whitespace-nowrap border-2 ${filterZeroViews ? 'bg-emerald-500 text-slate-950 border-emerald-500 shadow-[0_0_30px_rgba(16,185,129,0.3)]' : 'bg-slate-950 border-white/5 text-slate-500 hover:text-emerald-400 hover:border-emerald-500/30'}`}
+              className={`flex items-center justify-center gap-3 px-6 py-5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 active:scale-95 whitespace-nowrap border-2 ${filterZeroViews ? 'bg-indigo-600 text-white border-emerald-500 shadow-[0_0_30px_rgba(16,185,129,0.3)]' : 'bg-slate-50 border-slate-200 text-slate-500 hover:text-indigo-600 hover:border-indigo-200'}`}
               title="Filter_Zero_Metrics"
             >
               <TrendingUp className={`h-4 w-4 ${filterZeroViews ? 'rotate-180 transition-transform duration-700' : ''}`} /> 0_Metrics
@@ -175,32 +175,32 @@ const ContentTab: React.FC<ContentTabProps> = ({
         <div className="flex flex-wrap items-center gap-3 mb-4 animate-in fade-in slide-in-from-left-6 duration-700">
           <span className="text-[9px] font-black text-slate-600 uppercase tracking-[0.4em] mr-4 italic">Active_Parameters:</span>
           {filterZeroViews && (
-            <div className="flex items-center gap-3 px-4 py-2 bg-emerald-500/10 text-emerald-400 rounded-xl text-[9px] font-black border border-emerald-500/20 uppercase tracking-widest italic">
+            <div className="flex items-center gap-3 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-[9px] font-black border border-indigo-200 uppercase tracking-widest italic">
               ZERO_VIEWS_ONLY
               <button onClick={() => setFilter('zero_views', 'false')} className="hover:text-white transition-colors">×</button>
             </div>
           )}
           {filterCampaign !== 'all' && (
-            <div className="flex items-center gap-3 px-4 py-2 bg-white/5 text-white rounded-xl text-[9px] font-black border border-white/10 uppercase tracking-widest italic">
+            <div className="flex items-center gap-3 px-4 py-2 bg-white/5 text-white rounded-xl text-[9px] font-black border border-slate-200 uppercase tracking-widest italic">
               CAMPAIGN: {campaigns.find(c => c.id === filterCampaign)?.name || '...'}
-              <button onClick={() => setFilter('campaign', 'all')} className="hover:text-emerald-400 transition-colors">×</button>
+              <button onClick={() => setFilter('campaign', 'all')} className="hover:text-indigo-600 transition-colors">×</button>
             </div>
           )}
           {filterPlatform !== 'all' && (
-            <div className="flex items-center gap-3 px-4 py-2 bg-white/5 text-white rounded-xl text-[9px] font-black border border-white/10 uppercase tracking-widest italic">
+            <div className="flex items-center gap-3 px-4 py-2 bg-white/5 text-white rounded-xl text-[9px] font-black border border-slate-200 uppercase tracking-widest italic">
               PLATFORM: {filterPlatform}
-              <button onClick={() => setFilter('platform', 'all')} className="hover:text-emerald-400 transition-colors">×</button>
+              <button onClick={() => setFilter('platform', 'all')} className="hover:text-indigo-600 transition-colors">×</button>
             </div>
           )}
           {filterCreator !== 'all' && (
-            <div className="flex items-center gap-3 px-4 py-2 bg-white/5 text-white rounded-xl text-[9px] font-black border border-white/10 uppercase tracking-widest italic">
+            <div className="flex items-center gap-3 px-4 py-2 bg-white/5 text-white rounded-xl text-[9px] font-black border border-slate-200 uppercase tracking-widest italic">
               AGENT: {filterCreator.startsWith('guest:') ? filterCreator.replace('guest:', '') : (users.find(u => u.id === filterCreator)?.display_name || '...')}
-              <button onClick={() => setFilter('creator', 'all')} className="hover:text-emerald-400 transition-colors">×</button>
+              <button onClick={() => setFilter('creator', 'all')} className="hover:text-indigo-600 transition-colors">×</button>
             </div>
           )}
           <button 
             onClick={() => resetFilters()}
-            className="px-4 py-2 text-[9px] font-black text-emerald-500 hover:text-white hover:bg-emerald-500/20 rounded-xl uppercase tracking-[0.3em] transition-all duration-500 border border-emerald-500/20 italic"
+            className="px-4 py-2 text-[9px] font-black text-indigo-600 hover:text-white hover:bg-indigo-100 rounded-xl uppercase tracking-[0.3em] transition-all duration-500 border border-indigo-200 italic"
           >
             Purge_All
           </button>
@@ -211,35 +211,35 @@ const ContentTab: React.FC<ContentTabProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8 mb-12">
         {isLoading ? (
           <>
-            <div className="glass-dark p-8 rounded-[2.5rem] border border-white/5 flex flex-col gap-4 animate-pulse">
+            <div className="glass-dark p-8 rounded-[2.5rem] border border-slate-200 flex flex-col gap-4 animate-pulse">
               <div className="h-2 w-24 bg-white/5 rounded" />
               <div className="h-10 w-48 bg-white/5 rounded" />
             </div>
-            <div className="glass-dark p-8 rounded-[2.5rem] border border-white/5 flex flex-col gap-4 animate-pulse">
+            <div className="glass-dark p-8 rounded-[2.5rem] border border-slate-200 flex flex-col gap-4 animate-pulse">
               <div className="h-2 w-24 bg-white/5 rounded" />
               <div className="h-10 w-48 bg-white/5 rounded" />
             </div>
           </>
         ) : (
           <>
-            <div className="glass-dark p-8 rounded-[3rem] border border-white/5 flex flex-col group hover:border-emerald-500/30 transition-all duration-700 relative overflow-hidden">
+            <div className="glass-dark p-8 rounded-[3rem] border border-slate-200 flex flex-col group hover:border-indigo-200 transition-all duration-700 relative overflow-hidden">
               <div className="absolute -right-12 -top-12 w-32 h-32 bg-white/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
               <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.4em] mb-4 flex items-center gap-3 italic">
-                <Youtube className="h-4 w-4 text-emerald-500" /> Total_Asset_Nodes
+                <Youtube className="h-4 w-4 text-indigo-600" /> Total_Asset_Nodes
               </span>
-              <span className="text-5xl font-black text-white group-hover:text-emerald-400 transition-all duration-700 tracking-tighter tabular-nums">
+              <span className="text-5xl font-black text-white group-hover:text-indigo-600 transition-all duration-700 tracking-tighter tabular-nums">
                 {filteredContent.filter(item => !deletedContentIds.includes(item.id)).length}
               </span>
             </div>
             <div 
               onClick={() => setIsViewsModalOpen(true)}
-              className="glass-dark p-8 rounded-[3rem] border border-white/5 flex flex-col group hover:border-emerald-500/30 transition-all duration-700 cursor-pointer relative overflow-hidden"
+              className="glass-dark p-8 rounded-[3rem] border border-slate-200 flex flex-col group hover:border-indigo-200 transition-all duration-700 cursor-pointer relative overflow-hidden"
             >
-              <div className="absolute -left-12 -bottom-12 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+              <div className="absolute -left-12 -bottom-12 w-32 h-32 bg-indigo-600/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
               <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.4em] mb-4 flex items-center gap-3 italic">
-                <TrendingUp className="h-4 w-4 text-emerald-500" /> Aggregated_Metrics_Score
+                <TrendingUp className="h-4 w-4 text-indigo-600" /> Aggregated_Metrics_Score
               </span>
-              <span className="text-5xl font-black text-emerald-500 group-hover:text-emerald-400 transition-all duration-700 tracking-tighter tabular-nums">
+              <span className="text-5xl font-black text-indigo-600 group-hover:text-indigo-600 transition-all duration-700 tracking-tighter tabular-nums">
                 {filteredContent.filter(item => !deletedContentIds.includes(item.id)).reduce((sum, item) => sum + (item.views || 0), 0).toLocaleString()}
               </span>
             </div>
@@ -278,17 +278,17 @@ const ContentTab: React.FC<ContentTabProps> = ({
                   if (isPopup) setViewingContent(item as any);
                   else window.open(item.url, '_blank');
                 }}
-                className="aspect-square rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-emerald-500/40 hover:shadow-[0_0_30px_rgba(16,185,129,0.2)] transition-all duration-700 group relative cursor-pointer glass-dark"
+                className="aspect-square rounded-[2.5rem] overflow-hidden border border-slate-200 hover:border-emerald-500/40 hover:shadow-[0_0_30px_rgba(16,185,129,0.2)] transition-all duration-700 group relative cursor-pointer glass-dark"
               >
                 {item.thumbnail ? (
                   <img src={item.thumbnail} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 grayscale group-hover:grayscale-0 opacity-80 group-hover:opacity-100" />
                 ) : (
-                  <div className="w-full h-full bg-slate-900 flex items-center justify-center">
-                    <ImageIcon className="h-8 w-8 text-slate-800 group-hover:text-emerald-500 transition-colors" />
+                  <div className="w-full h-full bg-white flex items-center justify-center">
+                    <ImageIcon className="h-8 w-8 text-slate-800 group-hover:text-indigo-600 transition-colors" />
                   </div>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-700 p-5 flex flex-col justify-end">
-                  <p className="text-[8px] font-black text-emerald-500 uppercase tracking-[0.3em] mb-1 italic">{item.platform === 'twitch' ? 'stream' : item.platform}_NODE</p>
+                  <p className="text-[8px] font-black text-indigo-600 uppercase tracking-[0.3em] mb-1 italic">{item.platform === 'twitch' ? 'stream' : item.platform}_NODE</p>
                   <p className="text-[11px] font-black text-white line-clamp-1 uppercase tracking-tight">{item.title || 'Untitled_Entry'}</p>
                 </div>
                 <div 
@@ -297,7 +297,7 @@ const ContentTab: React.FC<ContentTabProps> = ({
                     setEditingContent(item as any);
                     setIsContentModalOpen(true);
                   }}
-                  className="absolute top-4 right-4 p-2.5 bg-white text-slate-950 rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-500 hover:bg-emerald-500 shadow-2xl scale-75 group-hover:scale-100"
+                  className="absolute top-4 right-4 p-2.5 bg-white text-slate-950 rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-500 hover:bg-indigo-600 shadow-2xl scale-75 group-hover:scale-100"
                 >
                   <Edit2 className="h-3.5 w-3.5" />
                 </div>
@@ -313,24 +313,24 @@ const ContentTab: React.FC<ContentTabProps> = ({
                   if (isPopup) setViewingContent(item as any);
                   else window.open(item.url, '_blank');
                 }}
-                className="glass-dark px-8 py-6 rounded-[2rem] border border-white/5 flex items-center hover:border-emerald-500/30 hover:shadow-2xl transition-all duration-500 group gap-10 cursor-pointer active:scale-[0.99] relative overflow-hidden"
+                className="glass-dark px-8 py-6 rounded-[2rem] border border-slate-200 flex items-center hover:border-indigo-200 hover:shadow-2xl transition-all duration-500 group gap-10 cursor-pointer active:scale-[0.99] relative overflow-hidden"
               >
-                <div className="w-16 h-16 bg-slate-900 rounded-2xl overflow-hidden flex items-center justify-center border border-white/5 shrink-0 group-hover:scale-105 transition-transform duration-500">
+                <div className="w-16 h-16 bg-white rounded-2xl overflow-hidden flex items-center justify-center border border-slate-200 shrink-0 group-hover:scale-105 transition-transform duration-500">
                   {item.thumbnail ? (
                     <img src={item.thumbnail} alt="" className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700" />
                   ) : (
-                    <Youtube className="h-6 w-6 text-slate-800 group-hover:text-emerald-500 transition-colors" />
+                    <Youtube className="h-6 w-6 text-slate-800 group-hover:text-indigo-600 transition-colors" />
                   )}
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <p className="text-lg font-black text-white line-clamp-1 uppercase tracking-tighter group-hover:text-emerald-400 transition-colors">{item.title || 'Untitled_Node'}</p>
+                  <p className="text-lg font-black text-white line-clamp-1 uppercase tracking-tighter group-hover:text-indigo-600 transition-colors">{item.title || 'Untitled_Node'}</p>
                   <div className="flex flex-wrap items-center gap-4 mt-2">
                     <span className="text-[9px] font-black text-slate-950 uppercase tracking-[0.2em] px-3 py-1 bg-white rounded-lg italic">
                       {item.platform === 'twitch' ? 'stream' : item.platform}_DATA
                     </span>
-                    <span className="text-[9px] font-black text-slate-500 bg-slate-900 rounded-lg px-3 py-1 flex items-center gap-2 uppercase tracking-widest border border-white/5">
-                      <List className="h-3 w-3 text-emerald-500" />
+                    <span className="text-[9px] font-black text-slate-500 bg-white rounded-lg px-3 py-1 flex items-center gap-2 uppercase tracking-widest border border-slate-200">
+                      <List className="h-3 w-3 text-indigo-600" />
                       {campaigns.find(c => c.id === item.campaign_id)?.name || 'STANDALONE_OP'}
                     </span>
                     <span 
@@ -338,7 +338,7 @@ const ContentTab: React.FC<ContentTabProps> = ({
                         e.stopPropagation();
                         if (item.creator_id) setManagingUser(users.find(u => u.id === item.creator_id) || null);
                       }}
-                      className={`text-[9px] font-black flex items-center gap-2 uppercase tracking-widest transition-all duration-500 ${item.creator_id ? 'text-slate-600 hover:text-emerald-400 cursor-pointer' : 'text-slate-700'}`}
+                      className={`text-[9px] font-black flex items-center gap-2 uppercase tracking-widest transition-all duration-500 ${item.creator_id ? 'text-slate-600 hover:text-indigo-600 cursor-pointer' : 'text-slate-700'}`}
                     >
                       <Users className="h-3 w-3" />
                       AGENT: {item.creator_id ? (users.find(u => u.id === item.creator_id)?.display_name || 'UNKNOWN') : (item.guest_name || 'EXT_SOURCE')}
@@ -347,12 +347,12 @@ const ContentTab: React.FC<ContentTabProps> = ({
                 </div>
 
                 <div className="hidden md:flex flex-col items-center w-36 shrink-0 pt-1">
-                  <p className="text-3xl font-black text-white leading-none tracking-tighter tabular-nums group-hover:text-emerald-500 transition-colors">{(item.views || 0).toLocaleString()}</p>
+                  <p className="text-3xl font-black text-white leading-none tracking-tighter tabular-nums group-hover:text-indigo-600 transition-colors">{(item.views || 0).toLocaleString()}</p>
                   <p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] mt-3 italic">AGGREGATED_METRIC</p>
                 </div>
 
                 <div className="hidden lg:flex flex-col items-center w-36 shrink-0 pt-1">
-                  <p className="text-sm font-black text-slate-400 leading-none uppercase tracking-widest">
+                  <p className="text-sm font-black text-slate-500 leading-none uppercase tracking-widest">
                     {item.uploaded_at ? new Date(item.uploaded_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }) : 'STALE'}
                   </p>
                   <p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] mt-3 italic">TIMESTAMP</p>
@@ -361,7 +361,7 @@ const ContentTab: React.FC<ContentTabProps> = ({
                 <div className="flex items-center gap-4 shrink-0 relative z-20">
                   <button
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleRefreshItem(item); }}
-                    className="p-3 text-slate-500 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-xl transition-all duration-500 active:scale-90 border border-white/5 hover:border-emerald-500/30"
+                    className="p-3 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all duration-500 active:scale-90 border border-slate-200 hover:border-indigo-200"
                     title="Sync_Node"
                   >
                     <RefreshCw className="h-4 w-4" />
@@ -373,7 +373,7 @@ const ContentTab: React.FC<ContentTabProps> = ({
                       setEditingContent(item as any); 
                       setIsContentModalOpen(true); 
                     }}
-                    className="p-3 text-slate-500 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-500 active:scale-90 border border-white/5 hover:border-white/20"
+                    className="p-3 text-slate-500 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-500 active:scale-90 border border-slate-200 hover:border-white/20"
                     title="Edit_Manifest"
                   >
                     <Edit2 className="h-4 w-4" />
@@ -393,7 +393,7 @@ const ContentTab: React.FC<ContentTabProps> = ({
                         }
                       }
                     }}
-                    className="p-3 text-slate-700 hover:text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all duration-500 active:scale-90 border border-white/5 hover:border-rose-500/30"
+                    className="p-3 text-slate-700 hover:text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all duration-500 active:scale-90 border border-slate-200 hover:border-rose-500/30"
                     title="Purge_Node"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -426,7 +426,7 @@ const ContentTab: React.FC<ContentTabProps> = ({
           ))}
         {content.length === 0 && (
           <div className="col-span-full py-40 text-center animate-in fade-in duration-1000">
-            <div className="w-24 h-24 glass-dark rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 border border-white/5">
+            <div className="w-24 h-24 glass-dark rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 border border-slate-200">
               <Youtube className="h-10 w-10 text-slate-800" />
             </div>
             <h3 className="text-xl font-black text-white uppercase tracking-[0.4em] italic">No_Asset_Nodes_Detected</h3>

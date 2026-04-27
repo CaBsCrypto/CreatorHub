@@ -43,14 +43,14 @@ const platformConfig = {
   instagram: { icon: Instagram, color: 'text-pink-500', bg: 'from-pink-950/20 to-slate-950' },
   tiktok: { icon: Music2, color: 'text-white', bg: 'from-slate-900 to-slate-950' },
   x: { icon: Twitter, color: 'text-white', bg: 'from-slate-900 to-slate-950' },
-  coinmarketcap: { icon: Globe, color: 'text-emerald-500', bg: 'from-emerald-950/20 to-slate-950' },
+  coinmarketcap: { icon: Globe, color: 'text-indigo-600', bg: 'from-emerald-950/20 to-slate-950' },
   twitch: { icon: Globe, color: 'text-purple-500', bg: 'from-purple-950/20 to-slate-950' },
   discord: { icon: DiscordIcon, color: 'text-indigo-400', bg: 'from-indigo-950/20 to-slate-950' },
   baseapp: { icon: Globe, color: 'text-cyan-500', bg: 'from-cyan-950/20 to-slate-950' }
 };
 
 const ContentCard = React.memo(({ item, campaignName, onEdit, onDelete, onClick, index }: ContentCardProps) => {
-  const { icon: PlatformIcon, color: platformColor, bg: platformBg } = platformConfig[item.platform] || { icon: Globe, color: 'text-slate-400', bg: 'from-slate-900 to-slate-950' };
+  const { icon: PlatformIcon, color: platformColor, bg: platformBg } = platformConfig[item.platform] || { icon: Globe, color: 'text-slate-500', bg: 'from-slate-900 to-slate-950' };
   const isGamenight = item.platform === 'discord' || item.platform === 'baseapp';
 
   return (
@@ -62,7 +62,7 @@ const ContentCard = React.memo(({ item, campaignName, onEdit, onDelete, onClick,
       className={`group relative flex flex-col rounded-[2.5rem] glass-dark overflow-hidden shadow-2xl transition-all duration-700 cursor-pointer border ${
         isGamenight 
           ? 'border-emerald-500 shadow-[0_0_40px_rgba(16,185,129,0.2)]' 
-          : 'border-white/5 hover:border-emerald-500/30'
+          : 'border-slate-200 hover:border-indigo-200'
       }`}
     >
       {/* Header Section */}
@@ -84,7 +84,7 @@ const ContentCard = React.memo(({ item, campaignName, onEdit, onDelete, onClick,
         )}
         
         <div className="relative z-10 flex flex-col items-center">
-          <div className="w-16 h-16 rounded-[1.5rem] bg-slate-900/80 backdrop-blur-xl shadow-2xl flex items-center justify-center mb-3 border border-white/10 group-hover:scale-110 transition-transform duration-500">
+          <div className="w-16 h-16 rounded-[1.5rem] bg-white backdrop-blur-xl shadow-2xl flex items-center justify-center mb-3 border border-slate-200 group-hover:scale-110 transition-transform duration-500">
             <PlatformIcon className={`h-8 w-8 ${platformColor}`} />
           </div>
           <span className={`text-[10px] font-black uppercase tracking-[0.4em] ${item.thumbnail ? 'text-white' : 'text-slate-500'}`}>
@@ -128,15 +128,15 @@ const ContentCard = React.memo(({ item, campaignName, onEdit, onDelete, onClick,
 
       <div className="p-8 flex flex-col flex-1">
         <div className="flex-1">
-          <p className="text-[10px] font-black text-emerald-500 mb-3 tracking-[0.4em] uppercase italic">
+          <p className="text-[10px] font-black text-indigo-600 mb-3 tracking-[0.4em] uppercase italic">
             {campaignName || 'General_Node'}
           </p>
-          <h3 className="text-lg font-black text-white leading-snug line-clamp-2 group-hover:text-emerald-400 transition-colors uppercase tracking-tight">
+          <h3 className="text-lg font-black text-white leading-snug line-clamp-2 group-hover:text-indigo-600 transition-colors uppercase tracking-tight">
             {item.title || item.url}
           </h3>
         </div>
         
-        <div className="mt-10 flex items-center justify-between border-t border-white/5 pt-6">
+        <div className="mt-10 flex items-center justify-between border-t border-slate-200 pt-6">
           <div className="flex items-center gap-8">
             <div className="flex flex-col">
               <span className="text-2xl font-black text-white leading-none tracking-tighter">{item.views?.toLocaleString() || 0}</span>
@@ -153,7 +153,7 @@ const ContentCard = React.memo(({ item, campaignName, onEdit, onDelete, onClick,
             </div>
           </div>
           
-          <div className="flex items-center gap-3 text-[10px] font-black text-emerald-500 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0 italic">
+          <div className="flex items-center gap-3 text-[10px] font-black text-indigo-600 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0 italic">
              Access <ExternalLink className="h-4 w-4" />
           </div>
         </div>

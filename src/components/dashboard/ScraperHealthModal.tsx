@@ -63,16 +63,16 @@ const ScraperHealthModal: React.FC<ScraperHealthModalProps> = ({
           {/* Summary Score */}
           <div className="flex items-center justify-between mb-8 p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
             <div>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Tasa de Éxito (24h)</p>
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Tasa de Éxito (24h)</p>
               <div className="flex items-baseline gap-2">
                 <span className={`text-4xl font-black ${isHealthy ? 'text-emerald-600' : isWarning ? 'text-amber-500' : 'text-rose-600'}`}>
                   {successRate}%
                 </span>
-                <span className="text-xs font-bold text-slate-300">/ 100%</span>
+                <span className="text-xs font-bold text-slate-700">/ 100%</span>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Logs</p>
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Total Logs</p>
               <p className="text-xl font-black text-slate-900">{total}</p>
             </div>
           </div>
@@ -99,7 +99,7 @@ const ScraperHealthModal: React.FC<ScraperHealthModalProps> = ({
                         </p>
                       </div>
                     </div>
-                    <span className="text-[9px] font-bold text-slate-300 uppercase whitespace-nowrap pt-1">
+                    <span className="text-[9px] font-bold text-slate-700 uppercase whitespace-nowrap pt-1">
                       {new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
@@ -120,7 +120,7 @@ const ScraperHealthModal: React.FC<ScraperHealthModalProps> = ({
             ) : (
               <div className="py-10 text-center border-2 border-dashed border-emerald-50 rounded-[2rem]">
                 <CheckCircle2 className="h-8 w-8 text-emerald-100 mx-auto mb-3" />
-                <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest leading-none">No hay errores recientes</p>
+                <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest leading-none">No hay errores recientes</p>
                 <p className="text-[9px] font-bold text-emerald-300 uppercase tracking-tighter mt-1">Todo funciona correctamente</p>
               </div>
             )}

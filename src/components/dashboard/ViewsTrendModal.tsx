@@ -75,7 +75,7 @@ export default function ViewsTrendModal({ isOpen, onClose, content }: ViewsTrend
             <div className="p-6 md:p-8 flex items-center justify-between border-b border-gray-50 bg-gray-50/50">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center border border-emerald-100/50 shadow-inner">
-                  <CalendarIcon className="h-6 w-6 text-emerald-500" />
+                  <CalendarIcon className="h-6 w-6 text-indigo-600" />
                 </div>
                 <div>
                   <h2 className="text-xl md:text-2xl font-black text-gray-900 leading-tight tracking-tight">Flujo de Vistas</h2>
@@ -128,7 +128,7 @@ export default function ViewsTrendModal({ isOpen, onClose, content }: ViewsTrend
                   {/* Chart */}
                   <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm">
                     <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest mb-6 flex items-center gap-2">
-                      <TrendingUp className="h-4 w-4 text-emerald-500" />
+                      <TrendingUp className="h-4 w-4 text-indigo-600" />
                       Crecimiento de Vistas
                     </h3>
                     <div className="h-64 w-full min-h-[250px]">
@@ -161,7 +161,7 @@ export default function ViewsTrendModal({ isOpen, onClose, content }: ViewsTrend
                                 return (
                                   <div className="bg-gray-900 border border-gray-700 p-3 rounded-xl shadow-2xl">
                                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{data.displayDate}</p>
-                                    <p className="text-sm font-bold text-white">Acumulado: <span className="text-emerald-400 font-black">{data.totalViews.toLocaleString()}</span></p>
+                                    <p className="text-sm font-bold text-white">Acumulado: <span className="text-indigo-600 font-black">{data.totalViews.toLocaleString()}</span></p>
                                     <p className="text-xs font-medium text-gray-300 mt-1">Nuevas: +{data.dailyViews.toLocaleString()}</p>
                                   </div>
                                 );

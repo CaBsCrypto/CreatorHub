@@ -94,7 +94,7 @@ const TrashTab: React.FC<TrashTabProps> = ({
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleRestore(item.id)}
-                        className="p-2.5 text-emerald-500 hover:bg-emerald-50 rounded-xl transition-all active:scale-90"
+                        className="p-2.5 text-indigo-600 hover:bg-emerald-50 rounded-xl transition-all active:scale-90"
                         title="Restaurar"
                       >
                         <RotateCcw className="h-4 w-4" />

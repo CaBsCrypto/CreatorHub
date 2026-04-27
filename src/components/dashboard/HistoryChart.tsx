@@ -25,7 +25,7 @@ export const HistoryChart: React.FC<HistoryChartProps> = ({
   if (!data || data.length === 0) {
     return (
       <div 
-        className="w-full flex items-center justify-center text-gray-500 bg-gray-900/40 rounded-xl border border-white/5"
+        className="w-full flex items-center justify-center text-gray-500 bg-gray-900/40 rounded-xl border border-slate-200"
         style={{ height }}
       >
         <p>No hay datos históricos suficientes.</p>
@@ -53,7 +53,7 @@ export const HistoryChart: React.FC<HistoryChartProps> = ({
   const hasTwitchMetrics = chartData.some(d => d.average_viewers !== undefined && d.average_viewers > 0);
 
   return (
-    <div className="w-full bg-gray-900/50 p-4 rounded-xl border border-white/10" style={{ height: height + 60, minHeight: height + 60 }}>
+    <div className="w-full bg-gray-900/50 p-4 rounded-xl border border-slate-200" style={{ height: height + 60, minHeight: height + 60 }}>
       <h3 className="text-white font-medium mb-4 flex items-center gap-2">
         <svg className="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />

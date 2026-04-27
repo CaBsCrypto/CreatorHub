@@ -46,20 +46,20 @@ const ScraperLogsTab = React.lazy(() => import('../components/dashboard/ScraperL
 const TabLoader = () => (
   <div className="flex flex-col items-center justify-center py-40 gap-6">
     <div className="relative">
-      <div className="w-16 h-16 rounded-full border-2 border-emerald-500/10 border-t-emerald-500 animate-spin" />
-      <div className="absolute inset-0 bg-emerald-500/20 blur-2xl animate-pulse" />
+      <div className="w-16 h-16 rounded-full border-2 border-indigo-100 border-t-emerald-500 animate-spin" />
+      <div className="absolute inset-0 bg-indigo-100 blur-2xl animate-pulse" />
     </div>
-    <p className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.5em] animate-pulse italic">Synchronizing_Nodes...</p>
+    <p className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.5em] animate-pulse italic">Synchronizing_Nodes...</p>
   </div>
 );
 
 const PLATFORM_COLORS: Record<string, string> = {
-  tiktok: '#ffffff', 
+  tiktok: '#0f172a', 
   instagram: '#e1306c', 
   youtube: '#ff0000', 
-  x: '#ffffff', 
+  x: '#1da1f2', 
   twitch: '#9146ff', 
-  coinmarketcap: '#10b981' 
+  coinmarketcap: '#0d3efd' 
 };
 
 const ADMIN_TABS = ['overview', 'campaigns', 'content', 'creators', 'payments', 'team', 'activity', 'trash', 'scraper'] as const;
@@ -276,7 +276,7 @@ export default function AdminDashboard() {
   }, [refresh, success, toastError]);
 
   return (
-    <div className="flex min-h-screen bg-slate-950 selection:bg-emerald-500/30 selection:text-emerald-400">
+    <div className="flex min-h-screen bg-slate-50 selection:bg-indigo-500/30 selection:text-indigo-900">
       <AdminSidebar 
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 

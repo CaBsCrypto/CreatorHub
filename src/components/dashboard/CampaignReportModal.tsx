@@ -246,7 +246,7 @@ export default function CampaignReportModal({
   if (!isOpen) return null;
   if (!campaign) {
     return (
-      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-md">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-50/80 backdrop-blur-md">
         <div className="bg-rose-500/10 border border-rose-500/20 text-rose-500 p-12 rounded-3xl shadow-2xl text-center max-w-lg">
           <Zap className="h-16 w-16 mx-auto mb-6 opacity-80" />
           <h2 className="text-3xl font-black uppercase tracking-widest mb-4">Critical Error</h2>
@@ -284,7 +284,7 @@ export default function CampaignReportModal({
           initial={{ opacity: 0 }} 
           animate={{ opacity: 1 }} 
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-slate-950/60 backdrop-blur-md" 
+          className="fixed inset-0 bg-slate-50/60 backdrop-blur-md" 
           onClick={onClose}
         />
         
@@ -292,16 +292,16 @@ export default function CampaignReportModal({
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-5xl bg-slate-950/80 backdrop-blur-xl ring-1 ring-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh]"
+          className="relative w-full max-w-5xl bg-slate-50/80 backdrop-blur-xl ring-1 ring-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh]"
         >
           {/* Header */}
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 via-indigo-500 to-cyan-500" />
           
-          <div className="p-8 pb-6 flex justify-between items-start border-b border-white/5">
+          <div className="p-8 pb-6 flex justify-between items-start border-b border-slate-200">
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                  campaign.status === 'active' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-white/5 text-gray-500'
+                  campaign.status === 'active' ? 'bg-indigo-50 text-indigo-600 border border-indigo-200' : 'bg-white/5 text-gray-500'
                 }`}>
                   {campaign.status}
                 </span>
@@ -340,7 +340,7 @@ export default function CampaignReportModal({
               <select
                 value={filterPlatform}
                 onChange={(e) => setFilterPlatform(e.target.value)}
-                className="px-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-300 focus:bg-white/10 focus:border-indigo-500/50 transition-all outline-none cursor-pointer"
+                className="px-4 py-3 bg-white/5 border border-slate-200 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-700 focus:bg-white/10 focus:border-indigo-500/50 transition-all outline-none cursor-pointer"
               >
                 <option value="all">Todas las Redes</option>
                 <option value="tiktok">TikTok</option>
@@ -364,7 +364,7 @@ export default function CampaignReportModal({
               >
                 <FileSpreadsheet className="h-4 w-4" /> Google Sheets
               </button>
-              <button onClick={onClose} className="p-3 rounded-2xl hover:bg-white/5 text-slate-400 transition-all hover:rotate-90">
+              <button onClick={onClose} className="p-3 rounded-2xl hover:bg-white/5 text-slate-500 transition-all hover:rotate-90">
                 <X className="h-6 w-6" />
               </button>
             </div>
@@ -378,7 +378,7 @@ export default function CampaignReportModal({
                 <h3 className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-3 flex items-center gap-2">
                   <Star className="h-4 w-4" /> Strategic Narrative
                 </h3>
-                <div className="text-sm text-slate-300 font-medium leading-relaxed italic whitespace-pre-wrap max-h-32 overflow-y-auto custom-scrollbar pr-2">
+                <div className="text-sm text-slate-700 font-medium leading-relaxed italic whitespace-pre-wrap max-h-32 overflow-y-auto custom-scrollbar pr-2">
                   "{campaign.notes}"
                 </div>
               </div>
@@ -393,7 +393,7 @@ export default function CampaignReportModal({
             
             {/* Global Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-white/5 p-6 rounded-3xl border border-white/10 shadow-sm flex flex-col justify-center">
+              <div className="bg-white/5 p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-center">
                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Campaign Progression</p>
                 <div className="flex items-end gap-2 mb-2">
                   <span className="text-4xl font-black text-white">{totalContent}</span>
@@ -404,17 +404,17 @@ export default function CampaignReportModal({
                 </div>
               </div>
 
-              <div className="bg-white/5 p-6 rounded-3xl border border-white/10 shadow-sm flex flex-col justify-center">
+              <div className="bg-white/5 p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-center">
                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Aggregate Impressions</p>
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center border border-emerald-500/20">
+                  <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-200">
                     <Zap className="h-6 w-6" />
                   </div>
                   <span className="text-3xl font-black text-white">{stats.totalViews.toLocaleString()}</span>
                 </div>
               </div>
 
-              <div className="bg-white/5 p-6 rounded-3xl border border-white/10 shadow-sm flex flex-col justify-center">
+              <div className="bg-white/5 p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-center">
                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Network Distribution</p>
                 <div className="flex flex-wrap gap-2">
                   {Object.entries(stats.platformCounts).map(([platform, count]) => {
@@ -424,7 +424,7 @@ export default function CampaignReportModal({
                       .reduce((sum, c) => sum + (c.views || 0), 0);
                     
                     return (
-                      <div key={platform} className="flex flex-col gap-1 px-3 py-2 bg-white/5 rounded-xl border border-white/5 min-w-[70px]">
+                      <div key={platform} className="flex flex-col gap-1 px-3 py-2 bg-white/5 rounded-xl border border-slate-200 min-w-[70px]">
                         <div className="flex items-center gap-1.5 ">
                           <PlatformIcon platform={platform} className="h-3 w-3 text-slate-500" />
                           <span className="text-[9px] font-black uppercase text-slate-500">{platform === 'coinmarketcap' ? 'CMC' : platform}</span>
@@ -452,17 +452,17 @@ export default function CampaignReportModal({
                 </h3>
                 <button 
                   onClick={handleCopyBreakdown}
-                  className="flex items-center gap-2 px-4 py-2 bg-white/5 text-indigo-400 border border-white/10 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-white/10 transition-all active:scale-95"
+                  className="flex items-center gap-2 px-4 py-2 bg-white/5 text-indigo-400 border border-slate-200 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-white/10 transition-all active:scale-95"
                 >
                   <Download className="h-3 w-3" /> Export Breakdown
                 </button>
               </div>
               
-              <div className="bg-white/5 rounded-[2rem] border border-white/10 shadow-sm overflow-hidden">
+              <div className="bg-white/5 rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="bg-white/5 border-b border-white/5">
+                      <tr className="bg-white/5 border-b border-slate-200">
                         <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Creador</th>
                         <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">TikTok</th>
                         <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Instagram</th>

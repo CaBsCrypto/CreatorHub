@@ -32,26 +32,26 @@ const FilterMenu: React.FC<FilterMenuProps> = ({
     <AnimatePresence>
       {isOpen && (
         <>
-          <div className="fixed inset-0 z-40 bg-slate-950/20 backdrop-blur-[2px]" onClick={onClose} />
+          <div className="fixed inset-0 z-40 bg-slate-50/20 backdrop-blur-[2px]" onClick={onClose} />
           <motion.div 
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="absolute left-0 top-full mt-5 w-[360px] glass-dark rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.5)] border border-white/5 p-8 z-50 space-y-8"
+            className="absolute left-0 top-full mt-5 w-[360px] glass-dark rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.5)] border border-slate-200 p-8 z-50 space-y-8"
           >
             <div className="flex items-center justify-between mb-2">
               <h4 className="text-[10px] font-black text-white uppercase tracking-[0.3em] italic">System_Configuration</h4>
-              <button onClick={() => resetFilters()} className="text-[10px] font-black text-emerald-500 uppercase hover:text-emerald-400 transition-colors tracking-widest underline decoration-emerald-500/30 underline-offset-4">Reset_All</button>
+              <button onClick={() => resetFilters()} className="text-[10px] font-black text-indigo-600 uppercase hover:text-indigo-600 transition-colors tracking-widest underline decoration-emerald-500/30 underline-offset-4">Reset_All</button>
             </div>
 
             <div className="space-y-6">
-              <div className="border-b border-white/5 pb-4">
+              <div className="border-b border-slate-200 pb-4">
                  <h5 className="text-[9px] font-black text-slate-500 uppercase tracking-[0.4em]">Global_Parameters</h5>
               </div>
               
               <div className="space-y-2">
                 <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest ml-1">Platform_Node</label>
-                <select value={platform} onChange={e => setFilter('platform', e.target.value)} className="w-full bg-slate-900/80 border border-white/5 rounded-2xl px-5 py-4 text-xs font-black text-white uppercase tracking-widest focus:border-emerald-500/50 outline-none transition-all cursor-pointer appearance-none">
+                <select value={platform} onChange={e => setFilter('platform', e.target.value)} className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 text-xs font-black text-white uppercase tracking-widest focus:border-emerald-500/50 outline-none transition-all cursor-pointer appearance-none">
                   <option value="all">All_Networks</option>
                   <option value="tiktok">TikTok</option>
                   <option value="instagram">Instagram</option>
@@ -64,7 +64,7 @@ const FilterMenu: React.FC<FilterMenuProps> = ({
 
               <div className="space-y-2">
                 <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest ml-1">Operation_Context</label>
-                <select value={campaign} onChange={e => setFilter('campaign', e.target.value)} className="w-full bg-slate-900/80 border border-white/5 rounded-2xl px-5 py-4 text-xs font-black text-white uppercase tracking-widest focus:border-emerald-500/50 outline-none transition-all cursor-pointer appearance-none">
+                <select value={campaign} onChange={e => setFilter('campaign', e.target.value)} className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 text-xs font-black text-white uppercase tracking-widest focus:border-emerald-500/50 outline-none transition-all cursor-pointer appearance-none">
                   <option value="all">All_Campaigns</option>
                   {campaigns.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
@@ -72,10 +72,10 @@ const FilterMenu: React.FC<FilterMenuProps> = ({
 
               <div className="space-y-2">
                 <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest ml-1">Assigned_Agent</label>
-                <select value={creator} onChange={e => setFilter('creator', e.target.value)} className="w-full bg-slate-900/80 border border-white/5 rounded-2xl px-5 py-4 text-xs font-black text-white uppercase tracking-widest focus:border-emerald-500/50 outline-none transition-all cursor-pointer appearance-none">
+                <select value={creator} onChange={e => setFilter('creator', e.target.value)} className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 text-xs font-black text-white uppercase tracking-widest focus:border-emerald-500/50 outline-none transition-all cursor-pointer appearance-none">
                   <option value="all">All_Personnel</option>
                   
-                  <optgroup label="Network_Entities" className="bg-slate-950 text-slate-500">
+                  <optgroup label="Network_Entities" className="bg-slate-50 text-slate-500">
                     {users.filter(u => u.role !== 'client').map(u => (
                       <option key={u.id} value={u.id} className="text-white">
                         {u.admin_alias || u.display_name || u.email.split('@')[0]} [{u.role.toUpperCase()}]
@@ -84,7 +84,7 @@ const FilterMenu: React.FC<FilterMenuProps> = ({
                   </optgroup>
 
                   {content.some(c => !c.creator_id && c.guest_name) && (
-                    <optgroup label="Guest_Artifacts" className="bg-slate-950 text-slate-500">
+                    <optgroup label="Guest_Artifacts" className="bg-slate-50 text-slate-500">
                       {[...new Set(content.filter(c => !c.creator_id && c.guest_name).map(c => c.guest_name))].map(name => (
                         <option key={name} value={`guest:${name}`} className="text-white">{name}</option>
                       ))}
@@ -94,13 +94,13 @@ const FilterMenu: React.FC<FilterMenuProps> = ({
               </div>
 
               {(activeTab === 'payments' || activeTab === 'team') && (
-                <div className="pt-6 border-t border-white/5 mt-4 space-y-6">
+                <div className="pt-6 border-t border-slate-200 mt-4 space-y-6">
                    <h5 className="text-[9px] font-black text-slate-500 uppercase tracking-[0.4em] mb-2 italic">Tab_Specific_Rules</h5>
                    
                    {activeTab === 'payments' && (
                     <div className="space-y-2">
                       <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest ml-1">Billing_Cycle</label>
-                      <select value={pay_month} onChange={e => setFilter('pay_month', e.target.value)} className="w-full bg-emerald-500/10 border border-emerald-500/20 rounded-2xl px-5 py-4 text-xs font-black text-emerald-400 uppercase tracking-widest focus:border-emerald-500/50 outline-none transition-all cursor-pointer appearance-none">
+                      <select value={pay_month} onChange={e => setFilter('pay_month', e.target.value)} className="w-full bg-indigo-50 border border-indigo-200 rounded-2xl px-5 py-4 text-xs font-black text-indigo-600 uppercase tracking-widest focus:border-emerald-500/50 outline-none transition-all cursor-pointer appearance-none">
                         <option value="all">All_Cycles</option>
                         {[...new Set(payments.map(p => p.paid_at.substring(0, 7)))].sort().reverse().map(month => (
                           <option key={month} value={month}>{new Date(month + '-02').toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</option>

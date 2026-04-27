@@ -38,14 +38,14 @@ const RankCard = React.memo(({
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: 0.05, duration: 0.5 }}
       whileHover={{ y: -4 }}
-      className={`relative overflow-hidden transition-all duration-700 bg-slate-900/60 p-8 rounded-[2.5rem] border border-white/10 group h-full flex flex-col justify-between min-h-[350px] shadow-2xl`}
+      className={`relative overflow-hidden transition-all duration-700 bg-white/60 p-8 rounded-[2.5rem] border border-slate-200 group h-full flex flex-col justify-between min-h-[350px] shadow-2xl`}
     >
       {/* Decorative patterns & Glows */}
-      <div className="absolute -right-12 -top-12 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl opacity-50 transition-all duration-1000 group-hover:scale-150 group-hover:bg-emerald-500/20" />
+      <div className="absolute -right-12 -top-12 w-48 h-48 bg-indigo-50 rounded-full blur-3xl opacity-50 transition-all duration-1000 group-hover:scale-150 group-hover:bg-indigo-100" />
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.05] pointer-events-none" />
       
       <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-all duration-1000 group-hover:rotate-12">
-        <Globe className="h-40 w-40 text-emerald-500" />
+        <Globe className="h-40 w-40 text-indigo-600" />
       </div>
       
       <div className="relative z-10 space-y-6">
@@ -53,17 +53,17 @@ const RankCard = React.memo(({
         <div className="flex justify-between items-start">
           <div className="space-y-2">
             <div className="flex items-center gap-3">
-              <span className="text-[10px] font-black text-emerald-400 bg-emerald-500/10 backdrop-blur-md px-4 py-1.5 rounded-full border border-emerald-500/20 tracking-widest uppercase">
+              <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 backdrop-blur-md px-4 py-1.5 rounded-full border border-indigo-200 tracking-widest uppercase">
                 Umbra Passport
               </span>
-              <span className="text-[9px] font-black text-slate-500 px-3 py-1.5 bg-white/5 rounded-full border border-white/5 tracking-[0.3em] uppercase">
+              <span className="text-[9px] font-black text-slate-500 px-3 py-1.5 bg-white/5 rounded-full border border-slate-200 tracking-[0.3em] uppercase">
                 UBR-0{activeRank.level}
               </span>
             </div>
             <h3 className="text-4xl font-black text-white tracking-tighter uppercase">{activeRank.name}</h3>
           </div>
-          <div className="p-4 bg-emerald-500/10 backdrop-blur-xl rounded-2xl border border-emerald-500/20 shadow-xl group-hover:scale-110 transition-transform duration-500">
-            <activeRank.icon className="h-8 w-8 text-emerald-400" />
+          <div className="p-4 bg-indigo-50 backdrop-blur-xl rounded-2xl border border-indigo-200 shadow-xl group-hover:scale-110 transition-transform duration-500">
+            <activeRank.icon className="h-8 w-8 text-indigo-600" />
           </div>
         </div>
 
@@ -73,14 +73,14 @@ const RankCard = React.memo(({
             const isUnlocked = currentRankIndex >= (previewRankIndex !== null ? previewRankIndex : currentRankIndex);
             return (
               <div key={i} className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl border transition-all duration-700 ${
-                isUnlocked ? 'bg-emerald-500/5 border-emerald-500/10' : 'bg-slate-900/50 border-white/5 opacity-40'
+                isUnlocked ? 'bg-indigo-600/5 border-indigo-100' : 'bg-white border-slate-200 opacity-40'
               }`}>
                 {isUnlocked ? (
-                  <CheckCircle2 className="h-3 w-3 text-emerald-400" />
+                  <CheckCircle2 className="h-3 w-3 text-indigo-600" />
                 ) : (
                   <Lock className="h-3 w-3 text-slate-500" />
                 )}
-                <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest truncate">{benefit}</span>
+                <span className="text-[9px] font-black text-slate-700 uppercase tracking-widest truncate">{benefit}</span>
               </div>
             );
           })}
@@ -91,7 +91,7 @@ const RankCard = React.memo(({
           <div className="flex justify-between items-end text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">
             <div className="flex flex-col gap-1">
               <span className="opacity-40 italic">Next evolution</span>
-              <span className="text-emerald-500">{nextRank?.name || 'MAX_LEVEL'}</span>
+              <span className="text-indigo-600">{nextRank?.name || 'MAX_LEVEL'}</span>
             </div>
             {nextRank && (
               <div className="text-right">
@@ -101,7 +101,7 @@ const RankCard = React.memo(({
               </div>
             )}
           </div>
-          <div className="h-2 bg-slate-950 rounded-full border border-white/5 relative overflow-hidden">
+          <div className="h-2 bg-slate-50 rounded-full border border-slate-200 relative overflow-hidden">
             <motion.div 
               initial={{ width: 0 }}
               animate={{ 
@@ -121,7 +121,7 @@ const RankCard = React.memo(({
 
       {/* Tier Switcher */}
       <div className="mt-8 flex items-center justify-between gap-6 relative z-10">
-        <div className="flex items-center gap-2 p-2 bg-slate-950/50 backdrop-blur-md rounded-[1.5rem] border border-white/5 overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-2 p-2 bg-slate-50/50 backdrop-blur-md rounded-[1.5rem] border border-slate-200 overflow-x-auto no-scrollbar">
           {tiers.map((tier, idx) => {
             const TierIcon = tier.icon;
             const isSelected = previewRankIndex === idx || (previewRankIndex === null && currentRankIndex === idx);
@@ -134,12 +134,12 @@ const RankCard = React.memo(({
                 className={`relative flex items-center justify-center h-10 w-10 rounded-xl transition-all duration-500 ${
                   isSelected 
                     ? 'bg-white text-slate-950 scale-110 shadow-xl' 
-                    : 'text-slate-600 hover:text-emerald-400 hover:bg-white/5'
+                    : 'text-slate-600 hover:text-indigo-600 hover:bg-white/5'
                 }`}
               >
                 <TierIcon className={`h-5 w-5 ${isLocked && !isSelected ? 'opacity-30 grayscale' : ''}`} />
                 {isLocked && (
-                  <div className="absolute -top-1 -right-1 p-0.5 bg-slate-900 rounded-full border border-white/10">
+                  <div className="absolute -top-1 -right-1 p-0.5 bg-white rounded-full border border-slate-200">
                     <Lock className="h-2 w-2 text-slate-500" />
                   </div>
                 )}
@@ -151,28 +151,28 @@ const RankCard = React.memo(({
         {previewRankIndex !== null && previewRankIndex !== currentRankIndex && (
           <button 
             onClick={() => onPreviewRank(null)}
-            className="px-6 py-3 bg-white/5 hover:bg-white/10 text-[9px] font-black text-white uppercase tracking-widest rounded-xl border border-white/10 transition-all flex items-center gap-3"
+            className="px-6 py-3 bg-white/5 hover:bg-white/10 text-[9px] font-black text-white uppercase tracking-widest rounded-xl border border-slate-200 transition-all flex items-center gap-3"
           >
-            <RefreshCw className="h-3 w-3 text-emerald-500" />
+            <RefreshCw className="h-3 w-3 text-indigo-600" />
             Reset_System
           </button>
         )}
       </div>
 
       {/* Under Construction Overlay */}
-      <div className="absolute inset-0 z-50 bg-slate-950/40 backdrop-blur-[8px] flex flex-col items-center justify-center p-10 text-center group/overlay transition-all duration-700 hover:backdrop-blur-[12px]">
-        <div className="w-20 h-20 bg-slate-900/80 border border-white/10 rounded-3xl flex items-center justify-center mb-6 shadow-2xl group-hover/overlay:scale-110 group-hover/overlay:border-emerald-500/30 transition-all duration-1000">
-          <Lock className="h-10 w-10 text-emerald-500 animate-pulse" />
+      <div className="absolute inset-0 z-50 bg-slate-50/40 backdrop-blur-[8px] flex flex-col items-center justify-center p-10 text-center group/overlay transition-all duration-700 hover:backdrop-blur-[12px]">
+        <div className="w-20 h-20 bg-white border border-slate-200 rounded-3xl flex items-center justify-center mb-6 shadow-2xl group-hover/overlay:scale-110 group-hover/overlay:border-indigo-200 transition-all duration-1000">
+          <Lock className="h-10 w-10 text-indigo-600 animate-pulse" />
         </div>
         <h4 className="text-2xl font-black text-white tracking-tighter mb-3 uppercase">Node_Access_Locked</h4>
         <div className="px-6 py-2 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-[0.4em] rounded-full shadow-2xl border border-white/20 mb-6">
           Initializing Protocol
         </div>
-        <p className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] max-w-[240px] leading-relaxed italic">
+        <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em] max-w-[240px] leading-relaxed italic">
           Activando beneficios exclusivos por rango y recompensas de red.
         </p>
         
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-indigo-50 rounded-full blur-[100px] pointer-events-none" />
       </div>
     </motion.div>
   );

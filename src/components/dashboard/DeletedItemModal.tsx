@@ -25,20 +25,20 @@ const DeletedItemModal: React.FC<DeletedItemModalProps> = ({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="absolute inset-0 bg-slate-950/60 backdrop-blur-md"
+          className="absolute inset-0 bg-slate-50/60 backdrop-blur-md"
         />
         <motion.div 
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          className="relative bg-slate-950/80 backdrop-blur-xl w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/10 ring-1 ring-white/10"
+          className="relative bg-slate-50/80 backdrop-blur-xl w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-200 ring-1 ring-white/10"
         >
           <div className="p-8">
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-4">
                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ring-1 ring-white/10 ${
                   viewingDeleted.type === 'content' ? 'bg-indigo-500/10 text-indigo-400' :
-                  viewingDeleted.type === 'campaign' ? 'bg-emerald-500/10 text-emerald-400' :
+                  viewingDeleted.type === 'campaign' ? 'bg-indigo-50 text-indigo-600' :
                   'bg-amber-500/10 text-amber-400'
                 }`}>
                   {viewingDeleted.type === 'content' && <Youtube className="h-6 w-6" />}
@@ -54,7 +54,7 @@ const DeletedItemModal: React.FC<DeletedItemModalProps> = ({
               </div>
               <button 
                 onClick={onClose} 
-                className="p-2 hover:bg-white/5 rounded-xl transition-all border border-white/5"
+                className="p-2 hover:bg-white/5 rounded-xl transition-all border border-slate-200"
                 title="Abort"
               >
                 <X className="h-5 w-5 text-slate-500" />
@@ -64,7 +64,7 @@ const DeletedItemModal: React.FC<DeletedItemModalProps> = ({
             <div className="space-y-6 max-h-[50vh] overflow-y-auto pr-2 no-scrollbar">
               {/* Image Preview for Content */}
               {viewingDeleted.type === 'content' && viewingDeleted.item.thumbnail && (
-                <div className="mb-6 rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl aspect-video bg-white/5 flex items-center justify-center group/img">
+                <div className="mb-6 rounded-[2rem] overflow-hidden border border-slate-200 shadow-2xl aspect-video bg-white/5 flex items-center justify-center group/img">
                   <img 
                     src={viewingDeleted.item.thumbnail} 
                     alt={viewingDeleted.item.title || 'Vista previa'} 
@@ -87,13 +87,13 @@ const DeletedItemModal: React.FC<DeletedItemModalProps> = ({
               {Object.entries(viewingDeleted.item).map(([key, value]) => {
                 if (value === null || value === undefined || typeof value === 'object' || key.includes('id')) return null;
                 return (
-                  <div key={key} className="flex flex-col gap-1 bg-white/5 p-3 rounded-xl border border-white/5">
+                  <div key={key} className="flex flex-col gap-1 bg-white/5 p-3 rounded-xl border border-slate-200">
                     <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">{key.replace(/_/g, ' ')}</span>
                     <span className="text-xs font-black text-white break-all font-mono tracking-tight">{String(value)}</span>
                   </div>
                 );
               })}
-              <div className="pt-4 border-t border-white/5">
+              <div className="pt-4 border-t border-slate-200">
                  <span className="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em]">Decommission Date</span>
                  <p className="text-sm font-black text-rose-400 mt-1 font-mono">
                     {viewingDeleted.item.deleted_at ? new Date(viewingDeleted.item.deleted_at).toLocaleString() : 'N/A'}
@@ -101,7 +101,7 @@ const DeletedItemModal: React.FC<DeletedItemModalProps> = ({
               </div>
             </div>
 
-            <div className="mt-8 pt-8 border-t border-white/5 grid grid-cols-2 gap-4">
+            <div className="mt-8 pt-8 border-t border-slate-200 grid grid-cols-2 gap-4">
               <button 
                 onClick={() => onRestore(viewingDeleted.type, viewingDeleted.item)}
                 className="flex items-center justify-center gap-2 py-4 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all active:scale-95 shadow-xl shadow-indigo-600/20"
@@ -110,7 +110,7 @@ const DeletedItemModal: React.FC<DeletedItemModalProps> = ({
               </button>
               <button 
                 onClick={() => onPermanentDelete(viewingDeleted.type, viewingDeleted.item)}
-                className="flex items-center justify-center gap-2 py-4 bg-white/5 text-rose-500 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-500/10 transition-all active:scale-95 border border-white/5"
+                className="flex items-center justify-center gap-2 py-4 bg-white/5 text-rose-500 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-500/10 transition-all active:scale-95 border border-slate-200"
               >
                 <Trash2 className="h-4 w-4" /> Purge Records
               </button>

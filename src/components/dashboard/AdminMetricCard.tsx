@@ -30,17 +30,17 @@ const AdminMetricCard = React.memo(({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.7 }}
       onClick={onClick}
-      className={`group relative overflow-hidden glass-dark p-8 rounded-[2.5rem] border border-white/5 shadow-2xl transition-all duration-700 cursor-pointer ${onClick ? 'active:scale-95' : ''} hover:border-emerald-500/30 hover:shadow-emerald-500/5`}
+      className={`group relative overflow-hidden glass-dark p-8 rounded-[2.5rem] border border-slate-200 shadow-2xl transition-all duration-700 cursor-pointer ${onClick ? 'active:scale-95' : ''} hover:border-indigo-200 hover:shadow-emerald-500/5`}
     >
-      <div className={`absolute -right-6 -top-6 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl group-hover:bg-emerald-500/10 transition-all duration-1000`} />
+      <div className={`absolute -right-6 -top-6 w-32 h-32 bg-indigo-600/5 rounded-full blur-3xl group-hover:bg-indigo-50 transition-all duration-1000`} />
       
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-slate-900/80 border border-white/10 flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:rotate-[10deg] transition-all duration-500">
-            <Icon className="h-6 w-6 text-emerald-500" />
+          <div className="w-14 h-14 rounded-2xl bg-white border border-slate-200 flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:rotate-[10deg] transition-all duration-500">
+            <Icon className="h-6 w-6 text-indigo-600" />
           </div>
           {trend && (
-            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider italic ${trend.isPositive ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`}>
+            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider italic ${trend.isPositive ? 'bg-indigo-50 text-indigo-600 border border-indigo-200' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`}>
               {trend.isPositive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
               {trend.value}%
             </div>

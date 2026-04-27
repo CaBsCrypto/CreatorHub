@@ -201,18 +201,18 @@ export default function CreatorDashboard() {
         <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 relative z-10">
           <div className="cursor-pointer group" onClick={() => { setActiveTab('overview'); resetFilters(); }}>
             <div className="flex items-center gap-3 mb-1">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.8)] animate-pulse" />
-              <h1 className="text-3xl font-black text-white leading-tight tracking-tighter uppercase group-hover:text-emerald-400 transition-colors">
+              <div className="w-2 h-2 rounded-full bg-indigo-600 shadow-[0_0_12px_rgba(16,185,129,0.8)] animate-pulse" />
+              <h1 className="text-3xl font-black text-white leading-tight tracking-tighter uppercase group-hover:text-indigo-600 transition-colors">
                 {profile?.display_name || 'Creador'}
               </h1>
             </div>
             <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] ml-5">
-              Protocol Level: <span className="text-emerald-500 italic">{myRank.name}</span>
+              Protocol Level: <span className="text-indigo-600 italic">{myRank.name}</span>
             </p>
           </div>
           <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
-            <button onClick={handleRefresh} disabled={isRefreshing} className={`flex-1 lg:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest border border-white/5 hover:bg-slate-800 transition-all ${isRefreshing ? 'opacity-50 cursor-not-allowed' : ''}`}>
-              <RefreshCw className={`h-4 w-4 text-emerald-500 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <button onClick={handleRefresh} disabled={isRefreshing} className={`flex-1 lg:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-white text-white rounded-2xl text-[10px] font-black uppercase tracking-widest border border-slate-200 hover:bg-slate-800 transition-all ${isRefreshing ? 'opacity-50 cursor-not-allowed' : ''}`}>
+              <RefreshCw className={`h-4 w-4 text-indigo-600 ${isRefreshing ? 'animate-spin' : ''}`} />
               Sync_Metrics
             </button>
             <button onClick={() => setIsContentModalOpen(true)} className="flex-1 lg:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-white text-slate-950 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-white/5 active:scale-95">
@@ -224,7 +224,7 @@ export default function CreatorDashboard() {
 
         {/* Main Tabs Navigation */}
         <div 
-          className="flex items-center gap-3 p-2 bg-slate-900/50 backdrop-blur-3xl rounded-3xl w-full lg:w-fit overflow-x-auto no-scrollbar relative z-10 border border-white/5"
+          className="flex items-center gap-3 p-2 bg-white backdrop-blur-3xl rounded-3xl w-full lg:w-fit overflow-x-auto no-scrollbar relative z-10 border border-slate-200"
           style={{ isolation: 'isolate' }}
         >
           {[
@@ -302,30 +302,30 @@ export default function CreatorDashboard() {
                 </button>
               </div>
             ) : (
-              <div className="h-full glass-dark p-8 rounded-[2.5rem] border border-white/5 shadow-2xl flex flex-col justify-between relative overflow-hidden group min-h-[350px]">
-                <div className="absolute -right-12 -bottom-12 w-56 h-56 bg-emerald-500/05 rounded-full blur-3xl group-hover:bg-emerald-500/10 transition-all duration-1000" />
+              <div className="h-full glass-dark p-8 rounded-[2.5rem] border border-slate-200 shadow-2xl flex flex-col justify-between relative overflow-hidden group min-h-[350px]">
+                <div className="absolute -right-12 -bottom-12 w-56 h-56 bg-indigo-600/05 rounded-full blur-3xl group-hover:bg-indigo-50 transition-all duration-1000" />
                 <div className="relative z-10">
                   <div className="flex items-center justify-between mb-8">
                     <h3 className="text-xl font-black text-white flex items-center gap-3 uppercase tracking-tighter">
-                      <Wallet className="h-5 w-5 text-emerald-500" /> Wallet_Node
+                      <Wallet className="h-5 w-5 text-indigo-600" /> Wallet_Node
                     </h3>
-                    <div className="p-2 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
-                      <CheckCircle className="h-4 w-4 text-emerald-500" />
+                    <div className="p-2 bg-indigo-50 rounded-xl border border-indigo-200">
+                      <CheckCircle className="h-4 w-4 text-indigo-600" />
                     </div>
                   </div>
                   
                   <div className="space-y-4 mb-8 max-h-[200px] overflow-y-auto no-scrollbar pr-2">
-                    <div className="p-4 bg-white/5 rounded-2xl border border-white/5 group-hover:border-emerald-500/20 transition-colors">
+                    <div className="p-4 bg-white/5 rounded-2xl border border-slate-200 group-hover:border-indigo-200 transition-colors">
                       <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em] mb-2 flex justify-between">
                         <span>Primary_Method</span>
-                        {profile.wallet_note && <span className="text-emerald-500 italic">{profile.wallet_note}</span>}
+                        {profile.wallet_note && <span className="text-indigo-600 italic">{profile.wallet_note}</span>}
                       </p>
                       <div className="flex items-center justify-between gap-3">
                         <div className="min-w-0">
                           <p className="text-xs font-black text-white uppercase truncate">
                             {profile.payment_method === 'binance' ? 'Binance Pay' : `${profile.wallet_network}`}
                           </p>
-                          <p className="text-[10px] font-medium text-slate-400 truncate mt-1">
+                          <p className="text-[10px] font-medium text-slate-500 truncate mt-1">
                             {profile.payment_method === 'binance' ? profile.binance_id : profile.wallet_address}
                           </p>
                         </div>
@@ -334,7 +334,7 @@ export default function CreatorDashboard() {
                             const val = profile.payment_method === 'binance' ? profile.binance_id : profile.wallet_address;
                             if (val) { navigator.clipboard.writeText(val); success("Copiado!"); }
                           }}
-                          className="p-2 hover:bg-emerald-500/10 rounded-xl transition-colors text-slate-500 hover:text-emerald-400"
+                          className="p-2 hover:bg-indigo-50 rounded-xl transition-colors text-slate-500 hover:text-indigo-600"
                         >
                           <RefreshCw className="h-4 w-4" />
                         </button>
@@ -342,17 +342,17 @@ export default function CreatorDashboard() {
                     </div>
 
                     {profile.wallet_address_2 && (
-                      <div className="p-4 bg-white/5 rounded-2xl border border-white/5 group-hover:border-emerald-500/20 transition-colors">
+                      <div className="p-4 bg-white/5 rounded-2xl border border-slate-200 group-hover:border-indigo-200 transition-colors">
                         <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em] mb-2 flex justify-between">
                           <span>Secondary_Method</span>
-                          {profile.wallet_2_note && <span className="text-emerald-500 italic">{profile.wallet_2_note}</span>}
+                          {profile.wallet_2_note && <span className="text-indigo-600 italic">{profile.wallet_2_note}</span>}
                         </p>
                         <div className="flex items-center justify-between gap-3">
                           <div className="min-w-0">
                             <p className="text-xs font-black text-white uppercase truncate">
                               {profile.wallet_network_2}
                             </p>
-                            <p className="text-[10px] font-medium text-slate-400 truncate mt-1">
+                            <p className="text-[10px] font-medium text-slate-500 truncate mt-1">
                               {profile.wallet_address_2}
                             </p>
                           </div>
@@ -360,7 +360,7 @@ export default function CreatorDashboard() {
                             onClick={() => {
                               if (profile.wallet_address_2) { navigator.clipboard.writeText(profile.wallet_address_2); success("Copiado!"); }
                             }}
-                            className="p-2 hover:bg-emerald-500/10 rounded-xl transition-colors text-slate-500 hover:text-emerald-400"
+                            className="p-2 hover:bg-indigo-50 rounded-xl transition-colors text-slate-500 hover:text-indigo-600"
                           >
                             <RefreshCw className="h-4 w-4" />
                           </button>
@@ -372,7 +372,7 @@ export default function CreatorDashboard() {
                 
                 <button 
                   onClick={() => setIsPaymentModalOpen(true)}
-                  className="w-full py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all border border-white/5 active:scale-95"
+                  className="w-full py-4 bg-white text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all border border-slate-200 active:scale-95"
                 >
                   Modify_Method
                 </button>

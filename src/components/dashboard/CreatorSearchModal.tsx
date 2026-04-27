@@ -63,7 +63,7 @@ const CreatorSearchModal = React.memo(({ isOpen, onClose }: CreatorSearchModalPr
         initial={{ opacity: 0 }} 
         animate={{ opacity: 1 }} 
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-slate-950/60 backdrop-blur-md" 
+        className="fixed inset-0 bg-slate-50/60 backdrop-blur-md" 
         onClick={onClose}
       />
       
@@ -71,7 +71,7 @@ const CreatorSearchModal = React.memo(({ isOpen, onClose }: CreatorSearchModalPr
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        className="relative w-full max-w-3xl bg-slate-950/80 backdrop-blur-xl ring-1 ring-white/10 border border-white/5 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+        className="relative w-full max-w-3xl bg-slate-50/80 backdrop-blur-xl ring-1 ring-white/10 border border-slate-200 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
       >
         {/* Header Decoration */}
         <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-indigo-500 via-emerald-500 to-cyan-500" />
@@ -80,12 +80,12 @@ const CreatorSearchModal = React.memo(({ isOpen, onClose }: CreatorSearchModalPr
         <div className="p-8 pb-4 flex justify-between items-start">
           <div>
             <h2 className="text-3xl font-black text-white tracking-tight flex items-center gap-2 uppercase">
-              Agent <span className="text-emerald-500">Intelligence</span>
+              Agent <span className="text-indigo-600">Intelligence</span>
               <Sparkles className="h-6 w-6 text-amber-400" />
             </h2>
             <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px] mt-1">Deep profile investigation and real-time neural metrics.</p>
           </div>
-          <button onClick={onClose} className="p-3 rounded-2xl hover:bg-white/5 text-slate-400 transition-all hover:rotate-90">
+          <button onClick={onClose} className="p-3 rounded-2xl hover:bg-white/5 text-slate-500 transition-all hover:rotate-90">
             <X className="h-6 w-6" />
           </button>
         </div>
@@ -93,7 +93,7 @@ const CreatorSearchModal = React.memo(({ isOpen, onClose }: CreatorSearchModalPr
         <div className="px-8 pb-8 flex-1 overflow-y-auto no-scrollbar">
           {/* Search Inputs */}
           <form onSubmit={handleSearch} className="space-y-6 mb-8">
-            <div className="bg-white/5 p-6 rounded-[2rem] border border-white/5">
+            <div className="bg-white/5 p-6 rounded-[2rem] border border-slate-200">
               <div className="flex flex-wrap gap-2 mb-6">
                 {PLATFORMS.map(p => (
                   <button
@@ -102,8 +102,8 @@ const CreatorSearchModal = React.memo(({ isOpen, onClose }: CreatorSearchModalPr
                     onClick={() => setSelectedPlatform(p.id)}
                     className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
                       selectedPlatform === p.id 
-                      ? `bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/50` 
-                      : 'bg-white/5 text-slate-500 hover:text-slate-300 border border-white/5 shadow-sm'
+                      ? `bg-indigo-50 text-indigo-600 ring-1 ring-emerald-500/50` 
+                      : 'bg-white/5 text-slate-500 hover:text-slate-700 border border-slate-200 shadow-sm'
                     }`}
                   >
                     <p.icon className="h-4 w-4" />
@@ -117,7 +117,7 @@ const CreatorSearchModal = React.memo(({ isOpen, onClose }: CreatorSearchModalPr
                 <input 
                   type="text" 
                   placeholder={selectedPlatform === 'youtube' ? "@handle or channel URL" : "Username or profile URL..."}
-                  className="w-full pl-14 pr-32 py-4 rounded-2xl bg-white/5 border border-white/10 text-sm font-medium text-white focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500/50 transition-all outline-none font-mono"
+                  className="w-full pl-14 pr-32 py-4 rounded-2xl bg-white/5 border border-slate-200 text-sm font-medium text-white focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500/50 transition-all outline-none font-mono"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                 />
@@ -142,7 +142,7 @@ const CreatorSearchModal = React.memo(({ isOpen, onClose }: CreatorSearchModalPr
                 className="py-12 flex flex-col items-center gap-4"
               >
                 <div className="relative">
-                  <div className="w-16 h-16 rounded-3xl border-4 border-white/5 border-t-emerald-500 animate-spin" />
+                  <div className="w-16 h-16 rounded-3xl border-4 border-slate-200 border-t-emerald-500 animate-spin" />
                   <Sparkles className="absolute -top-2 -right-2 h-6 w-6 text-amber-400 animate-pulse" />
                 </div>
                 <p className="text-[10px] font-black text-white uppercase tracking-[0.3em] animate-pulse">Consulting Neural Networks...</p>
@@ -166,8 +166,8 @@ const CreatorSearchModal = React.memo(({ isOpen, onClose }: CreatorSearchModalPr
                 className="space-y-6"
               >
                 {/* Profile Header */}
-                <div className="flex items-center gap-6 p-6 bg-white/5 rounded-[2rem] border border-white/10 shadow-sm relative overflow-hidden group">
-                  <div className="w-24 h-24 rounded-3xl bg-slate-900 overflow-hidden ring-4 ring-white/5 flex-shrink-0 border border-white/5">
+                <div className="flex items-center gap-6 p-6 bg-white/5 rounded-[2rem] border border-slate-200 shadow-sm relative overflow-hidden group">
+                  <div className="w-24 h-24 rounded-3xl bg-white overflow-hidden ring-4 ring-white/5 flex-shrink-0 border border-slate-200">
                     {result.image ? (
                       <img src={result.image} alt="" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500" />
                     ) : (
@@ -186,10 +186,10 @@ const CreatorSearchModal = React.memo(({ isOpen, onClose }: CreatorSearchModalPr
                     </div>
                     <p className="text-sm text-slate-500 font-medium line-clamp-2 mb-3">{result.description}</p>
                     <div className="flex flex-wrap gap-2">
-                      <span className="px-3 py-1 bg-white/5 text-slate-400 border border-white/5 rounded-lg text-[10px] font-bold uppercase tracking-widest">
+                      <span className="px-3 py-1 bg-white/5 text-slate-500 border border-slate-200 rounded-lg text-[10px] font-bold uppercase tracking-widest">
                         {result.platform}
                       </span>
-                      <span className="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center gap-1">
+                      <span className="px-3 py-1 bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center gap-1">
                         <Globe className="h-3 w-3" /> {result.region || 'Global'}
                       </span>
                     </div>
@@ -199,7 +199,7 @@ const CreatorSearchModal = React.memo(({ isOpen, onClose }: CreatorSearchModalPr
 
                 {/* Stats Grid - Monthly Focus */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="p-5 bg-white/5 rounded-[2rem] border border-white/10 shadow-sm flex flex-col items-center text-center gap-2">
+                  <div className="p-5 bg-white/5 rounded-[2rem] border border-slate-200 shadow-sm flex flex-col items-center text-center gap-2">
                     <Users className="h-5 w-5 text-indigo-400" />
                     <div>
                       <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Agents / Subs</p>
@@ -209,14 +209,14 @@ const CreatorSearchModal = React.memo(({ isOpen, onClose }: CreatorSearchModalPr
                   
                   {result.platform === 'twitch' ? (
                     <>
-                      <div className="p-5 bg-white/5 rounded-[2rem] border border-white/10 shadow-sm flex flex-col items-center text-center gap-2">
+                      <div className="p-5 bg-white/5 rounded-[2rem] border border-slate-200 shadow-sm flex flex-col items-center text-center gap-2">
                         <Globe className="h-5 w-5 text-purple-400" />
                         <div>
                           <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Average Peak</p>
                           <p className="text-lg font-black text-white font-mono">{result.avgViewers?.toLocaleString() || 'N/A'}</p>
                         </div>
                       </div>
-                      <div className="p-5 bg-white/5 rounded-[2rem] border border-white/10 shadow-sm flex flex-col items-center text-center gap-2">
+                      <div className="p-5 bg-white/5 rounded-[2rem] border border-slate-200 shadow-sm flex flex-col items-center text-center gap-2">
                         <Zap className="h-5 w-5 text-amber-400" />
                         <div>
                           <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Uptime (30d)</p>
@@ -225,8 +225,8 @@ const CreatorSearchModal = React.memo(({ isOpen, onClose }: CreatorSearchModalPr
                       </div>
                     </>
                   ) : (
-                    <div className="p-5 bg-white/5 rounded-[2rem] border border-white/10 shadow-sm flex flex-col items-center text-center gap-2">
-                      <TrendingUp className="h-5 w-5 text-emerald-400" />
+                    <div className="p-5 bg-white/5 rounded-[2rem] border border-slate-200 shadow-sm flex flex-col items-center text-center gap-2">
+                      <TrendingUp className="h-5 w-5 text-indigo-600" />
                       <div>
                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Monthly Reach</p>
                         <p className="text-lg font-black text-white font-mono">{result.monthlyReach?.toLocaleString() || 'N/A'}</p>
@@ -234,7 +234,7 @@ const CreatorSearchModal = React.memo(({ isOpen, onClose }: CreatorSearchModalPr
                     </div>
                   )}
 
-                  <div className="p-5 bg-white/5 rounded-[2rem] border border-white/10 shadow-sm flex flex-col items-center text-center gap-2">
+                  <div className="p-5 bg-white/5 rounded-[2rem] border border-slate-200 shadow-sm flex flex-col items-center text-center gap-2">
                     <Zap className="h-5 w-5 text-rose-400" />
                     <div>
                       <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Engagement</p>
@@ -253,7 +253,7 @@ const CreatorSearchModal = React.memo(({ isOpen, onClose }: CreatorSearchModalPr
                       <h4 className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 mb-4">
                         <Sparkles className="h-4 w-4" /> Strategic Impact Assessment
                       </h4>
-                      <div className="text-lg font-medium leading-relaxed italic opacity-95 text-slate-200">
+                      <div className="text-lg font-medium leading-relaxed italic opacity-95 text-slate-900">
                         {result.summary}
                       </div>
                     </div>
@@ -266,7 +266,7 @@ const CreatorSearchModal = React.memo(({ isOpen, onClose }: CreatorSearchModalPr
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                 className="py-12 flex flex-col items-center text-center gap-4"
               >
-                <div className="w-20 h-20 bg-white/5 border border-white/5 rounded-[2.5rem] flex items-center justify-center">
+                <div className="w-20 h-20 bg-white/5 border border-slate-200 rounded-[2.5rem] flex items-center justify-center">
                   <Search className="h-10 w-10 text-slate-700" />
                 </div>
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-600 max-w-xs">Initialize agent search to unlock potential stats.</p>

@@ -48,17 +48,17 @@ const CampaignNotesModal: React.FC<CampaignNotesModalProps> = ({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+          className="absolute inset-0 bg-white/60 backdrop-blur-md"
         />
         
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-4xl bg-slate-950/80 backdrop-blur-xl rounded-[3rem] shadow-2xl border border-white/5 ring-1 ring-white/10 overflow-hidden flex flex-col max-h-[90vh]"
+          className="relative w-full max-w-4xl bg-slate-50/80 backdrop-blur-xl rounded-[3rem] shadow-2xl border border-slate-200 ring-1 ring-white/10 overflow-hidden flex flex-col max-h-[90vh]"
         >
           {/* Header */}
-          <div className="p-10 pb-6 flex justify-between items-start border-b border-white/5">
+          <div className="p-10 pb-6 flex justify-between items-start border-b border-slate-200">
             <div className="flex items-center gap-5">
               <div className="w-14 h-14 rounded-[1.25rem] bg-indigo-600 text-white flex items-center justify-center shadow-2xl shadow-indigo-600/20">
                 <StickyNote className="h-7 w-7" />
@@ -66,7 +66,7 @@ const CampaignNotesModal: React.FC<CampaignNotesModalProps> = ({
               <div>
                 <h2 className="text-2xl font-black text-white leading-tight uppercase tracking-tight">Campaign Narrative</h2>
                 <div className="flex items-center gap-2 mt-1.5">
-                  <span className="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full text-[9px] font-black uppercase tracking-[0.2em]">
+                  <span className="px-3 py-1 bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-full text-[9px] font-black uppercase tracking-[0.2em]">
                     {campaignName}
                   </span>
                 </div>
@@ -84,7 +84,7 @@ const CampaignNotesModal: React.FC<CampaignNotesModalProps> = ({
           <div className="p-10 space-y-6 flex-1 flex flex-col min-h-[450px]">
             <div className="flex items-center justify-between px-2">
                 <div className="flex items-center gap-3">
-                    <Maximize2 className="h-3.5 w-3.5 text-emerald-500" />
+                    <Maximize2 className="h-3.5 w-3.5 text-indigo-600" />
                     <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Advanced Strategic Editor</h3>
                 </div>
                 <div className="flex items-center gap-2 text-[10px] font-black text-indigo-400/60 uppercase tracking-widest font-mono">
@@ -95,7 +95,7 @@ const CampaignNotesModal: React.FC<CampaignNotesModalProps> = ({
 
             <textarea
               autoFocus
-              className="w-full flex-1 p-10 bg-white/5 border border-white/10 rounded-[2.5rem] text-sm md:text-lg font-medium leading-relaxed text-white placeholder:text-slate-700 focus:ring-4 focus:ring-emerald-500/5 focus:bg-white/10 focus:border-emerald-500/50 transition-all outline-none resize-none no-scrollbar font-mono"
+              className="w-full flex-1 p-10 bg-white/5 border border-slate-200 rounded-[2.5rem] text-sm md:text-lg font-medium leading-relaxed text-white placeholder:text-slate-700 focus:ring-4 focus:ring-emerald-500/5 focus:bg-white/10 focus:border-emerald-500/50 transition-all outline-none resize-none no-scrollbar font-mono"
               placeholder="Inject strategic notes, secondary wallets, or campaign specifics here..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
@@ -103,14 +103,14 @@ const CampaignNotesModal: React.FC<CampaignNotesModalProps> = ({
           </div>
 
           {/* Footer */}
-          <div className="p-10 pt-6 bg-transparent border-t border-white/5 flex justify-between items-center">
+          <div className="p-10 pt-6 bg-transparent border-t border-slate-200 flex justify-between items-center">
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest italic opacity-60">
               Tip: Use new lines for multiple wallet addresses.
             </p>
             <div className="flex gap-4">
                 <button 
                 onClick={onClose}
-                className="px-10 py-4 bg-white/5 text-slate-500 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all active:scale-95 font-sans"
+                className="px-10 py-4 bg-white/5 text-slate-500 border border-slate-200 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all active:scale-95 font-sans"
                 >
                 Abort
                 </button>

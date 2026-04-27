@@ -11,7 +11,7 @@ const ScraperHealthWidget: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-2xl border border-slate-100 shadow-sm animate-pulse">
-        <Loader2 className="h-3.5 w-3.5 text-slate-300 animate-spin" />
+        <Loader2 className="h-3.5 w-3.5 text-slate-700 animate-spin" />
         <div className="h-2 w-16 bg-slate-100 rounded-full" />
       </div>
     );
@@ -46,7 +46,7 @@ const ScraperHealthWidget: React.FC = () => {
             animate={{ scale: [1, 1.2, 1] }}
             transition={{ repeat: Infinity, duration: 2 }}
             className={`absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full ${
-              isHealthy ? 'bg-emerald-500' : isWarning ? 'bg-amber-500' : 'bg-rose-500'
+              isHealthy ? 'bg-indigo-600' : isWarning ? 'bg-amber-500' : 'bg-rose-500'
             }`}
           />
         </div>

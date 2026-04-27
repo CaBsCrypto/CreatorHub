@@ -35,25 +35,25 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-slate-950/60 backdrop-blur-md"
+            className="fixed inset-0 bg-slate-50/60 backdrop-blur-md"
           />
           
           <motion.div 
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="relative w-full max-w-5xl bg-slate-950/80 backdrop-blur-xl rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] border border-white/5 overflow-hidden flex flex-col md:flex-row max-h-[90vh] ring-1 ring-white/10"
+            className="relative w-full max-w-5xl bg-slate-50/80 backdrop-blur-xl rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] border border-slate-200 overflow-hidden flex flex-col md:flex-row max-h-[90vh] ring-1 ring-white/10"
           >
             {/* Close Button */}
             <button 
               onClick={onClose}
-              className="absolute top-6 right-6 z-50 p-3 rounded-2xl bg-slate-900 shadow-2xl text-slate-400 hover:text-white transition-all hover:rotate-90 border border-white/10"
+              className="absolute top-6 right-6 z-50 p-3 rounded-2xl bg-white shadow-2xl text-slate-500 hover:text-white transition-all hover:rotate-90 border border-slate-200"
             >
               <X className="h-6 w-6" />
             </button>
 
             {/* Left side: Visual Content */}
-            <div className="w-full md:w-3/5 h-72 md:h-auto bg-slate-950 relative group overflow-hidden">
+            <div className="w-full md:w-3/5 h-72 md:h-auto bg-slate-50 relative group overflow-hidden">
               {item.thumbnail ? (
                 <img 
                   src={item.thumbnail} 
@@ -73,7 +73,7 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
             {/* Right side: Insights */}
             <div className="w-full md:w-2/5 p-10 md:p-12 overflow-y-auto bg-transparent custom-scrollbar">
               <div className="flex items-center gap-4 mb-8">
-                <div className={`p-4 rounded-2xl ${config.bg.replace('bg-', 'bg-').replace('-50', '-500/10')} border border-white/5 shadow-sm`}>
+                <div className={`p-4 rounded-2xl ${config.bg.replace('bg-', 'bg-').replace('-50', '-500/10')} border border-slate-200 shadow-sm`}>
                   <Icon className={`h-7 w-7 ${config.color}`} />
                 </div>
                 <div className="flex flex-col">
@@ -100,7 +100,7 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
                   return (
                     <div className="space-y-6">
                       <div className="grid grid-cols-2 gap-4">
-                        <div className="bg-white/5 border border-white/10 rounded-[2rem] p-6 shadow-sm group hover:bg-white/10 transition-colors cursor-default">
+                        <div className="bg-white/5 border border-slate-200 rounded-[2rem] p-6 shadow-sm group hover:bg-white/10 transition-colors cursor-default">
                           <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-3 flex items-center gap-2">
                              <Clock className="h-4 w-4" /> Runtime
                           </p>
@@ -108,7 +108,7 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
                             {Math.floor((item.duration_minutes || 0) / 60)}h {(item.duration_minutes || 0) % 60}m
                           </p>
                         </div>
-                        <div className="bg-white/5 border border-white/10 rounded-[2rem] p-6 shadow-sm group hover:bg-white/10 transition-colors cursor-default">
+                        <div className="bg-white/5 border border-slate-200 rounded-[2rem] p-6 shadow-sm group hover:bg-white/10 transition-colors cursor-default">
                           <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-3 flex items-center gap-2">
                              <TrendingUp className="h-4 w-4" /> Peak CCV
                           </p>
@@ -119,13 +119,13 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
-                        <div className="bg-white/5 border border-white/10 rounded-[2rem] p-6 shadow-sm group hover:bg-white/10 transition-colors cursor-default">
-                          <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <div className="bg-white/5 border border-slate-200 rounded-[2rem] p-6 shadow-sm group hover:bg-white/10 transition-colors cursor-default">
+                          <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-3 flex items-center gap-2">
                             <Users className="h-4 w-4" /> Uniques
                           </p>
                           <p className="text-2xl font-black text-white font-mono">{(item.unique_viewers || 0).toLocaleString()}</p>
                         </div>
-                        <div className="bg-white/5 border border-white/10 rounded-[2rem] p-6 shadow-sm group hover:bg-white/10 transition-colors cursor-default">
+                        <div className="bg-white/5 border border-slate-200 rounded-[2rem] p-6 shadow-sm group hover:bg-white/10 transition-colors cursor-default">
                           <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
                             {isManual ? <Monitor className="h-4 w-4 text-purple-400" /> : <BarChart3 className="h-4 w-4 text-indigo-400" />}
                             {isManual ? 'Auditors' : 'Average'}
@@ -147,10 +147,10 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
                       </div>
 
                       {(item as any).description && (
-                        <div className="pt-6 border-t border-white/5">
+                        <div className="pt-6 border-t border-slate-200">
                           <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Strategic Narrative</p>
-                          <div className="p-6 bg-white/5 italic text-sm text-slate-300 leading-relaxed font-medium rounded-3xl border border-white/5 relative">
-                             <div className="absolute top-0 left-6 -translate-y-1/2 bg-slate-950 px-2 text-indigo-400">
+                          <div className="p-6 bg-white/5 italic text-sm text-slate-700 leading-relaxed font-medium rounded-3xl border border-slate-200 relative">
+                             <div className="absolute top-0 left-6 -translate-y-1/2 bg-slate-50 px-2 text-indigo-400">
                                <MessageSquare className="h-4 w-4" />
                              </div>
                             "{ (item as any).description }"
@@ -163,7 +163,7 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
 
                 return (
                   <div className="space-y-4">
-                    <div className="bg-slate-900 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden group mb-4">
+                    <div className="bg-white rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden group mb-4">
                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                        <p className="text-[11px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-3 flex items-center gap-2 relative z-10">
                          <Eye className="h-5 w-5" /> Impressions
@@ -174,15 +174,15 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
                     </div>
                     
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-white/5 border border-white/10 rounded-[2rem] p-6 shadow-sm group hover:bg-white/10 transition-colors cursor-default">
+                      <div className="bg-white/5 border border-slate-200 rounded-[2rem] p-6 shadow-sm group hover:bg-white/10 transition-colors cursor-default">
                         <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-3 flex items-center gap-2">
                           <TrendingUp className="h-4 w-4" /> Interaction
                         </p>
                         <p className="text-2xl font-black text-white font-mono">{(item.likes || 0).toLocaleString()}</p>
                       </div>
                       {(item.comments > 0 || item.platform === 'coinmarketcap' || item.platform === 'youtube') && (
-                        <div className="bg-white/5 border border-white/10 rounded-[2rem] p-6 shadow-sm group hover:bg-white/10 transition-colors cursor-default">
-                          <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <div className="bg-white/5 border border-slate-200 rounded-[2rem] p-6 shadow-sm group hover:bg-white/10 transition-colors cursor-default">
+                          <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-3 flex items-center gap-2">
                             <MessageSquare className="h-4 w-4" /> Sentiment
                           </p>
                           <p className="text-2xl font-black text-white font-mono">{(item.comments || 0).toLocaleString()}</p>
@@ -198,7 +198,7 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
                   href={item.url} 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="w-full flex items-center justify-center gap-3 py-5 bg-white/5 text-white border border-white/10 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl hover:bg-white/10 hover:translate-y-[-4px] transition-all active:scale-95"
+                  className="w-full flex items-center justify-center gap-3 py-5 bg-white/5 text-white border border-slate-200 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl hover:bg-white/10 hover:translate-y-[-4px] transition-all active:scale-95"
                 >
                   <ExternalLink className="h-4 w-4" /> Verify Analytics
                 </a>

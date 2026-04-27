@@ -34,7 +34,7 @@ const DiscordFormSection: React.FC<DiscordFormSectionProps> = ({
           value={formData.title}
           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
           placeholder={platform === 'baseapp' ? "Operation Blueprint (e.g. Demo 1)" : "Mission Log Title (e.g. Scrims #1)"}
-          className="block w-full px-4 py-3 rounded-xl border border-white/10 bg-white/5 text-sm font-semibold text-white focus:ring-1 focus:ring-indigo-500/50 focus:bg-white/10 transition-all placeholder:text-slate-600 outline-none uppercase tracking-tight"
+          className="block w-full px-4 py-3 rounded-xl border border-slate-200 bg-white/5 text-sm font-semibold text-white focus:ring-1 focus:ring-indigo-500/50 focus:bg-white/10 transition-all placeholder:text-slate-600 outline-none uppercase tracking-tight"
         />
       </div>
 
@@ -45,33 +45,33 @@ const DiscordFormSection: React.FC<DiscordFormSectionProps> = ({
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           placeholder="Strategic summary / Intel briefing notes (e.g. Winner details, event metrics...)"
           rows={3}
-          className="block w-full px-4 py-3 rounded-xl border border-white/10 bg-white/5 text-sm font-semibold text-white focus:ring-1 focus:ring-indigo-500/50 focus:bg-white/10 transition-all placeholder:text-slate-600 outline-none resize-none font-mono"
+          className="block w-full px-4 py-3 rounded-xl border border-slate-200 bg-white/5 text-sm font-semibold text-white focus:ring-1 focus:ring-indigo-500/50 focus:bg-white/10 transition-all placeholder:text-slate-600 outline-none resize-none font-mono"
         />
       </div>
 
       {/* Large Upload Box (Only for Discord) */}
       {platform === 'discord' && (
         <div 
-          className="relative border border-dashed border-white/10 rounded-2xl p-6 flex flex-col items-center justify-center hover:border-emerald-500/50 hover:bg-white/5 transition-all cursor-pointer bg-white/5 group overflow-hidden"
+          className="relative border border-dashed border-slate-200 rounded-2xl p-6 flex flex-col items-center justify-center hover:border-emerald-500/50 hover:bg-white/5 transition-all cursor-pointer bg-white/5 group overflow-hidden"
           onClick={() => document.getElementById('discord-upload-modal')?.click()}
         >
           {twitchPreview ? (
             <div className="relative group/img w-full flex justify-center">
               {twitchFile?.type.startsWith('video') ? (
                  <div className="flex flex-col items-center">
-                   <Monitor className="h-8 w-8 text-emerald-500 mb-2" />
+                   <Monitor className="h-8 w-8 text-indigo-600 mb-2" />
                    <p className="text-[10px] font-black text-white uppercase tracking-widest">Video Stream Injected</p>
                  </div>
               ) : (
-                <img src={twitchPreview} alt="Preview" className="max-h-32 rounded-xl border border-white/10 transition-transform group-hover/img:scale-[1.02] grayscale hover:grayscale-0" />
+                <img src={twitchPreview} alt="Preview" className="max-h-32 rounded-xl border border-slate-200 transition-transform group-hover/img:scale-[1.02] grayscale hover:grayscale-0" />
               )}
-              <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover/img:opacity-100 transition-opacity rounded-xl flex items-center justify-center backdrop-blur-sm">
+              <div className="absolute inset-0 bg-slate-50/60 opacity-0 group-hover/img:opacity-100 transition-opacity rounded-xl flex items-center justify-center backdrop-blur-sm">
                 <Plus className="h-6 w-6 text-white" />
               </div>
             </div>
           ) : (
             <div className="flex flex-col items-center">
-              <Plus className="h-6 w-6 text-slate-700 mb-2 group-hover:text-emerald-500 transition-colors" />
+              <Plus className="h-6 w-6 text-slate-700 mb-2 group-hover:text-indigo-600 transition-colors" />
               <p className="text-[10px] font-black text-slate-500 mb-1 uppercase tracking-widest">Capture Intelligence</p>
               <p className="text-[8px] text-slate-700 uppercase font-black tracking-[0.3em]">Telemetry.JPG</p>
             </div>
@@ -89,9 +89,9 @@ const DiscordFormSection: React.FC<DiscordFormSectionProps> = ({
       {/* Metrics Grid (Only for Discord) */}
       {/* Metrics Grid (Only for Discord) */}
       {platform === 'discord' && (
-        <div className="p-3 bg-white/5 rounded-2xl border border-white/5">
+        <div className="p-3 bg-white/5 rounded-2xl border border-slate-200">
           <div className="grid grid-cols-2 gap-2 mb-2">
-            <div className="bg-slate-900 border border-white/5 rounded-xl p-2.5">
+            <div className="bg-white border border-slate-200 rounded-xl p-2.5">
               <label className="block text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1.5 ml-0.5">
                 Operation Uptime
               </label>
@@ -123,7 +123,7 @@ const DiscordFormSection: React.FC<DiscordFormSectionProps> = ({
               </div>
             </div>
             
-            <div className="bg-slate-900 border border-white/5 rounded-xl p-2.5">
+            <div className="bg-white border border-slate-200 rounded-xl p-2.5">
               <label className="block text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1.5 ml-0.5">
                 Concurrent Users
               </label>
@@ -138,7 +138,7 @@ const DiscordFormSection: React.FC<DiscordFormSectionProps> = ({
           </div>
           
           <div className="grid grid-cols-2 gap-2">
-            <div className="bg-slate-900 border border-white/5 rounded-xl p-2.5">
+            <div className="bg-white border border-slate-200 rounded-xl p-2.5">
               <label className="block text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1.5 ml-0.5">
                 Unique Entities
               </label>
@@ -151,7 +151,7 @@ const DiscordFormSection: React.FC<DiscordFormSectionProps> = ({
               />
             </div>
             
-            <div className="bg-slate-900 border border-white/5 rounded-xl p-2.5">
+            <div className="bg-white border border-slate-200 rounded-xl p-2.5">
               <label className="block text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1.5 ml-0.5">
                 Signal Shares
               </label>
@@ -177,7 +177,7 @@ const DiscordFormSection: React.FC<DiscordFormSectionProps> = ({
           value={formData.url}
           onChange={(e) => setFormData({ ...formData, url: e.target.value })}
           placeholder={platform === 'baseapp' ? "Post Transmission URL (optional)" : "Mission Log URL (optional)"}
-          className="block w-full pl-10.5 rounded-xl border-white/10 bg-white/5 py-3 text-sm font-medium text-white focus:ring-1 focus:ring-indigo-500/50 focus:bg-white/10 transition-all outline-none font-mono"
+          className="block w-full pl-10.5 rounded-xl border-slate-200 bg-white/5 py-3 text-sm font-medium text-white focus:ring-1 focus:ring-indigo-500/50 focus:bg-white/10 transition-all outline-none font-mono"
         />
       </div>
     </div>

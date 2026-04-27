@@ -97,10 +97,10 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <div className="glass-dark p-10 rounded-[3rem] border border-white/5 relative overflow-hidden group">
-          <div className="absolute -right-20 -top-20 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl group-hover:bg-emerald-500/10 transition-all duration-1000" />
+        <div className="glass-dark p-10 rounded-[3rem] border border-slate-200 relative overflow-hidden group">
+          <div className="absolute -right-20 -top-20 w-64 h-64 bg-indigo-600/5 rounded-full blur-3xl group-hover:bg-indigo-50 transition-all duration-1000" />
           <h3 className="text-xl font-black text-white mb-10 flex items-center gap-3 uppercase tracking-widest relative z-10 italic">
-            <BarChart3 className="h-6 w-6 text-emerald-500" /> Platform_Distribution
+            <BarChart3 className="h-6 w-6 text-indigo-600" /> Platform_Distribution
           </h3>
           <div className="h-[300px] relative z-10">
             <ResponsiveContainer width="100%" height="100%">
@@ -139,11 +139,11 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   setFilter('platform', item.id);
                   setActiveTab('content');
                 }}
-                className="flex items-center justify-between p-4 bg-slate-900/50 hover:bg-slate-800 rounded-2xl border border-white/5 transition-all duration-300 group/item"
+                className="flex items-center justify-between p-4 bg-white hover:bg-slate-800 rounded-2xl border border-slate-200 transition-all duration-300 group/item"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-2.5 h-2.5 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.2)]" style={{ backgroundColor: PLATFORM_COLORS[item.id] || '#cbd5e1' }} />
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover/item:text-white transition-colors">{item.name}</span>
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest group-hover/item:text-white transition-colors">{item.name}</span>
                 </div>
                 <span className="text-xs font-black text-white tabular-nums">{item.value.toLocaleString()}</span>
               </button>
@@ -151,10 +151,10 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
           </div>
         </div>
 
-        <div className="glass-dark p-10 rounded-[3rem] border border-white/5 relative overflow-hidden group">
-          <div className="absolute -left-20 -bottom-20 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl group-hover:bg-emerald-500/10 transition-all duration-1000" />
+        <div className="glass-dark p-10 rounded-[3rem] border border-slate-200 relative overflow-hidden group">
+          <div className="absolute -left-20 -bottom-20 w-64 h-64 bg-indigo-600/5 rounded-full blur-3xl group-hover:bg-indigo-50 transition-all duration-1000" />
           <h3 className="text-xl font-black text-white mb-10 flex items-center gap-3 uppercase tracking-widest relative z-10 italic">
-            <BarChart3 className="h-6 w-6 text-emerald-500" /> View_Metrics_Analysis
+            <BarChart3 className="h-6 w-6 text-indigo-600" /> View_Metrics_Analysis
           </h3>
           
           <div className="h-[300px] relative z-10">
@@ -195,11 +195,11 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   setFilter('platform', platform);
                   setActiveTab('content');
                 }}
-                className="flex items-center justify-between p-4 bg-slate-900/50 hover:bg-slate-800 rounded-2xl border border-white/5 transition-all duration-300 group/item"
+                className="flex items-center justify-between p-4 bg-white hover:bg-slate-800 rounded-2xl border border-slate-200 transition-all duration-300 group/item"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-2.5 h-2.5 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.2)]" style={{ backgroundColor: PLATFORM_COLORS[platform] || '#cbd5e1' }} />
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover/item:text-white transition-colors">{platform}</span>
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest group-hover/item:text-white transition-colors">{platform}</span>
                 </div>
                 <span className="text-xs font-black text-white tabular-nums">{views.toLocaleString()}</span>
               </button>

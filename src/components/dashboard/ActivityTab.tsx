@@ -46,7 +46,7 @@ const ActivityTab: React.FC<ActivityTabProps> = ({ groupedLogs, auditLogs, refre
                       {/* Timeline Marker */}
                       <div className={`absolute left-[-5px] top-1 w-10 h-10 rounded-2xl flex items-center justify-center z-10 shadow-lg border-4 border-white transition-transform group-hover:scale-110 ${
                         log.action === 'SOFT_DELETE' ? 'bg-rose-500 text-white' :
-                        log.action === 'RESTORE' ? 'bg-emerald-500 text-white' :
+                        log.action === 'RESTORE' ? 'bg-indigo-600 text-white' :
                         log.action === 'CHANGE_ROLE' ? 'bg-amber-500 text-white' :
                         log.action === 'PAYMENT_REGISTERED' ? 'bg-indigo-600 text-white' :
                         'bg-slate-700 text-white'

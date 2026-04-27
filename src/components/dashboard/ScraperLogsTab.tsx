@@ -162,7 +162,7 @@ const ScraperLogsTab: React.FC = () => {
 
       {/* Environment Status Diagnostic */}
       {envStatus && (
-        <div className="bg-slate-900 p-6 rounded-[2rem] border border-slate-800 shadow-xl overflow-hidden relative group">
+        <div className="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-xl overflow-hidden relative group">
           <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
             <Server className="h-24 w-24 text-white" />
           </div>
@@ -171,7 +171,7 @@ const ScraperLogsTab: React.FC = () => {
             <div className="flex flex-wrap gap-3">
               {Object.entries(envStatus).map(([key, val]) => (
                 <div key={key} className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border ${
-                  val ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
+                  val ? 'bg-indigo-50 border-indigo-200 text-indigo-600' : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
                 }`}>
                   <div className={`w-1.5 h-1.5 rounded-full ${val ? 'bg-emerald-400' : 'bg-rose-400'} animate-pulse`} />
                   <span className="text-[9px] font-black uppercase tracking-widest">{key.replace(/_/g, ' ')}</span>
@@ -258,7 +258,7 @@ const ScraperLogsTab: React.FC = () => {
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       {log.status === 'success' ? (
-                        <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                        <CheckCircle2 className="h-5 w-5 text-indigo-600" />
                       ) : (
                         <XCircle className="h-5 w-5 text-rose-500" />
                       )}

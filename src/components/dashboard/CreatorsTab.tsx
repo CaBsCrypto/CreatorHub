@@ -28,12 +28,12 @@ const CreatorsTab = React.memo(({
     <div className="space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-1000">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-4">
         <div className="relative flex-1 max-w-2xl group">
-          <div className="absolute inset-0 bg-emerald-500/5 blur-2xl group-focus-within:bg-emerald-500/10 transition-all duration-700" />
-          <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 group-focus-within:text-emerald-500 transition-all duration-500 relative z-10" />
+          <div className="absolute inset-0 bg-indigo-600/5 blur-2xl group-focus-within:bg-indigo-50 transition-all duration-700" />
+          <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 group-focus-within:text-indigo-600 transition-all duration-500 relative z-10" />
           <input 
             type="text" 
             placeholder="Search_Agents_Database..." 
-            className="w-full pl-16 pr-8 py-6 rounded-[2rem] glass-dark border border-white/5 text-lg font-black uppercase tracking-[0.2em] placeholder:text-slate-600 focus:border-emerald-500/30 focus:shadow-[0_0_40px_rgba(16,185,129,0.1)] transition-all outline-none relative z-10 text-white italic" 
+            className="w-full pl-16 pr-8 py-6 rounded-[2rem] glass-dark border border-slate-200 text-lg font-black uppercase tracking-[0.2em] placeholder:text-slate-600 focus:border-indigo-200 focus:shadow-[0_0_40px_rgba(16,185,129,0.1)] transition-all outline-none relative z-10 text-white italic" 
             value={searchTerm} 
             onChange={e => setFilter('search', e.target.value)} 
           />
