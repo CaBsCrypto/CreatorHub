@@ -39,13 +39,13 @@ const AdminHeader = React.memo(({
   const activeFiltersCount = [platform, campaign, creator, pay_month, team_role].filter(f => f !== 'all').length;
 
   return (
-    <header className="flex flex-col items-start gap-12 mb-20">
-      <div className="flex flex-col md:flex-row md:items-center justify-between w-full gap-8 animate-in fade-in slide-in-from-left-6 duration-1000">
+    <header className="flex flex-col items-start gap-8 mb-12">
+      <div className="flex flex-col md:flex-row md:items-center justify-between w-full gap-6 animate-in fade-in slide-in-from-left-4 duration-700">
         <div>
-          <h1 className="text-5xl lg:text-7xl font-black text-white leading-none tracking-tighter uppercase mb-4">
-            Command_<span className="text-indigo-600">Center</span>
+          <h1 className="text-4xl lg:text-6xl font-black text-slate-900 leading-none tracking-tighter uppercase mb-3">
+            Panel de <span className="text-indigo-600">Control</span>
           </h1>
-          <p className="text-lg font-medium text-slate-500 max-w-xl italic">
+          <p className="text-base font-medium text-slate-500 max-w-xl italic">
             Monitorización centralizada de la red de creadores, despliegue de campañas y sincronización de protocolos.
           </p>
         </div>
@@ -54,20 +54,20 @@ const AdminHeader = React.memo(({
         </div>
       </div>
       
-      <div className="flex flex-wrap items-center justify-start gap-5 w-full animate-in fade-in slide-in-from-bottom-6 duration-1000 relative">
+      <div className="flex flex-wrap items-center justify-start gap-4 w-full animate-in fade-in slide-in-from-bottom-4 duration-700 relative">
         <div className="relative w-full sm:w-auto">
           <button 
             onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)} 
-            className={`w-full flex items-center justify-center gap-3 px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 border-2 whitespace-nowrap active:scale-95 ${
+            className={`w-full flex items-center justify-center gap-3 px-6 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 border ${
               isFilterMenuOpen || activeFiltersCount > 0
-                ? 'bg-white text-slate-950 border-white shadow-[0_0_30px_rgba(255,255,255,0.2)]' 
-                : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-800 hover:border-white/20'
+                ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-200' 
+                : 'bg-white text-slate-500 border-gray-100 hover:bg-gray-50 hover:border-gray-200'
             }`}
           >
             <Filter className="h-4 w-4" /> 
-            <span>Filters_Protocol</span>
+            <span>Filtros</span>
             {activeFiltersCount > 0 && (
-              <span className="ml-2 w-5 h-5 bg-indigo-600 text-white text-[10px] rounded-full flex items-center justify-center flex-shrink-0 animate-pulse font-black">
+              <span className={`ml-2 w-5 h-5 ${isFilterMenuOpen || activeFiltersCount > 0 ? 'bg-white/20 text-white' : 'bg-indigo-600 text-white'} text-[10px] rounded-full flex items-center justify-center flex-shrink-0 font-black`}>
                 {activeFiltersCount}
               </span>
             )}
@@ -89,31 +89,31 @@ const AdminHeader = React.memo(({
 
         <button 
           onClick={() => setIsAnalyzingCreator(true)} 
-          className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-white text-slate-500 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-slate-800 hover:text-white transition-all duration-500 border-2 border-slate-200 hover:border-white/20 active:scale-95 whitespace-nowrap"
+          className="w-full sm:w-auto flex items-center justify-center gap-3 px-6 py-3.5 bg-white text-slate-500 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 transition-all border border-gray-100 hover:border-gray-200 active:scale-95 whitespace-nowrap"
         >
-          <Search className="h-4 w-4 text-indigo-600" /> Analysis_Node
+          <Search className="h-4 w-4 text-indigo-600" /> Analizar Creador
         </button>
         
         <button 
           onClick={() => setIsCreatingCampaign(true)} 
-          className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-emerald-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] shadow-2xl shadow-emerald-600/20 hover:bg-indigo-600 transition-all duration-500 border-2 border-emerald-500/50 active:scale-95 whitespace-nowrap"
+          className="w-full sm:w-auto flex items-center justify-center gap-3 px-6 py-3.5 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95 whitespace-nowrap"
         >
-          <Plus className="h-4 w-4" /> Deploy_Campaign
+          <Plus className="h-4 w-4" /> Nueva Campaña
         </button>
         
         <button 
           onClick={() => setIsAddingUser(true)} 
-          className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-slate-50 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] shadow-xl border-2 border-slate-200 hover:border-white/30 transition-all duration-500 active:scale-95 whitespace-nowrap"
+          className="w-full sm:w-auto flex items-center justify-center gap-3 px-6 py-3.5 bg-white text-slate-500 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-gray-100 hover:bg-gray-50 hover:border-gray-200 transition-all active:scale-95 whitespace-nowrap"
         >
-          <Users className="h-4 w-4 text-indigo-600" /> New_Agent
+          <Users className="h-4 w-4 text-indigo-600" /> Nuevo Agente
         </button>
 
         <a 
           href="/" 
           target="_blank"
-          className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-white text-slate-500 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-500 border-2 border-slate-200 hover:border-indigo-200 active:scale-95 whitespace-nowrap"
+          className="w-full sm:w-auto flex items-center justify-center gap-3 px-6 py-3.5 bg-white text-slate-500 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-50 hover:text-indigo-600 transition-all border border-gray-100 hover:border-indigo-100 active:scale-95 whitespace-nowrap"
         >
-          <Globe className="h-4 w-4" /> Public_Portal
+          <Globe className="h-4 w-4" /> Portal Público
         </a>
       </div>
     </header>

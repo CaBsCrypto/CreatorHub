@@ -28,9 +28,9 @@ const AuditLogDetailModal: React.FC<AuditLogDetailModalProps> = ({ isOpen, onClo
   };
 
   const renderJson = (data: any) => {
-    if (!data) return <span className="text-slate-600 italic text-[10px] uppercase font-black tracking-widest">No metadata detected.</span>;
+    if (!data) return <span className="text-slate-400 italic text-[10px] uppercase font-black tracking-widest">No se detectaron metadatos.</span>;
     return (
-      <pre className="text-[10px] font-mono p-5 bg-slate-50/80 text-indigo-600 rounded-3xl overflow-x-auto border border-slate-200 shadow-2xl backdrop-blur-xl">
+      <pre className="text-[10px] font-mono p-5 bg-gray-50 text-indigo-600 rounded-3xl overflow-x-auto border border-gray-100 shadow-inner">
         {JSON.stringify(data, null, 2)}
       </pre>
     );
@@ -70,35 +70,35 @@ const AuditLogDetailModal: React.FC<AuditLogDetailModalProps> = ({ isOpen, onClo
           animate={{ opacity: 1 }} 
           exit={{ opacity: 0 }} 
           onClick={onClose}
-          className="absolute inset-0 bg-white/60 backdrop-blur-md"
+          className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
         />
         
         <motion.div 
           initial={{ opacity: 0, scale: 0.95, y: 20 }} 
           animate={{ opacity: 1, scale: 1, y: 0 }} 
           exit={{ opacity: 0, scale: 0.95, y: 20 }} 
-          className="relative w-full max-w-2xl bg-slate-50/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-slate-200 overflow-hidden ring-1 ring-white/10"
+          className="relative w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl border border-gray-100 overflow-hidden"
         >
           <div className="p-8 pb-4 flex justify-between items-start">
             <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-[1.5rem] flex items-center justify-center ring-1 ring-white/10 ${
+              <div className={`w-12 h-12 rounded-[1.5rem] flex items-center justify-center border border-gray-100 ${
                 log.action === 'PAYMENT_REGISTERED' ? 'bg-indigo-50' :
-                log.action === 'SOFT_DELETE' ? 'bg-rose-500/10' :
+                log.action === 'SOFT_DELETE' ? 'bg-rose-50' :
                 log.action === 'RESTORE' ? 'bg-indigo-50' :
-                log.action === 'CHANGE_ROLE' ? 'bg-amber-500/10' :
-                'bg-indigo-500/10'
+                log.action === 'CHANGE_ROLE' ? 'bg-amber-50' :
+                'bg-indigo-50'
               }`}>
                 {getLogIcon(log.action)}
               </div>
               <div>
-                <h2 className="text-xl font-black text-white leading-tight tracking-tight uppercase">Event Telemetry</h2>
+                <h2 className="text-xl font-black text-slate-900 leading-tight tracking-tight uppercase">Detalle del Evento</h2>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest ring-1 ring-white/5 ${
-                    log.action === 'SOFT_DELETE' ? 'bg-rose-500/10 text-rose-400' :
+                  <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border border-gray-100 ${
+                    log.action === 'SOFT_DELETE' ? 'bg-rose-50 text-rose-600' :
                     log.action === 'RESTORE' ? 'bg-indigo-50 text-indigo-600' :
                     log.action === 'PAYMENT_REGISTERED' ? 'bg-indigo-50 text-indigo-600' :
-                    log.action === 'CHANGE_ROLE' ? 'bg-amber-500/10 text-amber-400' :
-                    'bg-indigo-500/10 text-indigo-400'
+                    log.action === 'CHANGE_ROLE' ? 'bg-amber-50 text-amber-600' :
+                    'bg-indigo-50 text-indigo-600'
                   }`}>
                     {log.action.replace(/_/g, ' ')}
                   </span>
@@ -107,135 +107,124 @@ const AuditLogDetailModal: React.FC<AuditLogDetailModalProps> = ({ isOpen, onClo
             </div>
             <button 
               onClick={onClose}
-              className="p-2 hover:bg-white/5 rounded-xl transition-all border border-slate-200"
+              className="p-2 hover:bg-gray-50 rounded-xl transition-all border border-gray-100"
             >
-              <X className="h-5 w-5 text-slate-500" />
+              <X className="h-5 w-5 text-slate-400" />
             </button>
           </div>
 
           <div className="p-8 pt-4 space-y-6 max-h-[70vh] overflow-y-auto no-scrollbar">
-            {/* Human Summary Section */}
-            <div className="bg-indigo-500/5 p-6 rounded-[2rem] border border-slate-200">
-              <p className="text-base text-slate-700 font-medium leading-relaxed">
-                <span className="font-black text-indigo-400">{log.admin?.display_name || 'System Agent'}</span> 
+            <div className="bg-gray-50 p-6 rounded-[2rem] border border-gray-100">
+              <p className="text-base text-slate-600 font-medium leading-relaxed">
+                <span className="font-black text-indigo-600">{log.admin?.display_name || 'Agente del Sistema'}</span> 
                 {' '}{safeDetails(log.details)}
               </p>
             </div>
 
-            {/* === PAYMENT DETAIL CARD === */}
             {log.action === 'PAYMENT_REGISTERED' && (
-              <div className="bg-indigo-600/5 p-6 rounded-[2rem] border border-slate-200 space-y-5">
+              <div className="bg-white p-6 rounded-[2rem] border border-gray-100 space-y-5 shadow-sm">
                 <div className="flex items-center gap-2 mb-1">
                   <Wallet className="h-4 w-4 text-indigo-600" />
-                  <h3 className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Transaction Intelligence</h3>
+                  <h3 className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Información de Transacción</h3>
                 </div>
 
-                {/* Recipient */}
-                <div className="flex items-center gap-4 bg-white/5 p-5 rounded-[1.5rem] border border-slate-200 shadow-sm">
-                  <div className="w-12 h-12 rounded-2xl bg-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 ring-1 ring-white/10">
-                    <User className="h-5 w-5 text-white" />
+                <div className="flex items-center gap-4 bg-gray-50 p-5 rounded-[1.5rem] border border-gray-100">
+                  <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shadow-sm border border-gray-100">
+                    <User className="h-5 w-5 text-indigo-600" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-0.5">Recipient Identity</p>
-                    <p className="text-lg font-black text-white tracking-tight">
-                      {recipientName || 'Unidentified'}
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Destinatario</p>
+                    <p className="text-lg font-black text-slate-900 tracking-tight">
+                      {recipientName || 'No identificado'}
                     </p>
                     {payment?.guest_name && !paymentCreator && (
-                      <span className="text-[9px] font-black text-amber-400 uppercase tracking-[0.2em]">External Entity</span>
+                      <span className="text-[9px] font-black text-amber-600 uppercase tracking-widest">Invitado Externo</span>
                     )}
                   </div>
                 </div>
 
-                {/* Amount & Details Grid */}
                 <div className="grid grid-cols-2 gap-3">
-                  {/* Amount */}
-                  <div className="bg-white/5 p-4 rounded-[1.5rem] border border-slate-200 shadow-sm">
-                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Quantum</p>
-                    <p className="text-xl font-black text-indigo-600 font-mono">
+                  <div className="bg-gray-50 p-4 rounded-[1.5rem] border border-gray-100">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Monto</p>
+                    <p className="text-xl font-black text-indigo-600 tabular-nums">
                       ${payment ? Number(payment.amount).toLocaleString(undefined, { minimumFractionDigits: 2 }) : '—'}
                     </p>
-                    <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mt-0.5">
+                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
                       {payment?.currency || 'USDT'}
                     </p>
                   </div>
 
-                  {/* Campaign */}
-                  <div className="bg-white/5 p-4 rounded-[1.5rem] border border-slate-200 shadow-sm">
-                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Mission Target</p>
-                    <p className="text-sm font-black text-white leading-snug uppercase tracking-tight">
-                      {paymentCampaign?.name || 'Isolated Event'}
+                  <div className="bg-gray-50 p-4 rounded-[1.5rem] border border-gray-100">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Campaña</p>
+                    <p className="text-sm font-black text-slate-900 leading-snug uppercase tracking-tight">
+                      {paymentCampaign?.name || 'Operación General'}
                     </p>
                   </div>
 
-                  {/* Concept */}
                   {payment?.concept && (
-                    <div className="col-span-2 bg-white/5 p-4 rounded-[1.5rem] border border-slate-200 shadow-sm">
+                    <div className="col-span-2 bg-gray-50 p-4 rounded-[1.5rem] border border-gray-100">
                       <div className="flex items-center gap-2 mb-1">
-                        <Tag className="h-3 w-3 text-slate-500" />
-                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Protocol Note</p>
+                        <Tag className="h-3 w-3 text-slate-400" />
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Concepto</p>
                       </div>
-                      <p className="text-sm font-medium text-slate-700 font-mono italic">"{payment.concept}"</p>
+                      <p className="text-sm font-medium text-slate-600 italic">"{payment.concept}"</p>
                     </div>
                   )}
 
-                  {/* Payment Date */}
                   {payment?.paid_at && (
-                    <div className="col-span-2 bg-white/5 p-4 rounded-[1.5rem] border border-slate-200 shadow-sm">
-                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Injection Timestamp</p>
-                      <p className="text-sm font-black text-slate-700 font-mono tracking-tight">{formatDate(payment.paid_at)}</p>
+                    <div className="col-span-2 bg-gray-50 p-4 rounded-[1.5rem] border border-gray-100">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Fecha de Ejecución</p>
+                      <p className="text-sm font-bold text-slate-600 tracking-tight">{formatDate(payment.paid_at)}</p>
                     </div>
                   )}
                 </div>
               </div>
             )}
 
-            {/* Main Info Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-white/5 p-6 rounded-[2rem] border border-slate-200 flex items-start gap-4">
-                <Clock className="h-5 w-5 text-slate-600 mt-1" />
+              <div className="bg-gray-50 p-6 rounded-[2rem] border border-gray-100 flex items-start gap-4">
+                <Clock className="h-5 w-5 text-slate-400 mt-1" />
                 <div>
-                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Event Horizon</p>
-                  <p className="text-sm font-black text-slate-700 font-mono">{formatDate(log.created_at)}</p>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Fecha del Evento</p>
+                  <p className="text-sm font-bold text-slate-600">{formatDate(log.created_at)}</p>
                 </div>
               </div>
-              <div className="bg-white/5 p-6 rounded-[2rem] border border-slate-200 flex items-start gap-4">
-                <Database className="h-5 w-5 text-slate-600 mt-1" />
+              <div className="bg-gray-50 p-6 rounded-[2rem] border border-gray-100 flex items-start gap-4">
+                <Database className="h-5 w-5 text-slate-400 mt-1" />
                 <div>
-                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Protocol Entity</p>
-                  <p className="text-sm font-black text-slate-700 uppercase tracking-tighter">{log.target_type || 'CORE'}</p>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Tipo de Entidad</p>
+                  <p className="text-sm font-black text-slate-900 uppercase tracking-tighter">{log.target_type || 'CORE'}</p>
                 </div>
               </div>
             </div>
 
-            {/* Technical Metadata Section */}
             {log.metadata && (
                 <div className="space-y-4">
                 <div className="flex items-center gap-2 px-2">
                     <Fingerprint className="h-4 w-4 text-indigo-600" />
-                    <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Neural Metadata (JSON)</h3>
+                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Metadatos Técnicos (JSON)</h3>
                 </div>
                 {renderJson(log.metadata)}
                 </div>
             )}
 
-            {/* Target ID Section */}
             {log.target_id && (
-                <div className="bg-white/5 p-4 rounded-2xl flex items-center justify-between border border-slate-200">
+                <div className="bg-gray-50 p-4 rounded-2xl flex items-center justify-between border border-gray-100">
                    <div className="flex items-center gap-3">
                       <Zap className="h-4 w-4 text-indigo-500" />
-                      <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Entity Signature</span>
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">ID de Entidad</span>
                    </div>
-                   <code className="text-[10px] font-mono text-indigo-400 bg-white/5 px-3 py-1 rounded-lg border border-slate-200 shadow-xl">{log.target_id}</code>
+                   <code className="text-[10px] font-mono text-indigo-600 bg-white px-3 py-1 rounded-lg border border-gray-100 shadow-sm">{log.target_id}</code>
                 </div>
             )}
           </div>
 
-          <div className="p-8 pt-4 border-t border-slate-200 flex justify-end">
+          <div className="p-8 pt-4 border-t border-gray-100 flex justify-end">
             <button 
               onClick={onClose}
-              className="px-8 py-3 bg-white/5 text-slate-500 border border-slate-200 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:border-white/20 hover:text-white transition-all shadow-sm active:scale-95"
+              className="px-8 py-3 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-md active:scale-95"
             >
-              Close Telemetry
+              Cerrar Detalle
             </button>
           </div>
         </motion.div>
