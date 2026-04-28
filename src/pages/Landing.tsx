@@ -2,109 +2,104 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   motion, 
-  AnimatePresence 
+  AnimatePresence,
+  useScroll,
+  useTransform
 } from 'framer-motion';
 import { 
-  Zap, Rocket, Trophy, Target, 
+  Zap, Rocket, Target, 
   ArrowRight, Shield,
   BarChart3, LayoutDashboard, LogIn,
   TrendingUp, Twitter,
-  Activity, Search, Eye, MessageSquare, Heart as HeartIcon,
-  CheckCircle2, Clock, Users, Terminal, Cpu, Network, Database
+  Activity, Eye, Users, CheckCircle2,
+  ChevronDown, Hexagon, Layers, Share2,
+  PieChart, LineChart
 } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import translations from './translations';
 import './Landing.css';
 
-// Import images
-import founder1 from '../assets/eminatr1x.webp';
-import founder2 from '../assets/cabs.webp';
-import creator1 from '../assets/ladymufa.webp';
-import yagod from '../assets/yagod.webp';
-import lizard from '../assets/lizard.webp';
-import spadex from '../assets/spadex.webp';
-import creator1dory from '../assets/1dory.webp';
-import camululis from '../assets/camululis.webp';
-import oza from '../assets/oza.webp';
-import seven from '../assets/seven.webp';
+// --- COMPONENTES DE ALTA FIDELIDAD ---
 
-const PLACEHOLDER_CREATORS = [
-  { id: 'p1', display_name: 'Yagod', photo_url: yagod, twitter: 'https://x.com/YagodNFT', badge: 'NFT Sentinel' },
-  { id: 'p2', display_name: 'Lizard', photo_url: lizard, twitter: 'https://x.com/TheLizardQueenT', badge: 'Tactical Lead' },
-  { id: 'p3', display_name: 'Spadex', photo_url: spadex, twitter: 'https://x.com/FSpadexx', badge: 'High-Impact' },
-  { id: 'p4', display_name: '1Dory', photo_url: creator1dory, twitter: 'https://x.com/1dory_gg', badge: 'Web3 Catalyst' },
-  { id: 'p5', display_name: 'Camululis', photo_url: camululis, twitter: 'https://x.com/camululis', badge: 'Cultural Core' },
-  { id: 'p6', display_name: 'Oza', photo_url: oza, twitter: 'https://x.com/SoyOzarux', badge: 'Visionary' },
-  { id: 'p7', display_name: 'Seven', photo_url: seven, twitter: 'https://x.com/Its7Keys', badge: 'Meta Strategist' },
-];
-
-
-// --- COMPONENTES TÉCNICOS ---
-
-const SystemStatus = () => (
-  <div className="flex items-center gap-8 px-6 py-3 border-b border-emerald-500/10 bg-slate-950/50 text-[9px] font-black uppercase tracking-[0.3em] text-white/40">
-    <div className="flex items-center gap-2">
-      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-      <span>System_Operational</span>
+const DiagnosticPanel = () => (
+  <div className="w-full bg-white/[0.03] border border-white/10 rounded-[3rem] p-10 backdrop-blur-3xl relative overflow-hidden">
+    <div className="flex items-center justify-between mb-12">
+      <div className="flex items-center gap-4">
+        <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center border border-emerald-500/20">
+          <Hexagon className="h-6 w-6 text-emerald-400" />
+        </div>
+        <div>
+          <h4 className="text-sm font-black uppercase tracking-widest">Protocol_Input_Module</h4>
+          <p className="text-[10px] text-white/40 uppercase font-bold tracking-widest">Vercel_Edge_Sync: Active</p>
+        </div>
+      </div>
+      <div className="text-right">
+        <div className="text-xs font-black text-emerald-400">01 / 04</div>
+        <div className="text-[8px] text-white/20 uppercase font-black tracking-widest mt-1">Stage_Initialization</div>
+      </div>
     </div>
-    <div className="hidden md:flex items-center gap-2">
-      <div className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
-      <span>Network_Stable: 142ms</span>
-    </div>
-    <div className="hidden lg:flex items-center gap-2">
-      <div className="w-1.5 h-1.5 rounded-full bg-yellow-500/50" />
-      <span>Auth_Node: Encrypted</span>
-    </div>
-    <div className="ml-auto flex items-center gap-4">
-      <span>Coord: 19.24N / 99.12W</span>
-      <span className="text-emerald-500/60">v3.0.4_Stable</span>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+       <div className="space-y-8">
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Campaign_Objective</label>
+            <div className="h-14 bg-slate-950/50 rounded-2xl border border-white/5 flex items-center px-6 text-sm font-bold text-white/60">
+               Brand Resonance & Cultural Impact
+            </div>
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Target_Audience_Node</label>
+            <div className="h-14 bg-slate-950/50 rounded-2xl border border-white/5 flex items-center px-6 text-sm font-bold text-white/60">
+               Web3 Native / Gaming Core / Latam
+            </div>
+          </div>
+       </div>
+       <div className="flex flex-col justify-center items-center p-8 bg-emerald-500/[0.02] rounded-[2rem] border border-emerald-500/10">
+          <PieChart className="h-32 w-32 text-emerald-500/20 mb-6" />
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-400">Simulating_Predictive_ROI...</p>
+       </div>
     </div>
   </div>
 );
 
-const DataVisualizer = () => {
-  const [lines, setLines] = useState<string[]>([]);
-  
-  useEffect(() => {
-    const logs = [
-      "> Initializing_Campaign_Scanner...",
-      "> Fetching_Engagement_Data: TikTok_API",
-      "> Authenticating_Creator_Node_0x42",
-      "> ROI_Projection: 324%_Confirmed",
-      "> Parsing_Audience_Sentiment...",
-      "> Metric_Validation: PASS",
-      "> Scrape_Complete: 12,492_Entries"
-    ];
-    let i = 0;
-    const interval = setInterval(() => {
-      setLines(prev => [...prev.slice(-4), logs[i]]);
-      i = (i + 1) % logs.length;
-    }, 2000);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <div className="bg-slate-950/80 p-6 rounded-3xl border border-white/5 font-mono text-[10px] space-y-1 overflow-hidden h-40">
-      {lines.map((line, idx) => (
-        <div key={idx} className={idx === lines.length - 1 ? "text-emerald-400" : "text-white/20"}>
-          {line}
-        </div>
-      ))}
-      <div className="w-1 h-3 bg-emerald-500 animate-pulse inline-block ml-1" />
+const ExecutionPanel = () => (
+  <div className="w-full bg-slate-950 border border-white/5 rounded-[3rem] p-10 shadow-2xl relative overflow-hidden group">
+    <div className="absolute top-0 right-0 p-8">
+      <Activity className="h-8 w-8 text-cyan-500/20 group-hover:text-cyan-500 transition-colors duration-1000" />
     </div>
-  );
-};
-
-const CampaignModule = ({ title, status, icon: Icon, value }: any) => (
-  <div className="bg-slate-900/50 border border-white/5 p-6 rounded-[2rem] group hover:border-emerald-500/20 transition-all">
-    <div className="flex justify-between items-start mb-4">
-      <div className="p-3 bg-white/5 rounded-xl group-hover:bg-emerald-500/10 transition-colors">
-        <Icon className="h-4 w-4 text-emerald-500" />
+    
+    <div className="flex items-center gap-6 mb-12">
+      <div className="p-4 bg-cyan-500/10 rounded-2xl border border-cyan-500/20">
+        <Layers className="h-6 w-6 text-cyan-400" />
       </div>
-      <div className="text-[8px] font-black uppercase tracking-widest text-white/20">{status}</div>
+      <h3 className="text-3xl font-black uppercase tracking-tighter">Real-time Data Extraction</h3>
     </div>
-    <div className="text-2xl font-black mb-1">{value}</div>
-    <div className="text-[10px] font-black uppercase tracking-widest text-white/40">{title}</div>
+
+    <div className="space-y-6">
+       {[
+         { label: "TikTok_Engagement_Scrape", val: "8.42%", progress: 84 },
+         { label: "Twitter_Impression_Node", val: "1.2M", progress: 92 },
+         { label: "Twitch_Live_Retention", val: "42.1%", progress: 65 }
+       ].map((m, i) => (
+         <div key={i} className="space-y-2">
+            <div className="flex justify-between items-end">
+               <span className="text-[10px] font-black uppercase tracking-widest text-white/40">{m.label}</span>
+               <span className="text-xs font-black text-white">{m.val}</span>
+            </div>
+            <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+               <motion.div 
+                 initial={{ width: 0 }}
+                 whileInView={{ width: `${m.progress}%` }}
+                 transition={{ duration: 1.5, ease: "easeOut" }}
+                 className="h-full bg-gradient-to-r from-cyan-500 to-blue-500" 
+               />
+            </div>
+         </div>
+       ))}
+    </div>
+    
+    {/* Grid Background */}
+    <div className="absolute inset-0 z-0 opacity-10 pointer-events-none bg-[radial-gradient(#22d3ee_1px,transparent_1px)] [background-size:20px_20px]" />
   </div>
 );
 
@@ -114,7 +109,8 @@ export default function Landing() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [language, setLanguage] = useState<'en' | 'es'>('en');
-  const [selectedStrategy, setSelectedStrategy] = useState<null | { title: string, detail: string, icon: any, color: string }>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll();
   
   const t: any = (translations as any)[language] || (translations as any)['en'];
 
@@ -127,197 +123,191 @@ export default function Landing() {
   };
 
   return (
-    <div className="landing-container min-h-screen flex flex-col">
-      <SystemStatus />
-
-      {/* Grid Overlay */}
-      <div className="fixed inset-0 z-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px]" />
-      
-      {/* Texture & Glow */}
+    <div className="landing-container bg-[#030711] text-white selection:bg-emerald-500/30">
       <div className="grain-overlay" />
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="nebula-glow top-[-10%] left-[-10%] w-[70%] h-[70%] bg-emerald-600/10" />
-        <div className="nebula-glow bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-rose-600/05" />
-      </div>
-
-      {/* Navbar Minimalista Técnica */}
-      <nav className="z-50 px-6 py-8">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-6">
-            <div className="text-2xl font-black tracking-[0.3em] uppercase flex items-center gap-3">
-              <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-slate-950 text-base">U</div>
-              <span>Umbra</span>
-            </div>
+      
+      {/* Navbar Minimalista de Élite */}
+      <nav className="fixed top-0 w-full z-[100] bg-[#030711]/80 backdrop-blur-xl border-b border-white/5">
+        <div className="max-w-7xl mx-auto px-8 h-20 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+             <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-slate-950 font-black text-xl">U</div>
+             <span className="text-xl font-black uppercase tracking-[0.4em]">Umbra</span>
           </div>
           
-          <div className="flex items-center gap-10">
-            <div className="hidden lg:flex items-center gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-white/40">
-              <button onClick={() => document.getElementById('method')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-emerald-400 transition-colors">Protocol_Method</button>
-              <button onClick={() => document.getElementById('creators')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-emerald-400 transition-colors">Elite_Network</button>
-              <button onClick={() => document.getElementById('leadership')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-emerald-400 transition-colors">Operation_Leads</button>
-            </div>
-            <div className="h-4 w-px bg-white/10" />
-            <button onClick={() => setLanguage(language === 'en' ? 'es' : 'en')} className="text-[10px] font-black uppercase tracking-widest hover:text-white">{language}</button>
-            <button onClick={handleEnterApp} className="px-6 py-2 bg-emerald-500 text-slate-950 rounded-lg font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all">Login_System</button>
+          <div className="hidden md:flex items-center gap-12 text-[10px] font-black uppercase tracking-widest text-white/40">
+             <button onClick={() => document.getElementById('manifesto')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-emerald-400 transition-colors">Manifesto</button>
+             <button onClick={() => document.getElementById('protocol')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-emerald-400 transition-colors">The_Protocol</button>
+             <button onClick={() => document.getElementById('network')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-emerald-400 transition-colors">Elite_Network</button>
+          </div>
+
+          <div className="flex items-center gap-6">
+             <button onClick={() => setLanguage(language === 'en' ? 'es' : 'en')} className="text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-colors">{language}</button>
+             <button onClick={handleEnterApp} className="px-8 py-3 bg-white text-slate-950 rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all">Command_Center</button>
           </div>
         </div>
       </nav>
 
-      {/* HERO: COMMAND DECK (INTERFACE REAL) */}
-      <main className="flex-1 relative z-10 pt-12 pb-32 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+      {/* HERO: EL MANIFIESTO (TIPO WHITEBOARD) */}
+      <section id="manifesto" className="min-h-screen pt-48 pb-32 px-8 relative flex flex-col items-center justify-center">
+         <div className="max-w-5xl mx-auto text-center space-y-12">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="inline-flex items-center gap-3 px-5 py-2 bg-white/5 border border-white/10 rounded-full"
+            >
+               <Shield className="h-3 w-3 text-emerald-400" />
+               <span className="text-[9px] font-black uppercase tracking-[0.5em] text-white/60">Audited_By_Umbra_V3</span>
+            </motion.div>
             
-            {/* Columna Izquierda: El Manifiesto Técnico */}
-            <div className="lg:col-span-5 space-y-12">
-              <div>
-                <div className="inline-block px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-6">Security_Clearance_Required</div>
-                <h1 className="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.9] mb-8">
-                  The <br/>
-                  <span className="gradient-text">Unmistakable</span> <br/>
-                  Standard.
-                </h1>
-                <p className="text-lg text-slate-400 font-medium leading-relaxed max-w-md">
-                  We don't sell visibility. We deploy <span className="text-white">proprietary data infrastructure</span> to ensure your campaign ROI is verifiable, repeatable, and absolute.
-                </p>
-              </div>
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="text-7xl md:text-[10rem] font-black uppercase tracking-tighter leading-[0.85] text-white"
+            >
+              The <span className="text-emerald-500">Real</span> <br/>
+              Standard.
+            </motion.h1>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-6 bg-slate-900/50 border border-white/5 rounded-3xl">
-                  <div className="text-2xl font-black mb-1">116K+</div>
-                  <div className="text-[9px] font-black uppercase tracking-widest text-emerald-500/60">Network_Reach</div>
-                </div>
-                <div className="p-6 bg-slate-900/50 border border-white/5 rounded-3xl">
-                  <div className="text-2xl font-black mb-1">x3.2</div>
-                  <div className="text-[9px] font-black uppercase tracking-widest text-cyan-500/60">Avg_ROI_Index</div>
-                </div>
-              </div>
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="text-xl md:text-2xl text-white/40 max-w-3xl mx-auto font-medium leading-relaxed"
+            >
+              We replace marketing noise with <span className="text-white">technical certainty</span>. Our infrastructure hooks directly into platform metrics to deliver undisputed ROI.
+            </motion.p>
 
-              <div className="space-y-4">
-                 <button onClick={handleEnterApp} className="w-full py-5 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-4 hover:bg-emerald-500 transition-all">
-                    Initiate Audit <ArrowRight className="h-4 w-4" />
-                 </button>
-                 <p className="text-[9px] text-center text-white/20 font-black uppercase tracking-widest italic">Authorized_Personnel_Only</p>
-              </div>
-            </div>
+            <motion.div 
+               initial={{ opacity: 0, scale: 0.95 }}
+               animate={{ opacity: 1, scale: 1 }}
+               transition={{ delay: 0.6 }}
+               className="flex flex-col sm:flex-row gap-6 justify-center pt-8"
+            >
+               <button onClick={() => document.getElementById('protocol')?.scrollIntoView({ behavior: 'smooth' })} className="px-12 py-5 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-emerald-500 transition-all flex items-center gap-3">
+                  View Protocol <ChevronDown className="h-4 w-4" />
+               </button>
+               <button onClick={handleEnterApp} className="px-12 py-5 bg-white/5 border border-white/10 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all">
+                  Access Portal
+               </button>
+            </motion.div>
+         </div>
 
-            {/* Columna Derecha: El "Command Center" Visual */}
-            <div className="lg:col-span-7">
-               <div className="relative bg-slate-900/80 border border-white/10 rounded-[3rem] p-8 shadow-2xl backdrop-blur-2xl">
-                  {/* Fake UI Header */}
-                  <div className="flex items-center justify-between mb-8 border-b border-white/5 pb-6">
-                    <div className="flex items-center gap-3">
-                      <Terminal className="h-4 w-4 text-emerald-500" />
-                      <span className="text-[10px] font-black uppercase tracking-widest">Active_Campaign_Terminal</span>
-                    </div>
-                    <div className="flex gap-2">
-                       <div className="h-2 w-12 bg-white/5 rounded-full" />
-                       <div className="h-2 w-8 bg-emerald-500/20 rounded-full" />
-                    </div>
-                  </div>
+         {/* Background Grid Accent */}
+         <div className="absolute inset-0 -z-10 opacity-20 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:100px_100px]" />
+      </section>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                     <CampaignModule title="Real-time_Engagement" status="Monitoring" icon={Activity} value="8.42%" />
-                     <CampaignModule title="Active_Creator_Nodes" status="Verified" icon={Users} value="08" />
-                  </div>
-
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-white/40 mb-2">
-                       <span>Diagnostic_Stream</span>
-                       <span className="text-emerald-500">Live</span>
-                    </div>
-                    <DataVisualizer />
-                    
-                    <div className="p-6 bg-emerald-500/5 border border-emerald-500/10 rounded-3xl">
-                       <div className="flex items-center gap-4 mb-3">
-                          <Shield className="h-4 w-4 text-emerald-400" />
-                          <span className="text-[10px] font-black uppercase tracking-widest">Protocol_Standard_V3</span>
-                       </div>
-                       <div className="h-2 bg-emerald-500/20 rounded-full w-full relative overflow-hidden">
-                          <motion.div 
-                            animate={{ x: ['-100%', '100%'] }} 
-                            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                            className="absolute inset-y-0 w-1/3 bg-emerald-500/40" 
-                          />
-                       </div>
-                    </div>
-                  </div>
-               </div>
-            </div>
-
-          </div>
-        </div>
-      </main>
-
-      {/* METODOLOGÍA (MÓDULOS DE SISTEMA) */}
-      <section id="method" className="py-48 px-6 bg-slate-950 relative border-t border-emerald-500/10">
+      {/* PROTOCOLO: EL TRABAJO REAL (ANATOMÍA DE CAMPAÑA) */}
+      <section id="protocol" className="py-48 px-8 border-t border-white/5 bg-slate-950/30">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row items-end justify-between gap-8 mb-24">
-            <div>
-              <span className="section-label">Operational_Flow</span>
-              <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter">The <span className="gradient-text">Methodology.</span></h2>
-            </div>
-            <p className="text-slate-400 text-sm max-w-sm font-medium leading-relaxed italic opacity-60">"Precision is the only metric that matters."</p>
-          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-32 items-center">
+             <div className="space-y-16">
+                <div>
+                   <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.4em] mb-6 block">Stage_01: Analytics</span>
+                   <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter leading-none mb-8">Campaign <br/> Anatomy.</h2>
+                   <p className="text-lg text-white/40 font-medium leading-relaxed max-w-md">
+                      Our process isn't a secret. It's an <span className="text-white">engineering flow</span> designed to minimize risk and maximize resonance.
+                   </p>
+                </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-             {[
-               { id: '01', title: 'Diagnostic', icon: Search, desc: 'We scan your project\'s metadata to find cultural alignment.' },
-               { id: '02', title: 'Scraping', icon: Database, desc: 'Live data harvesting across all engagement nodes.' },
-               { id: '03', title: 'Validation', icon: CheckCircle2, desc: 'Unified ROI reports with absolute transparency.' },
-               { id: '04', title: 'Growth', icon: TrendingUp, desc: 'Sustainable momentum through data-backed iterations.' }
-             ].map((m) => (
-               <div key={m.id} className="p-8 bg-slate-900/50 border border-white/5 rounded-[2.5rem] hover:border-emerald-500/20 transition-all group">
-                  <div className="flex justify-between items-start mb-8">
-                    <div className="p-4 bg-white/5 rounded-2xl group-hover:bg-emerald-500/10 transition-colors">
-                      <m.icon className="h-5 w-5 text-emerald-500" />
-                    </div>
-                    <span className="text-4xl font-black text-white/[0.03] group-hover:text-emerald-500/5 transition-colors">{m.id}</span>
-                  </div>
-                  <h3 className="text-xl font-black uppercase mb-4">{m.title}</h3>
-                  <p className="text-xs text-slate-400 leading-relaxed font-medium">{m.desc}</p>
-               </div>
-             ))}
+                <div className="space-y-12">
+                   {[
+                     { step: "01", title: "Strategic Briefing", desc: "Digital decode of project DNA and cultural objectives." },
+                     { step: "02", title: "Talent Engineering", desc: "Cross-referencing engagement nodes with target sentiment." },
+                     { step: "03", title: "Live Execution", desc: "Real-time performance scraping and content validation." }
+                   ].map((s, i) => (
+                     <div key={i} className="flex gap-8 group">
+                        <span className="text-4xl font-black text-white/10 group-hover:text-emerald-500/40 transition-colors">{s.step}</span>
+                        <div>
+                           <h4 className="text-xl font-black uppercase mb-2">{s.title}</h4>
+                           <p className="text-sm text-white/40 font-medium">{s.desc}</p>
+                        </div>
+                     </div>
+                   ))}
+                </div>
+             </div>
+
+             <div className="space-y-12">
+                <DiagnosticPanel />
+                <ExecutionPanel />
+             </div>
           </div>
         </div>
       </section>
 
-      {/* ELITE NETWORK (SCROLL TÉCNICO) */}
-      <section id="creators" className="py-48 bg-slate-950 border-t border-emerald-500/10 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 mb-24">
-          <span className="section-label">Verified_Nodes</span>
-          <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter">Elite <span className="gradient-text">Network.</span></h2>
+      {/* METRICS: LA VERDAD DE LOS DATOS */}
+      <section className="py-32 px-8 bg-emerald-600">
+         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-16">
+            <div className="text-center md:text-left">
+               <h2 className="text-5xl md:text-6xl font-black text-white uppercase tracking-tighter leading-none mb-4">Numbers <br/> don't lie.</h2>
+               <p className="text-emerald-100 font-bold opacity-80 text-sm uppercase tracking-widest">Global_Consolidated_Impact_Metrics</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-12">
+               <div className="text-center md:text-right">
+                  <div className="text-7xl font-black text-white tracking-tighter">116K</div>
+                  <div className="text-[10px] font-black text-emerald-950 uppercase tracking-widest opacity-60">Verified_Reach</div>
+               </div>
+               <div className="text-center md:text-right">
+                  <div className="text-7xl font-black text-white tracking-tighter">x3.2</div>
+                  <div className="text-[10px] font-black text-emerald-950 uppercase tracking-widest opacity-60">Avg_ROI_Yield</div>
+               </div>
+               <div className="text-center md:text-right">
+                  <div className="text-7xl font-black text-white tracking-tighter">100%</div>
+                  <div className="text-[10px] font-black text-emerald-950 uppercase tracking-widest opacity-60">Data_Transparency</div>
+               </div>
+            </div>
+         </div>
+      </section>
+
+      {/* NETWORK: ELITE NODES */}
+      <section id="network" className="py-48 px-8 border-t border-white/5 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto mb-32 text-center">
+           <span className="section-label">Verified_Partners</span>
+           <h2 className="text-6xl md:text-8xl font-black uppercase tracking-tighter">The Elite <br/> <span className="text-emerald-500">Network.</span></h2>
         </div>
-        <div className="flex gap-8 px-4 opacity-80 hover:opacity-100 transition-opacity">
+
+        <div className="flex gap-8 overflow-hidden py-12">
            <motion.div 
-             animate={{ x: [0, -1200] }} 
+             animate={{ x: [0, -1400] }}
              transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-             className="flex gap-8"
+             className="flex gap-12"
            >
-              {[...PLACEHOLDER_CREATORS, ...PLACEHOLDER_CREATORS].map((c, i) => (
-                <div key={i} className="w-64 flex-shrink-0 bg-slate-900 border border-white/5 rounded-[2rem] p-4 group hover:border-emerald-500/20 transition-all">
-                  <div className="aspect-square rounded-2xl overflow-hidden mb-4 grayscale group-hover:grayscale-0 transition-all">
-                    <img src={c.photo_url} className="w-full h-full object-cover" alt={c.display_name} />
-                  </div>
-                  <div className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1">{c.badge}</div>
-                  <div className="text-lg font-black uppercase">{c.display_name}</div>
+              {[1,2,3,4,5,6,7,8,9,10].map(i => (
+                <div key={i} className="w-80 h-[28rem] bg-white/5 border border-white/10 rounded-[3rem] p-4 flex flex-col group hover:border-emerald-500/20 transition-all">
+                   <div className="flex-1 bg-slate-900 rounded-[2rem] overflow-hidden grayscale group-hover:grayscale-0 transition-all">
+                      <div className="w-full h-full bg-gradient-to-br from-slate-800 to-slate-950 flex items-center justify-center text-white/5 font-black text-8xl italic">U</div>
+                   </div>
+                   <div className="p-6">
+                      <div className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-2">Protocol_Verified_Node</div>
+                      <div className="text-2xl font-black uppercase tracking-tighter">Creator_Node_{i}</div>
+                   </div>
                 </div>
               ))}
            </motion.div>
         </div>
       </section>
 
-      {/* FOOTER TÉCNICO */}
-      <footer className="py-16 px-8 border-t border-white/5 bg-slate-950 mt-auto">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-           <div className="flex items-center gap-4">
-             <div className="w-8 h-8 bg-white/5 rounded-lg flex items-center justify-center"><Network className="h-4 w-4 text-emerald-500" /></div>
-             <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Umbra_Infrastructure_v3.0</span>
+      {/* FOOTER */}
+      <footer className="py-24 px-8 border-t border-white/5 bg-[#030711]">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-16">
+           <div className="space-y-8">
+              <div className="flex items-center gap-4">
+                 <div className="w-8 h-8 bg-white/5 rounded-lg border border-white/10" />
+                 <span className="text-lg font-black uppercase tracking-widest">Umbra Hub</span>
+              </div>
+              <p className="text-sm text-white/40 leading-relaxed font-medium">The unmistakable standard for auditable Web3 performance. Built for high-impact brand/creator synergy.</p>
            </div>
-           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">© 2026 UMBRA AGENCY. ALL SYSTEMS NOMINAL.</p>
-           <div className="flex gap-6">
-              <Twitter className="h-4 w-4 text-white/20 hover:text-emerald-500 cursor-pointer transition-colors" />
-              <Terminal className="h-4 w-4 text-white/20 hover:text-emerald-500 cursor-pointer transition-colors" />
+           <div>
+              <h5 className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-500 mb-8">Navigation</h5>
+              <ul className="space-y-4 text-xs font-black uppercase tracking-widest text-white/40">
+                 <li><button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="hover:text-white transition-colors">Manifesto</button></li>
+                 <li><button onClick={() => document.getElementById('protocol')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition-colors">The Protocol</button></li>
+                 <li><button onClick={handleEnterApp} className="hover:text-white transition-colors">Command Center</button></li>
+              </ul>
+           </div>
+           <div className="text-right flex flex-col justify-end">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20 mb-4">System_Stable: Selective Deployment</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 italic">© 2026 UMBRA AGENCY. ALL RIGHTS RESERVED.</p>
            </div>
         </div>
       </footer>
