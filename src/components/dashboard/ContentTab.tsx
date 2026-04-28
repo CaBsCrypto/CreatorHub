@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import ContentCard from './ContentCard';
 import { supabase } from '../../supabase';
 import ViewsTrendModal from './ViewsTrendModal';
-import Skeleton, { CardSkeleton } from './Skeleton';
+import { CardSkeleton } from './Skeleton';
 
 interface ContentTabProps {
   searchTerm: string;
@@ -65,32 +65,6 @@ const ContentTab: React.FC<ContentTabProps> = ({
 }) => {
   const [isViewsModalOpen, setIsViewsModalOpen] = useState(false);
 
-  const handleRefreshAll = async () => {
-    if (content.length === 0) return info("No hay contenido para sincronizar");
-    setIsRefreshing(true);
-    info("Sincronizando todas las métricas...");
-    try {
-      const data = content.map(c => ({ id: c.id, url: c.url, platform: c.platform }));
-      const { data: { session } } = await supabase.auth.getSession();
-      const response = await fetch('/api/refresh-metrics', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
-        body: JSON.stringify({ items: data })
-      });
-      const result = await response.json();
-      if (result.success) {
-        await refresh();
-        success(`${result.results_count} videos sincronizados correctamente desde el servidor`);
-      } else {
-        throw new Error(result.error || "Fallo en la sincronización masiva");
-      }
-    } catch (e: any) {
-      toastError("Error: " + e.message);
-    } finally {
-      setIsRefreshing(false);
-    }
-  };
-
   const handleRefreshItem = async (item: any) => {
     info("Sincronizando video...");
     try {
@@ -109,148 +83,134 @@ const ContentTab: React.FC<ContentTabProps> = ({
     }
   };
 
+  const activeContent = filteredContent.filter(item => !deletedContentIds.includes(item.id));
+
   return (
-    <div id="content-section" className="space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-1000">
-      <div className="glass-dark p-6 md:p-8 rounded-[3rem] border border-slate-200 space-y-6">
-        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
+    <div id="content-section" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      
+      {/* Search & Actions Header */}
+      <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
           <div className="flex flex-wrap items-center gap-4 flex-1">
             <div className="relative flex-1 min-w-[280px] max-w-xl group">
-              <div className="absolute inset-0 bg-indigo-600/5 blur-xl group-focus-within:bg-indigo-50 transition-all duration-700" />
-              <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 group-focus-within:text-indigo-600 transition-all duration-500 relative z-10" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
               <input
                 type="text"
-                placeholder="Search_Content_Nodes..."
+                placeholder="Buscar contenido..."
                 value={searchTerm}
                 onChange={(e) => setFilter('search', e.target.value)}
-                className="w-full pl-16 pr-8 py-5 bg-white border border-slate-200 focus:border-indigo-200 rounded-2xl text-sm font-black uppercase tracking-widest placeholder:text-slate-700 outline-none transition-all relative z-10 text-white italic"
+                className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium text-slate-900 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 transition-all outline-none"
               />
             </div>
             
-            <div className="flex items-center gap-2 p-1.5 bg-slate-50 rounded-2xl border border-slate-200 relative z-10">
+            {/* View Mode Switcher */}
+            <div className="flex items-center gap-1 p-1 bg-gray-50 rounded-xl border border-gray-100">
               <button 
                 onClick={() => setFilter('view', 'grid')}
-                className={`p-3 rounded-xl transition-all duration-500 ${viewMode === 'grid' ? 'bg-indigo-600 text-white shadow-[0_0_20px_rgba(16,185,129,0.4)]' : 'text-slate-600 hover:text-white'}`}
-                title="Grid_View"
+                className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white text-indigo-600 shadow-sm border border-gray-100' : 'text-slate-400 hover:text-slate-600'}`}
+                title="Vista Grid"
               >
-                <LayoutGrid className="h-5 w-5" />
+                <LayoutGrid className="h-4 w-4" />
               </button>
               <button 
                 onClick={() => setFilter('view', 'gallery')}
-                className={`p-3 rounded-xl transition-all duration-500 ${viewMode === 'gallery' ? 'bg-indigo-600 text-white shadow-[0_0_20px_rgba(16,185,129,0.4)]' : 'text-slate-600 hover:text-white'}`}
-                title="Gallery_View"
+                className={`p-2 rounded-lg transition-all ${viewMode === 'gallery' ? 'bg-white text-indigo-600 shadow-sm border border-gray-100' : 'text-slate-400 hover:text-slate-600'}`}
+                title="Vista Galería"
               >
-                <ImageIcon className="h-5 w-5" />
+                <ImageIcon className="h-4 w-4" />
               </button>
               <button 
                 onClick={() => setFilter('view', 'compact')}
-                className={`p-3 rounded-xl transition-all duration-500 ${viewMode === 'compact' ? 'bg-indigo-600 text-white shadow-[0_0_20px_rgba(16,185,129,0.4)]' : 'text-slate-600 hover:text-white'}`}
-                title="List_View"
+                className={`p-2 rounded-lg transition-all ${viewMode === 'compact' ? 'bg-white text-indigo-600 shadow-sm border border-gray-100' : 'text-slate-400 hover:text-slate-600'}`}
+                title="Vista Lista"
               >
-                <ListIcon className="h-5 w-5" />
+                <ListIcon className="h-4 w-4" />
               </button>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 relative z-10">
+          <div className="flex items-center gap-3">
             <button 
               onClick={() => setFilter('zero_views', filterZeroViews ? 'false' : 'true')}
-              className={`flex items-center justify-center gap-3 px-6 py-5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 active:scale-95 whitespace-nowrap border-2 ${filterZeroViews ? 'bg-indigo-600 text-white border-emerald-500 shadow-[0_0_30px_rgba(16,185,129,0.3)]' : 'bg-slate-50 border-slate-200 text-slate-500 hover:text-indigo-600 hover:border-indigo-200'}`}
-              title="Filter_Zero_Metrics"
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 border ${filterZeroViews ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white border-gray-100 text-slate-500 hover:border-indigo-200 hover:text-indigo-600'}`}
             >
-              <TrendingUp className={`h-4 w-4 ${filterZeroViews ? 'rotate-180 transition-transform duration-700' : ''}`} /> 0_Metrics
+              <TrendingUp className={`h-3.5 w-3.5 ${filterZeroViews ? 'rotate-180 transition-transform' : ''}`} /> 0 Métricas
             </button>
 
             <button 
               onClick={() => { setEditingContent(null); setIsContentModalOpen(true); }}
-              className="flex-1 lg:flex-none flex items-center justify-center gap-3 px-8 py-5 bg-white text-slate-950 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-emerald-400 hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] transition-all duration-500 active:scale-95 whitespace-nowrap italic shadow-2xl"
+              className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all active:scale-95 shadow-lg shadow-indigo-100"
             >
-              <Plus className="h-4 w-4" /> Deploy_Asset
+              <Plus className="h-3.5 w-3.5" /> Agregar Contenido
             </button>
           </div>
         </div>
       </div>
 
-      {/* Active Filter Indicator */}
+      {/* Active Filter Badges */}
       {(filterCampaign !== 'all' || filterPlatform !== 'all' || filterCreator !== 'all' || searchTerm || filterZeroViews) && (
-        <div className="flex flex-wrap items-center gap-3 mb-4 animate-in fade-in slide-in-from-left-6 duration-700">
-          <span className="text-[9px] font-black text-slate-600 uppercase tracking-[0.4em] mr-4 italic">Active_Parameters:</span>
+        <div className="flex flex-wrap items-center gap-2 animate-in fade-in duration-500">
+          <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mr-2">Filtros Activos:</span>
           {filterZeroViews && (
-            <div className="flex items-center gap-3 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-[9px] font-black border border-indigo-200 uppercase tracking-widest italic">
-              ZERO_VIEWS_ONLY
-              <button onClick={() => setFilter('zero_views', 'false')} className="hover:text-white transition-colors">×</button>
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg text-[9px] font-black border border-indigo-100 uppercase tracking-widest">
+              SOLO 0 VISTAS
+              <button onClick={() => setFilter('zero_views', 'false')} className="hover:text-indigo-800">×</button>
             </div>
           )}
           {filterCampaign !== 'all' && (
-            <div className="flex items-center gap-3 px-4 py-2 bg-white/5 text-white rounded-xl text-[9px] font-black border border-slate-200 uppercase tracking-widest italic">
-              CAMPAIGN: {campaigns.find(c => c.id === filterCampaign)?.name || '...'}
-              <button onClick={() => setFilter('campaign', 'all')} className="hover:text-indigo-600 transition-colors">×</button>
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 text-slate-600 rounded-lg text-[9px] font-black border border-gray-100 uppercase tracking-widest">
+              CAMPAÑA: {campaigns.find(c => c.id === filterCampaign)?.name || '...'}
+              <button onClick={() => setFilter('campaign', 'all')} className="hover:text-slate-900">×</button>
             </div>
           )}
           {filterPlatform !== 'all' && (
-            <div className="flex items-center gap-3 px-4 py-2 bg-white/5 text-white rounded-xl text-[9px] font-black border border-slate-200 uppercase tracking-widest italic">
-              PLATFORM: {filterPlatform}
-              <button onClick={() => setFilter('platform', 'all')} className="hover:text-indigo-600 transition-colors">×</button>
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 text-slate-600 rounded-lg text-[9px] font-black border border-gray-100 uppercase tracking-widest">
+              PLATAFORMA: {filterPlatform}
+              <button onClick={() => setFilter('platform', 'all')} className="hover:text-slate-900">×</button>
             </div>
           )}
           {filterCreator !== 'all' && (
-            <div className="flex items-center gap-3 px-4 py-2 bg-white/5 text-white rounded-xl text-[9px] font-black border border-slate-200 uppercase tracking-widest italic">
-              AGENT: {filterCreator.startsWith('guest:') ? filterCreator.replace('guest:', '') : (users.find(u => u.id === filterCreator)?.display_name || '...')}
-              <button onClick={() => setFilter('creator', 'all')} className="hover:text-indigo-600 transition-colors">×</button>
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 text-slate-600 rounded-lg text-[9px] font-black border border-gray-100 uppercase tracking-widest">
+              CREADOR: {filterCreator.startsWith('guest:') ? filterCreator.replace('guest:', '') : (users.find(u => u.id === filterCreator)?.display_name || '...')}
+              <button onClick={() => setFilter('creator', 'all')} className="hover:text-slate-900">×</button>
             </div>
           )}
           <button 
             onClick={() => resetFilters()}
-            className="px-4 py-2 text-[9px] font-black text-indigo-600 hover:text-white hover:bg-indigo-100 rounded-xl uppercase tracking-[0.3em] transition-all duration-500 border border-indigo-200 italic"
+            className="px-3 py-1.5 text-[9px] font-black text-rose-500 hover:bg-rose-50 rounded-lg uppercase tracking-widest transition-all border border-rose-100"
           >
-            Purge_All
+            Limpiar Filtros
           </button>
         </div>
       )}
 
       {/* Summary Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8 mb-12">
-        {isLoading ? (
-          <>
-            <div className="glass-dark p-8 rounded-[2.5rem] border border-slate-200 flex flex-col gap-4 animate-pulse">
-              <div className="h-2 w-24 bg-white/5 rounded" />
-              <div className="h-10 w-48 bg-white/5 rounded" />
-            </div>
-            <div className="glass-dark p-8 rounded-[2.5rem] border border-slate-200 flex flex-col gap-4 animate-pulse">
-              <div className="h-2 w-24 bg-white/5 rounded" />
-              <div className="h-10 w-48 bg-white/5 rounded" />
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="glass-dark p-8 rounded-[3rem] border border-slate-200 flex flex-col group hover:border-indigo-200 transition-all duration-700 relative overflow-hidden">
-              <div className="absolute -right-12 -top-12 w-32 h-32 bg-white/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-              <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.4em] mb-4 flex items-center gap-3 italic">
-                <Youtube className="h-4 w-4 text-indigo-600" /> Total_Asset_Nodes
-              </span>
-              <span className="text-5xl font-black text-white group-hover:text-indigo-600 transition-all duration-700 tracking-tighter tabular-nums">
-                {filteredContent.filter(item => !deletedContentIds.includes(item.id)).length}
-              </span>
-            </div>
-            <div 
-              onClick={() => setIsViewsModalOpen(true)}
-              className="glass-dark p-8 rounded-[3rem] border border-slate-200 flex flex-col group hover:border-indigo-200 transition-all duration-700 cursor-pointer relative overflow-hidden"
-            >
-              <div className="absolute -left-12 -bottom-12 w-32 h-32 bg-indigo-600/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-              <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.4em] mb-4 flex items-center gap-3 italic">
-                <TrendingUp className="h-4 w-4 text-indigo-600" /> Aggregated_Metrics_Score
-              </span>
-              <span className="text-5xl font-black text-indigo-600 group-hover:text-indigo-600 transition-all duration-700 tracking-tighter tabular-nums">
-                {filteredContent.filter(item => !deletedContentIds.includes(item.id)).reduce((sum, item) => sum + (item.views || 0), 0).toLocaleString()}
-              </span>
-            </div>
-          </>
-        )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col group hover:border-indigo-100 transition-all">
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+            <Youtube className="h-3.5 w-3.5 text-indigo-600" /> Videos Totales
+          </span>
+          <span className="text-3xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors tracking-tight tabular-nums">
+            {activeContent.length}
+          </span>
+        </div>
+        <div 
+          onClick={() => setIsViewsModalOpen(true)}
+          className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col group hover:border-indigo-100 transition-all cursor-pointer"
+        >
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+            <TrendingUp className="h-3.5 w-3.5 text-indigo-600" /> Vistas Totales
+          </span>
+          <span className="text-3xl font-black text-indigo-600 tracking-tight tabular-nums">
+            {activeContent.reduce((sum, item) => sum + (item.views || 0), 0).toLocaleString()}
+          </span>
+        </div>
       </div>
 
       <div className={
-        viewMode === 'compact' ? "space-y-4" : 
-        viewMode === 'gallery' ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6" :
-        "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
+        viewMode === 'compact' ? "space-y-3" : 
+        viewMode === 'gallery' ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4" :
+        "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
       }>
         {isLoading ? (
           <>
@@ -259,8 +219,7 @@ const ContentTab: React.FC<ContentTabProps> = ({
             <CardSkeleton />
             <CardSkeleton />
           </>
-        ) : filteredContent
-          .filter(item => !deletedContentIds.includes(item.id))
+        ) : activeContent
           .filter(item => {
             if (!searchTerm) return true;
             return item.title?.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -272,97 +231,68 @@ const ContentTab: React.FC<ContentTabProps> = ({
                 key={item.id}
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: i * 0.01, duration: 0.7 }}
+                transition={{ delay: i * 0.01, duration: 0.5 }}
                 onClick={() => {
                   const isPopup = item.platform === 'twitch' || item.platform === 'discord' || item.platform === 'baseapp' || (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0);
                   if (isPopup) setViewingContent(item as any);
                   else window.open(item.url, '_blank');
                 }}
-                className="aspect-square rounded-[2.5rem] overflow-hidden border border-slate-200 hover:border-emerald-500/40 hover:shadow-[0_0_30px_rgba(16,185,129,0.2)] transition-all duration-700 group relative cursor-pointer glass-dark"
+                className="aspect-square rounded-2xl overflow-hidden border border-gray-100 hover:border-indigo-200 transition-all duration-300 group relative cursor-pointer bg-gray-50"
               >
                 {item.thumbnail ? (
-                  <img src={item.thumbnail} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 grayscale group-hover:grayscale-0 opacity-80 group-hover:opacity-100" />
+                  <img src={item.thumbnail} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
                   <div className="w-full h-full bg-white flex items-center justify-center">
-                    <ImageIcon className="h-8 w-8 text-slate-800 group-hover:text-indigo-600 transition-colors" />
+                    <ImageIcon className="h-6 w-6 text-slate-200 group-hover:text-indigo-400 transition-colors" />
                   </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-700 p-5 flex flex-col justify-end">
-                  <p className="text-[8px] font-black text-indigo-600 uppercase tracking-[0.3em] mb-1 italic">{item.platform === 'twitch' ? 'stream' : item.platform}_NODE</p>
-                  <p className="text-[11px] font-black text-white line-clamp-1 uppercase tracking-tight">{item.title || 'Untitled_Entry'}</p>
-                </div>
-                <div 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setEditingContent(item as any);
-                    setIsContentModalOpen(true);
-                  }}
-                  className="absolute top-4 right-4 p-2.5 bg-white text-slate-950 rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-500 hover:bg-indigo-600 shadow-2xl scale-75 group-hover:scale-100"
-                >
-                  <Edit2 className="h-3.5 w-3.5" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-4 flex flex-col justify-end">
+                  <p className="text-[10px] font-black text-white line-clamp-1 uppercase tracking-tight">{item.title || 'Sin título'}</p>
                 </div>
               </motion.div>
             ) : isCompactView ? (
               <motion.div 
                 key={item.id}
-                initial={{ opacity: 0, x: -10 }}
+                initial={{ opacity: 0, x: -8 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.03, duration: 0.7 }}
+                transition={{ delay: i * 0.02, duration: 0.5 }}
                 onClick={() => {
                   const isPopup = item.platform === 'twitch' || item.platform === 'discord' || item.platform === 'baseapp' || (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0);
                   if (isPopup) setViewingContent(item as any);
                   else window.open(item.url, '_blank');
                 }}
-                className="glass-dark px-8 py-6 rounded-[2rem] border border-slate-200 flex items-center hover:border-indigo-200 hover:shadow-2xl transition-all duration-500 group gap-10 cursor-pointer active:scale-[0.99] relative overflow-hidden"
+                className="bg-white px-5 py-4 rounded-xl border border-gray-100 flex items-center hover:border-indigo-100 hover:shadow-md transition-all duration-300 group gap-6 cursor-pointer"
               >
-                <div className="w-16 h-16 bg-white rounded-2xl overflow-hidden flex items-center justify-center border border-slate-200 shrink-0 group-hover:scale-105 transition-transform duration-500">
+                <div className="w-12 h-12 bg-gray-50 rounded-lg overflow-hidden flex items-center justify-center border border-gray-50 shrink-0">
                   {item.thumbnail ? (
-                    <img src={item.thumbnail} alt="" className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700" />
+                    <img src={item.thumbnail} alt="" className="w-full h-full object-cover" />
                   ) : (
-                    <Youtube className="h-6 w-6 text-slate-800 group-hover:text-indigo-600 transition-colors" />
+                    <Youtube className="h-5 w-5 text-slate-300" />
                   )}
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <p className="text-lg font-black text-white line-clamp-1 uppercase tracking-tighter group-hover:text-indigo-600 transition-colors">{item.title || 'Untitled_Node'}</p>
-                  <div className="flex flex-wrap items-center gap-4 mt-2">
-                    <span className="text-[9px] font-black text-slate-950 uppercase tracking-[0.2em] px-3 py-1 bg-white rounded-lg italic">
-                      {item.platform === 'twitch' ? 'stream' : item.platform}_DATA
+                  <p className="text-sm font-black text-slate-900 line-clamp-1 uppercase tracking-tight group-hover:text-indigo-600 transition-colors">{item.title || 'Sin título'}</p>
+                  <div className="flex items-center gap-3 mt-1">
+                    <span className="text-[9px] font-black text-indigo-500 uppercase tracking-widest">
+                      {item.platform}
                     </span>
-                    <span className="text-[9px] font-black text-slate-500 bg-white rounded-lg px-3 py-1 flex items-center gap-2 uppercase tracking-widest border border-slate-200">
-                      <List className="h-3 w-3 text-indigo-600" />
-                      {campaigns.find(c => c.id === item.campaign_id)?.name || 'STANDALONE_OP'}
-                    </span>
-                    <span 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (item.creator_id) setManagingUser(users.find(u => u.id === item.creator_id) || null);
-                      }}
-                      className={`text-[9px] font-black flex items-center gap-2 uppercase tracking-widest transition-all duration-500 ${item.creator_id ? 'text-slate-600 hover:text-indigo-600 cursor-pointer' : 'text-slate-700'}`}
-                    >
-                      <Users className="h-3 w-3" />
-                      AGENT: {item.creator_id ? (users.find(u => u.id === item.creator_id)?.display_name || 'UNKNOWN') : (item.guest_name || 'EXT_SOURCE')}
+                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                      <List className="h-3 w-3" />
+                      {campaigns.find(c => c.id === item.campaign_id)?.name || 'Sin campaña'}
                     </span>
                   </div>
                 </div>
 
-                <div className="hidden md:flex flex-col items-center w-36 shrink-0 pt-1">
-                  <p className="text-3xl font-black text-white leading-none tracking-tighter tabular-nums group-hover:text-indigo-600 transition-colors">{(item.views || 0).toLocaleString()}</p>
-                  <p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] mt-3 italic">AGGREGATED_METRIC</p>
+                <div className="hidden md:flex flex-col items-end w-24 shrink-0">
+                  <p className="text-xl font-black text-slate-900 leading-none tabular-nums group-hover:text-indigo-600 transition-colors">{(item.views || 0).toLocaleString()}</p>
+                  <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-1">Vistas</p>
                 </div>
 
-                <div className="hidden lg:flex flex-col items-center w-36 shrink-0 pt-1">
-                  <p className="text-sm font-black text-slate-500 leading-none uppercase tracking-widest">
-                    {item.uploaded_at ? new Date(item.uploaded_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }) : 'STALE'}
-                  </p>
-                  <p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] mt-3 italic">TIMESTAMP</p>
-                </div>
-
-                <div className="flex items-center gap-4 shrink-0 relative z-20">
+                <div className="flex items-center gap-2 shrink-0">
                   <button
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleRefreshItem(item); }}
-                    className="p-3 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all duration-500 active:scale-90 border border-slate-200 hover:border-indigo-200"
-                    title="Sync_Node"
+                    className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
                   >
                     <RefreshCw className="h-4 w-4" />
                   </button>
@@ -373,8 +303,7 @@ const ContentTab: React.FC<ContentTabProps> = ({
                       setEditingContent(item as any); 
                       setIsContentModalOpen(true); 
                     }}
-                    className="p-3 text-slate-500 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-500 active:scale-90 border border-slate-200 hover:border-white/20"
-                    title="Edit_Manifest"
+                    className="p-2 text-slate-400 hover:text-slate-600 hover:bg-gray-50 rounded-lg transition-all"
                   >
                     <Edit2 className="h-4 w-4" />
                   </button>
@@ -393,8 +322,7 @@ const ContentTab: React.FC<ContentTabProps> = ({
                         }
                       }
                     }}
-                    className="p-3 text-slate-700 hover:text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all duration-500 active:scale-90 border border-slate-200 hover:border-rose-500/30"
-                    title="Purge_Node"
+                    className="p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -425,12 +353,12 @@ const ContentTab: React.FC<ContentTabProps> = ({
             )
           ))}
         {content.length === 0 && (
-          <div className="col-span-full py-40 text-center animate-in fade-in duration-1000">
-            <div className="w-24 h-24 glass-dark rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 border border-slate-200">
-              <Youtube className="h-10 w-10 text-slate-800" />
+          <div className="col-span-full py-24 text-center">
+            <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-gray-100">
+              <Youtube className="h-8 w-8 text-slate-300" />
             </div>
-            <h3 className="text-xl font-black text-white uppercase tracking-[0.4em] italic">No_Asset_Nodes_Detected</h3>
-            <p className="text-sm text-slate-600 mt-3 font-medium">Initialize synchronization or deploy new assets.</p>
+            <h3 className="text-base font-black text-slate-900 uppercase tracking-tight">Sin contenido</h3>
+            <p className="text-sm text-slate-500 mt-1">Sincroniza o agrega contenido nuevo arriba.</p>
           </div>
         )}
       </div>
@@ -438,11 +366,10 @@ const ContentTab: React.FC<ContentTabProps> = ({
       <ViewsTrendModal 
         isOpen={isViewsModalOpen} 
         onClose={() => setIsViewsModalOpen(false)} 
-        content={filteredContent.filter(item => !deletedContentIds.includes(item.id))} 
+        content={activeContent} 
       />
     </div>
   );
 };
-
 
 export default ContentTab;

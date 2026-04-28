@@ -32,61 +32,57 @@ const FilterMenu: React.FC<FilterMenuProps> = ({
     <AnimatePresence>
       {isOpen && (
         <>
-          <div className="fixed inset-0 z-40 bg-slate-50/20 backdrop-blur-[2px]" onClick={onClose} />
+          <div className="fixed inset-0 z-40 bg-slate-900/5 backdrop-blur-[1px]" onClick={onClose} />
           <motion.div 
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            initial={{ opacity: 0, y: 8, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="absolute left-0 top-full mt-5 w-[360px] glass-dark rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.5)] border border-slate-200 p-8 z-50 space-y-8"
+            exit={{ opacity: 0, y: 8, scale: 0.98 }}
+            className="absolute left-0 top-full mt-3 w-80 bg-white rounded-2xl shadow-xl border border-gray-100 p-6 z-50 space-y-6"
           >
-            <div className="flex items-center justify-between mb-2">
-              <h4 className="text-[10px] font-black text-white uppercase tracking-[0.3em] italic">System_Configuration</h4>
-              <button onClick={() => resetFilters()} className="text-[10px] font-black text-indigo-600 uppercase hover:text-indigo-600 transition-colors tracking-widest underline decoration-emerald-500/30 underline-offset-4">Reset_All</button>
+            <div className="flex items-center justify-between">
+              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Configuración Filtros</h4>
+              <button onClick={() => resetFilters()} className="text-[10px] font-black text-indigo-600 uppercase hover:text-indigo-700 transition-colors tracking-widest underline underline-offset-4">Limpiar</button>
             </div>
 
-            <div className="space-y-6">
-              <div className="border-b border-slate-200 pb-4">
-                 <h5 className="text-[9px] font-black text-slate-500 uppercase tracking-[0.4em]">Global_Parameters</h5>
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest ml-1">Platform_Node</label>
-                <select value={platform} onChange={e => setFilter('platform', e.target.value)} className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 text-xs font-black text-white uppercase tracking-widest focus:border-emerald-500/50 outline-none transition-all cursor-pointer appearance-none">
-                  <option value="all">All_Networks</option>
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Plataforma</label>
+                <select value={platform} onChange={e => setFilter('platform', e.target.value)} className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-700 uppercase tracking-widest focus:border-indigo-300 outline-none transition-all cursor-pointer appearance-none">
+                  <option value="all">Todas</option>
                   <option value="tiktok">TikTok</option>
                   <option value="instagram">Instagram</option>
                   <option value="youtube">YouTube</option>
-                   <option value="stream">Streams</option>
+                  <option value="stream">Streams</option>
                   <option value="x">X / Twitter</option>
                   <option value="coinmarketcap">CoinMarketCap</option>
                 </select>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest ml-1">Operation_Context</label>
-                <select value={campaign} onChange={e => setFilter('campaign', e.target.value)} className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 text-xs font-black text-white uppercase tracking-widest focus:border-emerald-500/50 outline-none transition-all cursor-pointer appearance-none">
-                  <option value="all">All_Campaigns</option>
+              <div className="space-y-1.5">
+                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Campaña</label>
+                <select value={campaign} onChange={e => setFilter('campaign', e.target.value)} className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-700 uppercase tracking-widest focus:border-indigo-300 outline-none transition-all cursor-pointer appearance-none">
+                  <option value="all">Todas</option>
                   {campaigns.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest ml-1">Assigned_Agent</label>
-                <select value={creator} onChange={e => setFilter('creator', e.target.value)} className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 text-xs font-black text-white uppercase tracking-widest focus:border-emerald-500/50 outline-none transition-all cursor-pointer appearance-none">
-                  <option value="all">All_Personnel</option>
+              <div className="space-y-1.5">
+                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Creador / Agente</label>
+                <select value={creator} onChange={e => setFilter('creator', e.target.value)} className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-700 uppercase tracking-widest focus:border-indigo-300 outline-none transition-all cursor-pointer appearance-none">
+                  <option value="all">Todos</option>
                   
-                  <optgroup label="Network_Entities" className="bg-slate-50 text-slate-500">
+                  <optgroup label="Personal" className="bg-white text-slate-400">
                     {users.filter(u => u.role !== 'client').map(u => (
-                      <option key={u.id} value={u.id} className="text-white">
+                      <option key={u.id} value={u.id} className="text-slate-700">
                         {u.admin_alias || u.display_name || u.email.split('@')[0]} [{u.role.toUpperCase()}]
                       </option>
                     ))}
                   </optgroup>
 
                   {content.some(c => !c.creator_id && c.guest_name) && (
-                    <optgroup label="Guest_Artifacts" className="bg-slate-50 text-slate-500">
+                    <optgroup label="Invitados" className="bg-white text-slate-400">
                       {[...new Set(content.filter(c => !c.creator_id && c.guest_name).map(c => c.guest_name))].map(name => (
-                        <option key={name} value={`guest:${name}`} className="text-white">{name}</option>
+                        <option key={name} value={`guest:${name}`} className="text-slate-700">{name}</option>
                       ))}
                     </optgroup>
                   )}
@@ -94,14 +90,12 @@ const FilterMenu: React.FC<FilterMenuProps> = ({
               </div>
 
               {(activeTab === 'payments' || activeTab === 'team') && (
-                <div className="pt-6 border-t border-slate-200 mt-4 space-y-6">
-                   <h5 className="text-[9px] font-black text-slate-500 uppercase tracking-[0.4em] mb-2 italic">Tab_Specific_Rules</h5>
-                   
+                <div className="pt-4 border-t border-gray-50 mt-2 space-y-4">
                    {activeTab === 'payments' && (
-                    <div className="space-y-2">
-                      <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest ml-1">Billing_Cycle</label>
-                      <select value={pay_month} onChange={e => setFilter('pay_month', e.target.value)} className="w-full bg-indigo-50 border border-indigo-200 rounded-2xl px-5 py-4 text-xs font-black text-indigo-600 uppercase tracking-widest focus:border-emerald-500/50 outline-none transition-all cursor-pointer appearance-none">
-                        <option value="all">All_Cycles</option>
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Ciclo de Pago</label>
+                      <select value={pay_month} onChange={e => setFilter('pay_month', e.target.value)} className="w-full bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-2.5 text-xs font-bold text-indigo-600 uppercase tracking-widest focus:border-indigo-300 outline-none transition-all cursor-pointer appearance-none">
+                        <option value="all">Todos</option>
                         {[...new Set(payments.map(p => p.paid_at.substring(0, 7)))].sort().reverse().map(month => (
                           <option key={month} value={month}>{new Date(month + '-02').toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</option>
                         ))}
@@ -110,13 +104,13 @@ const FilterMenu: React.FC<FilterMenuProps> = ({
                    )}
 
                    {activeTab === 'team' && (
-                    <div className="space-y-2">
-                      <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest ml-1">Clearance_Level</label>
-                      <select value={team_role} onChange={e => setFilter('team_role', e.target.value)} className="w-full bg-cyan-500/10 border border-cyan-500/20 rounded-2xl px-5 py-4 text-xs font-black text-cyan-400 uppercase tracking-widest focus:border-cyan-500/50 outline-none transition-all cursor-pointer appearance-none">
-                        <option value="all">All_Levels</option>
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Rol / Nivel</label>
+                      <select value={team_role} onChange={e => setFilter('team_role', e.target.value)} className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-700 uppercase tracking-widest focus:border-indigo-300 outline-none transition-all cursor-pointer appearance-none">
+                        <option value="all">Todos</option>
                         <option value="staff">Staff (Admin/Manager)</option>
-                        <option value="creator">Field_Agents (Creators)</option>
-                        <option value="client">Client_Entitites</option>
+                        <option value="creator">Agentes (Creadores)</option>
+                        <option value="client">Clientes</option>
                       </select>
                     </div>
                    )}
