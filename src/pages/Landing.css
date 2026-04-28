@@ -2,203 +2,105 @@
 
 /* Sticky glass navbar */
 .glass-nav {
-  @apply sticky top-0 z-[100] w-full bg-slate-950/80 border-b border-emerald-500/10;
+  @apply sticky top-0 z-[100] w-full bg-[#030711]/80 border-b border-white/5 backdrop-blur-xl;
   transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* Base Container */
 .landing-container {
-  @apply min-h-screen bg-slate-950 text-white overflow-x-hidden relative font-sans;
-  background: #020617;
+  @apply min-h-screen bg-[#030711] text-white overflow-x-hidden relative font-sans;
 }
 
 /* Premium Grain Texture */
 .grain-overlay {
-  @apply fixed inset-0 z-[5] pointer-events-none opacity-[0.03];
+  @apply fixed inset-0 z-[5] pointer-events-none opacity-[0.04];
   background-image: url('https://www.transparenttextures.com/patterns/stardust.png');
 }
 
-/* Enhanced Nebula System */
-@keyframes nebula-drift {
-  0% { transform: translate(0, 0) scale(1); opacity: 0.3; }
-  33% { transform: translate(3%, 3%) scale(1.05); opacity: 0.4; }
-  66% { transform: translate(-3%, 6%) scale(0.95); opacity: 0.2; }
-  100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+/* Hero Styles */
+.hero-bg-visual {
+  @apply absolute inset-0 z-0 opacity-40;
+  mask-image: radial-gradient(circle at 50% 50%, black 20%, transparent 80%);
 }
 
-.nebula-glow {
-  @apply absolute rounded-full blur-[160px] pointer-events-none mix-blend-screen overflow-hidden;
-  animation: nebula-drift 30s ease-in-out infinite;
+.hero-title {
+  @apply text-[6rem] md:text-[12rem] font-black uppercase tracking-tighter leading-[0.8] text-white;
+  filter: drop-shadow(0 0 30px rgba(16, 185, 129, 0.1));
 }
 
-/* Premium Typography */
-.hero-text {
-  @apply text-5xl lg:text-7xl font-black tracking-tighter leading-[1.1] transition-all duration-700 uppercase;
-  background: linear-gradient(to bottom, #fff 70%, rgba(255,255,255,0.2));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.gradient-text {
-  @apply bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-500 bg-clip-text text-transparent;
-  background-size: 200% 200%;
-}
-
-/* Hero Split Layout */
-.hero-split-layout {
-  @apply min-h-[90vh] flex items-center pt-24 pb-20 px-6;
-}
-
-.hero-visual-element {
-  @apply relative w-full aspect-square max-w-lg mx-auto;
-}
-
-.data-prism {
-  @apply absolute inset-0 border border-white/5 rounded-[4rem] transition-all duration-1000;
-  background: radial-gradient(circle at center, rgba(16, 185, 129, 0.05) 0%, transparent 70%);
-}
-
-/* Premium Card Refinement */
-.premium-card {
-  @apply relative p-12 rounded-[4rem] bg-indigo-500/[0.02] border border-white/5 backdrop-blur-3xl transition-all duration-1000 overflow-hidden;
-  box-shadow: 0 40px 100px -30px rgba(0, 0, 0, 0.8);
-}
-
-.premium-card:hover {
-  @apply border-emerald-500/20 -translate-y-2 bg-emerald-500/[0.03];
-  box-shadow: 0 60px 120px -40px rgba(16, 185, 129, 0.15);
-}
-
-/* Stats Styling */
-.stat-container {
-  @apply py-20 bg-slate-900/20;
-}
-
-.stat-value {
-  @apply text-7xl lg:text-9xl font-black text-white tracking-tighter;
-}
-.stat-label {
-  @apply text-[10px] font-black uppercase tracking-[0.6em] text-emerald-400/50 mt-4;
-}
-
-/* Asymmetric Bento Leadership */
-.leadership-bento {
+/* Bento Protocol Grid */
+.bento-protocol-grid {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
-  gap: 2rem;
+  grid-template-rows: repeat(2, 1fr);
+  gap: 1.5rem;
+  width: 100%;
 }
 
-.founder-card-large {
-  grid-column: span 8;
+.bento-node {
+  @apply relative rounded-[3rem] bg-white/[0.02] border border-white/5 backdrop-blur-3xl overflow-hidden transition-all duration-700 flex flex-col p-8;
 }
 
-.founder-card-small {
-  grid-column: span 4;
+.bento-node:hover {
+  @apply border-emerald-500/20 bg-emerald-500/[0.02] -translate-y-1;
+  box-shadow: 0 40px 100px -30px rgba(16, 185, 129, 0.1);
 }
 
-@media (max-width: 1024px) {
-  .founder-card-large, .founder-card-small {
-    grid-column: span 12;
-  }
-}
-
-.founder-img-wrapper {
-  @apply relative aspect-[4/5] overflow-hidden rounded-[3.5rem] mb-8 grayscale hover:grayscale-0 transition-all duration-1000;
-}
-
-.founder-img-wrapper img {
-  @apply w-full h-full object-cover scale-[1.01] transition-transform duration-1000;
-}
-
-.founder-img-wrapper:hover img {
-  @apply scale-105;
-}
-
-/* Creator Carousel */
-.creator-carousel-container {
-  @apply w-full overflow-hidden py-24 px-4;
-  mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
-}
-
-.creator-track {
-  @apply flex gap-12;
-  width: max-content;
-}
-
-.creator-card-premium {
-  @apply relative w-80 h-[28rem] rounded-[4rem] overflow-hidden border border-white/5 transition-all duration-1000 bg-slate-900;
-  box-shadow: 0 50px 100px -30px rgba(0, 0, 0, 0.9);
-}
-
-/* Section Labels */
-.section-label {
-  @apply px-5 py-2 bg-emerald-600/5 border border-emerald-500/10 rounded-full text-[9px] font-black uppercase tracking-[0.5em] text-emerald-400 mb-10 inline-block;
-}
-
-/* Method Bento Grid Redesign */
-.method-bento {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 2rem;
-}
-
-.method-card-large {
-  grid-column: span 8;
-  @apply relative p-12 rounded-[3.5rem] bg-slate-900/80 border border-white/5 backdrop-blur-2xl transition-all duration-1000 overflow-hidden min-h-[420px] flex flex-col justify-between;
-  box-shadow: 0 40px 100px -30px rgba(0, 0, 0, 0.8);
-}
-
-.method-card-small {
-  grid-column: span 4;
-  @apply relative p-10 rounded-[3.5rem] bg-slate-900/80 border border-white/5 backdrop-blur-2xl transition-all duration-1000 overflow-hidden min-h-[420px] flex flex-col justify-between;
-  box-shadow: 0 40px 100px -30px rgba(0, 0, 0, 0.8);
-}
+.node-large { grid-column: span 8; }
+.node-small { grid-column: span 4; }
 
 @media (max-width: 1024px) {
-  .method-card-large, .method-card-small {
-    grid-column: span 12;
-  }
+  .node-large, .node-small { grid-column: span 12; }
 }
 
-.method-card-large:hover, .method-card-small:hover {
-  @apply -translate-y-2;
-  box-shadow: 0 60px 120px -40px rgba(0, 0, 0, 0.4);
+/* Node Icons & Accents */
+.node-icon-wrapper {
+  @apply w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-6 transition-all duration-500;
 }
 
-.card-theme-cyan:hover { @apply border-cyan-500/30 bg-cyan-500/[0.02]; }
-.card-theme-purple:hover { @apply border-purple-500/30 bg-purple-500/[0.02]; }
-.card-theme-emerald:hover { @apply border-emerald-500/30 bg-emerald-500/[0.02]; }
-
-/* Strategy Modal Styles */
-.strategy-modal-overlay {
-  @apply fixed inset-0 z-[150] flex items-center justify-center p-6 bg-slate-950/80 backdrop-blur-xl;
+.bento-node:hover .node-icon-wrapper {
+  @apply bg-emerald-500/10 border-emerald-500/20 scale-110;
 }
 
-.strategy-modal-content {
-  @apply relative w-full max-w-2xl bg-slate-900 border border-emerald-500/20 rounded-[3rem] p-12 shadow-2xl overflow-hidden;
+/* Interactive Elements inside Nodes */
+.data-node-viz {
+  @apply relative w-full h-40 bg-slate-950/50 rounded-2xl border border-white/5 mt-auto overflow-hidden;
 }
 
-/* Micro-visualizations Animations */
-@keyframes pulse-scan {
-  0% { transform: translateY(-100%); opacity: 0; }
-  50% { opacity: 0.5; }
-  100% { transform: translateY(100%); opacity: 0; }
+.pulse-line {
+  @apply absolute h-[1px] w-full bg-gradient-to-r from-transparent via-emerald-500 to-transparent opacity-20;
+  animation: pulse-move 4s linear infinite;
 }
 
-.data-scanner-line {
-  @apply absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-emerald-500 to-transparent;
-  animation: pulse-scan 3s ease-in-out infinite;
+@keyframes pulse-move {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(400%); }
 }
 
-@keyframes bar-grow {
-  0% { height: 10%; opacity: 0.5; }
-  50% { height: 90%; opacity: 1; }
-  100% { height: 10%; opacity: 0.5; }
+/* Glass Utility */
+.glass-panel {
+  @apply bg-white/[0.03] border border-white/10 backdrop-blur-2xl rounded-[2.5rem] p-8;
 }
 
-.fake-bar {
-  @apply w-full bg-emerald-500/20 rounded-t-sm transition-all duration-700;
+/* Animations */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
 }
-.method-card-small:hover .fake-bar {
-  @apply bg-emerald-500/40 shadow-[0_0_15px_rgba(16,185,129,0.3)];
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+.glow-emerald {
+  box-shadow: 0 0 50px -10px rgba(16, 185, 129, 0.3);
+}
+
+/* Section Transitions */
+.reveal-on-scroll {
+  @apply opacity-0 translate-y-10 transition-all duration-1000 ease-out;
+}
+
+.reveal-on-scroll.active {
+  @apply opacity-100 translate-y-0;
 }
