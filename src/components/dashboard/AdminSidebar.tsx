@@ -25,30 +25,27 @@ const SUPERADMIN_EMAIL = 'cabscryptocontacto@gmail.com';
 const AdminSidebar = React.memo(({ activeTab, setActiveTab, resetFilters, user }: AdminSidebarProps) => {
   const displayItems = React.useMemo(() => {
     if (user?.email === SUPERADMIN_EMAIL) {
-      return [...sidebarItems, { id: 'scraper', label: 'Nodes_Health', icon: ShieldCheck }];
+      return [...sidebarItems, { id: 'scraper', label: 'Salud Logs', icon: ShieldCheck }];
     }
     return sidebarItems;
   }, [user]);
 
   return (
     <>
-      <aside className="w-80 glass-dark border-r border-slate-200 p-10 hidden lg:flex flex-col h-screen sticky top-0">
+      <aside className="w-72 bg-white border-r border-gray-100 p-8 hidden lg:flex flex-col h-screen sticky top-0">
         <div 
           onClick={() => resetFilters({ tab: 'overview' } as any)}
-          className="flex items-center gap-4 mb-14 cursor-pointer group"
+          className="flex items-center gap-3 px-2 mb-10 cursor-pointer group active:scale-95 transition-all"
         >
-          <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-2xl group-hover:rotate-[15deg] transition-all duration-500 group-hover:scale-110">
-            <Sparkles className="text-slate-950 h-6 w-6" />
+          <div className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-100 group-hover:rotate-12 transition-transform">
+            <Sparkles className="text-white h-5 w-5" />
           </div>
-          <div className="flex flex-col">
-            <span className="text-2xl font-black text-white tracking-tighter uppercase leading-none group-hover:text-indigo-600 transition-colors">
-              Umbra_<span className="text-indigo-600">Node</span>
-            </span>
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] mt-1">Admin_Protocol</span>
-          </div>
+          <span className="text-xl font-black text-gray-900 tracking-tighter group-hover:text-indigo-600 transition-colors">
+            Umbra <span className="text-indigo-600 group-hover:text-indigo-700">Admin</span>
+          </span>
         </div>
 
-        <nav className="space-y-3 flex-1 overflow-y-auto no-scrollbar pr-2">
+        <nav className="space-y-2 flex-1 overflow-y-auto no-scrollbar pr-2">
           {displayItems.map(item => (
             <button
               key={item.id}
@@ -61,34 +58,34 @@ const AdminSidebar = React.memo(({ activeTab, setActiveTab, resetFilters, user }
                   setActiveTab(item.id);
                 }
               }}
-              className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 group ${
+              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-black uppercase tracking-widest transition-all ${
                 activeTab === item.id 
-                  ? 'bg-emerald-600 text-white shadow-2xl shadow-emerald-600/20 scale-105 border border-slate-200' 
-                  : 'text-slate-500 hover:text-white hover:bg-white/5 border border-transparent'
+                  ? 'bg-indigo-50 text-indigo-600 shadow-sm' 
+                  : 'text-gray-400 hover:bg-gray-50 hover:text-gray-600'
               }`}
             >
-              <item.icon className={`h-4 w-4 transition-transform duration-500 ${activeTab === item.id ? 'scale-110' : 'group-hover:scale-125'}`} />
+              <item.icon className="h-4 w-4" />
               {item.label}
             </button>
           ))}
         </nav>
 
-        <div className="mt-10 pt-10 border-t border-slate-200">
-          <div className="flex items-center gap-4 p-4 rounded-3xl bg-white border border-slate-200">
-            <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center border border-indigo-200">
-              <UserCircle className="h-6 w-6 text-indigo-600" />
+        <div className="mt-8 pt-8 border-t border-gray-100">
+          <div className="flex items-center gap-3 p-3 rounded-2xl bg-gray-50 border border-gray-100">
+            <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center border border-indigo-200">
+              <UserCircle className="h-5 w-5 text-indigo-600" />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] font-black text-white truncate uppercase tracking-widest">{user?.email?.split('@')[0] || 'Admin'}</p>
-              <p className="text-[8px] font-bold text-slate-500 uppercase tracking-widest">Master_Access</p>
+              <p className="text-xs font-black text-gray-900 truncate uppercase tracking-wider">{user?.email?.split('@')[0] || 'Admin'}</p>
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Protocolo_Admin</p>
             </div>
           </div>
         </div>
       </aside>
 
       {/* Mobile Bottom Navigation */}
-      <div className="lg:hidden fixed bottom-6 left-4 right-4 z-[60] pointer-events-none">
-        <div className="bg-white backdrop-blur-2xl border border-slate-200 shadow-[0_32px_64px_rgba(0,0,0,0.5)] rounded-[2.5rem] p-3 flex items-center justify-between pointer-events-auto overflow-x-auto no-scrollbar gap-2">
+      <div className="lg:hidden fixed bottom-1 left-0 right-0 z-[60] px-4 pb-4 pt-2 pointer-events-none">
+        <div className="bg-white/90 backdrop-blur-xl border border-gray-100 shadow-2xl rounded-[2rem] p-2 flex items-center justify-between pointer-events-auto">
           {displayItems.map(item => (
             <button
               key={item.id}
@@ -102,14 +99,14 @@ const AdminSidebar = React.memo(({ activeTab, setActiveTab, resetFilters, user }
                 }
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className={`flex-none flex flex-col items-center justify-center min-w-[70px] py-3 px-2 rounded-2xl transition-all duration-500 ${
+              className={`flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-2xl transition-all ${
                 activeTab === item.id 
-                  ? 'bg-emerald-600 text-white shadow-2xl scale-105' 
-                  : 'text-slate-500 hover:text-white'
+                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' 
+                  : 'text-gray-400 hover:text-gray-600'
               }`}
             >
-              <item.icon className={`h-5 w-5 mb-1.5 ${activeTab === item.id ? 'animate-in zoom-in duration-500' : ''}`} />
-              <span className="text-[8px] font-black uppercase tracking-tighter truncate px-1">
+              <item.icon className={`h-5 w-5 ${activeTab === item.id ? 'animate-in zoom-in-75 duration-300 mb-0.5' : 'mb-0.5'}`} />
+              <span className="text-[8px] font-black uppercase tracking-tighter mt-0.5 block w-full text-center truncate px-0.5">
                 {item.label}
               </span>
             </button>
