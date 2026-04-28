@@ -25,21 +25,22 @@ const CreatorsTab = React.memo(({
   isLoading
 }: CreatorsTabProps) => {
   return (
-    <div className="space-y-12">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-1000">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-4">
         <div className="relative flex-1 max-w-2xl group">
-          <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 transition-all duration-300 relative z-10" />
+          <div className="absolute inset-0 bg-indigo-600/5 blur-2xl group-focus-within:bg-indigo-50 transition-all duration-700" />
+          <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 group-focus-within:text-indigo-600 transition-all duration-500 relative z-10" />
           <input 
             type="text" 
-            placeholder="Buscar creadores..." 
-            className="w-full pl-16 pr-8 py-5 rounded-2xl bg-white border border-gray-200 text-base font-medium tracking-wide placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none relative z-10 text-slate-900 shadow-sm" 
+            placeholder="Search_Agents_Database..." 
+            className="w-full pl-16 pr-8 py-6 rounded-[2rem] glass-dark border border-slate-200 text-lg font-black uppercase tracking-[0.2em] placeholder:text-slate-600 focus:border-indigo-200 focus:shadow-[0_0_40px_rgba(16,185,129,0.1)] transition-all outline-none relative z-10 text-white italic" 
             value={searchTerm} 
             onChange={e => setFilter('search', e.target.value)} 
           />
         </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 sm:gap-10">
         {isLoading ? (
           <>
             <CardSkeleton />

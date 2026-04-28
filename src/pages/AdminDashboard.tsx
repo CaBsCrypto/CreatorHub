@@ -46,13 +46,10 @@ const ScraperLogsTab = React.lazy(() => import('../components/dashboard/ScraperL
 const TabLoader = () => (
   <div className="flex flex-col items-center justify-center py-40 gap-6">
     <div className="relative">
-      <div className="w-16 h-16 rounded-full border-2 border-indigo-50 border-t-indigo-600 animate-spin" />
-      <div className="absolute inset-0 bg-indigo-500/5 blur-2xl animate-pulse" />
+      <div className="w-16 h-16 rounded-full border-2 border-indigo-100 border-t-emerald-500 animate-spin" />
+      <div className="absolute inset-0 bg-indigo-100 blur-2xl animate-pulse" />
     </div>
-    <div className="flex flex-col items-center gap-1">
-      <p className="text-[10px] font-black text-slate-900 uppercase tracking-[0.4em] animate-pulse">Sincronizando</p>
-      <div className="h-[1px] w-8 bg-indigo-600/30 animate-pulse" />
-    </div>
+    <p className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.5em] animate-pulse italic">Synchronizing_Nodes...</p>
   </div>
 );
 

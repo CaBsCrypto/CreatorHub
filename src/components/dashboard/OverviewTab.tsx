@@ -51,8 +51,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
   })), [filteredContent]);
 
   return (
-    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-1000">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
         {isLoading ? (
           <>
             <StatsSkeleton />
@@ -67,14 +67,14 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               value={metrics.totalViews.toLocaleString()} 
               trend={metrics.viewsTrend || undefined} 
               icon={TrendingUp} 
-              color="from-indigo-600 to-indigo-700"
+              color="from-emerald-500 to-emerald-600"
               onClick={() => setActiveTab('content')} 
             />
             <AdminMetricCard 
               title="Creadores" 
               value={metrics.activeCreators} 
               icon={Users} 
-              color="from-blue-600 to-blue-700"
+              color="from-cyan-500 to-blue-600"
               onClick={() => setActiveTab('creators')} 
             />
             <AdminMetricCard 
@@ -82,7 +82,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               value={metrics.totalPosts.toLocaleString()} 
               trend={metrics.postsTrend || undefined} 
               icon={List} 
-              color="from-emerald-600 to-emerald-700"
+              color="from-emerald-400 to-emerald-500"
               onClick={() => setActiveTab('content')} 
             />
             <AdminMetricCard 
@@ -96,18 +96,19 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-white p-8 rounded-[2rem] border border-gray-100 relative overflow-hidden group shadow-sm">
-          <h3 className="text-xl font-black text-gray-900 mb-8 flex items-center gap-3 uppercase tracking-widest relative z-10 italic">
-            <BarChart3 className="h-6 w-6 text-indigo-600" /> Distribución por Plataforma
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <div className="glass-dark p-10 rounded-[3rem] border border-slate-200 relative overflow-hidden group">
+          <div className="absolute -right-20 -top-20 w-64 h-64 bg-indigo-600/5 rounded-full blur-3xl group-hover:bg-indigo-50 transition-all duration-1000" />
+          <h3 className="text-xl font-black text-white mb-10 flex items-center gap-3 uppercase tracking-widest relative z-10 italic">
+            <BarChart3 className="h-6 w-6 text-indigo-600" /> Platform_Distribution
           </h3>
-          <div className="h-[280px] relative z-10">
+          <div className="h-[300px] relative z-10">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={platformCount}
-                  innerRadius={70} 
-                  outerRadius={100} 
+                  innerRadius={80} 
+                  outerRadius={110} 
                   paddingAngle={8} 
                   dataKey="value"
                   stroke="none"
@@ -119,18 +120,18 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   }}
                 >
                   {platformCount.map((entry, i) => (
-                    <Cell key={i} fill={PLATFORM_COLORS[entry.id]} className="cursor-pointer hover:opacity-80 transition-all" />
+                    <Cell key={i} fill={PLATFORM_COLORS[entry.id]} className="cursor-pointer hover:opacity-80 transition-all duration-500" />
                   ))}
                 </Pie>
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#fff', border: '1px solid #f1f5f9', borderRadius: '1rem', shadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                  itemStyle={{ color: '#0f172a', fontWeight: 'bold', textTransform: 'uppercase', fontSize: '10px' }}
+                  contentStyle={{ backgroundColor: 'rgba(2, 6, 23, 0.95)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '1.5rem', backdropFilter: 'blur(10px)', color: 'white' }}
+                  itemStyle={{ color: 'white', fontWeight: 'bold', textTransform: 'uppercase', fontSize: '10px' }}
                 />
               </PieChart>
             </ResponsiveContainer>
           </div>
 
-          <div className="mt-8 grid grid-cols-2 gap-3 relative z-10">
+          <div className="mt-10 grid grid-cols-2 gap-4 relative z-10">
             {[...platformCount].sort((a, b) => b.value - a.value).map((item) => (
               <button 
                 key={item.id} 
@@ -138,30 +139,31 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   setFilter('platform', item.id);
                   setActiveTab('content');
                 }}
-                className="flex items-center justify-between p-3.5 bg-gray-50 hover:bg-white rounded-xl border border-gray-100 hover:border-indigo-100 transition-all group/item shadow-sm hover:shadow-md"
+                className="flex items-center justify-between p-4 bg-white hover:bg-slate-800 rounded-2xl border border-slate-200 transition-all duration-300 group/item"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: PLATFORM_COLORS[item.id] || '#cbd5e1' }} />
-                  <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest group-hover/item:text-indigo-600 transition-colors">{item.name}</span>
+                  <div className="w-2.5 h-2.5 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.2)]" style={{ backgroundColor: PLATFORM_COLORS[item.id] || '#cbd5e1' }} />
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest group-hover/item:text-white transition-colors">{item.name}</span>
                 </div>
-                <span className="text-xs font-black text-gray-900 tabular-nums">{item.value.toLocaleString()}</span>
+                <span className="text-xs font-black text-white tabular-nums">{item.value.toLocaleString()}</span>
               </button>
             ))}
           </div>
         </div>
 
-        <div className="bg-white p-8 rounded-[2rem] border border-gray-100 relative overflow-hidden group shadow-sm">
-          <h3 className="text-xl font-black text-gray-900 mb-8 flex items-center gap-3 uppercase tracking-widest relative z-10 italic">
-            <BarChart3 className="h-6 w-6 text-indigo-600" /> Análisis de Vistas
+        <div className="glass-dark p-10 rounded-[3rem] border border-slate-200 relative overflow-hidden group">
+          <div className="absolute -left-20 -bottom-20 w-64 h-64 bg-indigo-600/5 rounded-full blur-3xl group-hover:bg-indigo-50 transition-all duration-1000" />
+          <h3 className="text-xl font-black text-white mb-10 flex items-center gap-3 uppercase tracking-widest relative z-10 italic">
+            <BarChart3 className="h-6 w-6 text-indigo-600" /> View_Metrics_Analysis
           </h3>
           
-          <div className="h-[280px] relative z-10">
+          <div className="h-[300px] relative z-10">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={platformViews}
-                  innerRadius={70} 
-                  outerRadius={100} 
+                  innerRadius={80} 
+                  outerRadius={110} 
                   paddingAngle={8} 
                   dataKey="value"
                   stroke="none"
@@ -173,19 +175,19 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   }}
                 >
                   {platformViews.map((entry, i) => (
-                    <Cell key={i} fill={PLATFORM_COLORS[entry.id] || '#cbd5e1'} className="cursor-pointer hover:opacity-80 transition-all" />
+                    <Cell key={i} fill={PLATFORM_COLORS[entry.id] || '#cbd5e1'} className="cursor-pointer hover:opacity-80 transition-all duration-500" />
                   ))}
                 </Pie>
                 <Tooltip 
-                  formatter={(value: number) => [value.toLocaleString() + ' vistas', 'Métrica']}
-                  contentStyle={{ backgroundColor: '#fff', border: '1px solid #f1f5f9', borderRadius: '1rem', shadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                  itemStyle={{ color: '#0f172a', fontWeight: 'bold', textTransform: 'uppercase', fontSize: '10px' }}
+                  formatter={(value: number) => [value.toLocaleString() + ' views', 'Metric']}
+                  contentStyle={{ backgroundColor: 'rgba(2, 6, 23, 0.95)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '1.5rem', backdropFilter: 'blur(10px)', color: 'white' }}
+                  itemStyle={{ color: 'white', fontWeight: 'bold', textTransform: 'uppercase', fontSize: '10px' }}
                 />
               </PieChart>
             </ResponsiveContainer>
           </div>
 
-          <div className="mt-8 grid grid-cols-2 gap-3 relative z-10">
+          <div className="mt-10 grid grid-cols-2 gap-4 relative z-10">
             {[...platformViews].sort((a, b) => b.value - a.value).map(({ id: platform, value: views }) => (
               <button 
                 key={platform} 
@@ -193,13 +195,13 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   setFilter('platform', platform);
                   setActiveTab('content');
                 }}
-                className="flex items-center justify-between p-3.5 bg-gray-50 hover:bg-white rounded-xl border border-gray-100 hover:border-indigo-100 transition-all group/item shadow-sm hover:shadow-md"
+                className="flex items-center justify-between p-4 bg-white hover:bg-slate-800 rounded-2xl border border-slate-200 transition-all duration-300 group/item"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: PLATFORM_COLORS[platform] || '#cbd5e1' }} />
-                  <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest group-hover/item:text-indigo-600 transition-colors">{platform}</span>
+                  <div className="w-2.5 h-2.5 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.2)]" style={{ backgroundColor: PLATFORM_COLORS[platform] || '#cbd5e1' }} />
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest group-hover/item:text-white transition-colors">{platform}</span>
                 </div>
-                <span className="text-xs font-black text-gray-900 tabular-nums">{views.toLocaleString()}</span>
+                <span className="text-xs font-black text-white tabular-nums">{views.toLocaleString()}</span>
               </button>
             ))}
           </div>
@@ -207,6 +209,6 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
       </div>
     </div>
   );
-};;
+};
 
 export default OverviewTab;

@@ -43,45 +43,50 @@ const CampaignCard = React.memo(({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -5 }}
-      className={`group relative bg-white rounded-[2rem] shadow-sm transition-all duration-300 border ${
-        isAssigned ? 'border-indigo-100' : 'border-gray-100'
-      } hover:border-indigo-200 hover:shadow-xl flex flex-col overflow-hidden`}
+      className={`group relative glass-dark rounded-[2.5rem] shadow-2xl transition-all duration-500 border ${
+        isAssigned ? 'border-indigo-200' : 'border-slate-200'
+      } hover:border-emerald-500/40 flex flex-col overflow-hidden`}
       onClick={() => onClick?.(campaign.id)}
       style={{ cursor: onClick ? 'pointer' : 'default' }}
     >
-      <div className="absolute -right-16 -top-16 w-32 h-32 bg-indigo-50/50 rounded-full blur-3xl group-hover:bg-indigo-100/50 transition-all duration-700" />
+      {/* Decorative Glow */}
+      <div className="absolute -right-16 -top-16 w-32 h-32 bg-indigo-600/5 rounded-full blur-3xl group-hover:bg-indigo-50 transition-all duration-1000" />
 
+      {/* Edit / Delete Actions */}
       {role === 'admin' && (
         <div className="absolute top-6 right-6 flex gap-2 z-10">
           <button
             onClick={(e) => { e.stopPropagation(); onEdit(campaign.id); }}
-            className="p-2.5 rounded-xl bg-white text-slate-400 hover:text-indigo-600 border border-gray-100 hover:border-indigo-200 transition-all opacity-0 group-hover:opacity-100 shadow-sm"
+            className="p-2.5 rounded-xl bg-white text-slate-500 hover:text-indigo-600 border border-slate-200 hover:border-indigo-200 transition-all opacity-0 group-hover:opacity-100"
           >
             <Edit2 className="h-3.5 w-3.5" />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); onDelete(campaign.id); }}
-            className="p-2.5 rounded-xl bg-white text-slate-400 hover:text-rose-500 border border-gray-100 hover:border-rose-200 transition-all opacity-0 group-hover:opacity-100 shadow-sm"
+            className="p-2.5 rounded-xl bg-white text-slate-500 hover:text-rose-500 border border-slate-200 hover:border-rose-500/30 transition-all opacity-0 group-hover:opacity-100"
           >
             <Trash2 className="h-3.5 w-3.5" />
           </button>
         </div>
       )}
 
+      {/* Body Content */}
       <div className="flex flex-col flex-1 p-8">
+
+        {/* Row 1: Badges */}
         <div className="flex items-center gap-3 mb-6 pr-20 flex-wrap">
-          <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest flex-shrink-0 border ${
+          <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] flex-shrink-0 border ${
             campaign.status === 'active'
-              ? 'bg-indigo-50 text-indigo-600 border-indigo-100'
-              : 'bg-gray-50 text-slate-400 border-gray-100'
+              ? 'bg-indigo-50 text-indigo-600 border-indigo-200'
+              : 'bg-white text-slate-500 border-slate-200'
           }`}>
-            {campaign.status === 'active' ? 'Activa' : 'Borrador'}
+            {campaign.status === 'active' ? 'Active_Node' : 'Draft_Node'}
           </span>
 
           {onCopyLink && campaign.slug && (
             <button
               onClick={(e) => { e.stopPropagation(); onCopyLink(campaign.slug!, e, 'slug'); }}
-              className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 hover:bg-white border border-gray-100 rounded-full text-[9px] font-black text-slate-500 uppercase tracking-widest transition-all"
+              className="flex items-center gap-2 px-3 py-1.5 bg-white hover:bg-slate-800 border border-slate-200 rounded-full text-[9px] font-black text-slate-500 uppercase tracking-widest transition-all"
             >
               <Zap className="h-3 w-3 text-indigo-600" />
               {campaign.slug}
@@ -89,26 +94,43 @@ const CampaignCard = React.memo(({
           )}
 
           {isAssigned && (
-            <span className="px-4 py-1.5 bg-emerald-600 text-white rounded-full text-[9px] font-black uppercase tracking-widest shadow-md border border-emerald-500">
-              Asignada
+            <span className="px-4 py-1.5 bg-emerald-600 text-white rounded-full text-[9px] font-black uppercase tracking-[0.2em] shadow-xl shadow-emerald-900/20 border border-white/20 animate-in zoom-in duration-500">
+              Personal_Target
             </span>
+          )}
+
+          {role === 'admin' && campaign.notes && (
+            <button
+              onClick={(e) => { e.stopPropagation(); setShowNotes(!showNotes); }}
+              className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all border ${
+                showNotes 
+                  ? 'bg-white text-slate-950 border-white' 
+                  : 'bg-white text-slate-500 border-slate-200 hover:border-white/20'
+              }`}
+            >
+              <StickyNote className="h-3 w-3" />
+              Protocol_Notes
+            </button>
           )}
         </div>
 
-        <div className="flex items-center gap-2 text-slate-400 mb-4 italic">
+        {/* Date Context */}
+        <div className="flex items-center gap-2 text-slate-500 mb-4 italic">
           <Calendar className="h-3 w-3" />
-          <span className="text-[9px] font-bold uppercase tracking-widest">
-            {campaign.created_at ? format(new Date(campaign.created_at), 'MMM d, yyyy') : 'Sin fecha'}
+          <span className="text-[9px] font-bold uppercase tracking-[0.2em]">
+            {campaign.created_at ? format(new Date(campaign.created_at), 'MMM d, yyyy') : 'NO_TIMESTAMP'}
           </span>
         </div>
 
-        <h3 className="text-2xl font-black text-slate-900 mb-3 leading-tight tracking-tighter uppercase group-hover:text-indigo-600 transition-colors line-clamp-2">
+        {/* Title & Description */}
+        <h3 className="text-2xl font-black text-white mb-3 leading-tight tracking-tighter uppercase group-hover:text-indigo-600 transition-colors line-clamp-2">
           {campaign.name}
         </h3>
         <p className="text-sm text-slate-500 font-medium line-clamp-2 leading-relaxed mb-8 italic">
-          {campaign.description || 'Sin descripción'}
+          {campaign.description || 'Null_Description_Protocol'}
         </p>
 
+        {/* Expandable Notes */}
         <AnimatePresence>
           {role === 'admin' && showNotes && campaign.notes && (
             <motion.div
@@ -117,13 +139,13 @@ const CampaignCard = React.memo(({
               exit={{ height: 0, opacity: 0 }}
               className="overflow-hidden mb-8"
             >
-              <div className="p-6 bg-gray-50 rounded-[2rem] border border-gray-100 relative group/note shadow-inner">
+              <div className="p-6 bg-slate-50/50 rounded-[2rem] border border-slate-200 relative group/note shadow-inner">
                 <div className="absolute top-4 right-4 flex items-center gap-2">
-                  <button onClick={(e) => { e.stopPropagation(); onEditNotes?.(campaign); }} className="p-2 text-slate-400 hover:text-indigo-600 transition-colors"><Maximize2 className="h-3.5 w-3.5" /></button>
-                  <button onClick={(e) => { e.stopPropagation(); onClearNote?.(campaign.id); }} className="p-2 text-slate-400 hover:text-rose-500 transition-colors"><Trash2 className="h-3.5 w-3.5" /></button>
+                  <button onClick={(e) => { e.stopPropagation(); onEditNotes?.(campaign); }} className="p-2 text-slate-600 hover:text-white transition-colors"><Maximize2 className="h-3.5 w-3.5" /></button>
+                  <button onClick={(e) => { e.stopPropagation(); onClearNote?.(campaign.id); }} className="p-2 text-slate-600 hover:text-rose-500 transition-colors"><Trash2 className="h-3.5 w-3.5" /></button>
                 </div>
                 <h4 className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.4em] mb-3 flex items-center gap-2 italic">
-                  <StickyNote className="h-3.5 w-3.5" /> Notas Internas
+                  <StickyNote className="h-3.5 w-3.5" /> Internal_Directives
                 </h4>
                 <div className="text-sm text-slate-700 font-medium leading-relaxed whitespace-pre-wrap break-words max-h-40 overflow-y-auto pr-2 custom-scrollbar">
                   {campaign.notes}
@@ -133,46 +155,48 @@ const CampaignCard = React.memo(({
           )}
         </AnimatePresence>
 
+        {/* Metrics Grid */}
         <div className="mt-auto space-y-3 mb-8">
-          <div className="flex items-center justify-between bg-gray-50/50 rounded-2xl px-5 py-4 border border-gray-100 group-hover:border-indigo-100 transition-all">
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Impacto Total</span>
-            <span className="text-xl font-black text-slate-900 tabular-nums tracking-tighter">
+          <div className="flex items-center justify-between bg-slate-50/30 rounded-2xl px-5 py-4 border border-slate-200 group-hover:border-indigo-200 transition-all duration-500">
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Total_Impact</span>
+            <span className="text-xl font-black text-white tabular-nums tracking-tighter">
               {totalViews.toLocaleString()}
             </span>
           </div>
-          <div className="flex items-center justify-between bg-gray-50/50 rounded-2xl px-5 py-4 border border-gray-100 group-hover:border-indigo-100 transition-all">
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Contenidos</span>
+          <div className="flex items-center justify-between bg-slate-50/30 rounded-2xl px-5 py-4 border border-slate-200 group-hover:border-indigo-200 transition-all duration-500">
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Content_Nodes</span>
             <span className="text-xl font-black text-indigo-600 tabular-nums tracking-tighter">
               {totalPosts}
             </span>
           </div>
-          <div className={`flex items-center justify-between rounded-2xl px-5 py-4 border transition-all ${
-            role === 'admin' ? 'bg-slate-900 border-slate-800' : 'bg-indigo-50 border-indigo-100'
+          <div className={`flex items-center justify-between rounded-2xl px-5 py-4 border transition-all duration-500 ${
+            role === 'admin' ? 'bg-emerald-600 border-white/20' : 'bg-white border-slate-200'
           }`}>
-            <span className={`text-[10px] font-black uppercase tracking-widest ${role === 'admin' ? 'text-slate-400' : 'text-indigo-600'}`}>
-              {role === 'admin' ? 'Presupuesto' : 'Rendimiento'}
+            <span className={`text-[10px] font-black uppercase tracking-[0.3em] ${role === 'admin' ? 'text-white' : 'text-slate-500'}`}>
+              {role === 'admin' ? 'Expenditure_Total' : 'Protocol_Yield'}
             </span>
-            <span className={`text-xl font-black tabular-nums tracking-tighter ${role === 'admin' ? 'text-white' : 'text-indigo-600'}`}>
+            <span className="text-xl font-black text-white tabular-nums tracking-tighter">
               ${spent?.toLocaleString() || '0'}
             </span>
           </div>
         </div>
 
-        <div className="pt-6 border-t border-gray-100 flex items-center justify-between gap-4">
+        {/* Action Bar */}
+        <div className="pt-6 border-t border-slate-200 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             {onViewReport && (
               <button
                 onClick={(e) => { e.stopPropagation(); onViewReport(campaign.id, e); }}
-                className="px-5 py-2.5 bg-white hover:bg-gray-50 text-slate-500 hover:text-indigo-600 text-[10px] font-black uppercase tracking-widest rounded-xl border border-gray-100 transition-all shadow-sm"
+                className="px-5 py-2.5 bg-white hover:bg-rose-600 text-slate-500 hover:text-white text-[10px] font-black uppercase tracking-widest rounded-xl border border-slate-200 hover:border-rose-500/30 transition-all shadow-xl"
               >
-                Analíticas
+                Analytics
               </button>
             )}
 
             {campaign.share_token && onCopyLink && (
               <button
                 onClick={(e) => { e.stopPropagation(); onCopyLink(campaign.share_token!, e, 'review'); }}
-                className="p-3 bg-white hover:bg-gray-50 text-slate-400 hover:text-indigo-600 rounded-xl border border-gray-100 transition-all shadow-sm"
+                className="p-3 bg-white text-slate-500 hover:text-indigo-600 rounded-xl border border-slate-200 hover:border-indigo-200 transition-all shadow-xl"
               >
                 <Link className="h-4 w-4" />
               </button>
@@ -181,11 +205,11 @@ const CampaignCard = React.memo(({
 
           <button
             onClick={(e) => { e.stopPropagation(); role === 'admin' ? onEdit(campaign.id) : onClick?.(campaign.id); }}
-            className={`flex-1 px-6 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-md active:scale-95 ${
-              role === 'admin' ? 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100' : 'bg-indigo-600 text-white hover:bg-indigo-700'
+            className={`flex-1 px-6 py-3 text-slate-950 text-[10px] font-black uppercase tracking-[0.3em] rounded-xl transition-all shadow-2xl active:scale-95 ${
+              role === 'admin' ? 'bg-white hover:bg-slate-200' : 'bg-indigo-600 hover:bg-emerald-400'
             }`}
           >
-            {role === 'admin' ? 'Abrir Nodo' : 'Inicializar'}
+            {role === 'admin' ? 'Open_Node' : 'Initialize'}
           </button>
         </div>
       </div>

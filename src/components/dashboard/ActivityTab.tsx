@@ -27,28 +27,29 @@ const ActivityTab: React.FC<ActivityTabProps> = ({ groupedLogs, auditLogs, refre
       </div>
 
       <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden min-h-[600px] relative">
-        <div className="absolute left-12 top-0 bottom-0 w-[2px] bg-gray-50" />
+        <div className="absolute left-12 top-0 bottom-0 w-[2px] bg-gray-50/50" />
         
-        <div className="p-10 relative z-10">
-          <div className="space-y-16">
+        <div className="p-8 relative z-10">
+          <div className="space-y-12">
             {groupedLogs.map(([date, logs]) => (
               <div key={date} className="relative">
-                <div className="flex items-center gap-4 mb-10">
-                  <div className="bg-white px-5 py-1.5 rounded-full border border-gray-100 shadow-sm text-[10px] font-black uppercase tracking-widest text-slate-400">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="bg-white px-4 py-1 rounded-full border border-gray-100 shadow-sm text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
                     {date}
                   </div>
                   <div className="flex-1 h-[1px] bg-gray-50" />
                 </div>
 
-                <div className="space-y-8">
+                <div className="space-y-6">
                   {logs.map((log) => (
                     <div key={log.id} className="relative pl-12 group">
-                      <div className={`absolute left-[-5px] top-1 w-10 h-10 rounded-2xl flex items-center justify-center z-10 shadow-md border-4 border-white transition-all duration-300 group-hover:scale-110 ${
+                      {/* Timeline Marker */}
+                      <div className={`absolute left-[-5px] top-1 w-10 h-10 rounded-2xl flex items-center justify-center z-10 shadow-lg border-4 border-white transition-transform group-hover:scale-110 ${
                         log.action === 'SOFT_DELETE' ? 'bg-rose-500 text-white' :
                         log.action === 'RESTORE' ? 'bg-indigo-600 text-white' :
                         log.action === 'CHANGE_ROLE' ? 'bg-amber-500 text-white' :
                         log.action === 'PAYMENT_REGISTERED' ? 'bg-indigo-600 text-white' :
-                        'bg-slate-900 text-white'
+                        'bg-slate-700 text-white'
                       }`}>
                         {log.action === 'SOFT_DELETE' && <Trash2 className="h-4 w-4" />}
                         {log.action === 'RESTORE' && <RefreshCw className="h-4 w-4" />}
@@ -59,16 +60,16 @@ const ActivityTab: React.FC<ActivityTabProps> = ({ groupedLogs, auditLogs, refre
 
                       <div 
                         onClick={() => onSelectLog(log)}
-                        className="bg-gray-50/40 rounded-[2.5rem] p-8 border border-transparent hover:border-indigo-100 hover:bg-white hover:shadow-xl transition-all duration-300 cursor-pointer group/card active:scale-[0.99]"
+                        className="bg-gray-50/30 rounded-[2rem] p-6 border border-transparent hover:border-indigo-100 hover:bg-white hover:shadow-2xl hover:shadow-indigo-100/20 transition-all duration-300 cursor-pointer group/card active:scale-[0.99]"
                       >
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                           <div className="flex-1">
-                            <p className="text-lg text-slate-900 leading-relaxed">
-                              <span className="font-black text-indigo-600">
+                            <p className="text-base text-gray-900 leading-relaxed">
+                              <span className="font-black text-indigo-600 group-hover/card:text-indigo-700">
                                 {log.admin?.display_name || log.admin?.email?.split('@')[0] || 'Sistema'}
                               </span>
                               {' '}
-                              <span className="text-slate-500 font-medium">
+                              <span className="text-gray-500 font-medium">
                                 {log.action === 'SOFT_DELETE' ? 'ha enviado a la papelera' :
                                  log.action === 'RESTORE' ? 'ha restaurado' :
                                  log.action === 'CHANGE_ROLE' ? 'ha actualizado el rol de' :
@@ -77,12 +78,13 @@ const ActivityTab: React.FC<ActivityTabProps> = ({ groupedLogs, auditLogs, refre
                                  'ha modificado'}
                               </span>
                               {' '}
-                              <span className="font-black text-slate-900 underline decoration-indigo-100 underline-offset-4 decoration-2 group-hover/card:decoration-indigo-300 transition-colors">
+                              <span className="font-black text-gray-900 underline decoration-indigo-200 underline-offset-4 decoration-2 group-hover/card:decoration-indigo-400 transition-colors">
                                 {(() => {
                                   const d = log.details;
                                   if (typeof d === 'string' && d.trim().length > 0) {
                                     return d.includes('Contenido') ? 'Contenido' : (d.split(' ').slice(-1)[0] || 'un elemento');
                                   }
+                                  // Handle legacy object details or null/undef
                                   if (d && typeof d === 'object') {
                                     return (d as any).name || (d as any).table || 'un elemento';
                                   }
@@ -91,30 +93,30 @@ const ActivityTab: React.FC<ActivityTabProps> = ({ groupedLogs, auditLogs, refre
                               </span>
                             </p>
                             
-                            <div className="flex flex-wrap items-center gap-4 mt-4">
-                              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-white px-3 py-1 rounded-xl border border-gray-100 shadow-sm">
+                            <div className="flex flex-wrap items-center gap-3 mt-3">
+                              <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest bg-white px-2 py-1 rounded-lg border border-gray-50 shadow-sm group-hover/card:border-indigo-50">
                                 {log.created_at ? new Date(log.created_at).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) : '—'}
                               </span>
-                              <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest px-3 py-1 bg-indigo-50/50 rounded-xl">
-                                Módulo: {log.target_type || 'SISTEMA'}
+                              <span className="text-[9px] font-black text-indigo-400 opacity-60 uppercase tracking-widest group-hover/card:opacity-100 transition-opacity">
+                                Módulo: {log.target_type || 'SYSTEM'}
                               </span>
                               {log.target_id && (
-                                <span className="text-[9px] text-slate-300 font-bold uppercase tracking-widest">
-                                  REF: {log.target_id.slice(0,8)}
+                                <span className="text-[8px] text-gray-300 font-bold uppercase tracking-tight group-hover/card:text-indigo-200 transition-colors">
+                                  ID Ref: {log.target_id.slice(0,8)}
                                 </span>
                               )}
-                              <div className="ml-auto opacity-0 group-hover/card:opacity-100 transition-opacity translate-x-2 group-hover/card:translate-x-0">
-                                <ChevronRight className="h-5 w-5 text-indigo-400" />
+                              <div className="ml-auto opacity-0 group-hover/card:opacity-100 transition-opacity">
+                                <ChevronRight className="h-4 w-4 text-indigo-400" />
                               </div>
                             </div>
                           </div>
 
-                          <div className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border ${
-                            log.action === 'SOFT_DELETE' ? 'bg-rose-50 text-rose-600 border-rose-100' :
-                            log.action === 'RESTORE' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                            log.action === 'CHANGE_ROLE' ? 'bg-amber-50 text-amber-600 border-amber-100' :
-                            log.action === 'PAYMENT_REGISTERED' ? 'bg-indigo-50 text-indigo-600 border-indigo-100' :
-                            'bg-gray-100 text-slate-500 border-gray-200'
+                          <div className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest ${
+                            log.action === 'SOFT_DELETE' ? 'bg-rose-50 text-rose-600' :
+                            log.action === 'RESTORE' ? 'bg-emerald-50 text-emerald-600' :
+                            log.action === 'CHANGE_ROLE' ? 'bg-amber-50 text-amber-600' :
+                            log.action === 'PAYMENT_REGISTERED' ? 'bg-indigo-50 text-indigo-600' :
+                            'bg-gray-100 text-gray-500'
                           }`}>
                             {log.action.replace(/_/g, ' ')}
                           </div>
@@ -128,13 +130,13 @@ const ActivityTab: React.FC<ActivityTabProps> = ({ groupedLogs, auditLogs, refre
 
             {auditLogs.length === 0 && (
               <div className="py-40 text-center">
-                <div className="w-24 h-24 bg-gray-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 border border-gray-100 shadow-sm">
-                  <Zap className="h-10 w-10 text-slate-200" />
+                <div className="w-24 h-24 bg-gray-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-6">
+                  <Zap className="h-10 w-10 text-gray-200" />
                 </div>
-                <h3 className="text-xl font-black text-slate-900 mb-2">Sin actividad</h3>
-                <p className="text-sm font-medium text-slate-400">No hay acciones registradas que mostrar hoy.</p>
+                <h3 className="text-xl font-black text-gray-900 mb-2">Sin actividad</h3>
+                <p className="text-sm font-medium text-gray-400 italic">No hay acciones registradas que mostrar hoy.</p>
               </div>
-            )}  )}
+            )}
           </div>
         </div>
       </div>

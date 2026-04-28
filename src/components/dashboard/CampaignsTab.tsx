@@ -40,21 +40,21 @@ const CampaignsTab = React.memo(({
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Search Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-6 rounded-[2.5rem] border border-slate-200 backdrop-blur-3xl">
         <div className="flex-1 relative group">
-          <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-600 transition-colors">
+          <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none text-slate-500 group-focus-within:text-indigo-600 transition-colors">
             <BarChart3 className="h-5 w-5" />
           </div>
           <input
             type="text"
-            placeholder="Buscar en el repositorio de campañas..."
+            placeholder="Search campaigns_repository..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-14 pr-6 py-4 bg-gray-50/50 border border-gray-100 rounded-2xl text-sm font-medium text-slate-900 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 transition-all placeholder:text-slate-400"
+            className="w-full pl-14 pr-6 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl text-sm font-medium text-white focus:ring-2 focus:ring-emerald-500/20 focus:border-indigo-200 transition-all placeholder:text-slate-600"
           />
         </div>
-        <div className="px-6 py-3 bg-indigo-50 text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] border border-indigo-100">
-          {filteredStats.length} {filteredStats.length === 1 ? 'Campaña Activa' : 'Campañas Activas'}
+        <div className="px-6 py-3 bg-indigo-50 text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] border border-indigo-200">
+          {filteredStats.length} {filteredStats.length === 1 ? 'Campaign_Active' : 'Campaigns_Active'}
         </div>
       </div>
 
@@ -65,11 +65,11 @@ const CampaignsTab = React.memo(({
           <CardSkeleton />
         </div>
       ) : filteredStats.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-32 bg-white rounded-[3rem] border border-gray-100 shadow-sm">
-          <div className="w-20 h-20 bg-gray-50 rounded-[2rem] flex items-center justify-center mb-6 border border-gray-100">
-            <BarChart3 className="h-10 w-10 text-slate-300" />
+        <div className="flex flex-col items-center justify-center py-32 glass-dark rounded-[3rem] border border-slate-200">
+          <div className="w-20 h-20 bg-white rounded-[2rem] flex items-center justify-center mb-6 border border-slate-200 shadow-2xl">
+            <BarChart3 className="h-10 w-10 text-slate-700" />
           </div>
-          <h3 className="text-xl font-black text-slate-900 uppercase tracking-tighter">No se encontraron datos</h3>
+          <h3 className="text-xl font-black text-white uppercase tracking-tighter">Null_Data_Detected</h3>
           <p className="text-sm text-slate-500 mt-2 font-medium italic">No se encontraron campañas bajo este protocolo de búsqueda.</p>
         </div>
       ) : (

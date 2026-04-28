@@ -10,10 +10,10 @@ interface JourneyMapProps {
 
 const JourneyMap: React.FC<JourneyMapProps> = ({ tiers, currentRankIndex }) => {
   return (
-    <div className="bg-white rounded-[3rem] p-10 relative overflow-hidden group/journey border border-gray-100 shadow-sm">
+    <div className="glass-dark rounded-[3rem] p-10 relative overflow-hidden group/journey border-slate-200">
       <div className="flex justify-between items-start mb-12">
         <div>
-          <h2 className="text-2xl font-black text-slate-900 leading-tight uppercase tracking-tighter">Roadmap_Evolution</h2>
+          <h2 className="text-2xl font-black text-white leading-tight uppercase tracking-tighter">Roadmap_Evolution</h2>
           <p className="text-sm text-slate-500 font-medium">Visualiza tu ascenso en las jerarquías de la agencia.</p>
         </div>
         <div className="flex items-center gap-3 px-4 py-2 bg-indigo-50 rounded-full border border-indigo-200">
@@ -26,7 +26,7 @@ const JourneyMap: React.FC<JourneyMapProps> = ({ tiers, currentRankIndex }) => {
 
       <div className="relative mt-12 pb-8">
         {/* Path Line */}
-        <div className="absolute top-[39px] left-10 right-10 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+        <div className="absolute top-[39px] left-10 right-10 h-1.5 bg-white rounded-full overflow-hidden">
           <motion.div 
             initial={{ width: 0 }}
             animate={{ width: `${(currentRankIndex / (tiers.length - 1)) * 100}%` }}
@@ -67,7 +67,7 @@ const JourneyMap: React.FC<JourneyMapProps> = ({ tiers, currentRankIndex }) => {
                         </div>
                         <div>
                           <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Nivel 0{tier.level}</p>
-                          <p className="text-lg font-black text-slate-900 uppercase tracking-tighter">{tier.name}</p>
+                          <p className="text-lg font-black text-white uppercase tracking-tighter">{tier.name}</p>
                         </div>
                       </div>
 
@@ -97,10 +97,10 @@ const JourneyMap: React.FC<JourneyMapProps> = ({ tiers, currentRankIndex }) => {
                 </motion.div>
 
                 <div className="mt-6 text-center max-w-[100px]">
-                  <p className={`text-[10px] font-black uppercase tracking-[0.3em] leading-none ${isCurrent ? 'text-indigo-600' : 'text-slate-500'}`}>
+                  <p className={`text-[10px] font-black uppercase tracking-[0.3em] leading-none ${isCurrent ? 'text-indigo-600' : isPast ? 'text-white' : 'text-slate-700'}`}>
                     {tier.name.split(' ')[0]}
                   </p>
-                  <p className={`text-[8px] font-bold uppercase mt-1.5 opacity-60 ${isCurrent ? 'text-indigo-600' : 'text-slate-400'}`}>
+                  <p className={`text-[8px] font-bold uppercase mt-1.5 opacity-60 ${isCurrent ? 'text-indigo-600' : 'text-slate-500'}`}>
                     {tier.name.split(' ')[1] || ''}
                   </p>
                 </div>
@@ -111,8 +111,8 @@ const JourneyMap: React.FC<JourneyMapProps> = ({ tiers, currentRankIndex }) => {
       </div>
 
       {/* Under Construction Overlay */}
-      <div className="absolute inset-0 z-40 bg-white/40 backdrop-blur-[6px] flex flex-col items-center justify-center text-center p-10 transition-all duration-700 opacity-0 group-hover/journey:opacity-100">
-        <div className="bg-emerald-600 text-white px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-[0.5em] shadow-2xl flex items-center gap-4 border border-emerald-500">
+      <div className="absolute inset-0 z-40 bg-slate-50/20 backdrop-blur-[6px] flex flex-col items-center justify-center text-center p-10 transition-all duration-700 opacity-0 group-hover/journey:opacity-100">
+        <div className="bg-emerald-600 text-white px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-[0.5em] shadow-2xl flex items-center gap-4 border border-white/20">
            <Sparkles className="h-4 w-4" /> System_Expanding
         </div>
         <p className="mt-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] italic">
