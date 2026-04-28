@@ -10,7 +10,7 @@ import {
   BarChart3, LayoutDashboard, LogIn,
   TrendingUp, Twitter,
   Activity, Search, Eye, MessageSquare, Heart as HeartIcon,
-  CheckCircle2, Clock
+  CheckCircle2, Clock, Users
 } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import translations from './translations';
