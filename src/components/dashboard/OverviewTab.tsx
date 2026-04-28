@@ -1,6 +1,6 @@
 import React from 'react';
-import { TrendingUp, Zap, Users, List, BarChart3 } from 'lucide-react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { TrendingUp, Users, List, BarChart3 } from 'lucide-react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import AdminMetricCard from './AdminMetricCard';
 import { StatsSkeleton } from './Skeleton';
 
@@ -51,8 +51,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
   })), [filteredContent]);
 
   return (
-    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-1000">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {isLoading ? (
           <>
             <StatsSkeleton />
@@ -62,54 +62,50 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
           </>
         ) : (
           <>
-            <AdminMetricCard 
-              title="Vistas Totales" 
-              value={metrics.totalViews.toLocaleString()} 
-              trend={metrics.viewsTrend || undefined} 
-              icon={TrendingUp} 
-              color="from-emerald-500 to-emerald-600"
-              onClick={() => setActiveTab('content')} 
+            <AdminMetricCard
+              title="Vistas Totales"
+              value={metrics.totalViews.toLocaleString()}
+              trend={metrics.viewsTrend || undefined}
+              icon={TrendingUp}
+              onClick={() => setActiveTab('content')}
             />
-            <AdminMetricCard 
-              title="Creadores" 
-              value={metrics.activeCreators} 
-              icon={Users} 
-              color="from-cyan-500 to-blue-600"
-              onClick={() => setActiveTab('creators')} 
+            <AdminMetricCard
+              title="Creadores"
+              value={metrics.activeCreators}
+              icon={Users}
+              onClick={() => setActiveTab('creators')}
             />
-            <AdminMetricCard 
-              title="Posts Totales" 
-              value={metrics.totalPosts.toLocaleString()} 
-              trend={metrics.postsTrend || undefined} 
-              icon={List} 
-              color="from-emerald-400 to-emerald-500"
-              onClick={() => setActiveTab('content')} 
+            <AdminMetricCard
+              title="Posts Totales"
+              value={metrics.totalPosts.toLocaleString()}
+              trend={metrics.postsTrend || undefined}
+              icon={List}
+              onClick={() => setActiveTab('content')}
             />
-            <AdminMetricCard 
-              title="Campañas Activas" 
-              value={campaigns.filter(c => c.status === 'active').length} 
-              icon={BarChart3} 
-              color="from-slate-800 to-slate-900"
-              onClick={() => setActiveTab('campaigns')} 
+            <AdminMetricCard
+              title="Campañas Activas"
+              value={campaigns.filter(c => c.status === 'active').length}
+              icon={BarChart3}
+              onClick={() => setActiveTab('campaigns')}
             />
           </>
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <div className="glass-dark p-10 rounded-[3rem] border border-slate-200 relative overflow-hidden group">
-          <div className="absolute -right-20 -top-20 w-64 h-64 bg-indigo-600/5 rounded-full blur-3xl group-hover:bg-indigo-50 transition-all duration-1000" />
-          <h3 className="text-xl font-black text-white mb-10 flex items-center gap-3 uppercase tracking-widest relative z-10 italic">
-            <BarChart3 className="h-6 w-6 text-indigo-600" /> Platform_Distribution
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Posts por plataforma */}
+        <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
+          <h3 className="text-base font-black text-slate-900 mb-6 flex items-center gap-2 uppercase tracking-tight">
+            <BarChart3 className="h-5 w-5 text-indigo-600" /> Posts por Plataforma
           </h3>
-          <div className="h-[300px] relative z-10">
+          <div className="h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={platformCount}
-                  innerRadius={80} 
-                  outerRadius={110} 
-                  paddingAngle={8} 
+                  innerRadius={70}
+                  outerRadius={100}
+                  paddingAngle={6}
                   dataKey="value"
                   stroke="none"
                   onClick={(data) => {
@@ -120,51 +116,47 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   }}
                 >
                   {platformCount.map((entry, i) => (
-                    <Cell key={i} fill={PLATFORM_COLORS[entry.id]} className="cursor-pointer hover:opacity-80 transition-all duration-500" />
+                    <Cell key={i} fill={PLATFORM_COLORS[entry.id]} className="cursor-pointer hover:opacity-80 transition-all duration-300" />
                   ))}
                 </Pie>
-                <Tooltip 
-                  contentStyle={{ backgroundColor: 'rgba(2, 6, 23, 0.95)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '1.5rem', backdropFilter: 'blur(10px)', color: 'white' }}
-                  itemStyle={{ color: 'white', fontWeight: 'bold', textTransform: 'uppercase', fontSize: '10px' }}
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#fff', border: '1px solid #f1f5f9', borderRadius: '12px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', color: '#0f172a' }}
+                  itemStyle={{ color: '#0f172a', fontWeight: '800', textTransform: 'uppercase', fontSize: '10px' }}
                 />
               </PieChart>
             </ResponsiveContainer>
           </div>
 
-          <div className="mt-10 grid grid-cols-2 gap-4 relative z-10">
+          <div className="mt-4 grid grid-cols-2 gap-2">
             {[...platformCount].sort((a, b) => b.value - a.value).map((item) => (
-              <button 
-                key={item.id} 
-                onClick={() => {
-                  setFilter('platform', item.id);
-                  setActiveTab('content');
-                }}
-                className="flex items-center justify-between p-4 bg-white hover:bg-slate-800 rounded-2xl border border-slate-200 transition-all duration-300 group/item"
+              <button
+                key={item.id}
+                onClick={() => { setFilter('platform', item.id); setActiveTab('content'); }}
+                className="flex items-center justify-between p-3 bg-gray-50 hover:bg-indigo-50 rounded-xl border border-gray-100 hover:border-indigo-100 transition-all group/item"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-2.5 h-2.5 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.2)]" style={{ backgroundColor: PLATFORM_COLORS[item.id] || '#cbd5e1' }} />
-                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest group-hover/item:text-white transition-colors">{item.name}</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: PLATFORM_COLORS[item.id] || '#cbd5e1' }} />
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest group-hover/item:text-indigo-600 transition-colors">{item.name}</span>
                 </div>
-                <span className="text-xs font-black text-white tabular-nums">{item.value.toLocaleString()}</span>
+                <span className="text-xs font-black text-slate-900 tabular-nums">{item.value.toLocaleString()}</span>
               </button>
             ))}
           </div>
         </div>
 
-        <div className="glass-dark p-10 rounded-[3rem] border border-slate-200 relative overflow-hidden group">
-          <div className="absolute -left-20 -bottom-20 w-64 h-64 bg-indigo-600/5 rounded-full blur-3xl group-hover:bg-indigo-50 transition-all duration-1000" />
-          <h3 className="text-xl font-black text-white mb-10 flex items-center gap-3 uppercase tracking-widest relative z-10 italic">
-            <BarChart3 className="h-6 w-6 text-indigo-600" /> View_Metrics_Analysis
+        {/* Vistas por plataforma */}
+        <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
+          <h3 className="text-base font-black text-slate-900 mb-6 flex items-center gap-2 uppercase tracking-tight">
+            <BarChart3 className="h-5 w-5 text-indigo-600" /> Vistas por Plataforma
           </h3>
-          
-          <div className="h-[300px] relative z-10">
+          <div className="h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={platformViews}
-                  innerRadius={80} 
-                  outerRadius={110} 
-                  paddingAngle={8} 
+                  innerRadius={70}
+                  outerRadius={100}
+                  paddingAngle={6}
                   dataKey="value"
                   stroke="none"
                   onClick={(data) => {
@@ -175,33 +167,30 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   }}
                 >
                   {platformViews.map((entry, i) => (
-                    <Cell key={i} fill={PLATFORM_COLORS[entry.id] || '#cbd5e1'} className="cursor-pointer hover:opacity-80 transition-all duration-500" />
+                    <Cell key={i} fill={PLATFORM_COLORS[entry.id] || '#cbd5e1'} className="cursor-pointer hover:opacity-80 transition-all duration-300" />
                   ))}
                 </Pie>
-                <Tooltip 
-                  formatter={(value: number) => [value.toLocaleString() + ' views', 'Metric']}
-                  contentStyle={{ backgroundColor: 'rgba(2, 6, 23, 0.95)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '1.5rem', backdropFilter: 'blur(10px)', color: 'white' }}
-                  itemStyle={{ color: 'white', fontWeight: 'bold', textTransform: 'uppercase', fontSize: '10px' }}
+                <Tooltip
+                  formatter={(value: number) => [value.toLocaleString() + ' vistas', 'Métrica']}
+                  contentStyle={{ backgroundColor: '#fff', border: '1px solid #f1f5f9', borderRadius: '12px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', color: '#0f172a' }}
+                  itemStyle={{ color: '#0f172a', fontWeight: '800', textTransform: 'uppercase', fontSize: '10px' }}
                 />
               </PieChart>
             </ResponsiveContainer>
           </div>
 
-          <div className="mt-10 grid grid-cols-2 gap-4 relative z-10">
+          <div className="mt-4 grid grid-cols-2 gap-2">
             {[...platformViews].sort((a, b) => b.value - a.value).map(({ id: platform, value: views }) => (
-              <button 
-                key={platform} 
-                onClick={() => {
-                  setFilter('platform', platform);
-                  setActiveTab('content');
-                }}
-                className="flex items-center justify-between p-4 bg-white hover:bg-slate-800 rounded-2xl border border-slate-200 transition-all duration-300 group/item"
+              <button
+                key={platform}
+                onClick={() => { setFilter('platform', platform); setActiveTab('content'); }}
+                className="flex items-center justify-between p-3 bg-gray-50 hover:bg-indigo-50 rounded-xl border border-gray-100 hover:border-indigo-100 transition-all group/item"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-2.5 h-2.5 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.2)]" style={{ backgroundColor: PLATFORM_COLORS[platform] || '#cbd5e1' }} />
-                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest group-hover/item:text-white transition-colors">{platform}</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: PLATFORM_COLORS[platform] || '#cbd5e1' }} />
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest group-hover/item:text-indigo-600 transition-colors">{platform}</span>
                 </div>
-                <span className="text-xs font-black text-white tabular-nums">{views.toLocaleString()}</span>
+                <span className="text-xs font-black text-slate-900 tabular-nums">{views.toLocaleString()}</span>
               </button>
             ))}
           </div>
