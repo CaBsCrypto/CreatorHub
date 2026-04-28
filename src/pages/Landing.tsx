@@ -108,7 +108,6 @@ const UmbraLogo = () => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* The Corona (Atmospheric Glow) */}
       <motion.div 
         animate={{ 
           scale: isHovered ? [1.2, 1.4, 1.2] : 1.2,
@@ -117,8 +116,6 @@ const UmbraLogo = () => {
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
         className="absolute inset-0 bg-emerald-500/20 blur-[20px] rounded-full"
       />
-
-      {/* The Eclipse Corona (Sharp Rim) */}
       <motion.div 
         animate={{ 
           rotate: isHovered ? 360 : 0,
@@ -127,8 +124,6 @@ const UmbraLogo = () => {
         transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
         className="absolute w-10 h-10 border border-emerald-400/30 rounded-full shadow-[0_0_15px_rgba(52,211,153,0.2)]"
       />
-
-      {/* The Obsidian Disc (The Umbra) */}
       <motion.div 
         animate={{ 
           x: isHovered ? 4 : 0,
@@ -138,7 +133,6 @@ const UmbraLogo = () => {
         transition={{ type: "spring", stiffness: 100, damping: 20 }}
         className="relative w-8 h-8 bg-slate-950 rounded-full z-10 border border-white/5 shadow-2xl flex items-center justify-center overflow-hidden"
       >
-        {/* Internal Light Leak */}
         <motion.div 
           animate={{ 
             opacity: isHovered ? 1 : 0.4,
@@ -146,12 +140,8 @@ const UmbraLogo = () => {
           }}
           className="absolute inset-0 bg-[radial-gradient(circle_at_0%_0%,rgba(52,211,153,0.1),transparent_70%)]"
         />
-        
-        {/* Subtle Brand Mark (U) inside the shadow */}
         <div className="text-[8px] font-black text-white/10 uppercase tracking-widest mt-1">U</div>
       </motion.div>
-
-      {/* The Shadow Line Projection */}
       <motion.div 
         animate={{ 
           height: isHovered ? 40 : 20,
@@ -160,8 +150,6 @@ const UmbraLogo = () => {
         }}
         className="absolute top-10 left-1/2 w-[1px] bg-gradient-to-b from-emerald-500 to-transparent blur-[1px] origin-top"
       />
-
-      {/* Precision Flare */}
       <motion.div 
         animate={{ 
           opacity: isHovered ? 1 : 0,
@@ -185,7 +173,6 @@ export default function Landing() {
 
   const statsRef = useRef(null);
   const { scrollYProgress } = useScroll();
-  const yParallax = useTransform(scrollYProgress, [0, 1], [0, -300]);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!containerRef.current) return;
@@ -205,7 +192,7 @@ export default function Landing() {
   };
 
   return (
-    <div className="landing-container">
+    <div className="landing-container" ref={containerRef} onMouseMove={handleMouseMove}>
       {/* Texture & Glow */}
       <div className="grain-overlay" />
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
@@ -228,7 +215,7 @@ export default function Landing() {
             </span>
           </motion.div>
           <div className="hidden lg:flex items-center gap-10">
-            <button onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })} className="text-xs font-black uppercase tracking-[0.3em] hover:text-emerald-400 transition-colors">{t?.nav?.method}</button>
+            <button onClick={() => document.getElementById('method')?.scrollIntoView({ behavior: 'smooth' })} className="text-xs font-black uppercase tracking-[0.3em] hover:text-emerald-400 transition-colors">{t?.nav?.method}</button>
             <button onClick={() => document.getElementById('creators')?.scrollIntoView({ behavior: 'smooth' })} className="text-xs font-black uppercase tracking-[0.3em] hover:text-emerald-400 transition-colors">{t?.nav?.talents}</button>
             <button onClick={() => document.getElementById('leadership')?.scrollIntoView({ behavior: 'smooth' })} className="text-xs font-black uppercase tracking-[0.3em] hover:text-emerald-400 transition-colors">{t?.nav?.minds}</button>
           </div>
@@ -239,181 +226,171 @@ export default function Landing() {
         </div>
       </nav>
 
-      {/* Hero Section V3 (Refined Asymmetric Split) */}
-      <section className="hero-split-layout relative z-10">
-        <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-32 items-center">
-          <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 1 }}>
-            <span className="section-label">{t?.hero?.label}</span>
-            <h1 className="hero-text mb-10">
-              {t?.hero?.title1} <br/>
-              <span className="gradient-text">{t?.hero?.title2}</span>
-            </h1>
-            <p className="text-xl text-slate-400 max-w-xl mb-14 font-medium leading-[1.6]">
-              {t?.hero?.desc}
-            </p>
-            <div className="flex flex-col sm:flex-row gap-6 items-start">
-              <button onClick={handleEnterApp} className="px-12 py-5 bg-emerald-600 text-white rounded-full font-black text-xs uppercase tracking-widest flex items-center gap-4 hover:scale-105 transition-all shadow-2xl shadow-emerald-600/50">{t?.hero?.cta1} <ArrowRight className="h-4 w-4" /></button>
-              <button onClick={() => document.getElementById('creators')?.scrollIntoView({ behavior: 'smooth' })} className="px-12 py-5 bg-slate-900/50 border border-emerald-500/10 rounded-full font-black text-xs uppercase tracking-widest hover:bg-slate-900 transition-all">{t?.hero?.cta2}</button>
-            </div>
-          </motion.div>
+      {/* NEW Master Entry Section: Method + Stats */}
+      <section id="method" className="relative pt-24 pb-48 px-6 z-10">
+        <div className="max-w-7xl mx-auto w-full">
+          
+          {/* Main Cinematic Title */}
           <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }} 
-            animate={{ opacity: 1, scale: 1 }} 
-            style={{ y: useTransform(scrollYProgress, [0, 1], [-50, -350]) }}
-            transition={{ duration: 1.5, ease: "easeOut" }} 
-            className="hidden lg:flex hero-visual-element items-center justify-center cursor-crosshair group"
-            onMouseMove={handleMouseMove}
-            ref={containerRef}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1 }}
+            className="text-center mb-32 relative"
           >
-            <div className="data-prism opacity-20 border-emerald-500/20 group-hover:border-emerald-500/40 group-hover:bg-emerald-500/[0.02] transition-all duration-700" />
-            
-            {/* The Interactive Shadow Line */}
-            <div className="relative z-10 scale-[1.2] -mt-32">
-              <ShadowLine mousePos={mousePos} />
-            </div>
-            
-            {/* Logo Placeholder / Centerpiece */}
-            <div className="absolute top-2 flex flex-col items-center gap-1 z-20">
-              <UmbraLogo />
-              <div className="text-[10px] font-black tracking-[0.4em] text-white/40 uppercase">Umbra_Agency</div>
+             {/* Background Interactive Element */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 opacity-10 pointer-events-none scale-[2]">
+                <ShadowLine mousePos={mousePos} />
             </div>
 
-            <div className="absolute bottom-10 text-center space-y-1">
-              <div className="text-[10px] font-black tracking-[1.2em] text-white/20 uppercase">Umbra Brand Identity</div>
-              <div className="text-[8px] font-bold tracking-[0.4em] text-emerald-500/40 uppercase italic">Interactive Standard</div>
+            <span className="section-label mb-6">{t?.hero?.label}</span>
+            <h1 className="text-6xl md:text-9xl font-black tracking-tighter uppercase leading-[0.9] mb-12">
+                {t?.hero?.title1} <br/>
+                <span className="gradient-text">{t?.hero?.title2}</span>
+            </h1>
+            <p className="text-xl text-slate-400 max-w-2xl mx-auto font-medium leading-[1.6] opacity-80 italic">
+                {t?.hero?.desc}
+            </p>
+          </motion.div>
+
+          {/* Stats Integrated Immediately */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5, duration: 1 }}
+            className="mb-32 py-16 border-y border-emerald-500/10 bg-slate-900/10 backdrop-blur-sm rounded-[4rem]"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-0">
+                <div className="text-center group lg:border-r border-emerald-500/10">
+                    <AnimatedCounter target={116} suffix="K+" decimals={0} />
+                    <div className="stat-label">{t?.stats?.reach_label}</div>
+                </div>
+                <div className="text-center group lg:border-r border-emerald-500/10">
+                    <AnimatedCounter target={8} suffix="" />
+                    <div className="stat-label">{t?.stats?.creators_label}</div>
+                </div>
+                <div className="text-center group">
+                    <AnimatedCounter target={3} suffix="" />
+                    <div className="stat-label">{t?.stats?.campaigns_label}</div>
+                </div>
             </div>
           </motion.div>
-        </div>
-      </section>
 
-
-      {/* Stats Section - Verified Data */}
-      <section ref={statsRef} className="stat-container relative z-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-16 lg:gap-0">
-            <div className="text-center group lg:border-r border-emerald-500/10">
-              <AnimatedCounter target={116} suffix="K+" decimals={0} />
-              <div className="stat-label">{t?.stats?.reach_label}</div>
-            </div>
-            <div className="text-center group lg:border-r border-emerald-500/10">
-              <AnimatedCounter target={8} suffix="" />
-              <div className="stat-label">{t?.stats?.creators_label}</div>
-            </div>
-            <div className="text-center group">
-              <AnimatedCounter target={3} suffix="" />
-              <div className="stat-label">{t?.stats?.campaigns_label}</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* The Method Section - Premium Bento Grid */}
-      <section id="about" className="py-48 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-24">
-            <span className="section-label">{t?.about?.label}</span>
-            <h2 className="text-5xl md:text-8xl font-black tracking-tighter uppercase leading-none">The <span className="gradient-text">Standard.</span></h2>
-          </div>
-          <div className="method-bento">
-            {/* Card 1: Strategic Execution (Large) */}
-            <div 
-              className="method-card-large group cursor-pointer card-theme-cyan"
-              onClick={() => setSelectedStrategy({ title: t?.about?.p1_title, detail: t?.about?.p1_detail, icon: Target, color: 'text-cyan-400' })}
-            >
-               <div className="absolute top-8 right-10 text-8xl font-black text-white/[0.02] select-none pointer-events-none group-hover:text-cyan-500/5 transition-colors duration-700">01</div>
-               <div className="flex justify-between items-start mb-12">
-                 <div className="p-4 bg-cyan-500/10 border border-cyan-500/20 rounded-2xl group-hover:bg-cyan-500/20 transition-colors"><Target className="h-6 w-6 text-cyan-400" /></div>
-               </div>
-               <div>
-                 <h3 className="text-3xl lg:text-5xl font-black mb-4 uppercase tracking-tighter text-white">{t?.about?.p1_title}</h3>
-                 <p className="text-slate-300 text-lg leading-relaxed font-medium max-w-xl">{t?.about?.p1_desc}</p>
-                 <div className="mt-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-cyan-400 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
-                    Learn Protocol <ArrowRight className="h-3 w-3" />
-                 </div>
-               </div>
+          {/* The Method Bento Grid - High Impact Start */}
+          <div className="space-y-24">
+            <div className="flex flex-col md:flex-row items-end justify-between gap-8 mb-12">
+                <div>
+                    <span className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.5em] mb-4 block">Official Protocol</span>
+                    <h2 className="text-5xl md:text-7xl font-black tracking-tighter uppercase leading-none">The <span className="gradient-text">Standard.</span></h2>
+                </div>
+                <button onClick={handleEnterApp} className="px-12 py-5 bg-emerald-600 text-white rounded-full font-black text-xs uppercase tracking-widest flex items-center gap-4 hover:scale-105 transition-all shadow-2xl shadow-emerald-600/50">
+                    {t?.hero?.cta1} <ArrowRight className="h-4 w-4" />
+                </button>
             </div>
 
-            {/* Card 2: Scraped Performance (Small) */}
-            <div 
-              className="method-card-small group cursor-pointer card-theme-purple"
-              onClick={() => setSelectedStrategy({ title: t?.about?.p2_title, detail: t?.about?.p2_detail, icon: Zap, color: 'text-purple-400' })}
-            >
-               <div className="absolute top-8 right-10 text-8xl font-black text-white/[0.02] select-none pointer-events-none group-hover:text-purple-500/5 transition-colors duration-700">02</div>
-               <div className="mb-12">
-                 <div className="p-4 bg-purple-500/10 border border-purple-500/20 rounded-2xl w-fit group-hover:bg-purple-500/20 transition-colors"><Zap className="h-6 w-6 text-purple-400" /></div>
-               </div>
-               
-               {/* Fake Scanner Animation */}
-               <div className="absolute bottom-32 right-10 w-32 h-16 bg-slate-950/50 rounded-xl border border-white/5 relative overflow-hidden flex items-center justify-center opacity-20 group-hover:opacity-100 transition-opacity duration-700">
-                  <div className="data-scanner-line" />
-                  <div className="text-[10px] font-mono text-purple-400/50 uppercase tracking-widest z-10">Scraping...</div>
-               </div>
+            <div className="method-bento">
+                {/* Card 1: Strategic Execution (Large) */}
+                <motion.div 
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  className="method-card-large group cursor-pointer card-theme-cyan"
+                  onClick={() => setSelectedStrategy({ title: t?.about?.p1_title, detail: t?.about?.p1_detail, icon: Target, color: 'text-cyan-400' })}
+                >
+                    <div className="absolute top-8 right-10 text-8xl font-black text-white/[0.02] select-none pointer-events-none group-hover:text-cyan-500/5 transition-colors duration-700">01</div>
+                    <div className="flex justify-between items-start mb-12">
+                        <div className="p-4 bg-cyan-500/10 border border-cyan-500/20 rounded-2xl group-hover:bg-cyan-500/20 transition-colors"><Target className="h-6 w-6 text-cyan-400" /></div>
+                    </div>
+                    <div>
+                        <h3 className="text-3xl lg:text-5xl font-black mb-4 uppercase tracking-tighter text-white">{t?.about?.p1_title}</h3>
+                        <p className="text-slate-300 text-lg leading-relaxed font-medium max-w-xl">{t?.about?.p1_desc}</p>
+                        <div className="mt-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-cyan-400 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
+                            Learn Protocol <ArrowRight className="h-3 w-3" />
+                        </div>
+                    </div>
+                </motion.div>
 
-               <div className="relative z-10 mt-auto">
-                 <h3 className="text-2xl lg:text-3xl font-black mb-4 uppercase tracking-tighter text-white">{t?.about?.p2_title}</h3>
-                 <p className="text-slate-300 text-base leading-relaxed font-medium">{t?.about?.p2_desc}</p>
-                 <div className="mt-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-purple-400 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
-                    View Engine <ArrowRight className="h-3 w-3" />
-                 </div>
-               </div>
-            </div>
+                {/* Card 2: Scraped Performance (Small) */}
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  className="method-card-small group cursor-pointer card-theme-purple"
+                  onClick={() => setSelectedStrategy({ title: t?.about?.p2_title, detail: t?.about?.p2_detail, icon: Zap, color: 'text-purple-400' })}
+                >
+                    <div className="absolute top-8 right-10 text-8xl font-black text-white/[0.02] select-none pointer-events-none group-hover:text-purple-500/5 transition-colors duration-700">02</div>
+                    <div className="mb-12">
+                        <div className="p-4 bg-purple-500/10 border border-purple-500/20 rounded-2xl w-fit group-hover:bg-purple-500/20 transition-colors"><Zap className="h-6 w-6 text-purple-400" /></div>
+                    </div>
+                    <div className="absolute bottom-32 right-10 w-32 h-16 bg-slate-950/50 rounded-xl border border-white/5 relative overflow-hidden flex items-center justify-center opacity-20 group-hover:opacity-100 transition-opacity duration-700">
+                        <div className="data-scanner-line" />
+                        <div className="text-[10px] font-mono text-purple-400/50 uppercase tracking-widest z-10">Scraping...</div>
+                    </div>
+                    <div className="relative z-10 mt-auto">
+                        <h3 className="text-2xl lg:text-3xl font-black mb-4 uppercase tracking-tighter text-white">{t?.about?.p2_title}</h3>
+                        <p className="text-slate-300 text-base leading-relaxed font-medium">{t?.about?.p2_desc}</p>
+                        <div className="mt-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-purple-400 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
+                            View Engine <ArrowRight className="h-3 w-3" />
+                        </div>
+                    </div>
+                </motion.div>
 
-            {/* Card 3: Precision Reporting (Small) */}
-            <div 
-              className="method-card-small group cursor-pointer card-theme-emerald"
-              onClick={() => setSelectedStrategy({ title: t?.about?.p3_title, detail: t?.about?.p3_detail, icon: Shield, color: 'text-emerald-400' })}
-            >
-               <div className="absolute top-8 right-10 text-8xl font-black text-white/[0.02] select-none pointer-events-none group-hover:text-emerald-500/5 transition-colors duration-700">03</div>
-               
-               {/* Fake Dashboard UI */}
-               <div className="absolute top-12 right-8 w-40 h-24 bg-slate-950/80 rounded-2xl border border-white/5 p-3 flex flex-col gap-2 opacity-30 group-hover:opacity-80 transition-all duration-700 group-hover:scale-105 origin-top-right z-0">
-                  <div className="h-2 bg-white/5 rounded-full w-3/4" />
-                  <div className="h-2 bg-white/5 rounded-full w-1/2" />
-                  <div className="mt-auto flex justify-between items-end">
-                    <div className="text-[10px] font-black text-emerald-400">98.4%</div>
-                    <div className="w-12 h-6 bg-emerald-500/10 rounded-lg border border-emerald-500/20" />
-                  </div>
-               </div>
+                {/* Card 3: Precision Reporting (Small) */}
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  className="method-card-small group cursor-pointer card-theme-emerald"
+                  onClick={() => setSelectedStrategy({ title: t?.about?.p3_title, detail: t?.about?.p3_detail, icon: Shield, color: 'text-emerald-400' })}
+                >
+                    <div className="absolute top-8 right-10 text-8xl font-black text-white/[0.02] select-none pointer-events-none group-hover:text-emerald-500/5 transition-colors duration-700">03</div>
+                    <div className="absolute top-12 right-8 w-40 h-24 bg-slate-950/80 rounded-2xl border border-white/5 p-3 flex flex-col gap-2 opacity-30 group-hover:opacity-80 transition-all duration-700 group-hover:scale-105 origin-top-right z-0">
+                        <div className="h-2 bg-white/5 rounded-full w-3/4" />
+                        <div className="h-2 bg-white/5 rounded-full w-1/2" />
+                        <div className="mt-auto flex justify-between items-end">
+                            <div className="text-[10px] font-black text-emerald-400">98.4%</div>
+                            <div className="w-12 h-6 bg-emerald-500/10 rounded-lg border border-emerald-500/20" />
+                        </div>
+                    </div>
+                    <div className="mb-12">
+                        <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl w-fit group-hover:bg-emerald-500/20 transition-colors"><Shield className="h-6 w-6 text-emerald-400" /></div>
+                    </div>
+                    <div className="relative z-10 mt-auto">
+                        <h3 className="text-2xl lg:text-3xl font-black mb-4 uppercase tracking-tighter text-white">{t?.about?.p3_title}</h3>
+                        <p className="text-slate-300 text-base leading-relaxed font-medium">{t?.about?.p3_desc}</p>
+                        <div className="mt-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-emerald-400 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
+                            Open Portal <ArrowRight className="h-3 w-3" />
+                        </div>
+                    </div>
+                </motion.div>
 
-               <div className="mb-12">
-                 <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl w-fit group-hover:bg-emerald-500/20 transition-colors"><Shield className="h-6 w-6 text-emerald-400" /></div>
-               </div>
-               <div className="relative z-10 mt-auto">
-                 <h3 className="text-2xl lg:text-3xl font-black mb-4 uppercase tracking-tighter text-white">{t?.about?.p3_title}</h3>
-                 <p className="text-slate-300 text-base leading-relaxed font-medium">{t?.about?.p3_desc}</p>
-                 <div className="mt-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-emerald-400 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
-                    Open Portal <ArrowRight className="h-3 w-3" />
-                 </div>
-               </div>
-            </div>
-
-            {/* Card 4: Exponential Growth (Large) */}
-            <div 
-              className="method-card-large group cursor-pointer card-theme-emerald"
-              onClick={() => setSelectedStrategy({ title: t?.about?.p4_title, detail: t?.about?.p4_detail, icon: TrendingUp, color: 'text-emerald-400' })}
-            >
-               <div className="absolute top-8 right-10 text-8xl font-black text-white/[0.02] select-none pointer-events-none group-hover:text-emerald-500/5 transition-colors duration-700">04</div>
-               
-               {/* Fake Bar Chart */}
-               <div className="absolute top-20 right-20 w-48 h-32 flex items-end justify-between gap-2 opacity-10 group-hover:opacity-40 transition-opacity duration-1000 z-0">
-                  <div className="fake-bar" style={{ height: '30%' }} />
-                  <div className="fake-bar" style={{ height: '50%', animationDelay: '0.2s' }} />
-                  <div className="fake-bar" style={{ height: '80%', animationDelay: '0.4s' }} />
-                  <div className="fake-bar" style={{ height: '100%', animationDelay: '0.6s' }} />
-                  <div className="fake-bar" style={{ height: '70%', animationDelay: '0.8s' }} />
-                  <div className="fake-bar" style={{ height: '90%', animationDelay: '1s' }} />
-               </div>
-
-               <div className="relative z-10 h-full flex flex-col justify-between">
-                 <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl w-fit mb-12 group-hover:bg-emerald-500/20 transition-colors"><TrendingUp className="h-6 w-6 text-emerald-400" /></div>
-                 <div>
-                   <h3 className="text-3xl lg:text-5xl font-black mb-4 uppercase tracking-tighter text-white">{t?.about?.p4_title}</h3>
-                   <p className="text-slate-300 text-lg leading-relaxed font-medium max-w-xl">{t?.about?.p4_desc}</p>
-                   <div className="mt-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-emerald-400 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
-                      Growth Roadmap <ArrowRight className="h-3 w-3" />
-                   </div>
-                 </div>
-               </div>
+                {/* Card 4: Exponential Growth (Large) */}
+                <motion.div 
+                  initial={{ opacity: 0, x: 20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  className="method-card-large group cursor-pointer card-theme-emerald"
+                  onClick={() => setSelectedStrategy({ title: t?.about?.p4_title, detail: t?.about?.p4_detail, icon: TrendingUp, color: 'text-emerald-400' })}
+                >
+                    <div className="absolute top-8 right-10 text-8xl font-black text-white/[0.02] select-none pointer-events-none group-hover:text-emerald-500/5 transition-colors duration-700">04</div>
+                    <div className="absolute top-20 right-20 w-48 h-32 flex items-end justify-between gap-2 opacity-10 group-hover:opacity-40 transition-opacity duration-1000 z-0">
+                        <div className="fake-bar" style={{ height: '30%' }} />
+                        <div className="fake-bar" style={{ height: '50%', animationDelay: '0.2s' }} />
+                        <div className="fake-bar" style={{ height: '80%', animationDelay: '0.4s' }} />
+                        <div className="fake-bar" style={{ height: '100%', animationDelay: '0.6s' }} />
+                        <div className="fake-bar" style={{ height: '70%', animationDelay: '0.8s' }} />
+                        <div className="fake-bar" style={{ height: '90%', animationDelay: '1s' }} />
+                    </div>
+                    <div className="relative z-10 h-full flex flex-col justify-between">
+                        <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl w-fit mb-12 group-hover:bg-emerald-500/20 transition-colors"><TrendingUp className="h-6 w-6 text-emerald-400" /></div>
+                        <div>
+                            <h3 className="text-3xl lg:text-5xl font-black mb-4 uppercase tracking-tighter text-white">{t?.about?.p4_title}</h3>
+                            <p className="text-slate-300 text-lg leading-relaxed font-medium max-w-xl">{t?.about?.p4_desc}</p>
+                            <div className="mt-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-emerald-400 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
+                                Growth Roadmap <ArrowRight className="h-3 w-3" />
+                            </div>
+                        </div>
+                    </div>
+                </motion.div>
             </div>
           </div>
         </div>
@@ -531,14 +508,12 @@ export default function Landing() {
               onClick={e => e.stopPropagation()}
             >
               <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-emerald-500 via-cyan-500 to-purple-500" />
-              
               <button 
                 onClick={() => setSelectedStrategy(null)}
                 className="absolute top-8 right-8 p-3 rounded-2xl hover:bg-white/5 text-slate-500 transition-all hover:rotate-90"
               >
                 <LogIn className="h-6 w-6 rotate-180" />
               </button>
-
               <div className="flex items-center gap-4 mb-8">
                 <div className={`p-4 bg-white/5 rounded-2xl ${selectedStrategy.color}`}>
                   <selectedStrategy.icon className="h-8 w-8" />
@@ -548,12 +523,8 @@ export default function Landing() {
                   <div className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500">Official Protocol v2.6</div>
                 </div>
               </div>
-
               <div className="space-y-6">
-                <p className="text-xl text-slate-300 leading-relaxed font-medium">
-                  {selectedStrategy.detail}
-                </p>
-                
+                <p className="text-xl text-slate-300 leading-relaxed font-medium">{selectedStrategy.detail}</p>
                 <div className="pt-8 border-t border-white/5">
                   <div className="grid grid-cols-2 gap-8">
                     <div>
@@ -570,7 +541,6 @@ export default function Landing() {
                     </div>
                   </div>
                 </div>
-
                 <button 
                   onClick={() => setSelectedStrategy(null)}
                   className="w-full py-5 bg-emerald-500 text-slate-950 rounded-full font-black text-xs uppercase tracking-widest hover:scale-[1.02] transition-all mt-8"
@@ -585,4 +555,3 @@ export default function Landing() {
     </div>
   );
 }
-
