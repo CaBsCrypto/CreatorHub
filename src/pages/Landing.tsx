@@ -16,6 +16,29 @@ import { useAuth } from '../AuthContext';
 import translations from './translations';
 import './Landing.css';
 
+// Import images
+import founder1 from '../assets/eminatr1x.webp';
+import founder2 from '../assets/cabs.webp';
+import creator1 from '../assets/ladymufa.webp';
+import yagod from '../assets/yagod.webp';
+import lizard from '../assets/lizard.webp';
+import spadex from '../assets/spadex.webp';
+import creator1dory from '../assets/1dory.webp';
+import camululis from '../assets/camululis.webp';
+import oza from '../assets/oza.webp';
+import seven from '../assets/seven.webp';
+
+const PLACEHOLDER_CREATORS = [
+  { id: 'p1', display_name: 'Yagod', photo_url: yagod, twitter: 'https://x.com/YagodNFT', badge: 'NFT Sentinel' },
+  { id: 'p2', display_name: 'Lizard', photo_url: lizard, twitter: 'https://x.com/TheLizardQueenT', badge: 'Tactical Lead' },
+  { id: 'p3', display_name: 'Spadex', photo_url: spadex, twitter: 'https://x.com/FSpadexx', badge: 'High-Impact' },
+  { id: 'p4', display_name: '1Dory', photo_url: creator1dory, twitter: 'https://x.com/1dory_gg', badge: 'Web3 Catalyst' },
+  { id: 'p5', display_name: 'Camululis', photo_url: camululis, twitter: 'https://x.com/camululis', badge: 'Cultural Core' },
+  { id: 'p6', display_name: 'Oza', photo_url: oza, twitter: 'https://x.com/SoyOzarux', badge: 'Visionary' },
+  { id: 'p7', display_name: 'Seven', photo_url: seven, twitter: 'https://x.com/Its7Keys', badge: 'Meta Strategist' },
+];
+
+
 // --- COMPONENTES TÉCNICOS ---
 
 const SystemStatus = () => (
