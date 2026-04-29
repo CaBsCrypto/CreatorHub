@@ -91,6 +91,53 @@ app.use("/api/analyze-", strictLimiter);
 
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 
+// PUBLIC STATS ENDPOINT - No auth required (landing page)
+app.get("/api/public-stats", async (req, res) => {
+  try {
+    const { createClient } = await import('@supabase/supabase-js');
+    const supabase = createClient(
+      process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '',
+      process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || ''
+    );
+
+    // Fetch all three stats in parallel
+    const [viewsResult, campaignsResult, creatorsResult] = await Promise.all([
+      // Sum all views from content (excluding deleted)
+      supabase
+        .from('content')
+        .select('views')
+        .is('deleted_at', null)
+        .neq('status', 'archived'),
+      // Count campaigns (excluding deleted)
+      supabase
+        .from('campaigns')
+        .select('id', { count: 'exact', head: true })
+        .is('deleted_at', null),
+      // Count active creators
+      supabase
+        .from('user_profiles')
+        .select('id', { count: 'exact', head: true })
+        .eq('role', 'creator')
+        .is('deleted_at', null),
+    ]);
+
+    // Sum views manually from the rows
+    const totalViews = (viewsResult.data || []).reduce(
+      (sum: number, row: any) => sum + (row.views || 0), 0
+    );
+
+    res.json({
+      views: totalViews,
+      campaigns: campaignsResult.count || 0,
+      creators: creatorsResult.count || 0,
+    });
+  } catch (error: any) {
+    console.error("Public stats error:", error.message);
+    // Return sensible fallbacks so landing never breaks
+    res.json({ views: 0, campaigns: 0, creators: 0 });
+  }
+});
+
 // Removed /api/debug-env for security
 
 app.post("/api/fetch-metadata", authenticate, validate(FetchMetadataSchema), async (req, res) => {

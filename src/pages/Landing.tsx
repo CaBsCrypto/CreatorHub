@@ -218,12 +218,50 @@ const FOUNDERS = [
   { name: 'Lady Mufa', role: 'Operations Director', img: '/assets/ladymufa.webp' },
 ];
 
+// Animated counter for stats
+const AnimatedCounter = ({ target, prefix = '', suffix = '', divisor = 1 }: { target: number, prefix?: string, suffix?: string, divisor?: number }) => {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (target === 0) return;
+    const finalValue = Math.round(target / divisor);
+    const duration = 2000;
+    const steps = 60;
+    const increment = finalValue / steps;
+    let current = 0;
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= finalValue) {
+        setCount(finalValue);
+        clearInterval(timer);
+      } else {
+        setCount(Math.floor(current));
+      }
+    }, duration / steps);
+    return () => clearInterval(timer);
+  }, [target, divisor]);
+  return <span>{prefix}{count}{suffix}</span>;
+};
+
 export default function Landing() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [selectedStep, setSelectedStep] = useState<any>(null);
   const [lang, setLang] = useState<'en' | 'es'>('es');
   const t = translations[lang];
+  const [stats, setStats] = useState({ views: 0, campaigns: 0, creators: 0 });
+  const [statsLoaded, setStatsLoaded] = useState(false);
+  const statsRef = useRef<HTMLDivElement>(null);
+  const statsInView = useInView(statsRef, { once: true, margin: '-100px' });
+
+  useEffect(() => {
+    fetch('/api/public-stats')
+      .then(r => r.json())
+      .then(data => {
+        setStats(data);
+        setStatsLoaded(true);
+      })
+      .catch(() => setStatsLoaded(true)); // fail silently
+  }, []);
   
   const handleEnterApp = () => {
     if (user) { navigate('/dashboard'); } else { navigate('/login'); }
@@ -323,41 +361,53 @@ export default function Landing() {
       </section>
 
       {/* STATS DIVIDER */}
-      <section className="py-0 px-8 lg:px-12 bg-black border-y border-white/5 relative overflow-hidden">
+      <section className="py-0 px-8 lg:px-12 bg-black border-y border-white/5 relative overflow-hidden" ref={statsRef}>
         {/* Subtle purple carry-over glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[200px] bg-violet-600/10 blur-[80px] pointer-events-none" />
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/5">
-            
+
             {/* STAT 1: Views */}
-            <div className="flex items-center gap-6 py-10 px-8 group">
+            <div className="flex items-center gap-6 py-10 px-8">
               <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-none">
-                <svg className="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                <Eye className="w-5 h-5 text-emerald-500" />
               </div>
               <div>
-                <div className="text-4xl font-black text-white tracking-tighter leading-none">+50M</div>
+                <div className="text-4xl font-black text-white tracking-tighter leading-none">
+                  {statsInView && statsLoaded
+                    ? <AnimatedCounter target={stats.views} suffix={stats.views >= 1000000 ? 'M' : stats.views >= 1000 ? 'K' : ''} divisor={stats.views >= 1000000 ? 1000000 : stats.views >= 1000 ? 1000 : 1} prefix="+" />
+                    : <span className="text-white/20">—</span>}
+                </div>
                 <div className="text-[9px] font-black uppercase tracking-[0.4em] text-white/30 mt-1">Views Generadas</div>
               </div>
             </div>
 
             {/* STAT 2: Campaigns */}
-            <div className="flex items-center gap-6 py-10 px-8 group">
+            <div className="flex items-center gap-6 py-10 px-8">
               <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-none">
-                <svg className="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                <BarChart className="w-5 h-5 text-emerald-500" />
               </div>
               <div>
-                <div className="text-4xl font-black text-white tracking-tighter leading-none">+120</div>
+                <div className="text-4xl font-black text-white tracking-tighter leading-none">
+                  {statsInView && statsLoaded
+                    ? <AnimatedCounter target={stats.campaigns} prefix="+" />
+                    : <span className="text-white/20">—</span>}
+                </div>
                 <div className="text-[9px] font-black uppercase tracking-[0.4em] text-white/30 mt-1">Campañas Ejecutadas</div>
               </div>
             </div>
 
             {/* STAT 3: Creators */}
-            <div className="flex items-center gap-6 py-10 px-8 group">
+            <div className="flex items-center gap-6 py-10 px-8">
               <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-none">
-                <svg className="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                <Users className="w-5 h-5 text-emerald-500" />
               </div>
               <div>
-                <div className="text-4xl font-black text-white tracking-tighter leading-none">+30</div>
+                <div className="text-4xl font-black text-white tracking-tighter leading-none">
+                  {statsInView && statsLoaded
+                    ? <AnimatedCounter target={stats.creators} prefix="+" />
+                    : <span className="text-white/20">—</span>}
+                </div>
                 <div className="text-[9px] font-black uppercase tracking-[0.4em] text-white/30 mt-1">Creadores Activos</div>
               </div>
             </div>
