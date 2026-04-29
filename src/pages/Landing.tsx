@@ -197,6 +197,25 @@ const ProcessModal = ({ step, onClose }: { step: any, onClose: () => void }) => 
 // --- ICONS MAPPING ---
 const STEP_ICONS = [ClipboardCheck, Network, Layers, Activity, BarChart];
 
+// --- DATA: CREATORS ---
+const CREATORS = [
+  { name: 'Spadex', img: '/assets/spadex.webp', handle: '@spadex' },
+  { name: 'Seven', img: '/assets/seven.webp', handle: '@seven' },
+  { name: 'Camululis', img: '/assets/camululis.webp', handle: '@camululis' },
+  { name: 'Lady Mufa', img: '/assets/ladymufa.webp', handle: '@ladymufa' },
+  { name: 'Lizard', img: '/assets/lizard.webp', handle: '@lizard' },
+  { name: 'Oza', img: '/assets/oza.webp', handle: '@oza' },
+  { name: 'Eminatr1x', img: '/assets/eminatr1x.webp', handle: '@eminatr1x' },
+  { name: 'Yagod', img: '/assets/yagod.webp', handle: '@yagod' },
+  { name: '1dory', img: '/assets/1dory.webp', handle: '@1dory' },
+];
+
+const FOUNDERS = [
+  { name: 'Cabs', role: 'Strategic Director', img: '/assets/cabs.webp' },
+  { name: 'Founder One', role: 'Creative Director', img: '/assets/founder_1.webp' },
+  { name: 'Founder Two', role: 'Operations Director', img: '/assets/founder_2.webp' },
+];
+
 export default function Landing() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -208,7 +227,6 @@ export default function Landing() {
     if (user) { navigate('/dashboard'); } else { navigate('/login'); }
   };
 
-  // Dynamically build process steps with icons and translations
   const processSteps = t.onboarding.steps.map((step: any, index: number) => ({
     ...step,
     id: `step-${index}`,
@@ -220,7 +238,7 @@ export default function Landing() {
     <div className="landing-container selection:bg-emerald-500/30">
       <div className="grain-overlay" />
       
-      {/* Navbar: Elite Authority */}
+      {/* Navbar */}
       <nav className="glass-nav">
         <div className="max-w-7xl mx-auto px-8 lg:px-12 h-20 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -229,14 +247,9 @@ export default function Landing() {
           </div>
           
           <div className="flex items-center gap-6">
-             {/* Language Switcher */}
-             <button 
-               onClick={() => setLang(lang === 'en' ? 'es' : 'en')}
-               className="px-4 py-2 border border-white/10 rounded-xl text-[10px] font-black text-white/40 hover:text-white hover:border-white/20 transition-all uppercase tracking-widest"
-             >
+             <button onClick={() => setLang(lang === 'en' ? 'es' : 'en')} className="px-4 py-2 border border-white/10 rounded-xl text-[10px] font-black text-white/40 hover:text-white hover:border-white/20 transition-all uppercase tracking-widest">
                 {lang === 'en' ? 'ES' : 'EN'}
              </button>
-             
              <button onClick={handleEnterApp} className="px-8 py-3 bg-white text-black rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all">
                {t.nav.access}
              </button>
@@ -244,15 +257,10 @@ export default function Landing() {
         </div>
       </nav>
 
-      {/* THE GATEWAY: ONBOARDING PROTOCOL AT THE ABSOLUTE TOP (ULTRA-COMPACT) */}
-      <section id="onboarding" className="pt-4 pb-20 px-8 lg:px-12 bg-[#030711] relative z-10 overflow-hidden">
+      {/* ONBOARDING PROTOCOL */}
+      <section id="onboarding" className="pt-4 pb-32 px-8 lg:px-12 bg-[#030711] relative z-10 overflow-hidden">
         <div className="max-w-7xl mx-auto relative z-10">
-          <motion.div 
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            key={lang}
-            className="mb-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-white/5 pb-6"
-          >
+          <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} key={lang} className="mb-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-white/5 pb-6">
              <div className="space-y-1">
                 <div className="inline-flex items-center gap-2 px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
                    <ShieldCheck className="h-2 w-2 text-emerald-500" />
@@ -262,9 +270,7 @@ export default function Landing() {
                    {t.onboarding.title_1} <span className="text-emerald-500">{t.onboarding.title_2}</span>
                 </h1>
              </div>
-             <p className="text-[11px] text-white/30 font-medium max-w-xs leading-tight">
-                {t.onboarding.desc}
-             </p>
+             <p className="text-[11px] text-white/30 font-medium max-w-xs leading-tight">{t.onboarding.desc}</p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -272,20 +278,78 @@ export default function Landing() {
                <ProcessBox key={step.id} step={step} onClick={() => setSelectedStep(step)} />
              ))}
              
-             {/* Call to Action Box (Unified & Compact) */}
              <div className="p-7 rounded-[1.5rem] bg-emerald-600 flex flex-col justify-between group cursor-pointer hover:bg-emerald-500 transition-all duration-500 min-h-[220px] shadow-[0_0:40px_rgba(16,185,129,0.2)]">
                 <div className="flex justify-between items-start">
                    <div className="text-[9px] font-mono font-black text-[#030711] uppercase tracking-[0.3em]">{t.onboarding.cta_box_label}</div>
                    <Rocket className="h-4 w-4 text-[#030711]/40" />
                 </div>
-                
                 <h3 className="text-2xl font-black uppercase tracking-tighter text-[#030711] leading-tight">{t.onboarding.cta_box_title}</h3>
-                
-                <button onClick={handleEnterApp} className="w-full py-3.5 bg-[#030711] text-white rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform">
+                <button onClick={handleEnterApp} className="w-full py-3.5 bg-[#030711] text-white rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2">
                    {t.onboarding.cta_box_btn} <ArrowRight className="h-3.5 w-3.5" />
                 </button>
              </div>
           </div>
+        </div>
+      </section>
+
+      {/* CREATOR SHOWCASE CAROUSEL */}
+      <section className="py-24 bg-[#030711] border-t border-white/5 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-8 lg:px-12 mb-12">
+           <div className="flex items-center gap-4 mb-4">
+              <Users className="h-4 w-4 text-emerald-500" />
+              <span className="text-[10px] font-black uppercase tracking-[0.5em] text-emerald-500">{t.showcase.label}</span>
+           </div>
+           <h2 className="text-4xl font-black uppercase tracking-tighter text-white">{t.showcase.title}</h2>
+        </div>
+
+        <div className="relative">
+           <div className="absolute inset-y-0 left-0 w-40 bg-gradient-to-r from-[#030711] to-transparent z-10" />
+           <div className="absolute inset-y-0 right-0 w-40 bg-gradient-to-l from-[#030711] to-transparent z-10" />
+           
+           <motion.div 
+             animate={{ x: [0, -1920] }} 
+             transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+             className="flex gap-6 px-6"
+           >
+              {[...CREATORS, ...CREATORS].map((creator, i) => (
+                <div key={i} className="flex-none w-[300px] h-[400px] rounded-[2rem] overflow-hidden relative group">
+                   <img src={creator.img} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-110 group-hover:scale-100" alt={creator.name} />
+                   <div className="absolute inset-0 bg-gradient-to-t from-[#030711] via-transparent to-transparent opacity-60" />
+                   <div className="absolute bottom-8 left-8">
+                      <div className="text-[9px] font-black text-emerald-500 uppercase tracking-[0.3em] mb-1">{creator.handle}</div>
+                      <div className="text-2xl font-black text-white uppercase tracking-tighter">{creator.name}</div>
+                   </div>
+                </div>
+              ))}
+           </motion.div>
+        </div>
+      </section>
+
+      {/* FOUNDERS SECTION */}
+      <section className="py-40 px-8 lg:px-12 bg-black relative">
+        <div className="max-w-7xl mx-auto">
+           <div className="text-center mb-24 space-y-6">
+              <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.8em]">{t.leadership.label}</span>
+              <h2 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-none text-white">
+                 {t.leadership.title_1} <br/>
+                 <span className="text-emerald-500">{t.leadership.title_2}</span>
+              </h2>
+           </div>
+
+           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+              {FOUNDERS.map((founder, i) => (
+                <div key={i} className="space-y-8 group">
+                   <div className="aspect-[4/5] rounded-[3rem] overflow-hidden border border-white/5 relative">
+                      <img src={founder.img} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000" alt={founder.name} />
+                      <div className="absolute inset-0 bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                   </div>
+                   <div className="space-y-2">
+                      <div className="text-xs font-black text-emerald-500 uppercase tracking-[0.4em]">{founder.role}</div>
+                      <div className="text-4xl font-black text-white uppercase tracking-tighter">{founder.name}</div>
+                   </div>
+                </div>
+              ))}
+           </div>
         </div>
       </section>
 

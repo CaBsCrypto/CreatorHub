@@ -55,6 +55,15 @@ const translations = {
         }
       ]
     },
+    showcase: {
+      label: "The Guild Showcase",
+      title: "Elite Talent Nodes."
+    },
+    leadership: {
+      label: "Leadership",
+      title_1: "The Minds Behind",
+      title_2: "The Shadow."
+    },
     footer: {
       hub: "UMBRA CREATOR HUB",
       rights: "© 2026 UMBRA AGENCY. ALL RIGHTS RESERVED."
@@ -115,6 +124,15 @@ const translations = {
           items: ["Reporte de Métricas Final", "Análisis de ROI de Campaña", "Feedback de Rendimiento", "Plan de Escalado"]
         }
       ]
+    },
+    showcase: {
+      label: "Exhibición de la Guild",
+      title: "Nodos de Talento Élite."
+    },
+    leadership: {
+      label: "Liderazgo",
+      title_1: "Las Mentes detrás de",
+      title_2: "la Sombra."
     },
     footer: {
       hub: "UMBRA CREATOR HUB",
