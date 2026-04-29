@@ -220,52 +220,32 @@ export default function Landing() {
         </div>
       </nav>
 
-      {/* HERO: THE INITIALIZATION GATEWAY */}
-      <section className="min-h-[70vh] relative overflow-hidden flex items-center pt-20">
-         <div className="absolute inset-0 z-0 opacity-10 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:50px_50px]" />
-         
-         <div className="max-w-7xl mx-auto px-8 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center relative z-10">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }} className="space-y-8">
-               <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
-                  <ShieldCheck className="h-3 w-3 text-emerald-500" />
-                  <span className="text-[9px] font-black uppercase tracking-[0.4em] text-emerald-500">Gateway to Elite Growth</span>
-               </div>
-               
-               <h1 className="text-[4rem] md:text-[6.5rem] font-black uppercase tracking-tighter leading-[0.85] text-white">
-                  Initialize <br/>
-                  The <span className="text-emerald-500">Protocol.</span>
-               </h1>
+      {/* THE GATEWAY: ONBOARDING PROTOCOL AT THE TOP */}
+      <section id="onboarding" className="pt-32 pb-40 px-8 lg:px-12 bg-[#030711] relative z-10 overflow-hidden">
+        {/* Background Accents */}
+        <div className="absolute top-0 right-0 w-1/2 h-full opacity-10 pointer-events-none">
+           <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(16,185,129,0.1),transparent_70%)]" />
+           <img src="/assets/obsidian-visual.png" className="absolute top-20 right-[-10%] w-full max-w-2xl animate-float blur-[2px]" alt="" />
+        </div>
 
-               <p className="text-xl text-white/40 font-medium max-w-xl leading-relaxed">
-                  Welcome to the Umbra engineering flow. This is the **Onboarding Gateway** where we transform brand vision into auditable cultural impact.
-               </p>
-
-               <div className="flex gap-6">
-                  <button onClick={() => document.getElementById('onboarding')?.scrollIntoView({ behavior: 'smooth' })} className="px-12 py-5 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-emerald-500 transition-all shadow-[0_0_40px_rgba(16,185,129,0.3)] flex items-center gap-3">
-                     Enter System Protocol <ChevronDown className="h-4 w-4" />
-                  </button>
-               </div>
-            </motion.div>
-            
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.5 }} className="relative hidden lg:block">
-               <div className="absolute inset-0 bg-emerald-500/10 blur-[150px] rounded-full animate-pulse" />
-               <img src="/assets/obsidian-visual.png" className="w-full relative z-10 animate-float" alt="ROI Engine" />
-            </motion.div>
-         </div>
-      </section>
-
-      {/* THE GATEWAY: ONBOARDING PROTOCOL GRID */}
-      <section id="onboarding" className="pb-40 px-8 lg:px-12 bg-[#030711] relative z-10">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-20 flex flex-col md:flex-row justify-between items-end gap-8">
-             <div className="space-y-4">
-                <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.8em]">System_Entry_Point</span>
-                <h2 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-none">The Onboarding.</h2>
+        <div className="max-w-7xl mx-auto relative z-10">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-24 space-y-8 max-w-4xl"
+          >
+             <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+                <ShieldCheck className="h-3 w-3 text-emerald-500" />
+                <span className="text-[9px] font-black uppercase tracking-[0.4em] text-emerald-500">System Gateway: Operational</span>
              </div>
-             <p className="text-lg text-white/30 font-medium max-w-xs mb-4">
-                Click on any phase to decode our operational methodology and data-flow infrastructure.
+             <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-none text-white">
+                The Onboarding <br/>
+                <span className="text-emerald-500">Protocol.</span>
+             </h1>
+             <p className="text-xl text-white/40 font-medium max-w-2xl leading-relaxed">
+                Click on any phase to decode our operational methodology and data-flow infrastructure. This is how we transform brand vision into auditable cultural impact.
              </p>
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
              {PROCESS_STEPS.map((step) => (
