@@ -202,6 +202,7 @@ const STEP_ICONS = [ClipboardCheck, Network, Layers, Activity, BarChart];
 const CREATORS = [
   { name: 'Spadex', img: '/assets/spadex.webp', handle: '@spadex' },
   { name: 'Seven', img: '/assets/seven.webp', handle: '@seven' },
+  { name: 'Cabs', img: '/assets/cabs.webp', handle: '@cabs' },
   { name: 'Camululis', img: '/assets/camululis.webp', handle: '@camululis' },
   { name: 'Lady Mufa', img: '/assets/ladymufa.webp', handle: '@ladymufa' },
   { name: 'Lizard', img: '/assets/lizard.webp', handle: '@lizard' },
@@ -259,11 +260,11 @@ export default function Landing() {
       </nav>
 
       {/* ONBOARDING PROTOCOL WITH DYNAMIC SOCIAL PROOF BACKGROUND */}
-      <section id="onboarding" className="pt-4 pb-32 px-8 lg:px-12 bg-[#030711] relative z-10 overflow-hidden">
-        {/* BACKGROUND SOCIAL PROOF: CLEAR VISIBILITY */}
+      <section id="onboarding" className="pt-4 pb-32 px-8 lg:px-12 bg-black relative z-10 overflow-hidden">
+        {/* BACKGROUND SOCIAL PROOF: NEON GLASS LAYER */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-           {/* Edge Blending Only - Center is clear */}
-           <div className="absolute inset-0 bg-gradient-to-b from-[#030711] via-transparent to-[#030711] z-20" />
+           {/* Edge fade to black */}
+           <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black z-20" />
            
            <motion.div 
              animate={{ x: [0, -1920] }} 
