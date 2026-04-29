@@ -211,9 +211,9 @@ const CREATORS = [
 ];
 
 const FOUNDERS = [
+  { name: 'Eminatrix', role: 'Creative Director', img: '/assets/eminatr1x.webp' },
   { name: 'Cabs', role: 'Strategic Director', img: '/assets/cabs.webp' },
-  { name: 'Founder One', role: 'Creative Director', img: '/assets/founder_1.webp' },
-  { name: 'Founder Two', role: 'Operations Director', img: '/assets/founder_2.webp' },
+  { name: 'Lady Mufa', role: 'Operations Director', img: '/assets/ladymufa.webp' },
 ];
 
 export default function Landing() {
