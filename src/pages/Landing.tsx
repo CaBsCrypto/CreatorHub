@@ -27,85 +27,85 @@ const PROCESS_STEPS = [
   {
     id: 'diagnostic',
     num: '01',
-    title: 'Diagnostic Audit',
-    short: 'Initial onboarding and DNA analysis of the brand/project.',
+    title: 'Auditoría de ADN',
+    short: 'Desmantelamos tu posicionamiento para identificar ángulos de ataque y ROI.',
     icon: ClipboardCheck,
     detail: {
-      title: 'Phase 01: The Diagnostic Framework',
-      content: 'Every partnership begins with a mandatory technical audit. We dismantle your current positioning to identify structural gaps.',
+      title: 'Fase 01: Auditoría Técnica de ADN',
+      content: 'No aceptamos proyectos a ciegas. Realizamos un desglose técnico de tu marca para alinear objetivos financieros con nuestra infraestructura.',
       items: [
-        'KPI Alignment & ROI Definition',
-        'Audience DNA Mapping',
-        'Competitive Sentiment Analysis',
-        'Infrastructure Readiness Check'
+        'Alineación de KPIs de Negocio',
+        'Mapeo de ADN de Audiencia',
+        'Análisis de Sentimiento Competitivo',
+        'Validación de Infraestructura'
       ]
     }
   },
   {
     id: 'selection',
     num: '02',
-    title: 'Node Selection',
-    short: 'Filtering the top 1% of creators through our elite vetting engine.',
+    title: 'Vetting de Élite',
+    short: 'Filtrado algorítmico del top 1% de creadores y nodos de talento verificados.',
     icon: Network,
     detail: {
-      title: 'Phase 02: Talent Synapse',
-      content: 'We don\'t use "influencers". We deploy verified creator nodes. Our selection process is strictly data-driven.',
+      title: 'Fase 02: Sincronización de Talento',
+      content: 'Olvida a los "influencers" genéricos. Desplegamos nodos de talento auditados por su capacidad real de conversión y autenticidad.',
       items: [
-        'Historical ROI Verification',
-        'Audience Authenticity Audit',
-        'Platform Affinity Matching',
-        'Direct Node Connection (No Middlemen)'
+        'Auditoría de Autenticidad Real',
+        'Verificación de ROI Histórico',
+        'Matching de Afinidad Técnica',
+        'Conexión Directa de Nodos'
       ]
     }
   },
   {
     id: 'strategy',
     num: '03',
-    title: 'Integration',
-    short: 'Content planning and campaign infrastructure deployment.',
+    title: 'Despliegue Umbra',
+    short: 'Ingeniería de contenido y ejecución estratégica de alto rendimiento.',
     icon: Layers,
     detail: {
-      title: 'Phase 03: Strategic Integration',
-      content: 'Creating the bridge between brand capital and cultural resonance. We engineer content that converts.',
+      title: 'Fase 03: Integración Estratégica',
+      content: 'Creamos el puente entre el capital de marca y la resonancia cultural. Ingeniería de contenido diseñada para convertir.',
       items: [
-        'Content Node Briefing',
-        'Platform Hook Optimization',
-        'Timeline Synchronization',
-        'Risk Mitigation Protocols'
+        'Briefing Técnico de Nodos',
+        'Optimización de Hooks por Plataforma',
+        'Sincronización de Timelines',
+        'Protocolos de Mitigación de Riesgos'
       ]
     }
   },
   {
     id: 'monitoring',
     num: '04',
-    title: 'Live Scrape',
-    short: 'Real-time monitoring and technical performance tracking.',
+    title: 'Extracción de Datos',
+    short: 'Scraping en tiempo real y monitoreo quirúrgico de cada interacción.',
     icon: Activity,
     detail: {
-      title: 'Phase 04: Real-Time Extraction',
-      content: 'Direct hooks into platform APIs. We monitor every impression and engagement as it happens.',
+      title: 'Fase 04: Monitoreo Quirúrgico Live',
+      content: 'Acceso directo a las APIs y herramientas de scraping. Visualiza el rendimiento de tu capital mientras ocurre, sin cajas negras.',
       items: [
-        'Live Data Scraping',
-        'Engagement Sentiment Tracking',
-        'Platform Performance Nodes',
-        'Transparency Dashboards'
+        'Scraping de Datos en Tiempo Real',
+        'Tracking de Sentimiento de Engagement',
+        'Nodos de Rendimiento por Plataforma',
+        'Dashboards de Transparencia Total'
       ]
     }
   },
   {
     id: 'yield',
     num: '05',
-    title: 'ROI Yield',
-    short: 'Consolidated performance reporting and capital growth.',
+    title: 'Consolidación de ROI',
+    short: 'Entrega de resultados auditables y escalado estratégico de capital.',
     icon: BarChart,
     detail: {
-      title: 'Phase 05: Capital Consolidation',
-      content: 'The final yield. We consolidate all performance metrics into an undisputed, auditable report.',
+      title: 'Fase 05: Rendimiento de Capital',
+      content: 'La entrega final. Consolidamos todas las métricas en un reporte indiscutible diseñado para el escalado de negocio.',
       items: [
-        'Audited ROI Reports',
-        'Growth Momentum Analysis',
-        'Future Scaling Projections',
-        'Direct Performance Payouts'
+        'Reportes de ROI Auditados',
+        'Análisis de Momentum de Crecimiento',
+        'Proyecciones de Escalado Futuro',
+        'Liquidación de Performance Directa'
       ]
     }
   }
@@ -215,7 +215,7 @@ export default function Landing() {
              <span className="text-xl font-black uppercase tracking-[0.4em] text-white">Umbra</span>
           </div>
           <button onClick={handleEnterApp} className="px-8 py-3 bg-white text-black rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all">
-            Access_Console
+            Consola_de_Acceso
           </button>
         </div>
       </nav>
@@ -231,14 +231,14 @@ export default function Landing() {
              <div className="space-y-1">
                 <div className="inline-flex items-center gap-2 px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
                    <ShieldCheck className="h-2 w-2 text-emerald-500" />
-                   <span className="text-[7px] font-black uppercase tracking-[0.4em] text-emerald-500">System_Gateway</span>
+                   <span className="text-[7px] font-black uppercase tracking-[0.4em] text-emerald-500">Acceso_al_Sistema</span>
                 </div>
                 <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-none text-white">
-                   The Onboarding <span className="text-emerald-500">Protocol.</span>
+                   Protocolo de <span className="text-emerald-500">Onboarding.</span>
                 </h1>
              </div>
              <p className="text-[11px] text-white/30 font-medium max-w-xs leading-tight">
-                Execute the phases below to initialize your project. Each node represents a mandatory operational standard.
+                Ejecuta las fases a continuación para inicializar tu proyecto. Cada nodo representa un estándar operativo obligatorio para el éxito.
              </p>
           </motion.div>
 
@@ -250,14 +250,14 @@ export default function Landing() {
              {/* Call to Action Box (Unified & Compact) */}
              <div className="p-7 rounded-[1.5rem] bg-emerald-600 flex flex-col justify-between group cursor-pointer hover:bg-emerald-500 transition-all duration-500 min-h-[220px] shadow-[0_0:40px_rgba(16,185,129,0.2)]">
                 <div className="flex justify-between items-start">
-                   <div className="text-[9px] font-mono font-black text-[#030711] uppercase tracking-[0.3em]">INITIALIZE_AUDIT</div>
+                   <div className="text-[9px] font-mono font-black text-[#030711] uppercase tracking-[0.3em]">INICIALIZAR_AUDITORIA</div>
                    <Rocket className="h-4 w-4 text-[#030711]/40" />
                 </div>
                 
-                <h3 className="text-2xl font-black uppercase tracking-tighter text-[#030711] leading-tight">Ready to Finalize Your Entry?</h3>
+                <h3 className="text-2xl font-black uppercase tracking-tighter text-[#030711] leading-tight">¿Listo para finalizar tu entrada?</h3>
                 
                 <button onClick={handleEnterApp} className="w-full py-3.5 bg-[#030711] text-white rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform">
-                   Confirm_Onboarding <ArrowRight className="h-3.5 w-3.5" />
+                   Confirmar_Onboarding <ArrowRight className="h-3.5 w-3.5" />
                 </button>
              </div>
           </div>
@@ -277,7 +277,7 @@ export default function Landing() {
               <div className="w-6 h-6 bg-emerald-600 rounded flex items-center justify-center text-[#030711] font-black">U</div>
               <span>Umbra Agency v3.0</span>
            </div>
-           <span>© 2026 ALL RIGHTS RESERVED.</span>
+           <span>© 2026 TODOS LOS DERECHOS RESERVADOS.</span>
         </div>
       </footer>
     </div>
