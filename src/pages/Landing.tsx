@@ -259,26 +259,26 @@ export default function Landing() {
 
       {/* ONBOARDING PROTOCOL WITH DYNAMIC SOCIAL PROOF BACKGROUND */}
       <section id="onboarding" className="pt-4 pb-32 px-8 lg:px-12 bg-[#030711] relative z-10 overflow-hidden">
-        {/* BACKGROUND SOCIAL PROOF: CALIBRATED INFINITE CAROUSEL */}
+        {/* BACKGROUND SOCIAL PROOF: HIGH-VISIBILITY INFINITE CAROUSEL */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-           {/* Sophisticated Masking */}
-           <div className="absolute inset-0 bg-gradient-to-b from-[#030711] via-transparent to-[#030711] z-10" />
-           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#030711_80%)] z-10" />
+           {/* Dynamic Overlays */}
+           <div className="absolute inset-0 bg-gradient-to-b from-[#030711] via-transparent to-[#030711] z-20" />
+           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,#030711_90%)] z-20" />
            
            <motion.div 
              animate={{ x: [0, -1920] }} 
-             transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
-             className="flex gap-8 pt-40 opacity-20"
+             transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
+             className="flex gap-4 pt-32 opacity-40 z-10"
            >
-              {[...CREATORS, ...CREATORS, ...CREATORS].map((creator, i) => (
-                <div key={i} className="flex-none w-[320px] h-[420px] rounded-[3rem] overflow-hidden grayscale brightness-[0.5] contrast-[1.2]">
+              {[...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS].map((creator, i) => (
+                <div key={i} className="flex-none w-[350px] h-[450px] rounded-[2rem] overflow-hidden grayscale contrast-[1.1]">
                    <img src={creator.img} className="w-full h-full object-cover" alt="" />
                 </div>
               ))}
            </motion.div>
         </div>
 
-        <div className="max-w-7xl mx-auto relative z-20">
+        <div className="max-w-7xl mx-auto relative z-30">
           <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} key={lang} className="mb-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-white/5 pb-6">
              <div className="space-y-1">
                 <div className="inline-flex items-center gap-2 px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
