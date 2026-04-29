@@ -115,10 +115,12 @@ const PROCESS_STEPS = [
 
 const ProcessBox = ({ step, onClick }: { step: any, onClick: () => void }) => (
   <motion.div 
-    whileHover={{ y: -5, borderColor: 'rgba(16, 185, 129, 0.4)' }}
+    whileHover={{ y: -5, borderColor: 'rgba(16, 185, 129, 0.5)' }}
     onClick={onClick}
-    className="relative p-7 rounded-[1.5rem] bg-slate-950/80 border border-emerald-500/40 backdrop-blur-xl cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between shadow-[0_0_20px_rgba(16,185,129,0.05)]"
+    className="relative p-7 rounded-[1.5rem] bg-[#030711]/30 border border-emerald-500/25 backdrop-blur-sm cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between"
   >
+    {/* Inner bottom gradient to protect text readability */}
+    <div className="absolute inset-0 bg-gradient-to-t from-[#030711]/80 via-[#030711]/30 to-transparent pointer-events-none" />
     <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-emerald-500/5 blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
     
     <div className="relative z-10 space-y-4">
@@ -266,12 +268,14 @@ export default function Landing() {
            
            <motion.div 
              animate={{ x: [0, -1920] }} 
-             transition={{ duration: 80, repeat: Infinity, ease: "linear" }}
-             className="flex gap-10 pt-40 opacity-40 z-10"
+             transition={{ duration: 70, repeat: Infinity, ease: "linear" }}
+             className="flex gap-8 pt-28 opacity-60 z-10"
            >
               {[...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS].map((creator, i) => (
-                <div key={i} className="flex-none w-[220px] h-[300px] rounded-[2rem] overflow-hidden grayscale brightness-[0.8] contrast-[1.2] border border-emerald-500/10">
-                   <img src={creator.img} className="w-full h-full object-cover" alt="" />
+                <div key={i} className="flex-none w-[280px] h-[380px] rounded-[2rem] overflow-hidden relative">
+                   <img src={creator.img} className="w-full h-full object-cover brightness-[0.6] contrast-[1.1] saturate-0" alt="" />
+                   {/* Digital Teal overlay */}
+                   <div className="absolute inset-0 bg-emerald-900/30 mix-blend-color" />
                 </div>
               ))}
            </motion.div>
