@@ -117,7 +117,7 @@ const ProcessBox = ({ step, onClick }: { step: any, onClick: () => void }) => (
   <motion.div 
     whileHover={{ y: -5, borderColor: 'rgba(16, 185, 129, 0.4)' }}
     onClick={onClick}
-    className="relative p-7 rounded-[1.5rem] bg-white/[0.02] border border-white/10 backdrop-blur-3xl cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between"
+    className="relative p-7 rounded-[1.5rem] bg-white/[0.06] border border-white/10 backdrop-blur-3xl cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between"
   >
     <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-emerald-500/5 blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
     
@@ -263,15 +263,16 @@ export default function Landing() {
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
            {/* Dynamic Overlays */}
            <div className="absolute inset-0 bg-gradient-to-b from-[#030711] via-transparent to-[#030711] z-20" />
-           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,#030711_90%)] z-20" />
+           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,#030711_95%)] z-20" />
+           <div className="absolute inset-0 bg-emerald-900/10 z-15" />
            
            <motion.div 
              animate={{ x: [0, -1920] }} 
              transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
-             className="flex gap-4 pt-32 opacity-40 z-10"
+             className="flex gap-4 pt-32 opacity-30 z-10"
            >
               {[...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS].map((creator, i) => (
-                <div key={i} className="flex-none w-[350px] h-[450px] rounded-[2rem] overflow-hidden grayscale contrast-[1.1]">
+                <div key={i} className="flex-none w-[350px] h-[450px] rounded-[2rem] overflow-hidden grayscale brightness-[0.2] contrast-[1.1]">
                    <img src={creator.img} className="w-full h-full object-cover" alt="" />
                 </div>
               ))}
