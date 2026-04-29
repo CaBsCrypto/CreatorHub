@@ -25,87 +25,87 @@ import './Landing.css';
 
 const PROCESS_STEPS = [
   {
-    id: 'diagnostic',
+    id: 'study',
     num: '01',
-    title: 'Auditoría de ADN',
-    short: 'Desmantelamos tu posicionamiento para identificar ángulos de ataque y ROI.',
+    title: 'Inmersión de Proyecto',
+    short: 'Estudiamos tu marca y ADN para alinear objetivos reales de mercado.',
     icon: ClipboardCheck,
     detail: {
-      title: 'Fase 01: Auditoría Técnica de ADN',
-      content: 'No aceptamos proyectos a ciegas. Realizamos un desglose técnico de tu marca para alinear objetivos financieros con nuestra infraestructura.',
+      title: 'Fase 01: Análisis y Diagnóstico',
+      content: 'Entramos a fondo en tu proyecto. Nuestro equipo estudia el mercado y tu competencia para diseñar una base sólida.',
       items: [
-        'Alineación de KPIs de Negocio',
-        'Mapeo de ADN de Audiencia',
-        'Análisis de Sentimiento Competitivo',
-        'Validación de Infraestructura'
-      ]
-    }
-  },
-  {
-    id: 'selection',
-    num: '02',
-    title: 'Vetting de Élite',
-    short: 'Filtrado algorítmico del top 1% de creadores y nodos de talento verificados.',
-    icon: Network,
-    detail: {
-      title: 'Fase 02: Sincronización de Talento',
-      content: 'Olvida a los "influencers" genéricos. Desplegamos nodos de talento auditados por su capacidad real de conversión y autenticidad.',
-      items: [
-        'Auditoría de Autenticidad Real',
-        'Verificación de ROI Histórico',
-        'Matching de Afinidad Técnica',
-        'Conexión Directa de Nodos'
+        'Briefing de Marca Detallado',
+        'Análisis de Competencia',
+        'Definición de Objetivos (KPIs)',
+        'Mapeo de Audiencia Objetivo'
       ]
     }
   },
   {
     id: 'strategy',
+    num: '02',
+    title: 'Diseño Estratégico',
+    short: 'La Guild planifica el roadmap y selecciona al equipo de creadores ideal.',
+    icon: Network,
+    detail: {
+      title: 'Fase 02: Arquitectura de Campaña',
+      content: 'Diseñamos el plan de ataque. Seleccionamos los perfiles que mejor encajan con tu mensaje para maximizar el impacto.',
+      items: [
+        'Selección de Team de Creadores',
+        'Planificación de Canales',
+        'Roadmap de Publicaciones',
+        'Estrategia de Ángulos Creativos'
+      ]
+    }
+  },
+  {
+    id: 'validation',
     num: '03',
-    title: 'Despliegue Umbra',
-    short: 'Ingeniería de contenido y ejecución estratégica de alto rendimiento.',
+    title: 'Validación de Scripts',
+    short: 'Control de calidad riguroso de cada guion para asegurar la conversión.',
     icon: Layers,
     detail: {
-      title: 'Fase 03: Integración Estratégica',
-      content: 'Creamos el puente entre el capital de marca y la resonancia cultural. Ingeniería de contenido diseñada para convertir.',
+      title: 'Fase 03: Control de Calidad Creativo',
+      content: 'Nada se deja al azar. Validamos y pulimos cada script para que el mensaje sea potente, claro y efectivo.',
       items: [
-        'Briefing Técnico de Nodos',
-        'Optimización de Hooks por Plataforma',
-        'Sincronización de Timelines',
-        'Protocolos de Mitigación de Riesgos'
+        'Revisión Técnica de Scripts',
+        'Ajuste de Ganchos (Hooks)',
+        'Optimización de Narrativa',
+        'Validación de Call to Actions'
       ]
     }
   },
   {
-    id: 'monitoring',
+    id: 'execution',
     num: '04',
-    title: 'Extracción de Datos',
-    short: 'Scraping en tiempo real y monitoreo quirúrgico de cada interacción.',
+    title: 'Despliegue Umbra',
+    short: 'Subida coordinada de contenido y monitorización de impacto live.',
     icon: Activity,
     detail: {
-      title: 'Fase 04: Monitoreo Quirúrgico Live',
-      content: 'Acceso directo a las APIs y herramientas de scraping. Visualiza el rendimiento de tu capital mientras ocurre, sin cajas negras.',
+      title: 'Fase 04: Ejecución y Lanzamiento',
+      content: 'El momento del impacto. Coordinamos la subida de contenido y monitorizamos la respuesta de la comunidad en vivo.',
       items: [
-        'Scraping de Datos en Tiempo Real',
-        'Tracking de Sentimiento de Engagement',
-        'Nodos de Rendimiento por Plataforma',
-        'Dashboards de Transparencia Total'
+        'Gestión de Publicaciones',
+        'Monitoreo de Comentarios',
+        'Ajustes de Estrategia en Vivo',
+        'Control de Nodos de Contenido'
       ]
     }
   },
   {
-    id: 'yield',
+    id: 'results',
     num: '05',
-    title: 'Consolidación de ROI',
-    short: 'Entrega de resultados auditables y escalado estratégico de capital.',
+    title: 'Reporte de Resultados',
+    short: 'Entrega de métricas reales y análisis de ROI auditable.',
     icon: BarChart,
     detail: {
-      title: 'Fase 05: Rendimiento de Capital',
-      content: 'La entrega final. Consolidamos todas las métricas en un reporte indiscutible diseñado para el escalado de negocio.',
+      title: 'Fase 05: Análisis y Cierre',
+      content: 'Transparencia total. Entregamos un reporte detallado con los resultados obtenidos y el retorno generado.',
       items: [
-        'Reportes de ROI Auditados',
-        'Análisis de Momentum de Crecimiento',
-        'Proyecciones de Escalado Futuro',
-        'Liquidación de Performance Directa'
+        'Reporte de Métricas Final',
+        'Análisis de ROI de Campaña',
+        'Feedback de Rendimiento',
+        'Plan de Escalado de Proyecto'
       ]
     }
   }
