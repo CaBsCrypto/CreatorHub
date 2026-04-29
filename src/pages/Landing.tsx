@@ -194,14 +194,27 @@ const ProcessModal = ({ step, onClose }: { step: any, onClose: () => void }) => 
 
 // --- MAIN PAGE ---
 
+// --- ICONS MAPPING ---
+const STEP_ICONS = [ClipboardCheck, Network, Layers, Activity, BarChart];
+
 export default function Landing() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [selectedStep, setSelectedStep] = useState<any>(null);
+  const [lang, setLang] = useState<'en' | 'es'>('es');
+  const t = translations[lang];
   
   const handleEnterApp = () => {
     if (user) { navigate('/dashboard'); } else { navigate('/login'); }
   };
+
+  // Dynamically build process steps with icons and translations
+  const processSteps = t.onboarding.steps.map((step: any, index: number) => ({
+    ...step,
+    id: `step-${index}`,
+    num: `0${index + 1}`,
+    icon: STEP_ICONS[index]
+  }));
 
   return (
     <div className="landing-container selection:bg-emerald-500/30">
@@ -214,9 +227,20 @@ export default function Landing() {
              <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-[#030711] font-black text-lg">U</div>
              <span className="text-xl font-black uppercase tracking-[0.4em] text-white">Umbra</span>
           </div>
-          <button onClick={handleEnterApp} className="px-8 py-3 bg-white text-black rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all">
-            Consola_de_Acceso
-          </button>
+          
+          <div className="flex items-center gap-6">
+             {/* Language Switcher */}
+             <button 
+               onClick={() => setLang(lang === 'en' ? 'es' : 'en')}
+               className="px-4 py-2 border border-white/10 rounded-xl text-[10px] font-black text-white/40 hover:text-white hover:border-white/20 transition-all uppercase tracking-widest"
+             >
+                {lang === 'en' ? 'ES' : 'EN'}
+             </button>
+             
+             <button onClick={handleEnterApp} className="px-8 py-3 bg-white text-black rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all">
+               {t.nav.access}
+             </button>
+          </div>
         </div>
       </nav>
 
@@ -226,38 +250,39 @@ export default function Landing() {
           <motion.div 
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
+            key={lang}
             className="mb-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-white/5 pb-6"
           >
              <div className="space-y-1">
                 <div className="inline-flex items-center gap-2 px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
                    <ShieldCheck className="h-2 w-2 text-emerald-500" />
-                   <span className="text-[7px] font-black uppercase tracking-[0.4em] text-emerald-500">Acceso_al_Sistema</span>
+                   <span className="text-[7px] font-black uppercase tracking-[0.4em] text-emerald-500">{t.onboarding.label}</span>
                 </div>
                 <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-none text-white">
-                   Protocolo de <span className="text-emerald-500">Onboarding.</span>
+                   {t.onboarding.title_1} <span className="text-emerald-500">{t.onboarding.title_2}</span>
                 </h1>
              </div>
              <p className="text-[11px] text-white/30 font-medium max-w-xs leading-tight">
-                Ejecuta las fases a continuación para inicializar tu proyecto. Cada nodo representa un estándar operativo obligatorio para el éxito.
+                {t.onboarding.desc}
              </p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-             {PROCESS_STEPS.map((step) => (
+             {processSteps.map((step: any) => (
                <ProcessBox key={step.id} step={step} onClick={() => setSelectedStep(step)} />
              ))}
              
              {/* Call to Action Box (Unified & Compact) */}
              <div className="p-7 rounded-[1.5rem] bg-emerald-600 flex flex-col justify-between group cursor-pointer hover:bg-emerald-500 transition-all duration-500 min-h-[220px] shadow-[0_0:40px_rgba(16,185,129,0.2)]">
                 <div className="flex justify-between items-start">
-                   <div className="text-[9px] font-mono font-black text-[#030711] uppercase tracking-[0.3em]">INICIALIZAR_AUDITORIA</div>
+                   <div className="text-[9px] font-mono font-black text-[#030711] uppercase tracking-[0.3em]">{t.onboarding.cta_box_label}</div>
                    <Rocket className="h-4 w-4 text-[#030711]/40" />
                 </div>
                 
-                <h3 className="text-2xl font-black uppercase tracking-tighter text-[#030711] leading-tight">¿Listo para finalizar tu entrada?</h3>
+                <h3 className="text-2xl font-black uppercase tracking-tighter text-[#030711] leading-tight">{t.onboarding.cta_box_title}</h3>
                 
                 <button onClick={handleEnterApp} className="w-full py-3.5 bg-[#030711] text-white rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform">
-                   Confirmar_Onboarding <ArrowRight className="h-3.5 w-3.5" />
+                   {t.onboarding.cta_box_btn} <ArrowRight className="h-3.5 w-3.5" />
                 </button>
              </div>
           </div>
@@ -277,7 +302,7 @@ export default function Landing() {
               <div className="w-6 h-6 bg-emerald-600 rounded flex items-center justify-center text-[#030711] font-black">U</div>
               <span>Umbra Agency v3.0</span>
            </div>
-           <span>© 2026 TODOS LOS DERECHOS RESERVADOS.</span>
+           <span>{t.footer.rights}</span>
         </div>
       </footer>
     </div>

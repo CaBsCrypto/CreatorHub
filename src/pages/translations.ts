@@ -7,50 +7,53 @@ const translations = {
       minds: "The Minds Behind",
       login: "Operator Login",
       dashboard: "Command Center",
+      access: "Access_Console"
     },
-    hero: {
-      label: "Industry Standard v2.5",
-      title1: "THE UNMISTAKABLE",
-      title2: "STANDARD.",
-      desc: "Umbra selection yields only the most impactful work. Elevating your project above the noise.",
-      cta1: "Explore Vision",
-      cta2: "The Talent",
-    },
-    about: {
-      label: "The Method",
-      p1_title: "Strategic Execution",
-      p1_desc: "Every partnership starts with a diagnostic framework of targeted questions to decode your project's unique needs.",
-      p2_title: "Scraped Performance",
-      p2_desc: "We deploy our transparency engine to scrape live engagement data, ensuring every view is accounted for.",
-      p3_title: "Precision Reporting",
-      p3_desc: "Results are served through unified portals, providing a crystal-clear summary of your campaign's ROI.",
-      p4_title: "Exponential Growth",
-      p4_desc: "Leveraging data transparency to lock in sustainable creator momentum.",
-      p1_detail: "We replace generic meetings with a precision diagnostic. By analyzing your responses to our tactical questionnaire, we map your cultural footprints and align content strategies directly with your project's vision and ROI goals.",
-      p2_detail: "Transparency is our core. We deploy proprietary scraping tools that hook directly into platform metrics. This ensures we aren't just guessing—we are seeing every view, like, and comment as it happens, eliminating the 'black box' of traditional agency reporting.",
-      p3_detail: "No more waiting for month-end PDFs. Our clients receive access to unified live portals where they can watch their campaign performance in real-time. We provide raw data alongside expert analysis, ensuring you always know exactly where your investment is going.",
-      p4_detail: "We don't just run one-off campaigns; we build ecosystems. By analyzing successful metrics and leveraging data-backed insights, we help brands transition from single activations to sustainable, exponential growth with their creator partners.",
-    },
-    showcase: {
-      label: "Showcase",
-      title: "Our Top Talent.",
-      badge: "Elite Talent",
-    },
-    leadership: {
-      label: "Leadership",
-      title1: "The Minds Behind",
-      title2: "the Shadow.",
-    },
-    stats: {
-      reach_label: "Global Reach",
-      creators_label: "Elite Creators",
-      campaigns_label: "Selective Campaigns",
-    },
-    cta: {
-      title: "Ready to take the next step?",
-      desc: "Join the elite. Register your creator profile or request a brand audit today.",
-      btn1: "Contact Strategy",
-      btn2: "Our Services"
+    onboarding: {
+      label: "System_Gateway",
+      title_1: "The Onboarding",
+      title_2: "Protocol.",
+      desc: "Execute the phases below to initialize your project. Each node represents a mandatory operational standard.",
+      cta_box_label: "Initialize_Audit",
+      cta_box_title: "Ready to Finalize Your Entry?",
+      cta_box_btn: "Confirm_Onboarding",
+      steps: [
+        {
+          title: "Project Immersion",
+          short: "We study your brand and DNA to align with real market goals.",
+          detail_title: "Phase 01: Analysis & Diagnosis",
+          detail_content: "We deep-dive into your project. Our team studies the market and your competition to design a solid foundation.",
+          items: ["Detailed Brand Briefing", "Competitor Analysis", "KPI Definition", "Target Audience Mapping"]
+        },
+        {
+          title: "Strategic Design",
+          short: "The Guild plans the roadmap and selects the ideal creator team.",
+          detail_title: "Phase 02: Campaign Architecture",
+          detail_content: "We design the attack plan. We select the profiles that best fit your message to maximize impact.",
+          items: ["Creator Team Selection", "Channel Planning", "Content Roadmap", "Creative Angle Strategy"]
+        },
+        {
+          title: "Strategy Validation",
+          short: "Rigorous quality control of the strategy to ensure conversion.",
+          detail_title: "Phase 03: Strategic Quality Control",
+          detail_content: "Nothing is left to chance. We validate and polish the strategy so the message is powerful and effective.",
+          items: ["Technical Strategy Review", "Hook Optimization", "Narrative Refinement", "CTA Validation"]
+        },
+        {
+          title: "Umbra Deployment",
+          short: "Coordinated content upload and live impact monitoring.",
+          detail_title: "Phase 04: Execution & Launch",
+          detail_content: "The moment of impact. We coordinate content uploads and monitor community response live.",
+          items: ["Publication Management", "Comment Monitoring", "Live Strategy Adjustments", "Content Node Control"]
+        },
+        {
+          title: "Results Reporting",
+          short: "Delivery of real metrics and auditable ROI analysis.",
+          detail_title: "Phase 05: Analysis & Closing",
+          detail_content: "Total transparency. We deliver a detailed report with the results obtained and the generated return.",
+          items: ["Final Metrics Report", "Campaign ROI Analysis", "Performance Feedback", "Scaling Roadmap"]
+        }
+      ]
     },
     footer: {
       hub: "UMBRA CREATOR HUB",
@@ -65,54 +68,57 @@ const translations = {
       minds: "Las Mentes",
       login: "Acceso Operador",
       dashboard: "Centro de Mando",
+      access: "Consola_de_Acceso"
     },
-    hero: {
-      label: "Estándar de la Industria v2.5",
-      title1: "EL ESTÁNDAR",
-      title2: "INCONFUNDIBLE.",
-      desc: "La selección de Umbra da vida únicamente al trabajo más impactante. Elevando tu proyecto por encima del ruido.",
-      cta1: "Explorar Visión",
-      cta2: "El Talento",
-    },
-    about: {
-      label: "El Método",
-      p1_title: "Ejecución Estratégica",
-      p1_desc: "Cada alianza comienza con un marco de diagnóstico de preguntas dirigidas para decodificar las necesidades únicas de tu proyecto.",
-      p2_title: "Rendimiento Scraped",
-      p2_desc: "Desplegamos nuestro motor de transparencia para escanear datos en vivo, asegurando que cada vista se contabilice.",
-      p3_title: "Reportes de Precisión",
-      p3_desc: "Los resultados se entregan en portales unificados, ofreciendo un resumen cristalino del ROI.",
-      p4_title: "Crecimiento Exponencial",
-      p4_desc: "Aprovechamos la transparencia de datos para asegurar un impulso sostenible para el creador.",
-      p1_detail: "Sustituimos las reuniones genéricas por un diagnóstico de precisión. Al analizar tus respuestas a nuestro cuestionario táctico, mapeamos tu huella cultural y alineamos las estrategias de contenido directamente con la visión de tu proyecto y tus objetivos de ROI.",
-      p2_detail: "La transparencia es nuestro núcleo. Desplegamos herramientas de scraping propias que se conectan directamente a las métricas de las plataformas. Esto asegura que no estemos adivinando: vemos cada vista, me gusta y comentario en tiempo real, eliminando la 'caja negra' de los reportes de agencias tradicionales.",
-      p3_detail: "Se acabó el esperar PDFs a final de mes. Nuestros clientes reciben acceso a portales unificados en vivo donde pueden observar el rendimiento de su campaña en tiempo real. Proporcionamos datos brutos junto con análisis expertos, asegurando que siempre sepas exactamente a dónde va tu inversión.",
-      p4_detail: "No solo ejecutamos campañas aisladas; construimos ecosistemas. Al analizar métricas exitosas y aprovechar insights respaldados por datos, ayudamos a las marcas a transicionar de activaciones únicas a un crecimiento exponencial y sostenible con sus socios creadores.",
-    },
-    showcase: {
-      label: "Exhibición",
-      title: "Nuestro Mejor Talento.",
-      badge: "Talento Élite",
-    },
-    leadership: {
-      label: "Liderazgo",
-      title1: "Las Mentes Detrás de",
-      title2: "la Sombra.",
-    },
-    stats: {
-      reach_label: "Alcance Global",
-      creators_label: "Creadores Élite",
-      campaigns_label: "Campañas Seleccionadas",
-    },
-    cta: {
-      title: "¿Listo para dar el siguiente paso?",
-      desc: "Únete a la élite. Registra tu perfil de creador o solicita una auditoría de marca hoy.",
-      btn1: "Contactar Estrategia",
-      btn2: "Nuestros Servicios"
+    onboarding: {
+      label: "Acceso_al_Sistema",
+      title_1: "Protocolo de",
+      title_2: "Onboarding.",
+      desc: "Ejecuta las fases a continuación para inicializar tu proyecto. Cada nodo representa un estándar operativo obligatorio.",
+      cta_box_label: "Inicializar_Auditoria",
+      cta_box_title: "¿Listo para finalizar tu entrada?",
+      cta_box_btn: "Confirmar_Onboarding",
+      steps: [
+        {
+          title: "Inmersión de Proyecto",
+          short: "Estudiamos tu marca y ADN para alinear objetivos reales de mercado.",
+          detail_title: "Fase 01: Análisis y Diagnóstico",
+          detail_content: "Entramos a fondo en tu proyecto. Nuestro equipo estudia el mercado y tu competencia para diseñar una base sólida.",
+          items: ["Briefing de Marca Detallado", "Análisis de Competencia", "Definición de Objetivos (KPIs)", "Mapeo de Audiencia Objetivo"]
+        },
+        {
+          title: "Diseño Estratégico",
+          short: "La Guild planifica el roadmap y selecciona al equipo de creadores ideal.",
+          detail_title: "Fase 02: Arquitectura de Campaña",
+          detail_content: "Diseñamos el plan de ataque. Seleccionamos los perfiles que mejor encajan con tu mensaje para maximizar el impacto.",
+          items: ["Selección de Team de Creadores", "Planificación de Canales", "Roadmap de Publicaciones", "Estrategia de Ángulos Creativos"]
+        },
+        {
+          title: "Validación de Estrategia",
+          short: "Control de calidad riguroso de la estrategia para asegurar la conversión.",
+          detail_title: "Fase 03: Control de Calidad Estratégico",
+          detail_content: "Nada se deja al azar. Validamos y pulimos la estrategia para que el mensaje sea potente y efectivo.",
+          items: ["Revisión Técnica de Estrategia", "Optimización de Hooks", "Refinamiento de Narrativa", "Validación de CTAs"]
+        },
+        {
+          title: "Despliegue Umbra",
+          short: "Subida coordinada de contenido y monitorización de impacto live.",
+          detail_title: "Fase 04: Ejecución y Lanzamiento",
+          detail_content: "El momento del impacto. Coordinamos la subida de contenido y monitorizamos la respuesta en vivo.",
+          items: ["Gestión de Publicaciones", "Monitoreo de Comentarios", "Ajustes en Vivo", "Control de Nodos"]
+        },
+        {
+          title: "Reporte de Resultados",
+          short: "Entrega de métricas reales y análisis de ROI auditable.",
+          detail_title: "Fase 05: Análisis y Cierre",
+          detail_content: "Transparencia total. Entregamos un reporte detallado con los resultados obtenidos y el retorno generado.",
+          items: ["Reporte de Métricas Final", "Análisis de ROI de Campaña", "Feedback de Rendimiento", "Plan de Escalado"]
+        }
+      ]
     },
     footer: {
       hub: "UMBRA CREATOR HUB",
-      rights: "© 2026 UMBRA AGENCY. TODOS LOS DERECHOS RESERVADOS."
+      rights: "© 2026 TODOS LOS DERECHOS RESERVADOS."
     }
   }
 };
