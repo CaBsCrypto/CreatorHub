@@ -39,29 +39,39 @@
   @apply text-xl md:text-2xl text-white/40 max-w-xl font-medium leading-relaxed;
 }
 
-/* Bento Protocol Grid: Artifact Design */
-.bento-protocol-grid {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 1.5rem;
-  width: 100%;
+/* Protocol Flow: The Business Closer Narrative */
+.protocol-flow-container {
+  @apply relative max-w-5xl mx-auto py-32 space-y-40;
 }
 
-.bento-node {
-  @apply relative rounded-[2.5rem] bg-white/[0.01] border border-white/5 backdrop-blur-3xl overflow-hidden transition-all duration-700 flex flex-col p-10;
+.flow-step {
+  @apply grid grid-cols-1 lg:grid-cols-2 gap-20 items-center relative;
 }
 
-.bento-node:hover {
-  @apply border-emerald-500/20 bg-emerald-500/[0.01] -translate-y-2;
-  box-shadow: 0 40px 100px -30px rgba(16, 185, 129, 0.05);
+.flow-step::after {
+  content: '';
+  @apply absolute left-[20px] lg:left-1/2 top-full h-40 w-px bg-gradient-to-b from-emerald-500 to-transparent opacity-20;
 }
 
-.node-artifact-glow {
-  @apply absolute -top-1/2 -left-1/2 w-full h-full bg-emerald-500/5 blur-[100px] opacity-0 transition-opacity duration-700;
+.flow-step:last-child::after { @apply hidden; }
+
+.flow-step-num {
+  @apply w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center text-[#030711] font-black text-xs mb-8;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
 }
 
-.bento-node:hover .node-artifact-glow {
-  @apply opacity-100;
+/* Magnificent Artifacts */
+.artifact-card {
+  @apply relative p-12 rounded-[3rem] bg-gradient-to-br from-white/[0.03] to-transparent border border-white/5 backdrop-blur-3xl transition-all duration-700 overflow-hidden;
+}
+
+.artifact-card:hover {
+  @apply border-emerald-500/30 -translate-y-2;
+  box-shadow: 0 50px 100px -40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(16, 185, 129, 0.05);
+}
+
+.glow-point {
+  @apply absolute w-1 h-1 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,1)] animate-ping;
 }
 
 .node-large { grid-column: span 8; }
