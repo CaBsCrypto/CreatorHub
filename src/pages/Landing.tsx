@@ -257,9 +257,25 @@ export default function Landing() {
         </div>
       </nav>
 
-      {/* ONBOARDING PROTOCOL */}
+      {/* ONBOARDING PROTOCOL WITH DYNAMIC SOCIAL PROOF BACKGROUND */}
       <section id="onboarding" className="pt-4 pb-32 px-8 lg:px-12 bg-[#030711] relative z-10 overflow-hidden">
-        <div className="max-w-7xl mx-auto relative z-10">
+        {/* BACKGROUND SOCIAL PROOF: INFINITE CAROUSEL */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.08] overflow-hidden">
+           <div className="absolute inset-0 bg-gradient-to-b from-[#030711] via-transparent to-[#030711] z-10" />
+           <motion.div 
+             animate={{ x: [0, -1920] }} 
+             transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+             className="flex gap-4 pt-40"
+           >
+              {[...CREATORS, ...CREATORS, ...CREATORS].map((creator, i) => (
+                <div key={i} className="flex-none w-[280px] h-[380px] rounded-[2rem] overflow-hidden grayscale blur-[2px]">
+                   <img src={creator.img} className="w-full h-full object-cover" alt="" />
+                </div>
+              ))}
+           </motion.div>
+        </div>
+
+        <div className="max-w-7xl mx-auto relative z-20">
           <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} key={lang} className="mb-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-white/5 pb-6">
              <div className="space-y-1">
                 <div className="inline-flex items-center gap-2 px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
@@ -289,39 +305,6 @@ export default function Landing() {
                 </button>
              </div>
           </div>
-        </div>
-      </section>
-
-      {/* CREATOR SHOWCASE CAROUSEL */}
-      <section className="py-24 bg-[#030711] border-t border-white/5 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-8 lg:px-12 mb-12">
-           <div className="flex items-center gap-4 mb-4">
-              <Users className="h-4 w-4 text-emerald-500" />
-              <span className="text-[10px] font-black uppercase tracking-[0.5em] text-emerald-500">{t.showcase.label}</span>
-           </div>
-           <h2 className="text-4xl font-black uppercase tracking-tighter text-white">{t.showcase.title}</h2>
-        </div>
-
-        <div className="relative">
-           <div className="absolute inset-y-0 left-0 w-40 bg-gradient-to-r from-[#030711] to-transparent z-10" />
-           <div className="absolute inset-y-0 right-0 w-40 bg-gradient-to-l from-[#030711] to-transparent z-10" />
-           
-           <motion.div 
-             animate={{ x: [0, -1920] }} 
-             transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-             className="flex gap-6 px-6"
-           >
-              {[...CREATORS, ...CREATORS].map((creator, i) => (
-                <div key={i} className="flex-none w-[300px] h-[400px] rounded-[2rem] overflow-hidden relative group">
-                   <img src={creator.img} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-110 group-hover:scale-100" alt={creator.name} />
-                   <div className="absolute inset-0 bg-gradient-to-t from-[#030711] via-transparent to-transparent opacity-60" />
-                   <div className="absolute bottom-8 left-8">
-                      <div className="text-[9px] font-black text-emerald-500 uppercase tracking-[0.3em] mb-1">{creator.handle}</div>
-                      <div className="text-2xl font-black text-white uppercase tracking-tighter">{creator.name}</div>
-                   </div>
-                </div>
-              ))}
-           </motion.div>
         </div>
       </section>
 
