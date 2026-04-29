@@ -117,7 +117,7 @@ const ProcessBox = ({ step, onClick }: { step: any, onClick: () => void }) => (
   <motion.div 
     whileHover={{ y: -5, borderColor: 'rgba(16, 185, 129, 0.4)' }}
     onClick={onClick}
-    className="relative p-7 rounded-[1.5rem] bg-[#030711]/20 border-2 border-emerald-500/30 backdrop-blur-[2px] cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between"
+    className="relative p-7 rounded-[1.5rem] bg-slate-950/80 border border-emerald-500/40 backdrop-blur-xl cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between shadow-[0_0_20px_rgba(16,185,129,0.05)]"
   >
     <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-emerald-500/5 blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
     
@@ -266,11 +266,11 @@ export default function Landing() {
            
            <motion.div 
              animate={{ x: [0, -1920] }} 
-             transition={{ duration: 75, repeat: Infinity, ease: "linear" }}
-             className="flex gap-6 pt-32 opacity-70 z-10"
+             transition={{ duration: 80, repeat: Infinity, ease: "linear" }}
+             className="flex gap-10 pt-40 opacity-40 z-10"
            >
-              {[...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS].map((creator, i) => (
-                <div key={i} className="flex-none w-[380px] h-[480px] rounded-[3rem] overflow-hidden grayscale brightness-100 contrast-[1.2]">
+              {[...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS].map((creator, i) => (
+                <div key={i} className="flex-none w-[220px] h-[300px] rounded-[2rem] overflow-hidden grayscale brightness-[0.8] contrast-[1.2] border border-emerald-500/10">
                    <img src={creator.img} className="w-full h-full object-cover" alt="" />
                 </div>
               ))}
