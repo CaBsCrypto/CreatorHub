@@ -115,28 +115,28 @@ const PROCESS_STEPS = [
 
 const ProcessBox = ({ step, onClick }: { step: any, onClick: () => void }) => (
   <motion.div 
-    whileHover={{ y: -5 }}
+    whileHover={{ y: -5, borderColor: 'rgba(16, 185, 129, 0.4)' }}
     onClick={onClick}
-    className="relative p-10 rounded-[2rem] bg-white/[0.02] border border-white/5 backdrop-blur-3xl cursor-pointer group transition-all duration-500 overflow-hidden"
+    className="relative p-7 rounded-[1.5rem] bg-white/[0.02] border border-white/10 backdrop-blur-3xl cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between"
   >
-    <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-emerald-500/5 blur-[100px] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+    <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-emerald-500/5 blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
     
-    <div className="relative z-10 space-y-6">
+    <div className="relative z-10 space-y-4">
        <div className="flex justify-between items-start">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 group-hover:scale-110 transition-transform">
-             <step.icon className="h-6 w-6" />
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 group-hover:scale-110 transition-transform">
+             <step.icon className="h-5 w-5" />
           </div>
-          <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Step_{step.num}</span>
+          <span className="text-[9px] font-mono font-black text-white/20 uppercase tracking-[0.3em]">STEP_{step.num}</span>
        </div>
        
-       <div>
-          <h3 className="text-2xl font-black uppercase tracking-tighter text-white mb-3">{step.title}</h3>
-          <p className="text-sm text-white/40 font-medium leading-relaxed">{step.short}</p>
+       <div className="space-y-2">
+          <h3 className="text-xl font-black uppercase tracking-tighter text-white group-hover:text-emerald-400 transition-colors">{step.title}</h3>
+          <p className="text-[11px] text-white/40 font-medium leading-relaxed line-clamp-2">{step.short}</p>
        </div>
+    </div>
 
-       <div className="pt-4 flex items-center gap-2 text-[8px] font-black uppercase tracking-widest text-emerald-500/60 opacity-0 group-hover:opacity-100 transition-opacity">
-          Click_For_Details <ArrowRight className="h-2 w-2" />
-       </div>
+    <div className="relative z-10 pt-4 flex items-center gap-2 text-[7px] font-black uppercase tracking-widest text-emerald-500/40 opacity-0 group-hover:opacity-100 transition-opacity">
+       Initialize_Module <ArrowRight className="h-2 w-2" />
     </div>
   </motion.div>
 );
@@ -247,12 +247,17 @@ export default function Landing() {
                <ProcessBox key={step.id} step={step} onClick={() => setSelectedStep(step)} />
              ))}
              
-             {/* Call to Action Box (Compact) */}
-             <div className="p-6 rounded-[1.5rem] bg-emerald-600 flex flex-col justify-between group cursor-pointer hover:bg-emerald-500 transition-all duration-500">
-                <div className="text-[8px] font-black text-[#030711] uppercase tracking-[0.4em] mb-2">Initialize_Audit</div>
-                <h3 className="text-xl font-black uppercase tracking-tighter text-[#030711] leading-tight mb-4">Ready to Finalize Your Entry?</h3>
-                <button onClick={handleEnterApp} className="w-full py-3 bg-[#030711] text-white rounded-xl font-black text-[8px] uppercase tracking-widest flex items-center justify-center gap-2">
-                   Confirm_Onboarding <ArrowRight className="h-3 w-3" />
+             {/* Call to Action Box (Unified & Compact) */}
+             <div className="p-7 rounded-[1.5rem] bg-emerald-600 flex flex-col justify-between group cursor-pointer hover:bg-emerald-500 transition-all duration-500 min-h-[220px] shadow-[0_0:40px_rgba(16,185,129,0.2)]">
+                <div className="flex justify-between items-start">
+                   <div className="text-[9px] font-mono font-black text-[#030711] uppercase tracking-[0.3em]">INITIALIZE_AUDIT</div>
+                   <Rocket className="h-4 w-4 text-[#030711]/40" />
+                </div>
+                
+                <h3 className="text-2xl font-black uppercase tracking-tighter text-[#030711] leading-tight">Ready to Finalize Your Entry?</h3>
+                
+                <button onClick={handleEnterApp} className="w-full py-3.5 bg-[#030711] text-white rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform">
+                   Confirm_Onboarding <ArrowRight className="h-3.5 w-3.5" />
                 </button>
              </div>
           </div>
