@@ -17,33 +17,51 @@
   background-image: url('https://www.transparenttextures.com/patterns/stardust.png');
 }
 
-/* Hero Styles */
-.hero-bg-visual {
-  @apply absolute inset-0 z-0 opacity-40;
-  mask-image: radial-gradient(circle at 50% 50%, black 20%, transparent 80%);
+/* Hero Styles: Obsidian Console Refinement */
+.hero-split {
+  @apply min-h-screen flex flex-col lg:flex-row items-center gap-20 px-8 lg:px-24 pt-32 pb-20 relative z-10;
+}
+
+.hero-content {
+  @apply flex-1 space-y-10 text-left;
+}
+
+.hero-visual {
+  @apply flex-1 relative w-full aspect-square max-w-xl;
 }
 
 .hero-title {
-  @apply text-[6rem] md:text-[12rem] font-black uppercase tracking-tighter leading-[0.8] text-white;
-  filter: drop-shadow(0 0 30px rgba(16, 185, 129, 0.1));
+  @apply text-[4rem] md:text-[6rem] font-black uppercase tracking-tighter leading-[0.9] text-white;
+  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.1));
 }
 
-/* Bento Protocol Grid */
+.hero-subtitle {
+  @apply text-xl md:text-2xl text-white/40 max-w-xl font-medium leading-relaxed;
+}
+
+/* Bento Protocol Grid: Artifact Design */
 .bento-protocol-grid {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
-  grid-template-rows: repeat(2, 1fr);
   gap: 1.5rem;
   width: 100%;
 }
 
 .bento-node {
-  @apply relative rounded-[3rem] bg-white/[0.02] border border-white/5 backdrop-blur-3xl overflow-hidden transition-all duration-700 flex flex-col p-8;
+  @apply relative rounded-[2.5rem] bg-white/[0.01] border border-white/5 backdrop-blur-3xl overflow-hidden transition-all duration-700 flex flex-col p-10;
 }
 
 .bento-node:hover {
-  @apply border-emerald-500/20 bg-emerald-500/[0.02] -translate-y-1;
-  box-shadow: 0 40px 100px -30px rgba(16, 185, 129, 0.1);
+  @apply border-emerald-500/20 bg-emerald-500/[0.01] -translate-y-2;
+  box-shadow: 0 40px 100px -30px rgba(16, 185, 129, 0.05);
+}
+
+.node-artifact-glow {
+  @apply absolute -top-1/2 -left-1/2 w-full h-full bg-emerald-500/5 blur-[100px] opacity-0 transition-opacity duration-700;
+}
+
+.bento-node:hover .node-artifact-glow {
+  @apply opacity-100;
 }
 
 .node-large { grid-column: span 8; }
