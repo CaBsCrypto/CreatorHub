@@ -115,12 +115,11 @@ const PROCESS_STEPS = [
 
 const ProcessBox = ({ step, onClick }: { step: any, onClick: () => void }) => (
   <motion.div 
-    whileHover={{ y: -5, borderColor: 'rgba(16, 185, 129, 0.5)' }}
+    whileHover={{ y: -5 }}
     onClick={onClick}
-    className="relative p-7 rounded-[1.5rem] bg-[#030711]/30 border border-emerald-500/25 backdrop-blur-sm cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between"
+    style={{ boxShadow: '0 0 0 1px rgba(16,185,129,0.3), 0 0 20px rgba(16,185,129,0.08)' }}
+    className="relative p-7 rounded-[1.5rem] bg-white/[0.03] cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between hover:[box-shadow:0_0_0_1px_rgba(16,185,129,0.6),0_0_30px_rgba(16,185,129,0.2)]"
   >
-    {/* Inner bottom gradient to protect text readability */}
-    <div className="absolute inset-0 bg-gradient-to-t from-[#030711]/80 via-[#030711]/30 to-transparent pointer-events-none" />
     <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-emerald-500/5 blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
     
     <div className="relative z-10 space-y-4">
@@ -269,13 +268,12 @@ export default function Landing() {
            <motion.div 
              animate={{ x: [0, -1920] }} 
              transition={{ duration: 70, repeat: Infinity, ease: "linear" }}
-             className="flex gap-8 pt-28 opacity-60 z-10"
+             className="flex gap-8 pt-28 opacity-70 z-10"
            >
               {[...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS].map((creator, i) => (
                 <div key={i} className="flex-none w-[280px] h-[380px] rounded-[2rem] overflow-hidden relative">
-                   <img src={creator.img} className="w-full h-full object-cover brightness-[0.6] contrast-[1.1] saturate-0" alt="" />
-                   {/* Digital Teal overlay */}
-                   <div className="absolute inset-0 bg-emerald-900/30 mix-blend-color" />
+                   <img src={creator.img} className="w-full h-full object-cover brightness-[0.55] contrast-[1.1] saturate-0" alt="" />
+                   <div className="absolute inset-0 bg-emerald-900/20 mix-blend-color" />
                 </div>
               ))}
            </motion.div>
@@ -300,13 +298,18 @@ export default function Landing() {
                <ProcessBox key={step.id} step={step} onClick={() => setSelectedStep(step)} />
              ))}
              
-             <div className="p-7 rounded-[1.5rem] bg-emerald-600 flex flex-col justify-between group cursor-pointer hover:bg-emerald-500 transition-all duration-500 min-h-[220px] shadow-[0_0:40px_rgba(16,185,129,0.2)]">
+             {/* NEON CTA BOX */}
+             <div 
+               style={{ boxShadow: '0 0 0 1px rgba(16,185,129,0.5), 0 0 40px rgba(16,185,129,0.15), inset 0 0 40px rgba(16,185,129,0.05)' }}
+               className="p-7 rounded-[1.5rem] bg-emerald-500/10 backdrop-blur-md flex flex-col justify-between group cursor-pointer hover:bg-emerald-500/15 transition-all duration-500 min-h-[220px]"
+               onClick={handleEnterApp}
+             >
                 <div className="flex justify-between items-start">
-                   <div className="text-[9px] font-mono font-black text-[#030711] uppercase tracking-[0.3em]">{t.onboarding.cta_box_label}</div>
-                   <Rocket className="h-4 w-4 text-[#030711]/40" />
+                   <div className="text-[9px] font-mono font-black text-emerald-400 uppercase tracking-[0.3em]">{t.onboarding.cta_box_label}</div>
+                   <Rocket className="h-4 w-4 text-emerald-400/60" />
                 </div>
-                <h3 className="text-2xl font-black uppercase tracking-tighter text-[#030711] leading-tight">{t.onboarding.cta_box_title}</h3>
-                <button onClick={handleEnterApp} className="w-full py-3.5 bg-[#030711] text-white rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2">
+                <h3 className="text-2xl font-black uppercase tracking-tighter text-white leading-tight">{t.onboarding.cta_box_title}</h3>
+                <button onClick={handleEnterApp} className="w-full py-3.5 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-500/20 transition-all">
                    {t.onboarding.cta_box_btn} <ArrowRight className="h-3.5 w-3.5" />
                 </button>
              </div>
