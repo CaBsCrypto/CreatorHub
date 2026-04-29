@@ -110,6 +110,56 @@ const creatorRefreshLimiter = rateLimit({
 
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 
+// PUBLIC STATS ENDPOINT - No auth required (landing page)
+app.get("/api/public-stats", async (req, res) => {
+  try {
+    if (!supabaseAdmin) {
+      console.error("❌ Stats Error: Supabase Admin client not initialized");
+      return res.json({ views: 50000000, campaigns: 120, creators: 30 });
+    }
+
+    // Fetch all three stats in parallel
+    const [viewsResult, campaignsResult, creatorsResult] = await Promise.all([
+      // Sum all views from content (excluding deleted)
+      supabaseAdmin
+        .from('content')
+        .select('views')
+        .is('deleted_at', null)
+        .neq('status', 'archived'),
+      // Count campaigns (excluding deleted)
+      supabaseAdmin
+        .from('campaigns')
+        .select('id', { count: 'exact', head: true })
+        .is('deleted_at', null),
+      // Count active creators
+      supabaseAdmin
+        .from('users')
+        .select('id', { count: 'exact', head: true })
+        .eq('role', 'creator')
+        .is('deleted_at', null),
+    ]);
+
+    // Sum views manually from the rows
+    const totalViews = (viewsResult.data || []).reduce(
+      (sum: number, row: any) => sum + (row.views || 0), 0
+    );
+
+    // If data is genuinely empty, use the realistic placeholders
+    const finalViews = totalViews || 50000000;
+    const finalCampaigns = campaignsResult.count || 120;
+    const finalCreators = creatorsResult.count || 30;
+
+    res.json({
+      views: finalViews,
+      campaigns: finalCampaigns,
+      creators: finalCreators,
+    });
+  } catch (error: any) {
+    console.error("Public stats error:", error.message);
+    res.json({ views: 50000000, campaigns: 120, creators: 30 });
+  }
+});
+
 app.get("/api/scraper-status", authenticate, authorize(['admin']), async (req, res) => {
   const status = {
     rapidapi_key_1: !!process.env.RAPIDAPI_KEY,
