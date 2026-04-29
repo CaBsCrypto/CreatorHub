@@ -260,11 +260,14 @@ export default function Landing() {
       </nav>
 
       {/* ONBOARDING PROTOCOL WITH DYNAMIC SOCIAL PROOF BACKGROUND */}
-      <section id="onboarding" className="pt-4 pb-32 px-8 lg:px-12 bg-black relative z-10 overflow-hidden">
+      <section id="onboarding" className="pt-4 pb-32 px-8 lg:px-12 bg-[#0d0014] relative z-10 overflow-hidden">
         {/* BACKGROUND SOCIAL PROOF: NEON GLASS LAYER */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-           {/* Edge fade to black */}
-           <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black z-20" />
+           {/* Purple ambient glow */}
+           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[600px] bg-violet-600/10 blur-[120px] rounded-full z-0" />
+           <div className="absolute top-0 left-1/4 w-[400px] h-[400px] bg-purple-700/8 blur-[100px] rounded-full z-0" />
+           {/* Edge fade to purple-black */}
+           <div className="absolute inset-0 bg-gradient-to-b from-[#0d0014] via-transparent to-[#0d0014] z-20" />
            
            <motion.div 
              animate={{ x: [0, -1920] }} 
