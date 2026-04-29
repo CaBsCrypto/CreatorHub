@@ -220,44 +220,39 @@ export default function Landing() {
         </div>
       </nav>
 
-      {/* THE GATEWAY: ONBOARDING PROTOCOL AT THE TOP */}
-      <section id="onboarding" className="pt-32 pb-40 px-8 lg:px-12 bg-[#030711] relative z-10 overflow-hidden">
-        {/* Background Accents */}
-        <div className="absolute top-0 right-0 w-1/2 h-full opacity-10 pointer-events-none">
-           <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(16,185,129,0.1),transparent_70%)]" />
-           <img src="/assets/obsidian-visual.png" className="absolute top-20 right-[-10%] w-full max-w-2xl animate-float blur-[2px]" alt="" />
-        </div>
-
+      {/* THE GATEWAY: ONBOARDING PROTOCOL AT THE ABSOLUTE TOP */}
+      <section id="onboarding" className="pt-10 pb-40 px-8 lg:px-12 bg-[#030711] relative z-10 overflow-hidden">
         <div className="max-w-7xl mx-auto relative z-10">
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-24 space-y-8 max-w-4xl"
+            className="mb-12 flex flex-col lg:flex-row lg:items-end justify-between gap-8 border-b border-white/5 pb-12"
           >
-             <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
-                <ShieldCheck className="h-3 w-3 text-emerald-500" />
-                <span className="text-[9px] font-black uppercase tracking-[0.4em] text-emerald-500">System Gateway: Operational</span>
+             <div className="space-y-4">
+                <div className="inline-flex items-center gap-3 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+                   <ShieldCheck className="h-2.5 w-2.5 text-emerald-500" />
+                   <span className="text-[8px] font-black uppercase tracking-[0.4em] text-emerald-500">System_Gateway</span>
+                </div>
+                <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none text-white">
+                   The Onboarding <span className="text-emerald-500">Protocol.</span>
+                </h1>
              </div>
-             <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-none text-white">
-                The Onboarding <br/>
-                <span className="text-emerald-500">Protocol.</span>
-             </h1>
-             <p className="text-xl text-white/40 font-medium max-w-2xl leading-relaxed">
-                Click on any phase to decode our operational methodology and data-flow infrastructure. This is how we transform brand vision into auditable cultural impact.
+             <p className="text-sm text-white/40 font-medium max-w-md leading-relaxed">
+                Execute the phases below to initialize your project into the Umbra ecosystem. Each node represents a mandatory operational standard for campaign success.
              </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
              {PROCESS_STEPS.map((step) => (
                <ProcessBox key={step.id} step={step} onClick={() => setSelectedStep(step)} />
              ))}
              
              {/* Call to Action Box */}
-             <div className="p-10 rounded-[2rem] bg-emerald-600 flex flex-col justify-between group cursor-pointer hover:bg-emerald-500 transition-all duration-500 shadow-[0_0:50px_rgba(16,185,129,0.2)]">
-                <div className="text-[10px] font-black text-[#030711] uppercase tracking-[0.5em] mb-4">Elite_Access</div>
-                <h3 className="text-3xl font-black uppercase tracking-tighter text-[#030711] leading-none mb-10">Ready to Finalize Your Entry?</h3>
-                <button onClick={handleEnterApp} className="w-full py-4 bg-[#030711] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3">
-                   Confirm_Onboarding <ArrowRight className="h-4 w-4" />
+             <div className="p-8 rounded-[2rem] bg-emerald-600 flex flex-col justify-between group cursor-pointer hover:bg-emerald-500 transition-all duration-500 shadow-[0_0:40px_rgba(16,185,129,0.2)]">
+                <div className="text-[9px] font-black text-[#030711] uppercase tracking-[0.5em] mb-4">Initialize_Audit</div>
+                <h3 className="text-2xl font-black uppercase tracking-tighter text-[#030711] leading-tight mb-8">Ready to Finalize Your Entry?</h3>
+                <button onClick={handleEnterApp} className="w-full py-3.5 bg-[#030711] text-white rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2">
+                   Confirm_Onboarding <ArrowRight className="h-3.5 w-3.5" />
                 </button>
              </div>
           </div>
