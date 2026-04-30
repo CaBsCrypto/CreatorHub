@@ -276,7 +276,7 @@ export default function AdminDashboard() {
   }, [refresh, success, toastError]);
 
   return (
-    <div className="flex min-h-screen bg-black selection:bg-red-500/30 selection:text-red-200">
+    <div className="flex min-h-screen bg-slate-50 selection:bg-indigo-100 selection:text-indigo-900">
       <AdminSidebar 
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 

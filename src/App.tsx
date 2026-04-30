@@ -17,6 +17,7 @@ const CreatorDashboard = React.lazy(() => import('./pages/CreatorDashboard'));
 const ClientDashboard = React.lazy(() => import('./pages/ClientDashboard'));
 const PublicReview = React.lazy(() => import('./pages/PublicReview'));
 const Landing = React.lazy(() => import('./pages/Landing'));
+const OnboardingConsole = React.lazy(() => import('./pages/OnboardingConsole'));
 
 const ProtectedRoute = ({ children, role }: { children: React.ReactNode, role?: 'admin' | 'creator' | 'client' }) => {
   const { user, profile, loading } = useAuth();
@@ -76,7 +77,7 @@ export default function App() {
 
 function AppContent() {
   const { pathname } = window.location;
-  const isPublicRoute = pathname === '/' || pathname.startsWith('/review/') || pathname.startsWith('/v/') || pathname === '/login';
+  const isPublicRoute = pathname === '/' || pathname === '/onboarding' || pathname.startsWith('/review/') || pathname.startsWith('/v/') || pathname === '/login';
 
   return (
     <>
@@ -86,6 +87,7 @@ function AppContent() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<Landing />} />
+            <Route path="/onboarding" element={<OnboardingConsole />} />
             <Route path="/dashboard" element={<HomeRedirect />} />
             <Route 
               path="/admin/*" 

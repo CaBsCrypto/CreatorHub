@@ -94,9 +94,9 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Posts por plataforma */}
-        <div className="bg-white/[0.03] p-8 rounded-2xl border border-white/5 shadow-sm">
-          <h3 className="text-base font-black text-white mb-6 flex items-center gap-2 uppercase tracking-tight">
-            <BarChart3 className="h-5 w-5 text-red-500" /> Posts por Plataforma
+        <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+          <h3 className="text-base font-black text-slate-900 mb-6 flex items-center gap-2 uppercase tracking-tight">
+            <BarChart3 className="h-5 w-5 text-indigo-600" /> Posts by Platform
           </h3>
           <div className="h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -120,8 +120,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   ))}
                 </Pie>
                 <Tooltip
-                  contentStyle={{ backgroundColor: '#000', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', boxShadow: '0 4px 24px rgba(0,0,0,0.5)', color: '#fff' }}
-                  itemStyle={{ color: '#fff', fontWeight: '800', textTransform: 'uppercase', fontSize: '10px' }}
+                  contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '12px', boxShadow: '0 4px 24px rgba(0,0,0,0.05)', color: '#000' }}
+                  itemStyle={{ color: '#000', fontWeight: '800', textTransform: 'uppercase', fontSize: '10px' }}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -132,22 +132,22 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               <button
                 key={item.id}
                 onClick={() => { setFilter('platform', item.id); setActiveTab('content'); }}
-                className="flex items-center justify-between p-3 bg-white/[0.02] hover:bg-red-500/10 rounded-xl border border-white/5 hover:border-red-500/20 transition-all group/item"
+                className="flex items-center justify-between p-3 bg-slate-50 hover:bg-indigo-50 rounded-xl border border-slate-100 hover:border-indigo-100 transition-all group/item"
               >
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full" style={{ backgroundColor: PLATFORM_COLORS[item.id] || '#444' }} />
-                  <span className="text-[10px] font-black text-white/40 uppercase tracking-widest group-hover/item:text-red-500 transition-colors">{item.name}</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest group-hover/item:text-indigo-600 transition-colors">{item.name}</span>
                 </div>
-                <span className="text-xs font-black text-white tabular-nums">{item.value.toLocaleString()}</span>
+                <span className="text-xs font-black text-slate-900 tabular-nums">{item.value.toLocaleString()}</span>
               </button>
             ))}
           </div>
         </div>
 
         {/* Vistas por plataforma */}
-        <div className="bg-white/[0.03] p-8 rounded-2xl border border-white/5 shadow-sm">
-          <h3 className="text-base font-black text-white mb-6 flex items-center gap-2 uppercase tracking-tight">
-            <BarChart3 className="h-5 w-5 text-red-500" /> Vistas por Plataforma
+        <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+          <h3 className="text-base font-black text-slate-900 mb-6 flex items-center gap-2 uppercase tracking-tight">
+            <BarChart3 className="h-5 w-5 text-indigo-600" /> Views by Platform
           </h3>
           <div className="h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -171,9 +171,9 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(value: number) => [value.toLocaleString() + ' vistas', 'Métrica']}
-                  contentStyle={{ backgroundColor: '#000', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', boxShadow: '0 4px 24px rgba(0,0,0,0.5)', color: '#fff' }}
-                  itemStyle={{ color: '#fff', fontWeight: '800', textTransform: 'uppercase', fontSize: '10px' }}
+                  formatter={(value: number) => [value.toLocaleString() + ' views', 'Metric']}
+                  contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '12px', boxShadow: '0 4px 24px rgba(0,0,0,0.05)', color: '#000' }}
+                  itemStyle={{ color: '#000', fontWeight: '800', textTransform: 'uppercase', fontSize: '10px' }}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -184,13 +184,13 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               <button
                 key={platform}
                 onClick={() => { setFilter('platform', platform); setActiveTab('content'); }}
-                className="flex items-center justify-between p-3 bg-white/[0.02] hover:bg-red-500/10 rounded-xl border border-white/5 hover:border-red-500/20 transition-all group/item"
+                className="flex items-center justify-between p-3 bg-slate-50 hover:bg-indigo-50 rounded-xl border border-slate-100 hover:border-indigo-100 transition-all group/item"
               >
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full" style={{ backgroundColor: PLATFORM_COLORS[platform] || '#444' }} />
-                  <span className="text-[10px] font-black text-white/40 uppercase tracking-widest group-hover/item:text-red-500 transition-colors">{platform}</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest group-hover/item:text-indigo-600 transition-colors">{platform}</span>
                 </div>
-                <span className="text-xs font-black text-white tabular-nums">{views.toLocaleString()}</span>
+                <span className="text-xs font-black text-slate-900 tabular-nums">{views.toLocaleString()}</span>
               </button>
             ))}
           </div>
