@@ -3,208 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { 
   motion, 
   AnimatePresence,
-  useScroll,
-  useTransform,
   useInView
 } from 'framer-motion';
 import { 
-  Zap, Rocket, Target, 
   ArrowRight, Shield,
-  BarChart3, LayoutDashboard, LogIn,
-  TrendingUp, Twitter,
+  BarChart3, LogIn,
   Activity, Eye, Users, CheckCircle2,
-  ChevronDown, Hexagon, Layers, Share2,
-  PieChart, LineChart, Database, Cpu, Globe, Lock, Sparkles,
-  Search, ShieldCheck, MousePointer2, X, ClipboardCheck, Network, BarChart, Server
+  Layers, X, Network, ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import translations from './translations';
 import './Landing.css';
 
-// --- DATA: PROCESS STEPS ---
-
-const PROCESS_STEPS = [
-  {
-    id: 'study',
-    num: '01',
-    title: 'Inmersión de Proyecto',
-    short: 'Estudiamos tu marca y ADN para alinear objetivos reales de mercado.',
-    icon: ClipboardCheck,
-    detail: {
-      title: 'Fase 01: Análisis y Diagnóstico',
-      content: 'Entramos a fondo en tu proyecto. Nuestro equipo estudia el mercado y tu competencia para diseñar una base sólida.',
-      items: [
-        'Briefing de Marca Detallado',
-        'Análisis de Competencia',
-        'Definición de Objetivos (KPIs)',
-        'Mapeo de Audiencia Objetivo'
-      ]
-    }
-  },
-  {
-    id: 'strategy',
-    num: '02',
-    title: 'Diseño Estratégico',
-    short: 'La Guild planifica el roadmap y selecciona al equipo de creadores ideal.',
-    icon: Network,
-    detail: {
-      title: 'Fase 02: Arquitectura de Campaña',
-      content: 'Diseñamos el plan de ataque. Seleccionamos los perfiles que mejor encajan con tu mensaje para maximizar el impacto.',
-      items: [
-        'Selección de Team de Creadores',
-        'Planificación de Canales',
-        'Roadmap de Publicaciones',
-        'Estrategia de Ángulos Creativos'
-      ]
-    }
-  },
-  {
-    id: 'validation',
-    num: '03',
-    title: 'Validación de Scripts',
-    short: 'Control de calidad riguroso de cada guion para asegurar la conversión.',
-    icon: Layers,
-    detail: {
-      title: 'Fase 03: Control de Calidad Creativo',
-      content: 'Nada se deja al azar. Validamos y pulimos cada script para que el mensaje sea potente, claro y efectivo.',
-      items: [
-        'Revisión Técnica de Scripts',
-        'Ajuste de Ganchos (Hooks)',
-        'Optimización de Narrativa',
-        'Validación de Call to Actions'
-      ]
-    }
-  },
-  {
-    id: 'execution',
-    num: '04',
-    title: 'Despliegue Umbra',
-    short: 'Subida coordinada de contenido y monitorización de impacto live.',
-    icon: Activity,
-    detail: {
-      title: 'Fase 04: Ejecución y Lanzamiento',
-      content: 'El momento del impacto. Coordinamos la subida de contenido y monitorizamos la respuesta de la comunidad en vivo.',
-      items: [
-        'Gestión de Publicaciones',
-        'Monitoreo de Comentarios',
-        'Ajustes de Estrategia en Vivo',
-        'Control de Nodos de Contenido'
-      ]
-    }
-  },
-  {
-    id: 'results',
-    num: '05',
-    title: 'Reporte de Resultados',
-    short: 'Entrega de métricas reales y análisis de ROI auditable.',
-    icon: BarChart,
-    detail: {
-      title: 'Fase 05: Análisis y Cierre',
-      content: 'Transparencia total. Entregamos un reporte detallado con los resultados obtenidos y el retorno generado.',
-      items: [
-        'Reporte de Métricas Final',
-        'Análisis de ROI de Campaña',
-        'Feedback de Rendimiento',
-        'Plan de Escalado de Proyecto'
-      ]
-    }
-  }
-];
-
-// --- SUB-COMPONENTS ---
-
-const ProcessBox = ({ step, onClick }: { step: any, onClick: () => void }) => (
-  <motion.div 
-    whileHover={{ y: -5 }}
-    onClick={onClick}
-    className="relative p-7 rounded-[1.5rem] bg-transparent cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between border border-white/10 hover:border-red-500/40"
-  >
-    {/* Dynamic Background Image - Maximum Appreciation */}
-    <div className="absolute inset-0 z-0">
-      <img 
-        src={step.img} 
-        alt={step.title}
-        className="w-full h-full object-cover opacity-50 group-hover:opacity-90 group-hover:scale-110 transition-all duration-700 brightness-[0.9]"
-      />
-      {/* Ghost effect - No overlays at all */}
-      <div className="absolute inset-0 bg-transparent group-hover:bg-red-950/10 transition-colors" />
-    </div>
-
-    <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-red-500/5 blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-    
-    <div className="relative z-10 space-y-4">
-       <div className="flex justify-between items-start">
-          <div className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 group-hover:bg-red-600 group-hover:text-black transition-all">
-             <step.icon className="h-5 w-5" />
-          </div>
-          <span className="text-[9px] font-mono font-black text-white/20 uppercase tracking-[0.3em] group-hover:text-red-500/40 transition-colors">STEP_{step.num}</span>
-       </div>
-       
-       <div>
-          <h3 className="text-xl font-black text-white leading-tight uppercase tracking-tighter mb-2 group-hover:text-red-500 transition-colors">{step.title}</h3>
-          <p className="text-[11px] font-medium text-white/40 leading-relaxed max-w-[200px] group-hover:text-white/60 transition-colors">{step.desc}</p>
-       </div>
-    </div>
-  </motion.div>
-);
-
-const ProcessModal = ({ step, onClose }: { step: any, onClose: () => void }) => (
-  <motion.div 
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    exit={{ opacity: 0 }}
-    className="fixed inset-0 z-[100] flex items-center justify-center px-6 bg-black/40 backdrop-blur-xl"
-    onClick={onClose}
-  >
-    <motion.div 
-      initial={{ scale: 0.9, opacity: 0, y: 20 }}
-      animate={{ scale: 1, opacity: 1, y: 0 }}
-      exit={{ scale: 0.9, opacity: 0, y: 20 }}
-      className="max-w-2xl w-full bg-white/[0.01] border border-white/10 rounded-[3rem] p-12 relative overflow-hidden backdrop-blur-2xl shadow-2xl"
-      onClick={e => e.stopPropagation()}
-    >
-       <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/5 blur-[80px]" />
-       
-       <button onClick={onClose} className="absolute top-8 right-8 text-white/20 hover:text-white transition-colors">
-          <X className="h-6 w-6" />
-       </button>
-
-       <div className="space-y-10 relative z-10">
-          <div className="flex items-center gap-6">
-             <div className="w-16 h-16 rounded-2xl bg-red-600 flex items-center justify-center text-[#030711]">
-                <step.icon className="h-8 w-8" />
-             </div>
-             <div>
-                <span className="text-xs font-black text-red-500 uppercase tracking-[0.5em]">Onboarding Protocol</span>
-                <h2 className="text-4xl font-black uppercase tracking-tighter text-white">{step.detail.title}</h2>
-             </div>
-          </div>
-
-          <p className="text-xl text-white/60 font-medium leading-relaxed">{step.detail.content}</p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-             {step.detail.items.map((item: string, i: number) => (
-               <div key={i} className="p-4 bg-white/[0.03] border border-white/5 rounded-2xl flex items-center gap-4">
-                  <CheckCircle2 className="h-4 w-4 text-red-600" />
-                  <span className="text-[11px] font-black uppercase tracking-widest text-white/60">{item}</span>
-               </div>
-             ))}
-          </div>
-
-          <button onClick={onClose} className="w-full py-4 bg-red-700 hover:bg-red-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all">
-             Initialize_Module
-          </button>
-       </div>
-    </motion.div>
-  </motion.div>
-);
-
-// --- MAIN PAGE ---
-
-// --- ICONS MAPPING ---
-const STEP_ICONS = [ClipboardCheck, Network, Layers, Activity, BarChart];
-
-// --- DATA: CREATORS ---
 const CREATORS = [
   { name: 'Spadex', img: '/assets/spadex.webp', handle: '@spadex' },
   { name: 'Seven', img: '/assets/seven.webp', handle: '@seven' },
@@ -224,7 +34,61 @@ const FOUNDERS = [
   { name: 'Lady Mufa', role: 'Operations Director', img: '/assets/ladymufa.webp' },
 ];
 
-// Animated counter for stats
+const STRATEGY_NODES = [
+  {
+    id: 'branding',
+    title: 'Identity Node',
+    label: 'Branding Lab',
+    desc: 'Engineering high-authority identities through cinematic design and luxury aesthetics.',
+    icon: Layers,
+    size: 'node-large',
+    detail: {
+      title: 'Phase Alpha: Branding Lab',
+      content: 'We engineer bespoke brand artifacts that command respect. Our process moves beyond generic design toward high-fidelity visual ecosystems.',
+      items: ['Custom UI/UX Engineering', 'Cinematic Brand Motion', 'Authority Alignment', 'Luxury Token Design']
+    }
+  },
+  {
+    id: 'performance',
+    title: 'Growth Engine',
+    label: 'Performance Audit',
+    desc: 'Optimizing conversion nodes through real-time data and ROI synchronization.',
+    icon: BarChart3,
+    size: 'node-small',
+    detail: {
+      title: 'Phase Beta: Growth System',
+      content: 'Every campaign is an experiment in precision. We monitor every click and view to ensure maximum return on investment through technical analysis.',
+      items: ['Live KPI Monitoring', 'Predictive Analysis', 'ROI Optimization', 'Data Synchronization']
+    }
+  },
+  {
+    id: 'guild',
+    title: 'Talent Node',
+    label: 'Elite Guild',
+    desc: 'Access to the most influential nodes in the digital creator ecosystem.',
+    icon: Users,
+    size: 'node-small',
+    detail: {
+      title: 'Phase Gamma: The Guild',
+      content: 'Our guild is a synchronized network of elite talent. We select nodes that represent the absolute standard of engagement and influence.',
+      items: ['Selective Profiling', 'Exclusive Talent Network', 'Influence Mapping', 'Engagement Guarantee']
+    }
+  },
+  {
+    id: 'distribution',
+    title: 'Global Sync',
+    label: 'Node Distribution',
+    desc: 'Massive impact through a synchronized network of global publication nodes.',
+    icon: Network,
+    size: 'node-large',
+    detail: {
+      title: 'Phase Delta: Global Sync',
+      content: 'We deploy content across a global architecture, ensuring a synchronized impact that saturates your target market with precision timing.',
+      items: ['Global Network Sync', 'Multi-channel Deployment', 'Node Saturation', 'Impact Monitoring']
+    }
+  }
+];
+
 const AnimatedCounter = ({ target, prefix = '', suffix = '', divisor = 1 }: { target: number, prefix?: string, suffix?: string, divisor?: number }) => {
   const [count, setCount] = useState(0);
   useEffect(() => {
@@ -248,11 +112,95 @@ const AnimatedCounter = ({ target, prefix = '', suffix = '', divisor = 1 }: { ta
   return <span>{prefix}{count}{suffix}</span>;
 };
 
+const StrategyNode = ({ node, onClick }: { node: any, onClick: () => void }) => (
+  <motion.div
+    whileHover={{ y: -5 }}
+    onClick={onClick}
+    className={`${node.size} artifact-card group cursor-pointer relative min-h-[340px] flex flex-col justify-between border border-white/5 hover:border-red-500/30 transition-all duration-500`}
+  >
+    <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/[0.03] blur-[80px] group-hover:bg-red-600/[0.08] transition-all duration-700" />
+    
+    <div className="relative z-10 space-y-6">
+      <div className="flex justify-between items-start">
+        <div className="node-icon-wrapper">
+          <node.icon className="h-6 w-6 text-red-500" />
+        </div>
+        <span className="text-[10px] font-black text-red-500 uppercase tracking-[0.5em] opacity-40 group-hover:opacity-100 transition-opacity">NODE_TYPE: {node.id}</span>
+      </div>
+
+      <div>
+        <div className="text-xs font-black text-red-500 uppercase tracking-[0.3em] mb-2">{node.label}</div>
+        <h3 className="text-4xl font-black text-white uppercase tracking-tighter leading-tight group-hover:text-red-500 transition-colors">{node.title}</h3>
+      </div>
+      
+      <p className="text-base text-white/40 font-medium leading-relaxed max-w-sm group-hover:text-white/60 transition-colors">{node.desc}</p>
+    </div>
+
+    <div className="data-node-viz mt-10 relative h-12 overflow-hidden rounded-xl border border-white/5 bg-white/[0.01]">
+       <div className="absolute inset-0 bg-gradient-to-r from-red-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+       <div className="pulse-line" />
+       <div className="pulse-line delay-700" style={{ top: '30%' }} />
+       <div className="pulse-line delay-1000" style={{ top: '60%' }} />
+    </div>
+  </motion.div>
+);
+
+const DetailModal = ({ item, onClose }: { item: any, onClose: () => void }) => (
+  <motion.div 
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    className="fixed inset-0 z-[150] flex items-center justify-center px-6 bg-black/90 backdrop-blur-xl"
+    onClick={onClose}
+  >
+    <motion.div 
+      initial={{ scale: 0.9, opacity: 0, y: 20 }}
+      animate={{ scale: 1, opacity: 1, y: 0 }}
+      exit={{ scale: 0.9, opacity: 0, y: 20 }}
+      className="max-w-3xl w-full bg-[#050505] border border-red-500/20 rounded-[3rem] p-10 md:p-12 relative overflow-hidden shadow-2xl"
+      onClick={e => e.stopPropagation()}
+    >
+       <div className="absolute top-0 right-0 w-96 h-96 bg-red-600/[0.1] blur-[120px] -z-10" />
+       
+       <button onClick={onClose} className="absolute top-8 right-8 text-white/20 hover:text-white transition-colors bg-white/5 p-2 rounded-full">
+          <X className="h-6 w-6" />
+       </button>
+
+       <div className="space-y-10 relative z-10">
+          <div className="flex items-center gap-6">
+             <div className="w-20 h-20 rounded-2xl bg-red-600 flex items-center justify-center text-[#030711] shadow-[0_0_30px_rgba(220,38,38,0.3)]">
+                <item.icon className="h-10 w-10" />
+             </div>
+             <div>
+                <span className="text-xs font-black text-red-500 uppercase tracking-[0.5em]">Strategic Node</span>
+                <h2 className="text-5xl font-black uppercase tracking-tighter text-white">{item.detail.title}</h2>
+             </div>
+          </div>
+
+          <p className="text-xl text-white/60 font-medium leading-relaxed max-w-2xl">{item.detail.content}</p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+             {item.detail.items.map((listItem: string, i: number) => (
+               <div key={i} className="p-5 bg-white/[0.03] border border-white/5 rounded-2xl flex items-center gap-4 group hover:border-red-500/30 transition-all">
+                  <CheckCircle2 className="h-5 w-5 text-red-600" />
+                  <span className="text-[11px] font-black uppercase tracking-widest text-white/80 group-hover:text-red-500 transition-colors">{listItem}</span>
+               </div>
+             ))}
+          </div>
+
+          <button onClick={onClose} className="w-full py-5 bg-red-700 hover:bg-red-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.3em] transition-all shadow-[0_0_40px_rgba(220,38,38,0.2)]">
+             Confirm_Protocol_Sync
+          </button>
+       </div>
+    </motion.div>
+  </motion.div>
+);
+
 export default function Landing() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [selectedStep, setSelectedStep] = useState<any>(null);
   const [lang, setLang] = useState<'en' | 'es'>('es');
+  const [selectedNode, setSelectedNode] = useState<any>(null);
   const t = translations[lang];
   const [stats, setStats] = useState({ views: 0, campaigns: 0, creators: 0 });
   const [statsLoaded, setStatsLoaded] = useState(false);
@@ -266,54 +214,33 @@ export default function Landing() {
         setStats(data);
         setStatsLoaded(true);
       })
-      .catch(() => setStatsLoaded(true)); // fail silently
+      .catch(() => setStatsLoaded(true));
   }, []);
-  
+
   const handleEnterApp = () => {
     if (user) { navigate('/dashboard'); } else { navigate('/login'); }
   };
 
-  const processSteps = t.onboarding.steps.map((step: any, index: number) => ({
-    ...step,
-    id: `step-${index}`,
-    num: `0${index + 1}`,
-    icon: STEP_ICONS[index]
-  }));
-
   return (
-    <div className="landing-container bg-transparent selection:bg-red-500/30">
+    <div className="landing-container umbra-red-aesthetic overflow-x-hidden">
         {/* Technical Background System */}
         <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-           {/* Base Obsidian Layer */}
            <div className="absolute inset-0 bg-[#020202]" />
-           
-           {/* Technical Grid with Radial Mask */}
            <div className="technical-grid" />
-           
-           {/* Dynamic Scanline */}
            <div className="scanline" />
-           
-           {/* Vignette Overlay with subtle red tint */}
            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_20%,rgba(10,0,0,0.6)_100%)]" />
            
-           {/* High-Intensity Ambient Red Aura System */}
            <div className="absolute top-0 left-[-10%] w-[70%] h-[1000px] bg-red-600/[0.05] rounded-full blur-[180px] animate-pulse" />
            <div className="absolute top-[1500px] right-[-10%] w-[60%] h-[1200px] bg-red-900/[0.04] rounded-full blur-[150px] animate-pulse delay-300" />
-           <div className="absolute top-[3000px] left-[-5%] w-[65%] h-[1000px] bg-red-600/[0.03] rounded-full blur-[160px] animate-pulse delay-700" />
-           <div className="absolute top-[4500px] right-[-10%] w-[55%] h-[1100px] bg-red-900/[0.04] rounded-full blur-[140px] animate-pulse delay-1000" />
-           <div className="absolute bottom-0 left-[20%] w-[80%] h-[800px] bg-red-600/[0.04] rounded-full blur-[180px] animate-pulse delay-200" />
-           
-           {/* Central Core Glow for depth */}
-           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[3000px] bg-red-950/[0.02] blur-[200px] rounded-full pointer-events-none" />
         </div>
 
         <div className="grain-overlay opacity-[0.03]" />
       
       {/* Navbar */}
-      <nav className="glass-nav">
+      <nav className="glass-nav border-white/5">
         <div className="max-w-7xl mx-auto px-8 lg:px-12 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-             <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center text-[#030711] font-black text-lg">U</div>
+          <div className="flex items-center gap-4 cursor-pointer group" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
+             <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center text-[#030711] font-black text-lg group-hover:scale-110 transition-transform">U</div>
              <span className="text-xl font-black uppercase tracking-[0.4em] text-white">Umbra</span>
           </div>
           
@@ -321,175 +248,219 @@ export default function Landing() {
              <button onClick={() => setLang(lang === 'en' ? 'es' : 'en')} className="px-4 py-2 border border-white/10 rounded-xl text-[10px] font-black text-white/40 hover:text-white hover:border-white/20 transition-all uppercase tracking-widest">
                 {lang === 'en' ? 'ES' : 'EN'}
              </button>
-             <button onClick={handleEnterApp} className="px-8 py-3 bg-white text-black rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all">
+             <button onClick={handleEnterApp} className="px-8 py-3 bg-white text-black rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)]">
                {t.nav.access}
              </button>
           </div>
         </div>
       </nav>
 
-      {/* ONBOARDING PROTOCOL WITH DYNAMIC SOCIAL PROOF BACKGROUND */}
-      <section id="onboarding" className="pt-4 pb-12 px-8 lg:px-12 bg-transparent relative z-10 overflow-hidden border-t border-white/5">
-        {/* BACKGROUND SOCIAL PROOF: NEON GLASS LAYER */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-           {/* Red ambient glows - sharp and aggressive */}
-           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[700px] bg-red-600/20 blur-[100px] rounded-full z-0" />
-           <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-red-900/10 blur-[80px] rounded-full z-0" />
-           <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-red-600/10 blur-[60px] rounded-full z-0" />
-           {/* Edge fade to pure black */}
-           <div className="absolute inset-0 bg-transparent z-20" />
-           
-           <motion.div 
-             animate={{ x: [0, -1920] }} 
-             transition={{ duration: 70, repeat: Infinity, ease: "linear" }}
-             className="flex gap-8 pt-44 opacity-20 z-10"
-           >
-              {[...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS].map((creator, i) => (
-                <div key={i} className="flex-none w-[280px] h-[380px] rounded-[2rem] overflow-hidden relative">
-                   <img src={creator.img} className="w-full h-full object-cover brightness-[0.65] contrast-[1.2] grayscale-[0.3]" alt="" />
-                   <div className="absolute inset-0 bg-red-950/10 mix-blend-multiply" />
-                </div>
-              ))}
-           </motion.div>
-        </div>
+      <main className="relative z-10">
+        
+        {/* HERO SECTION - SPLIT LAYOUT (RESTORATION 100%) */}
+        <section className="px-8 lg:px-12 pt-16 pb-20 border-b border-white/5 min-h-[85vh] flex items-center relative overflow-hidden">
+          <div className="max-w-7xl mx-auto relative w-full">
+            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-red-600/[0.04] blur-[150px] -z-10" />
+            
+            <div className="grid grid-cols-12 gap-12 items-end">
+               <div className="col-span-12 lg:col-span-8 space-y-12">
+                  <motion.div 
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.8 }}
+                    className="space-y-6"
+                  >
+                     <div className="flex items-center gap-4">
+                        <div className="h-[1px] w-12 bg-red-600" />
+                        <span className="text-[10px] font-black uppercase tracking-[1em] text-red-500">The_Beyond_Influence</span>
+                     </div>
+                     <h1 className="text-8xl lg:text-[12.5rem] font-black uppercase tracking-tighter leading-[0.8] text-white">
+                        Beyond <br/>
+                        <span className="text-red-500 italic">Influence.</span>
+                     </h1>
+                  </motion.div>
 
-        <div className="max-w-7xl mx-auto relative z-30">
-          <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} key={lang} className="mb-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-white/5 pb-6">
-             <div className="space-y-1">
-                <div className="inline-flex items-center gap-2 px-2 py-0.5 bg-red-500/10 border border-red-500/20 rounded-full">
-                   <ShieldCheck className="h-2 w-2 text-red-500" />
-                   <span className="text-[7px] font-black uppercase tracking-[0.4em] text-red-500">{t.onboarding.label}</span>
-                </div>
-                <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-none text-white">
-                   {t.onboarding.title_1} <span className="text-red-500">{t.onboarding.title_2}</span>
-                </h1>
-             </div>
-             <p className="text-[11px] text-white/30 font-medium max-w-xs leading-tight">{t.onboarding.desc}</p>
-          </motion.div>
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2, duration: 0.8 }}
+                    className="flex flex-col sm:flex-row gap-8 pt-4"
+                  >
+                    <button onClick={() => navigate('/onboarding')} className="px-12 py-6 bg-red-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.3em] hover:bg-red-500 transition-all shadow-[0_0_50px_rgba(220,38,38,0.3)] flex items-center gap-4">
+                       Initialize Protocol <ArrowRight className="h-5 w-5" />
+                    </button>
+                    <div className="flex items-center gap-6">
+                       <div className="h-10 w-[1px] bg-white/10 hidden sm:block" />
+                       <p className="text-white/30 text-sm font-medium leading-relaxed max-w-[240px]">
+                          Infrastructure engineered for absolute creator authority.
+                       </p>
+                    </div>
+                  </motion.div>
+               </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-             {processSteps.map((step: any) => (
-               <ProcessBox key={step.id} step={step} onClick={() => setSelectedStep(step)} />
-             ))}
-             
-             {/* NEON CTA BOX */}
-             <div 
-               style={{ boxShadow: '0 0 0 1px rgba(220,38,38,0.2), 0 0 40px rgba(220,38,38,0.05)' }}
-               className="p-7 rounded-[1.5rem] bg-transparent flex flex-col justify-between group cursor-pointer hover:bg-red-500/[0.05] transition-all duration-500 min-h-[220px] border border-white/10"
-               onClick={handleEnterApp}
-             >
-                <div className="flex justify-between items-start">
-                   <div className="text-[9px] font-mono font-black text-red-400 uppercase tracking-[0.3em]">{t.onboarding.cta_box_label}</div>
-                   <Rocket className="h-4 w-4 text-red-400/60" />
-                </div>
-                <h3 className="text-2xl font-black uppercase tracking-tighter text-white leading-tight">{t.onboarding.cta_box_title}</h3>
-                <button onClick={handleEnterApp} className="w-full py-3.5 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 text-red-400 border border-red-500/40 hover:bg-red-500/20 transition-all">
-                   {t.onboarding.cta_box_btn} <ArrowRight className="h-3.5 w-3.5" />
-                </button>
-             </div>
+               <div className="col-span-12 lg:col-span-4" ref={statsRef}>
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.4, duration: 1 }}
+                    className="bg-white/[0.01] border border-white/5 rounded-[3.5rem] p-10 space-y-10 backdrop-blur-3xl relative overflow-hidden group hover:border-red-600/30 transition-all duration-700 shadow-2xl"
+                  >
+                     <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/[0.05] blur-3xl group-hover:bg-red-600/[0.1] transition-all" />
+                     
+                     <div className="space-y-1">
+                        <span className="text-[9px] font-black text-red-500 uppercase tracking-[0.4em]">Protocol_Active</span>
+                        <h2 className="text-2xl font-black text-white uppercase tracking-tighter">Live Metrics</h2>
+                     </div>
+
+                     <div className="space-y-8">
+                        <div className="flex justify-between items-end border-b border-white/5 pb-6">
+                           <div className="space-y-1">
+                              <div className="text-[10px] font-black text-white/20 uppercase tracking-widest">Total_Views</div>
+                              <div className="text-4xl font-black text-white tracking-tighter">
+                                {statsInView && statsLoaded 
+                                  ? <AnimatedCounter target={stats.views} suffix={stats.views >= 1000000 ? 'M' : stats.views >= 1000 ? 'K' : ''} divisor={stats.views >= 1000000 ? 1000000 : stats.views >= 1000 ? 1000 : 1} prefix="+" /> 
+                                  : 'SYNCING...'}
+                              </div>
+                           </div>
+                           <Eye className="h-5 w-5 text-red-500 mb-2 opacity-40" />
+                        </div>
+
+                        <div className="flex justify-between items-end border-b border-white/5 pb-6">
+                           <div className="space-y-1">
+                              <div className="text-[10px] font-black text-white/20 uppercase tracking-widest">Campaign_Nodes</div>
+                              <div className="text-4xl font-black text-white tracking-tighter">
+                                {statsInView && statsLoaded ? <AnimatedCounter target={stats.campaigns} prefix="+" /> : 'SYNCING...'}
+                              </div>
+                           </div>
+                           <ShieldCheck className="h-5 w-5 text-red-500 mb-2 opacity-40" />
+                        </div>
+
+                        <div className="flex justify-between items-end">
+                           <div className="space-y-1">
+                              <div className="text-[10px] font-black text-white/20 uppercase tracking-widest">Elite_Creators</div>
+                              <div className="text-4xl font-black text-white tracking-tighter">
+                                {statsInView && statsLoaded ? <AnimatedCounter target={stats.creators} prefix="+" /> : 'SYNCING...'}
+                              </div>
+                           </div>
+                           <Users className="h-5 w-5 text-red-500 mb-2 opacity-40" />
+                        </div>
+                     </div>
+
+                     <button onClick={handleEnterApp} className="w-full py-5 bg-white/5 hover:bg-white hover:text-black rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] transition-all border border-white/10">
+                        Enter_Command_Center
+                     </button>
+                  </motion.div>
+               </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* STATS DIVIDER */}
-      <section className="py-0 px-8 lg:px-12 bg-transparent border-y border-white/5 relative overflow-hidden" ref={statsRef}>
-        {/* Subtle red carry-over glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[200px] bg-red-600/10 blur-[80px] pointer-events-none" />
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/5">
-
-            {/* STAT 1: Views */}
-            <div className="flex items-center gap-6 py-6 px-8">
-              <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center flex-none">
-                <Eye className="w-5 h-5 text-red-500" />
+        {/* CREATOR CAROUSEL SECTION */}
+        <section className="py-24 border-b border-white/5 overflow-hidden relative">
+           <div className="absolute inset-0 bg-red-600/[0.01] pointer-events-none" />
+           <div className="max-w-7xl mx-auto px-8 lg:px-12 mb-12 flex justify-between items-end">
+              <div className="space-y-2">
+                 <span className="text-[10px] font-black text-red-500 uppercase tracking-[0.8em]">{t.showcase.label}</span>
+                 <h2 className="text-5xl md:text-6xl font-black uppercase tracking-tighter leading-none text-white">{t.showcase.title}</h2>
               </div>
-              <div>
-                <div className="text-4xl font-black text-white tracking-tighter leading-none">
-                  {statsInView && statsLoaded
-                    ? <AnimatedCounter target={stats.views} suffix={stats.views >= 1000000 ? 'M' : stats.views >= 1000 ? 'K' : ''} divisor={stats.views >= 1000000 ? 1000000 : stats.views >= 1000 ? 1000 : 1} prefix="+" />
-                    : <span className="text-white/20">—</span>}
-                </div>
-                <div className="text-[9px] font-black uppercase tracking-[0.4em] text-white/30 mt-1">Views Generadas</div>
-              </div>
-            </div>
-
-            {/* STAT 2: Campaigns */}
-            <div className="flex items-center gap-6 py-6 px-8">
-              <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center flex-none">
-                <BarChart className="w-5 h-5 text-red-500" />
-              </div>
-              <div>
-                <div className="text-4xl font-black text-white tracking-tighter leading-none">
-                  {statsInView && statsLoaded
-                    ? <AnimatedCounter target={stats.campaigns} prefix="+" />
-                    : <span className="text-white/20">—</span>}
-                </div>
-                <div className="text-[9px] font-black uppercase tracking-[0.4em] text-white/30 mt-1">Campañas Ejecutadas</div>
-              </div>
-            </div>
-
-            {/* STAT 3: Creators */}
-            <div className="flex items-center gap-6 py-6 px-8">
-              <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center flex-none">
-                <Users className="w-5 h-5 text-red-500" />
-              </div>
-              <div>
-                <div className="text-4xl font-black text-white tracking-tighter leading-none">
-                  {statsInView && statsLoaded
-                    ? <AnimatedCounter target={stats.creators} prefix="+" />
-                    : <span className="text-white/20">—</span>}
-                </div>
-                <div className="text-[9px] font-black uppercase tracking-[0.4em] text-white/30 mt-1">Creadores Activos</div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* FOUNDERS SECTION */}
-      <section className="py-16 px-8 lg:px-12 bg-transparent relative">
-        <div className="max-w-7xl mx-auto">
-           <div className="text-center mb-24 space-y-6">
-              <span className="text-[10px] font-black text-red-500 uppercase tracking-[0.8em]">{t.leadership.label}</span>
-              <h2 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-none text-white">
-                 {t.leadership.title_1} <br/>
-                 <span className="text-red-500">{t.leadership.title_2}</span>
-              </h2>
            </div>
 
-           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-              {FOUNDERS.map((founder, i) => (
-                <div key={i} className="space-y-8 group">
-                   <div className="aspect-[4/5] rounded-[3rem] overflow-hidden border border-white/5 relative">
-                      <img src={founder.img} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000" alt={founder.name} />
-                      <div className="absolute inset-0 bg-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                   </div>
-                   <div className="space-y-2">
-                      <div className="text-xs font-black text-red-500 uppercase tracking-[0.4em]">{founder.role}</div>
-                      <div className="text-4xl font-black text-white uppercase tracking-tighter">{founder.name}</div>
-                   </div>
-                </div>
-              ))}
+           <div className="relative">
+              <motion.div 
+                animate={{ x: [0, -3520] }} 
+                transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
+                className="flex gap-6 px-4"
+              >
+                 {[...CREATORS, ...CREATORS, ...CREATORS].map((creator, i) => (
+                   <motion.div 
+                     key={i} 
+                     whileHover={{ scale: 1.02 }}
+                     className="flex-none w-[300px] h-[420px] rounded-[3rem] overflow-hidden relative group border border-white/10 grayscale hover:grayscale-0 transition-all duration-700 cursor-pointer bg-zinc-900"
+                   >
+                      <img src={creator.img} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt={creator.name} />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-transparent to-transparent opacity-60 group-hover:opacity-95 transition-opacity" />
+                      <div className="absolute bottom-10 left-10 space-y-1 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                         <div className="text-[9px] font-black text-red-500 uppercase tracking-[0.4em] opacity-0 group-hover:opacity-100 transition-opacity">Elite_Talent</div>
+                         <div className="text-3xl font-black text-white uppercase tracking-tighter">{creator.name}</div>
+                         <div className="text-[10px] font-black text-white/40 uppercase tracking-widest">{creator.handle}</div>
+                      </div>
+                   </motion.div>
+                 ))}
+              </motion.div>
+              <div className="absolute top-0 left-0 w-40 h-full bg-gradient-to-r from-[#020202] to-transparent z-10 pointer-events-none" />
+              <div className="absolute top-0 right-0 w-40 h-full bg-gradient-to-l from-[#020202] to-transparent z-10 pointer-events-none" />
            </div>
-        </div>
-      </section>
+        </section>
+
+        {/* STRATEGY BENTO GRID (The Method) */}
+        <section className="py-24 px-8 lg:px-12 border-b border-white/5 bg-transparent relative">
+          <div className="absolute top-0 left-1/4 w-1/2 h-full bg-red-600/[0.02] blur-[120px] pointer-events-none" />
+          <div className="max-w-7xl mx-auto relative z-10">
+             <div className="mb-16 space-y-4">
+                <span className="text-[10px] font-black text-red-500 uppercase tracking-[0.8em]">Operational_Strategy</span>
+                <h2 className="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-none text-white">The Umbra <span className="text-red-500 italic">Method.</span></h2>
+             </div>
+
+             <div className="grid grid-cols-12 gap-8 lg:gap-10">
+                {STRATEGY_NODES.map((node) => (
+                   <StrategyNode 
+                    key={node.id} 
+                    node={node} 
+                    onClick={() => setSelectedNode(node)} 
+                   />
+                ))}
+             </div>
+          </div>
+        </section>
+
+        {/* FOUNDERS SECTION */}
+        <section className="py-24 px-8 lg:px-12 bg-transparent relative">
+          <div className="max-w-7xl mx-auto">
+             <div className="flex flex-col lg:flex-row justify-between items-end gap-8 mb-16">
+                <div className="space-y-4">
+                   <span className="text-[10px] font-black text-red-500 uppercase tracking-[0.8em]">{t.leadership.label}</span>
+                   <h2 className="text-6xl md:text-7xl font-black uppercase tracking-tighter leading-none text-white">
+                      The <span className="text-red-500">Minds.</span>
+                   </h2>
+                </div>
+             </div>
+
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-12">
+                {FOUNDERS.map((founder, i) => (
+                  <div key={i} className="space-y-6 group">
+                     <div className="aspect-[4/5] rounded-[3.5rem] overflow-hidden border border-white/5 relative bg-zinc-900 shadow-xl">
+                        <img src={founder.img} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 scale-105 group-hover:scale-100" alt={founder.name} />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-transparent to-transparent opacity-80" />
+                     </div>
+                     <div className="space-y-1">
+                        <div className="text-[10px] font-black text-red-500 uppercase tracking-[0.5em]">{founder.role}</div>
+                        <div className="text-4xl font-black text-white uppercase tracking-tighter group-hover:text-red-500 transition-colors">{founder.name}</div>
+                     </div>
+                  </div>
+                ))}
+             </div>
+          </div>
+        </section>
+      </main>
 
       {/* MODAL SYSTEM */}
       <AnimatePresence>
-         {selectedStep && (
-           <ProcessModal step={selectedStep} onClose={() => setSelectedStep(null)} />
+         {selectedNode && (
+           <DetailModal item={selectedNode} onClose={() => setSelectedNode(null)} />
          )}
       </AnimatePresence>
 
       <footer className="py-20 px-8 border-t border-white/5 bg-transparent relative overflow-hidden">
-        <div className="absolute inset-0 bg-transparent z-[-1]" />
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 text-[9px] font-black uppercase tracking-[0.4em] text-white/20">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 text-[10px] font-black uppercase tracking-[0.4em] text-white/20">
            <div className="flex items-center gap-4">
               <div className="w-6 h-6 bg-red-600 rounded flex items-center justify-center text-[#030711] font-black">U</div>
               <span>Umbra Agency v3.0</span>
            </div>
-           <span>{t.footer.rights}</span>
+           <div className="flex gap-8">
+              <span className="hover:text-white cursor-pointer transition-colors">Privacy_Protocol</span>
+              <span className="hover:text-white cursor-pointer transition-colors">Infrastructure_Terms</span>
+           </div>
+           <span className="text-red-500/40">{t.footer.rights}</span>
         </div>
       </footer>
     </div>
