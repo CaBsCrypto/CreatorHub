@@ -117,18 +117,17 @@ const ProcessBox = ({ step, onClick }: { step: any, onClick: () => void }) => (
   <motion.div 
     whileHover={{ y: -5 }}
     onClick={onClick}
-    className="relative p-7 rounded-[1.5rem] bg-transparent backdrop-blur-xl cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between border border-white/5 hover:border-red-500/40"
+    className="relative p-7 rounded-[1.5rem] bg-white/[0.01] backdrop-blur-md cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between border border-white/10 hover:border-red-500/40"
   >
-    {/* Dynamic Background Image with maximum visibility */}
+    {/* Dynamic Background Image - Pure Visibility */}
     <div className="absolute inset-0 z-0">
       <img 
         src={step.img} 
         alt={step.title}
-        className="w-full h-full object-cover opacity-30 grayscale-[0.2] group-hover:opacity-70 group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700"
+        className="w-full h-full object-cover opacity-40 group-hover:opacity-80 group-hover:scale-110 transition-all duration-700"
       />
-      {/* Clean overlay - no more dark wash */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[#020202]/40 to-transparent" />
-      <div className="absolute inset-0 bg-red-950/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+      {/* Absolute minimum overlay for text legibility */}
+      <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
     </div>
 
     <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-red-500/5 blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
@@ -154,14 +153,14 @@ const ProcessModal = ({ step, onClose }: { step: any, onClose: () => void }) => 
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
     exit={{ opacity: 0 }}
-    className="fixed inset-0 z-[100] flex items-center justify-center px-6 bg-black/40 backdrop-blur-3xl"
+    className="fixed inset-0 z-[100] flex items-center justify-center px-6 bg-black/40 backdrop-blur-xl"
     onClick={onClose}
   >
     <motion.div 
       initial={{ scale: 0.9, opacity: 0, y: 20 }}
       animate={{ scale: 1, opacity: 1, y: 0 }}
       exit={{ scale: 0.9, opacity: 0, y: 20 }}
-      className="max-w-2xl w-full bg-white/[0.02] border border-white/10 rounded-[3rem] p-12 relative overflow-hidden backdrop-blur-3xl shadow-2xl"
+      className="max-w-2xl w-full bg-white/[0.01] border border-white/10 rounded-[3rem] p-12 relative overflow-hidden backdrop-blur-2xl shadow-2xl"
       onClick={e => e.stopPropagation()}
     >
        <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/5 blur-[80px]" />
@@ -370,7 +369,7 @@ export default function Landing() {
              {/* NEON CTA BOX */}
              <div 
                style={{ boxShadow: '0 0 0 1px rgba(220,38,38,0.2), 0 0 40px rgba(220,38,38,0.05)' }}
-               className="p-7 rounded-[1.5rem] bg-transparent backdrop-blur-xl flex flex-col justify-between group cursor-pointer hover:bg-red-500/[0.05] transition-all duration-500 min-h-[220px]"
+               className="p-7 rounded-[1.5rem] bg-transparent backdrop-blur-md flex flex-col justify-between group cursor-pointer hover:bg-red-500/[0.05] transition-all duration-500 min-h-[220px] border border-white/10"
                onClick={handleEnterApp}
              >
                 <div className="flex justify-between items-start">
