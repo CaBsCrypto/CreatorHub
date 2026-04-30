@@ -6,72 +6,58 @@
   transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Base Container */
+/* Technical Background System */
 .landing-container {
-  @apply min-h-screen bg-[#030711] text-white overflow-x-hidden relative font-sans;
+  @apply min-h-screen bg-[#020202] text-white overflow-x-hidden relative font-sans;
 }
 
-/* Premium Grain Texture */
-.grain-overlay {
-  @apply fixed inset-0 z-[5] pointer-events-none opacity-[0.04];
-  background-image: url('https://www.transparenttextures.com/patterns/stardust.png');
+/* Moving Scanline Effect */
+.scanline {
+  @apply fixed inset-0 z-[5] pointer-events-none opacity-[0.03];
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(220, 38, 38, 0.2) 50%,
+    transparent 100%
+  );
+  background-size: 100% 10px;
+  animation: scan 10s linear infinite;
 }
 
-/* Hero Styles: Obsidian Console Refinement */
-.hero-split {
-  @apply min-h-screen flex flex-col lg:flex-row items-center gap-20 px-8 lg:px-24 pt-32 pb-20 relative z-10;
+@keyframes scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
 }
 
-.hero-content {
-  @apply flex-1 space-y-10 text-left;
+/* Refined Technical Grid */
+.technical-grid {
+  @apply fixed inset-0 z-0 pointer-events-none opacity-[0.1];
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+  mask-image: radial-gradient(circle at 50% 50%, black 30%, transparent 90%);
 }
 
-.hero-visual {
-  @apply flex-1 relative w-full aspect-square max-w-xl;
+/* Section Glass Wrapper */
+.section-wrapper {
+  @apply relative z-10 py-32 border-t border-white/5 backdrop-blur-[2px];
+  background: radial-gradient(circle at 50% 0%, rgba(220, 38, 38, 0.03) 0%, transparent 70%);
 }
 
-.hero-title {
-  @apply text-[4rem] md:text-[6rem] font-black uppercase tracking-tighter leading-[0.9] text-white;
-  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.1));
-}
-
-.hero-subtitle {
-  @apply text-xl md:text-2xl text-white/40 max-w-xl font-medium leading-relaxed;
-}
-
-/* Protocol Flow: The Business Closer Narrative */
-.protocol-flow-container {
-  @apply relative max-w-5xl mx-auto py-32 space-y-40;
-}
-
-.flow-step {
-  @apply grid grid-cols-1 lg:grid-cols-2 gap-20 items-center relative;
-}
-
-.flow-step::after {
-  content: '';
-  @apply absolute left-[20px] lg:left-1/2 top-full h-40 w-px bg-gradient-to-b from-emerald-500 to-transparent opacity-20;
-}
-
-.flow-step:last-child::after { @apply hidden; }
-
-.flow-step-num {
-  @apply w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center text-[#030711] font-black text-xs mb-8;
-  box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
-}
-
-/* Magnificent Artifacts */
+/* Artifact Card Refinement */
 .artifact-card {
-  @apply relative p-12 rounded-[3rem] bg-gradient-to-br from-white/[0.03] to-transparent border border-white/5 backdrop-blur-3xl transition-all duration-700 overflow-hidden;
+  @apply relative p-12 rounded-[3rem] bg-gradient-to-br from-white/[0.05] to-transparent border border-white/10 backdrop-blur-3xl transition-all duration-700 overflow-hidden;
+  box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.02);
 }
 
 .artifact-card:hover {
-  @apply border-emerald-500/30 -translate-y-2;
-  box-shadow: 0 50px 100px -40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(16, 185, 129, 0.05);
+  @apply border-red-600/50 -translate-y-2;
+  box-shadow: 0 50px 100px -40px rgba(0, 0, 0, 0.9), 0 0 50px rgba(220, 38, 38, 0.1);
 }
 
 .glow-point {
-  @apply absolute w-1 h-1 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,1)] animate-ping;
+  @apply absolute w-1 h-1 rounded-full bg-red-600 shadow-[0_0_10px_rgba(220,38,38,1)] animate-ping;
 }
 
 .node-large { grid-column: span 8; }
@@ -87,7 +73,7 @@
 }
 
 .bento-node:hover .node-icon-wrapper {
-  @apply bg-emerald-500/10 border-emerald-500/20 scale-110;
+  @apply bg-red-600/10 border-red-600/20 scale-110;
 }
 
 /* Interactive Elements inside Nodes */
@@ -96,7 +82,7 @@
 }
 
 .pulse-line {
-  @apply absolute h-[1px] w-full bg-gradient-to-r from-transparent via-emerald-500 to-transparent opacity-20;
+  @apply absolute h-[1px] w-full bg-gradient-to-r from-transparent via-red-600 to-transparent opacity-20;
   animation: pulse-move 4s linear infinite;
 }
 
@@ -120,8 +106,8 @@
   50% { transform: translateY(-20px); }
 }
 
-.glow-emerald {
-  box-shadow: 0 0 50px -10px rgba(16, 185, 129, 0.3);
+.glow-red {
+  box-shadow: 0 0 50px -10px rgba(220, 38, 38, 0.3);
 }
 
 /* Section Transitions */

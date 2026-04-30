@@ -117,27 +117,34 @@ const ProcessBox = ({ step, onClick }: { step: any, onClick: () => void }) => (
   <motion.div 
     whileHover={{ y: -5 }}
     onClick={onClick}
-    style={{ boxShadow: '0 0 0 1px rgba(16,185,129,0.3), 0 0 20px rgba(16,185,129,0.08)' }}
-    className="relative p-7 rounded-[1.5rem] bg-white/[0.03] cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between hover:[box-shadow:0_0_0_1px_rgba(16,185,129,0.6),0_0_30px_rgba(16,185,129,0.2)]"
+    className="relative p-7 rounded-[1.5rem] bg-transparent backdrop-blur-xl cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between border border-white/5 hover:border-red-500/40"
   >
-    <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-emerald-500/5 blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+    {/* Dynamic Background Image with maximum visibility */}
+    <div className="absolute inset-0 z-0">
+      <img 
+        src={step.img} 
+        alt={step.title}
+        className="w-full h-full object-cover opacity-30 grayscale-[0.2] group-hover:opacity-70 group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700"
+      />
+      {/* Clean overlay - no more dark wash */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#020202]/40 to-transparent" />
+      <div className="absolute inset-0 bg-red-950/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+    </div>
+
+    <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-red-500/5 blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
     
     <div className="relative z-10 space-y-4">
        <div className="flex justify-between items-start">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 group-hover:scale-110 transition-transform">
+          <div className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 group-hover:bg-red-600 group-hover:text-black transition-all">
              <step.icon className="h-5 w-5" />
           </div>
-          <span className="text-[9px] font-mono font-black text-white/20 uppercase tracking-[0.3em]">STEP_{step.num}</span>
+          <span className="text-[9px] font-mono font-black text-white/20 uppercase tracking-[0.3em] group-hover:text-red-500/40 transition-colors">STEP_{step.num}</span>
        </div>
        
-       <div className="space-y-2">
-          <h3 className="text-xl font-black uppercase tracking-tighter text-white group-hover:text-emerald-400 transition-colors">{step.title}</h3>
-          <p className="text-[11px] text-white/40 font-medium leading-relaxed line-clamp-2">{step.short}</p>
+       <div>
+          <h3 className="text-xl font-black text-white leading-tight uppercase tracking-tighter mb-2 group-hover:text-red-500 transition-colors">{step.title}</h3>
+          <p className="text-[11px] font-medium text-white/40 leading-relaxed max-w-[200px] group-hover:text-white/60 transition-colors">{step.desc}</p>
        </div>
-    </div>
-
-    <div className="relative z-10 pt-4 flex items-center gap-2 text-[7px] font-black uppercase tracking-widest text-emerald-500/40 opacity-0 group-hover:opacity-100 transition-opacity">
-       Initialize_Module <ArrowRight className="h-2 w-2" />
     </div>
   </motion.div>
 );
@@ -147,17 +154,17 @@ const ProcessModal = ({ step, onClose }: { step: any, onClose: () => void }) => 
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
     exit={{ opacity: 0 }}
-    className="fixed inset-0 z-[100] flex items-center justify-center px-6 bg-black/80 backdrop-blur-xl"
+    className="fixed inset-0 z-[100] flex items-center justify-center px-6 bg-black/40 backdrop-blur-3xl"
     onClick={onClose}
   >
     <motion.div 
       initial={{ scale: 0.9, opacity: 0, y: 20 }}
       animate={{ scale: 1, opacity: 1, y: 0 }}
       exit={{ scale: 0.9, opacity: 0, y: 20 }}
-      className="max-w-2xl w-full bg-slate-950 border border-white/10 rounded-[3rem] p-12 relative overflow-hidden"
+      className="max-w-2xl w-full bg-white/[0.02] border border-white/10 rounded-[3rem] p-12 relative overflow-hidden backdrop-blur-3xl shadow-2xl"
       onClick={e => e.stopPropagation()}
     >
-       <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 blur-[80px]" />
+       <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/5 blur-[80px]" />
        
        <button onClick={onClose} className="absolute top-8 right-8 text-white/20 hover:text-white transition-colors">
           <X className="h-6 w-6" />
@@ -165,11 +172,11 @@ const ProcessModal = ({ step, onClose }: { step: any, onClose: () => void }) => 
 
        <div className="space-y-10 relative z-10">
           <div className="flex items-center gap-6">
-             <div className="w-16 h-16 rounded-2xl bg-emerald-500 flex items-center justify-center text-[#030711]">
+             <div className="w-16 h-16 rounded-2xl bg-red-600 flex items-center justify-center text-[#030711]">
                 <step.icon className="h-8 w-8" />
              </div>
              <div>
-                <span className="text-xs font-black text-emerald-500 uppercase tracking-[0.5em]">Onboarding Protocol</span>
+                <span className="text-xs font-black text-red-500 uppercase tracking-[0.5em]">Onboarding Protocol</span>
                 <h2 className="text-4xl font-black uppercase tracking-tighter text-white">{step.detail.title}</h2>
              </div>
           </div>
@@ -179,13 +186,13 @@ const ProcessModal = ({ step, onClose }: { step: any, onClose: () => void }) => 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
              {step.detail.items.map((item: string, i: number) => (
                <div key={i} className="p-4 bg-white/[0.03] border border-white/5 rounded-2xl flex items-center gap-4">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                  <CheckCircle2 className="h-4 w-4 text-red-600" />
                   <span className="text-[11px] font-black uppercase tracking-widest text-white/60">{item}</span>
                </div>
              ))}
           </div>
 
-          <button onClick={onClose} className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all">
+          <button onClick={onClose} className="w-full py-4 bg-red-700 hover:bg-red-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all">
              Initialize_Module
           </button>
        </div>
@@ -275,14 +282,33 @@ export default function Landing() {
   }));
 
   return (
-    <div className="landing-container selection:bg-emerald-500/30">
-      <div className="grain-overlay" />
+    <div className="landing-container bg-transparent selection:bg-red-500/30">
+        {/* Technical Background System */}
+        <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+           {/* Base Obsidian Layer */}
+           <div className="absolute inset-0 bg-[#020202]" />
+           
+           {/* Technical Grid with Radial Mask */}
+           <div className="technical-grid" />
+           
+           {/* Dynamic Scanline */}
+           <div className="scanline" />
+           
+           {/* Vignette Overlay */}
+           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_20%,rgba(0,0,0,0.4)_100%)]" />
+           
+           {/* Ambient Red Pools */}
+           <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-red-600/[0.03] rounded-full blur-[150px] animate-pulse" />
+           <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-red-900/[0.02] rounded-full blur-[120px] animate-pulse delay-700" />
+        </div>
+
+        <div className="grain-overlay opacity-[0.03]" />
       
       {/* Navbar */}
       <nav className="glass-nav">
         <div className="max-w-7xl mx-auto px-8 lg:px-12 h-20 flex items-center justify-between">
           <div className="flex items-center gap-4">
-             <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-[#030711] font-black text-lg">U</div>
+             <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center text-[#030711] font-black text-lg">U</div>
              <span className="text-xl font-black uppercase tracking-[0.4em] text-white">Umbra</span>
           </div>
           
@@ -298,25 +324,25 @@ export default function Landing() {
       </nav>
 
       {/* ONBOARDING PROTOCOL WITH DYNAMIC SOCIAL PROOF BACKGROUND */}
-      <section id="onboarding" className="pt-4 pb-32 px-8 lg:px-12 bg-[#1a0035] relative z-10 overflow-hidden">
+      <section id="onboarding" className="pt-4 pb-32 px-8 lg:px-12 bg-transparent relative z-10 overflow-hidden border-t border-white/5">
         {/* BACKGROUND SOCIAL PROOF: NEON GLASS LAYER */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-           {/* Purple ambient glows - strong and visible */}
-           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[700px] bg-violet-600/35 blur-[80px] rounded-full z-0" />
-           <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-purple-500/20 blur-[80px] rounded-full z-0" />
-           <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-fuchsia-600/15 blur-[60px] rounded-full z-0" />
-           {/* Edge fade to purple-black */}
-           <div className="absolute inset-0 bg-gradient-to-b from-[#1a0035] via-transparent to-[#1a0035] z-20" />
+           {/* Red ambient glows - sharp and aggressive */}
+           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[700px] bg-red-600/20 blur-[100px] rounded-full z-0" />
+           <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-red-900/10 blur-[80px] rounded-full z-0" />
+           <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-red-600/10 blur-[60px] rounded-full z-0" />
+           {/* Edge fade to pure black */}
+           <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black z-20" />
            
            <motion.div 
              animate={{ x: [0, -1920] }} 
              transition={{ duration: 70, repeat: Infinity, ease: "linear" }}
-             className="flex gap-8 pt-28 opacity-70 z-10"
+             className="flex gap-8 pt-28 opacity-40 z-10"
            >
               {[...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS].map((creator, i) => (
                 <div key={i} className="flex-none w-[280px] h-[380px] rounded-[2rem] overflow-hidden relative">
-                   <img src={creator.img} className="w-full h-full object-cover brightness-[0.55] contrast-[1.1] saturate-0" alt="" />
-                   <div className="absolute inset-0 bg-emerald-900/20 mix-blend-color" />
+                   <img src={creator.img} className="w-full h-full object-cover brightness-[0.65] contrast-[1.2] grayscale-[0.3]" alt="" />
+                   <div className="absolute inset-0 bg-red-950/10 mix-blend-multiply" />
                 </div>
               ))}
            </motion.div>
@@ -325,12 +351,12 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto relative z-30">
           <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} key={lang} className="mb-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-white/5 pb-6">
              <div className="space-y-1">
-                <div className="inline-flex items-center gap-2 px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
-                   <ShieldCheck className="h-2 w-2 text-emerald-500" />
-                   <span className="text-[7px] font-black uppercase tracking-[0.4em] text-emerald-500">{t.onboarding.label}</span>
+                <div className="inline-flex items-center gap-2 px-2 py-0.5 bg-red-500/10 border border-red-500/20 rounded-full">
+                   <ShieldCheck className="h-2 w-2 text-red-500" />
+                   <span className="text-[7px] font-black uppercase tracking-[0.4em] text-red-500">{t.onboarding.label}</span>
                 </div>
                 <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-none text-white">
-                   {t.onboarding.title_1} <span className="text-emerald-500">{t.onboarding.title_2}</span>
+                   {t.onboarding.title_1} <span className="text-red-500">{t.onboarding.title_2}</span>
                 </h1>
              </div>
              <p className="text-[11px] text-white/30 font-medium max-w-xs leading-tight">{t.onboarding.desc}</p>
@@ -343,16 +369,16 @@ export default function Landing() {
              
              {/* NEON CTA BOX */}
              <div 
-               style={{ boxShadow: '0 0 0 1px rgba(16,185,129,0.5), 0 0 40px rgba(16,185,129,0.15), inset 0 0 40px rgba(16,185,129,0.05)' }}
-               className="p-7 rounded-[1.5rem] bg-emerald-500/10 backdrop-blur-md flex flex-col justify-between group cursor-pointer hover:bg-emerald-500/15 transition-all duration-500 min-h-[220px]"
+               style={{ boxShadow: '0 0 0 1px rgba(220,38,38,0.2), 0 0 40px rgba(220,38,38,0.05)' }}
+               className="p-7 rounded-[1.5rem] bg-transparent backdrop-blur-xl flex flex-col justify-between group cursor-pointer hover:bg-red-500/[0.05] transition-all duration-500 min-h-[220px]"
                onClick={handleEnterApp}
              >
                 <div className="flex justify-between items-start">
-                   <div className="text-[9px] font-mono font-black text-emerald-400 uppercase tracking-[0.3em]">{t.onboarding.cta_box_label}</div>
-                   <Rocket className="h-4 w-4 text-emerald-400/60" />
+                   <div className="text-[9px] font-mono font-black text-red-400 uppercase tracking-[0.3em]">{t.onboarding.cta_box_label}</div>
+                   <Rocket className="h-4 w-4 text-red-400/60" />
                 </div>
                 <h3 className="text-2xl font-black uppercase tracking-tighter text-white leading-tight">{t.onboarding.cta_box_title}</h3>
-                <button onClick={handleEnterApp} className="w-full py-3.5 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-500/20 transition-all">
+                <button onClick={handleEnterApp} className="w-full py-3.5 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 text-red-400 border border-red-500/40 hover:bg-red-500/20 transition-all">
                    {t.onboarding.cta_box_btn} <ArrowRight className="h-3.5 w-3.5" />
                 </button>
              </div>
@@ -361,16 +387,16 @@ export default function Landing() {
       </section>
 
       {/* STATS DIVIDER */}
-      <section className="py-0 px-8 lg:px-12 bg-black border-y border-white/5 relative overflow-hidden" ref={statsRef}>
-        {/* Subtle purple carry-over glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[200px] bg-violet-600/10 blur-[80px] pointer-events-none" />
+      <section className="py-0 px-8 lg:px-12 bg-white/[0.02] backdrop-blur-sm border-y border-white/5 relative overflow-hidden" ref={statsRef}>
+        {/* Subtle red carry-over glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[200px] bg-red-600/10 blur-[80px] pointer-events-none" />
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/5">
 
             {/* STAT 1: Views */}
             <div className="flex items-center gap-6 py-10 px-8">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-none">
-                <Eye className="w-5 h-5 text-emerald-500" />
+              <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center flex-none">
+                <Eye className="w-5 h-5 text-red-500" />
               </div>
               <div>
                 <div className="text-4xl font-black text-white tracking-tighter leading-none">
@@ -384,8 +410,8 @@ export default function Landing() {
 
             {/* STAT 2: Campaigns */}
             <div className="flex items-center gap-6 py-10 px-8">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-none">
-                <BarChart className="w-5 h-5 text-emerald-500" />
+              <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center flex-none">
+                <BarChart className="w-5 h-5 text-red-500" />
               </div>
               <div>
                 <div className="text-4xl font-black text-white tracking-tighter leading-none">
@@ -399,8 +425,8 @@ export default function Landing() {
 
             {/* STAT 3: Creators */}
             <div className="flex items-center gap-6 py-10 px-8">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-none">
-                <Users className="w-5 h-5 text-emerald-500" />
+              <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center flex-none">
+                <Users className="w-5 h-5 text-red-500" />
               </div>
               <div>
                 <div className="text-4xl font-black text-white tracking-tighter leading-none">
@@ -417,13 +443,13 @@ export default function Landing() {
       </section>
 
       {/* FOUNDERS SECTION */}
-      <section className="py-40 px-8 lg:px-12 bg-black relative">
+      <section className="py-40 px-8 lg:px-12 bg-transparent relative">
         <div className="max-w-7xl mx-auto">
            <div className="text-center mb-24 space-y-6">
-              <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.8em]">{t.leadership.label}</span>
+              <span className="text-[10px] font-black text-red-500 uppercase tracking-[0.8em]">{t.leadership.label}</span>
               <h2 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-none text-white">
                  {t.leadership.title_1} <br/>
-                 <span className="text-emerald-500">{t.leadership.title_2}</span>
+                 <span className="text-red-500">{t.leadership.title_2}</span>
               </h2>
            </div>
 
@@ -432,10 +458,10 @@ export default function Landing() {
                 <div key={i} className="space-y-8 group">
                    <div className="aspect-[4/5] rounded-[3rem] overflow-hidden border border-white/5 relative">
                       <img src={founder.img} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000" alt={founder.name} />
-                      <div className="absolute inset-0 bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="absolute inset-0 bg-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                    </div>
                    <div className="space-y-2">
-                      <div className="text-xs font-black text-emerald-500 uppercase tracking-[0.4em]">{founder.role}</div>
+                      <div className="text-xs font-black text-red-500 uppercase tracking-[0.4em]">{founder.role}</div>
                       <div className="text-4xl font-black text-white uppercase tracking-tighter">{founder.name}</div>
                    </div>
                 </div>
@@ -451,10 +477,11 @@ export default function Landing() {
          )}
       </AnimatePresence>
 
-      <footer className="py-20 px-8 border-t border-white/5 bg-black">
+      <footer className="py-20 px-8 border-t border-white/5 bg-transparent relative overflow-hidden">
+        <div className="absolute inset-0 bg-[#020202]/50 backdrop-blur-md z-[-1]" />
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 text-[9px] font-black uppercase tracking-[0.4em] text-white/20">
            <div className="flex items-center gap-4">
-              <div className="w-6 h-6 bg-emerald-600 rounded flex items-center justify-center text-[#030711] font-black">U</div>
+              <div className="w-6 h-6 bg-red-600 rounded flex items-center justify-center text-[#030711] font-black">U</div>
               <span>Umbra Agency v3.0</span>
            </div>
            <span>{t.footer.rights}</span>

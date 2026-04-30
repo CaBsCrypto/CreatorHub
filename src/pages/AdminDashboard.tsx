@@ -46,10 +46,10 @@ const ScraperLogsTab = React.lazy(() => import('../components/dashboard/ScraperL
 const TabLoader = () => (
   <div className="flex flex-col items-center justify-center py-40 gap-6">
     <div className="relative">
-      <div className="w-16 h-16 rounded-full border-2 border-indigo-100 border-t-emerald-500 animate-spin" />
-      <div className="absolute inset-0 bg-indigo-100 blur-2xl animate-pulse" />
+      <div className="w-16 h-16 rounded-full border-2 border-white/5 border-t-red-600 animate-spin" />
+      <div className="absolute inset-0 bg-red-900/10 blur-2xl animate-pulse" />
     </div>
-    <p className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.5em] animate-pulse italic">Synchronizing_Nodes...</p>
+    <p className="text-[10px] font-black text-red-500 uppercase tracking-[0.5em] animate-pulse italic">Synchronizing_Nodes...</p>
   </div>
 );
 
@@ -276,7 +276,7 @@ export default function AdminDashboard() {
   }, [refresh, success, toastError]);
 
   return (
-    <div className="flex min-h-screen bg-slate-50 selection:bg-indigo-500/30 selection:text-indigo-900">
+    <div className="flex min-h-screen bg-black selection:bg-red-500/30 selection:text-red-200">
       <AdminSidebar 
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 

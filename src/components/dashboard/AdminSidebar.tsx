@@ -32,16 +32,16 @@ const AdminSidebar = React.memo(({ activeTab, setActiveTab, resetFilters, user }
 
   return (
     <>
-      <aside className="w-72 bg-white border-r border-gray-100 p-8 hidden lg:flex flex-col h-screen sticky top-0">
+      <aside className="w-72 bg-[#050505] border-r border-white/5 p-8 hidden lg:flex flex-col h-screen sticky top-0">
         <div 
           onClick={() => resetFilters({ tab: 'overview' } as any)}
           className="flex items-center gap-3 px-2 mb-10 cursor-pointer group active:scale-95 transition-all"
         >
-          <div className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-100 group-hover:rotate-12 transition-transform">
-            <Sparkles className="text-white h-5 w-5" />
+          <div className="w-10 h-10 bg-red-600 rounded-2xl flex items-center justify-center shadow-lg shadow-red-900/20 group-hover:rotate-12 transition-transform">
+            <Sparkles className="text-black h-5 w-5" />
           </div>
-          <span className="text-xl font-black text-gray-900 tracking-tighter group-hover:text-indigo-600 transition-colors">
-            Umbra <span className="text-indigo-600 group-hover:text-indigo-700">Admin</span>
+          <span className="text-xl font-black text-white tracking-tighter group-hover:text-red-500 transition-colors">
+            Umbra <span className="text-red-600 group-hover:text-red-700">Admin</span>
           </span>
         </div>
 
@@ -60,8 +60,8 @@ const AdminSidebar = React.memo(({ activeTab, setActiveTab, resetFilters, user }
               }}
               className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-black uppercase tracking-widest transition-all ${
                 activeTab === item.id 
-                  ? 'bg-indigo-50 text-indigo-600 shadow-sm' 
-                  : 'text-gray-400 hover:bg-gray-50 hover:text-gray-600'
+                  ? 'bg-red-600/10 text-red-500 shadow-[inset_0_0_15px_rgba(220,38,38,0.1)] border border-red-500/20' 
+                  : 'text-white/20 hover:bg-white/[0.03] hover:text-white/60'
               }`}
             >
               <item.icon className="h-4 w-4" />
@@ -70,14 +70,14 @@ const AdminSidebar = React.memo(({ activeTab, setActiveTab, resetFilters, user }
           ))}
         </nav>
 
-        <div className="mt-8 pt-8 border-t border-gray-100">
-          <div className="flex items-center gap-3 p-3 rounded-2xl bg-gray-50 border border-gray-100">
-            <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center border border-indigo-200">
-              <UserCircle className="h-5 w-5 text-indigo-600" />
+        <div className="mt-8 pt-8 border-t border-white/5">
+          <div className="flex items-center gap-3 p-3 rounded-2xl bg-white/[0.03] border border-white/5">
+            <div className="w-8 h-8 rounded-full bg-red-900/20 flex items-center justify-center border border-red-500/20">
+              <UserCircle className="h-5 w-5 text-red-500" />
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-black text-gray-900 truncate uppercase tracking-wider">{user?.email?.split('@')[0] || 'Admin'}</p>
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Protocolo_Admin</p>
+              <p className="text-xs font-black text-white truncate uppercase tracking-wider">{user?.email?.split('@')[0] || 'Admin'}</p>
+              <p className="text-[10px] font-black text-white/20 uppercase tracking-widest">Protocolo_Admin</p>
             </div>
           </div>
         </div>
@@ -85,7 +85,7 @@ const AdminSidebar = React.memo(({ activeTab, setActiveTab, resetFilters, user }
 
       {/* Mobile Bottom Navigation */}
       <div className="lg:hidden fixed bottom-1 left-0 right-0 z-[60] px-4 pb-4 pt-2 pointer-events-none">
-        <div className="bg-white/90 backdrop-blur-xl border border-gray-100 shadow-2xl rounded-[2rem] p-2 flex items-center justify-between pointer-events-auto">
+        <div className="bg-black/80 backdrop-blur-xl border border-white/10 shadow-2xl rounded-[2rem] p-2 flex items-center justify-between pointer-events-auto">
           {displayItems.map(item => (
             <button
               key={item.id}
@@ -101,8 +101,8 @@ const AdminSidebar = React.memo(({ activeTab, setActiveTab, resetFilters, user }
               }}
               className={`flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-2xl transition-all ${
                 activeTab === item.id 
-                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' 
-                  : 'text-gray-400 hover:text-gray-600'
+                  ? 'bg-red-600 text-black shadow-lg shadow-red-900/40' 
+                  : 'text-white/20 hover:text-white/40'
               }`}
             >
               <item.icon className={`h-5 w-5 ${activeTab === item.id ? 'animate-in zoom-in-75 duration-300 mb-0.5' : 'mb-0.5'}`} />

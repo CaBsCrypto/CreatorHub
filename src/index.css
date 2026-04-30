@@ -2,32 +2,51 @@
 
 @layer base {
   :root {
-    --umbra-primary: #10b981;
-    --umbra-secondary: #06b6d4;
-    --umbra-accent: #f43f5e;
-    --umbra-bg-dark: #020617;
+    --umbra-primary: #e11d48;
+    --umbra-secondary: #be123c;
+    --umbra-accent: #fb7185;
+    --umbra-bg-dark: #000000;
     --umbra-card-bg: rgba(15, 23, 42, 0.6);
-    --umbra-glass: rgba(15, 23, 42, 0.4);
+    --umbra-glass: rgba(0, 0, 0, 0.6);
     --umbra-glass-border: rgba(255, 255, 255, 0.05);
   }
 
   body {
-    @apply bg-white text-slate-900 antialiased;
+    @apply bg-[#030303] text-slate-200 antialiased selection:bg-red-500/30 selection:text-red-100;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-image: 
+      radial-gradient(circle at 50% 50%, rgba(220, 38, 38, 0.05) 0%, transparent 80%),
+      linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 100% 100%, 50px 50px, 50px 50px;
+    background-attachment: fixed;
   }
 }
 
 @layer components {
   .glass-card {
-    @apply bg-slate-900/40 backdrop-blur-3xl border border-white/5 shadow-2xl;
+    @apply bg-white/[0.03] border border-white/5 backdrop-blur-xl rounded-3xl transition-all duration-500;
+    box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.02);
   }
   
   .glass-dark {
-    @apply bg-slate-950/60 backdrop-blur-3xl border border-white/5 shadow-2xl;
+    @apply bg-black/60 backdrop-blur-3xl border border-white/5 shadow-2xl;
   }
 
   .premium-gradient {
-    @apply bg-gradient-to-br from-emerald-600 via-cyan-600 to-emerald-700;
+    background: linear-gradient(135deg, #050505 0%, #0a0a0a 100%);
+  }
+
+  .text-glow-red {
+    text-shadow: 0 0 20px rgba(220, 38, 38, 0.4);
+  }
+
+  .bg-glow-red {
+    background: radial-gradient(circle at center, rgba(220, 38, 38, 0.15) 0%, transparent 70%);
+  }
+
+  .border-glow-red {
+    @apply border border-red-500/20 shadow-[0_0_15px_rgba(220,38,38,0.1)];
   }
 
   .premium-shadow {
@@ -35,23 +54,23 @@
   }
 
   .premium-glow {
-    @apply border-emerald-500/20 shadow-[0_0_40px_rgba(16,185,129,0.1)];
+    @apply border-red-500/20 shadow-[0_0_40px_rgba(225,29,72,0.1)];
   }
 
   .premium-hover {
-    @apply hover:shadow-[0_60px_120px_-40px_rgba(16,185,129,0.2)] hover:border-emerald-500/30 transition-all duration-700 hover:-translate-y-1;
+    @apply hover:shadow-[0_60px_120px_-40px_rgba(225,29,72,0.2)] hover:border-red-500/30 transition-all duration-700 hover:-translate-y-1;
   }
 
   .matrix-glow {
-    box-shadow: 0 0 20px rgba(16, 185, 129, 0.1), 0 0 40px rgba(16, 185, 129, 0.05);
+    box-shadow: 0 0 20px rgba(225,29,72,0.1), 0 0 40px rgba(225,29,72,0.05);
   }
 
   .matrix-border {
-    @apply border border-emerald-500/10 hover:border-emerald-500/30 transition-all duration-500;
+    @apply border border-red-500/10 hover:border-red-500/30 transition-all duration-500;
   }
 
   .glass-morphism {
-    @apply bg-slate-950/40 backdrop-blur-xl border border-white/5 shadow-2xl;
+    @apply bg-black/40 backdrop-blur-xl border border-white/5 shadow-2xl;
   }
 }
 
@@ -61,7 +80,7 @@
 }
 
 .data-scanner-line {
-  @apply absolute top-0 left-0 w-full h-[1px] bg-emerald-500/40 blur-[1px] z-20;
+  @apply absolute top-0 left-0 w-full h-[1px] bg-red-500/40 blur-[1px] z-20;
   animation: scan 4s linear infinite;
 }
 

@@ -112,9 +112,10 @@ app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 
 // PUBLIC STATS ENDPOINT - No auth required (landing page)
 app.get("/api/public-stats", async (req, res) => {
+  console.log("[STATS] Public stats request received");
   try {
     if (!supabaseAdmin) {
-      console.error("❌ Stats Error: Supabase Admin client not initialized");
+      console.error("❌ Stats Error: Supabase Admin client not initialized (Check environment variables)");
       return res.json({ views: 50000000, campaigns: 120, creators: 30 });
     }
 
@@ -125,7 +126,8 @@ app.get("/api/public-stats", async (req, res) => {
         .from('content')
         .select('views')
         .is('deleted_at', null)
-        .neq('status', 'archived'),
+        .neq('status', 'archived')
+        .limit(2000), // Safety limit
       // Count campaigns (excluding deleted)
       supabaseAdmin
         .from('campaigns')
@@ -139,15 +141,21 @@ app.get("/api/public-stats", async (req, res) => {
         .is('deleted_at', null),
     ]);
 
+    if (viewsResult.error) console.error("Views Query Error:", viewsResult.error.message);
+    if (campaignsResult.error) console.error("Campaigns Query Error:", campaignsResult.error.message);
+    if (creatorsResult.error) console.error("Creators Query Error:", creatorsResult.error.message);
+
     // Sum views manually from the rows
     const totalViews = (viewsResult.data || []).reduce(
-      (sum: number, row: any) => sum + (row.views || 0), 0
+      (sum: number, row: any) => sum + (Number(row.views) || 0), 0
     );
+
+    console.log(`[STATS] Calculated - Views: ${totalViews}, Campaigns: ${campaignsResult.count}, Creators: ${creatorsResult.count}`);
 
     // If data is genuinely empty, use the realistic placeholders
     const finalViews = totalViews || 50000000;
-    const finalCampaigns = campaignsResult.count || 120;
-    const finalCreators = creatorsResult.count || 30;
+    const finalCampaigns = (campaignsResult.count !== null) ? campaignsResult.count : 120;
+    const finalCreators = (creatorsResult.count !== null) ? creatorsResult.count : 30;
 
     res.json({
       views: finalViews,
@@ -155,7 +163,7 @@ app.get("/api/public-stats", async (req, res) => {
       creators: finalCreators,
     });
   } catch (error: any) {
-    console.error("Public stats error:", error.message);
+    console.error("Public stats fatal error:", error.message);
     res.json({ views: 50000000, campaigns: 120, creators: 30 });
   }
 });
