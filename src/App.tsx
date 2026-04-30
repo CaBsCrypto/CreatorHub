@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './AuthContext';
 import Login from './pages/Login';
 import Navbar from './components/Navbar';
@@ -17,7 +17,6 @@ const CreatorDashboard = React.lazy(() => import('./pages/CreatorDashboard'));
 const ClientDashboard = React.lazy(() => import('./pages/ClientDashboard'));
 const PublicReview = React.lazy(() => import('./pages/PublicReview'));
 const Landing = React.lazy(() => import('./pages/Landing'));
-const OnboardingConsole = React.lazy(() => import('./pages/OnboardingConsole'));
 
 const ProtectedRoute = ({ children, role }: { children: React.ReactNode, role?: 'admin' | 'creator' | 'client' }) => {
   const { user, profile, loading } = useAuth();
@@ -66,7 +65,7 @@ export default function App() {
     <ToastProvider>
       <AuthProvider>
         <Router>
-          <div className="min-h-screen">
+          <div className="min-h-screen bg-white">
             <AppContent />
           </div>
         </Router>
@@ -76,18 +75,17 @@ export default function App() {
 }
 
 function AppContent() {
-  const location = useLocation();
-  const isPublicRoute = location.pathname === '/' || location.pathname === '/onboarding' || location.pathname.startsWith('/review/') || location.pathname.startsWith('/v/') || location.pathname === '/login';
+  const { pathname } = window.location;
+  const isPublicRoute = pathname === '/' || pathname.startsWith('/review/') || pathname.startsWith('/v/') || pathname === '/login';
 
   return (
     <>
       {!isPublicRoute && <Navbar />}
-      <main className={!isPublicRoute ? "mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 py-6 pb-10" : "w-full"}>
+      <main className={!isPublicRoute ? "mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 py-6 pb-10" : ""}>
         <React.Suspense fallback={<LoadingSpinner message="Cargando panel..." />}>
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<Landing />} />
-            <Route path="/onboarding" element={<OnboardingConsole />} />
             <Route path="/dashboard" element={<HomeRedirect />} />
             <Route 
               path="/admin/*" 
