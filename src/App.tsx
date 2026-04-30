@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './AuthContext';
 import Login from './pages/Login';
 import Navbar from './components/Navbar';
@@ -66,7 +66,7 @@ export default function App() {
     <ToastProvider>
       <AuthProvider>
         <Router>
-          <div className="min-h-screen bg-white">
+          <div className="min-h-screen">
             <AppContent />
           </div>
         </Router>
@@ -76,13 +76,13 @@ export default function App() {
 }
 
 function AppContent() {
-  const { pathname } = window.location;
-  const isPublicRoute = pathname === '/' || pathname === '/onboarding' || pathname.startsWith('/review/') || pathname.startsWith('/v/') || pathname === '/login';
+  const location = useLocation();
+  const isPublicRoute = location.pathname === '/' || location.pathname === '/onboarding' || location.pathname.startsWith('/review/') || location.pathname.startsWith('/v/') || location.pathname === '/login';
 
   return (
     <>
       {!isPublicRoute && <Navbar />}
-      <main className={!isPublicRoute ? "mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 py-6 pb-10" : ""}>
+      <main className={!isPublicRoute ? "mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 py-6 pb-10" : "w-full"}>
         <React.Suspense fallback={<LoadingSpinner message="Cargando panel..." />}>
           <Routes>
             <Route path="/login" element={<Login />} />
