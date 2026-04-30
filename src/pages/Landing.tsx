@@ -117,17 +117,17 @@ const ProcessBox = ({ step, onClick }: { step: any, onClick: () => void }) => (
   <motion.div 
     whileHover={{ y: -5 }}
     onClick={onClick}
-    className="relative p-7 rounded-[1.5rem] bg-white/[0.01] backdrop-blur-md cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between border border-white/10 hover:border-red-500/40"
+    className="relative p-7 rounded-[1.5rem] bg-transparent cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between border border-white/10 hover:border-red-500/40"
   >
-    {/* Dynamic Background Image - Pure Visibility */}
+    {/* Dynamic Background Image - Maximum Appreciation */}
     <div className="absolute inset-0 z-0">
       <img 
         src={step.img} 
         alt={step.title}
-        className="w-full h-full object-cover opacity-40 group-hover:opacity-80 group-hover:scale-110 transition-all duration-700"
+        className="w-full h-full object-cover opacity-50 group-hover:opacity-90 group-hover:scale-110 transition-all duration-700 brightness-[0.9]"
       />
-      {/* Absolute minimum overlay for text legibility */}
-      <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
+      {/* Ghost effect - No overlays at all */}
+      <div className="absolute inset-0 bg-transparent group-hover:bg-red-950/10 transition-colors" />
     </div>
 
     <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-red-500/5 blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
@@ -293,12 +293,18 @@ export default function Landing() {
            {/* Dynamic Scanline */}
            <div className="scanline" />
            
-           {/* Vignette Overlay */}
-           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_20%,rgba(0,0,0,0.4)_100%)]" />
+           {/* Vignette Overlay with subtle red tint */}
+           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_20%,rgba(10,0,0,0.6)_100%)]" />
            
-           {/* Ambient Red Pools */}
-           <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-red-600/[0.03] rounded-full blur-[150px] animate-pulse" />
-           <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-red-900/[0.02] rounded-full blur-[120px] animate-pulse delay-700" />
+           {/* High-Intensity Ambient Red Aura System */}
+           <div className="absolute top-0 left-[-10%] w-[70%] h-[1000px] bg-red-600/[0.05] rounded-full blur-[180px] animate-pulse" />
+           <div className="absolute top-[1500px] right-[-10%] w-[60%] h-[1200px] bg-red-900/[0.04] rounded-full blur-[150px] animate-pulse delay-300" />
+           <div className="absolute top-[3000px] left-[-5%] w-[65%] h-[1000px] bg-red-600/[0.03] rounded-full blur-[160px] animate-pulse delay-700" />
+           <div className="absolute top-[4500px] right-[-10%] w-[55%] h-[1100px] bg-red-900/[0.04] rounded-full blur-[140px] animate-pulse delay-1000" />
+           <div className="absolute bottom-0 left-[20%] w-[80%] h-[800px] bg-red-600/[0.04] rounded-full blur-[180px] animate-pulse delay-200" />
+           
+           {/* Central Core Glow for depth */}
+           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[3000px] bg-red-950/[0.02] blur-[200px] rounded-full pointer-events-none" />
         </div>
 
         <div className="grain-overlay opacity-[0.03]" />
@@ -323,7 +329,7 @@ export default function Landing() {
       </nav>
 
       {/* ONBOARDING PROTOCOL WITH DYNAMIC SOCIAL PROOF BACKGROUND */}
-      <section id="onboarding" className="pt-4 pb-32 px-8 lg:px-12 bg-transparent relative z-10 overflow-hidden border-t border-white/5">
+      <section id="onboarding" className="pt-4 pb-12 px-8 lg:px-12 bg-transparent relative z-10 overflow-hidden border-t border-white/5">
         {/* BACKGROUND SOCIAL PROOF: NEON GLASS LAYER */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
            {/* Red ambient glows - sharp and aggressive */}
@@ -331,12 +337,12 @@ export default function Landing() {
            <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-red-900/10 blur-[80px] rounded-full z-0" />
            <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-red-600/10 blur-[60px] rounded-full z-0" />
            {/* Edge fade to pure black */}
-           <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black z-20" />
+           <div className="absolute inset-0 bg-transparent z-20" />
            
            <motion.div 
              animate={{ x: [0, -1920] }} 
              transition={{ duration: 70, repeat: Infinity, ease: "linear" }}
-             className="flex gap-8 pt-28 opacity-40 z-10"
+             className="flex gap-8 pt-44 opacity-20 z-10"
            >
               {[...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS].map((creator, i) => (
                 <div key={i} className="flex-none w-[280px] h-[380px] rounded-[2rem] overflow-hidden relative">
@@ -369,7 +375,7 @@ export default function Landing() {
              {/* NEON CTA BOX */}
              <div 
                style={{ boxShadow: '0 0 0 1px rgba(220,38,38,0.2), 0 0 40px rgba(220,38,38,0.05)' }}
-               className="p-7 rounded-[1.5rem] bg-transparent backdrop-blur-md flex flex-col justify-between group cursor-pointer hover:bg-red-500/[0.05] transition-all duration-500 min-h-[220px] border border-white/10"
+               className="p-7 rounded-[1.5rem] bg-transparent flex flex-col justify-between group cursor-pointer hover:bg-red-500/[0.05] transition-all duration-500 min-h-[220px] border border-white/10"
                onClick={handleEnterApp}
              >
                 <div className="flex justify-between items-start">
@@ -386,14 +392,14 @@ export default function Landing() {
       </section>
 
       {/* STATS DIVIDER */}
-      <section className="py-0 px-8 lg:px-12 bg-white/[0.02] backdrop-blur-sm border-y border-white/5 relative overflow-hidden" ref={statsRef}>
+      <section className="py-0 px-8 lg:px-12 bg-transparent border-y border-white/5 relative overflow-hidden" ref={statsRef}>
         {/* Subtle red carry-over glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[200px] bg-red-600/10 blur-[80px] pointer-events-none" />
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/5">
 
             {/* STAT 1: Views */}
-            <div className="flex items-center gap-6 py-10 px-8">
+            <div className="flex items-center gap-6 py-6 px-8">
               <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center flex-none">
                 <Eye className="w-5 h-5 text-red-500" />
               </div>
@@ -408,7 +414,7 @@ export default function Landing() {
             </div>
 
             {/* STAT 2: Campaigns */}
-            <div className="flex items-center gap-6 py-10 px-8">
+            <div className="flex items-center gap-6 py-6 px-8">
               <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center flex-none">
                 <BarChart className="w-5 h-5 text-red-500" />
               </div>
@@ -423,7 +429,7 @@ export default function Landing() {
             </div>
 
             {/* STAT 3: Creators */}
-            <div className="flex items-center gap-6 py-10 px-8">
+            <div className="flex items-center gap-6 py-6 px-8">
               <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center flex-none">
                 <Users className="w-5 h-5 text-red-500" />
               </div>
@@ -442,7 +448,7 @@ export default function Landing() {
       </section>
 
       {/* FOUNDERS SECTION */}
-      <section className="py-40 px-8 lg:px-12 bg-transparent relative">
+      <section className="py-16 px-8 lg:px-12 bg-transparent relative">
         <div className="max-w-7xl mx-auto">
            <div className="text-center mb-24 space-y-6">
               <span className="text-[10px] font-black text-red-500 uppercase tracking-[0.8em]">{t.leadership.label}</span>
@@ -477,7 +483,7 @@ export default function Landing() {
       </AnimatePresence>
 
       <footer className="py-20 px-8 border-t border-white/5 bg-transparent relative overflow-hidden">
-        <div className="absolute inset-0 bg-[#020202]/50 backdrop-blur-md z-[-1]" />
+        <div className="absolute inset-0 bg-transparent z-[-1]" />
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 text-[9px] font-black uppercase tracking-[0.4em] text-white/20">
            <div className="flex items-center gap-4">
               <div className="w-6 h-6 bg-red-600 rounded flex items-center justify-center text-[#030711] font-black">U</div>
