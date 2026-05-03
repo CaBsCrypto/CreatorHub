@@ -115,7 +115,7 @@ const PROCESS_STEPS = [
 
 const ProcessBox = ({ step, onClick }: { step: any, onClick: () => void }) => (
   <motion.div 
-    whileHover={{ y: -5 }}
+    whileHover={{ y: -12, scale: 1.02 }}
     onClick={onClick}
     className="relative p-7 rounded-[1.5rem] bg-black/20 backdrop-blur-md cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between border border-white/[0.03] hover:border-red-500/40"
   >
@@ -363,8 +363,8 @@ export default function Landing() {
                <ProcessBox key={step.id} step={step} onClick={() => setSelectedStep(step)} />
              ))}
              
-             {/* NEON CTA BOX */}
-             <div 
+             <motion.div 
+               whileHover={{ y: -12, scale: 1.02 }}
                style={{ boxShadow: '0 0 0 1px rgba(220,38,38,0.5), 0 0 100px rgba(220,38,38,0.15), inset 0 0 20px rgba(220,38,38,0.05)' }}
                className="p-7 rounded-[1.5rem] bg-red-500/[0.05] backdrop-blur-xl flex flex-col justify-between group cursor-pointer hover:bg-red-500/[0.1] transition-all duration-500 min-h-[220px] border border-red-500/40"
                onClick={handleEnterApp}
