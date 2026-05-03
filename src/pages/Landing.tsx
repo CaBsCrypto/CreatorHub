@@ -117,7 +117,8 @@ const ProcessBox = ({ step, onClick }: { step: any, onClick: () => void }) => (
   <motion.div 
     whileHover={{ y: -12, scale: 1.02 }}
     onClick={onClick}
-    className="relative p-7 rounded-[1.5rem] bg-transparent backdrop-blur-none cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between border border-white/[0.02] hover:border-red-500/40"
+    className="relative p-7 rounded-[1.5rem] !bg-transparent !backdrop-blur-none cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between border border-white/[0.02] hover:border-red-500/40"
+    style={{ background: 'transparent' }}
   >
 
 
@@ -321,15 +322,7 @@ export default function Landing() {
 
       {/* ONBOARDING PROTOCOL WITH DYNAMIC SOCIAL PROOF BACKGROUND */}
       <section id="onboarding" className="py-20 md:py-32 px-4 md:px-8 lg:px-12 bg-transparent relative z-10 overflow-hidden border-t border-white/5">
-        {/* BACKGROUND SOCIAL PROOF: NEON GLASS LAYER */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-           {/* Red ambient glows - sharp and aggressive */}
-           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[700px] bg-red-600/20 blur-[100px] rounded-full z-0" />
-           <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-red-900/10 blur-[80px] rounded-full z-0" />
-           <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-red-600/10 blur-[60px] rounded-full z-0" />
-           {/* Edge fade to pure black */}
-           <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black z-20" />
-           
+        <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-30">
            <motion.div 
              animate={{ x: [0, -1920] }} 
              transition={{ duration: 70, repeat: Infinity, ease: "linear" }}
