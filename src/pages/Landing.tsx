@@ -117,7 +117,7 @@ const ProcessBox = ({ step, onClick }: { step: any, onClick: () => void }) => (
   <motion.div 
     whileHover={{ y: -12, scale: 1.02 }}
     onClick={onClick}
-    className="relative p-7 rounded-[1.5rem] bg-transparent backdrop-blur-[1px] cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between border border-white/[0.02] hover:border-red-500/40"
+    className="relative p-7 rounded-[1.5rem] bg-transparent backdrop-blur-none cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between border border-white/[0.02] hover:border-red-500/40"
   >
 
 
@@ -144,14 +144,14 @@ const ProcessModal = ({ step, onClose }: { step: any, onClose: () => void }) => 
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
     exit={{ opacity: 0 }}
-    className="fixed inset-0 z-[100] flex items-center justify-center px-6 bg-black/10 backdrop-blur-xl"
+    className="fixed inset-0 z-[100] flex items-center justify-center px-6 bg-black/10 backdrop-blur-md"
     onClick={onClose}
   >
     <motion.div 
       initial={{ scale: 0.9, opacity: 0, y: 20 }}
       animate={{ scale: 1, opacity: 1, y: 0 }}
       exit={{ scale: 0.9, opacity: 0, y: 20 }}
-      className="max-w-2xl w-full bg-transparent border border-white/5 rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 relative overflow-hidden backdrop-blur-xl shadow-2xl"
+      className="max-w-2xl w-full bg-transparent border border-white/5 rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 relative overflow-hidden backdrop-blur-md shadow-2xl"
       onClick={e => e.stopPropagation()}
     >
        <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/5 blur-[80px]" />
@@ -366,7 +366,7 @@ export default function Landing() {
              <motion.div 
                whileHover={{ y: -12, scale: 1.02 }}
                style={{ boxShadow: '0 0 0 1px rgba(220,38,38,0.5), 0 0 100px rgba(220,38,38,0.15), inset 0 0 20px rgba(220,38,38,0.05)' }}
-               className="p-7 rounded-[1.5rem] bg-red-500/[0.05] backdrop-blur-xl flex flex-col justify-between group cursor-pointer hover:bg-red-500/[0.1] transition-all duration-500 min-h-[220px] border border-red-500/40"
+               className="p-7 rounded-[1.5rem] bg-red-500/[0.02] backdrop-blur-md flex flex-col justify-between group cursor-pointer hover:bg-red-500/[0.08] transition-all duration-500 min-h-[220px] border border-red-500/40"
                onClick={handleEnterApp}
              >
                 <div className="flex justify-between items-start">
