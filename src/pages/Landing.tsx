@@ -117,7 +117,7 @@ const ProcessBox = ({ step, onClick }: { step: any, onClick: () => void }) => (
   <motion.div 
     whileHover={{ y: -12, scale: 1.02 }}
     onClick={onClick}
-    className="relative p-7 rounded-[1.5rem] bg-black/5 backdrop-blur-sm cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between border border-white/[0.03] hover:border-red-500/40"
+    className="relative p-7 rounded-[1.5rem] bg-transparent backdrop-blur-[1px] cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between border border-white/[0.02] hover:border-red-500/40"
   >
 
 
