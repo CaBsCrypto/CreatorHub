@@ -119,16 +119,7 @@ const ProcessBox = ({ step, onClick }: { step: any, onClick: () => void }) => (
     onClick={onClick}
     className="relative p-7 rounded-[1.5rem] bg-transparent backdrop-blur-[2px] cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between border border-white/[0.03] hover:border-red-500/40"
   >
-    {/* Dynamic Background Image - Pure Visibility */}
-    <div className="absolute inset-0 z-0">
-      <img 
-        src={step.img} 
-        alt={step.title}
-        className="w-full h-full object-cover opacity-10 group-hover:opacity-80 group-hover:scale-110 transition-all duration-700"
-      />
-      {/* Absolute minimum overlay for text legibility */}
-      <div className="absolute inset-0 bg-black/[0.02] group-hover:bg-transparent transition-colors" />
-    </div>
+
 
     <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-red-500/5 blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
     
@@ -278,7 +269,6 @@ export default function Landing() {
     id: `step-${index}`,
     num: `0${index + 1}`,
     icon: STEP_ICONS[index],
-    img: CREATORS[index % CREATORS.length].img, // Use creator images as background
     desc: step.short,
     detail: {
       title: step.detail_title,
