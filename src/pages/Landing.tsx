@@ -277,7 +277,14 @@ export default function Landing() {
     ...step,
     id: `step-${index}`,
     num: `0${index + 1}`,
-    icon: STEP_ICONS[index]
+    icon: STEP_ICONS[index],
+    img: CREATORS[index % CREATORS.length].img, // Use creator images as background
+    desc: step.short,
+    detail: {
+      title: step.detail_title,
+      content: step.detail_content,
+      items: step.items || []
+    }
   }));
 
   return (
