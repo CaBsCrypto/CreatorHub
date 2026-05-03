@@ -117,17 +117,17 @@ const ProcessBox = ({ step, onClick }: { step: any, onClick: () => void }) => (
   <motion.div 
     whileHover={{ y: -5 }}
     onClick={onClick}
-    className="relative p-7 rounded-[1.5rem] bg-transparent backdrop-blur-sm cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between border border-white/5 hover:border-red-500/40"
+    className="relative p-7 rounded-[1.5rem] bg-transparent backdrop-blur-[2px] cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between border border-white/[0.03] hover:border-red-500/40"
   >
     {/* Dynamic Background Image - Pure Visibility */}
     <div className="absolute inset-0 z-0">
       <img 
         src={step.img} 
         alt={step.title}
-        className="w-full h-full object-cover opacity-20 group-hover:opacity-80 group-hover:scale-110 transition-all duration-700"
+        className="w-full h-full object-cover opacity-10 group-hover:opacity-80 group-hover:scale-110 transition-all duration-700"
       />
       {/* Absolute minimum overlay for text legibility */}
-      <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
+      <div className="absolute inset-0 bg-black/[0.02] group-hover:bg-transparent transition-colors" />
     </div>
 
     <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-red-500/5 blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
@@ -153,7 +153,7 @@ const ProcessModal = ({ step, onClose }: { step: any, onClose: () => void }) => 
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
     exit={{ opacity: 0 }}
-    className="fixed inset-0 z-[100] flex items-center justify-center px-6 bg-black/20 backdrop-blur-2xl"
+    className="fixed inset-0 z-[100] flex items-center justify-center px-6 bg-black/10 backdrop-blur-xl"
     onClick={onClose}
   >
     <motion.div 
@@ -369,7 +369,7 @@ export default function Landing() {
              {/* NEON CTA BOX */}
              <div 
                style={{ boxShadow: '0 0 0 1px rgba(220,38,38,0.2), 0 0 40px rgba(220,38,38,0.05)' }}
-               className="p-7 rounded-[1.5rem] bg-transparent backdrop-blur-sm flex flex-col justify-between group cursor-pointer hover:bg-red-500/[0.05] transition-all duration-500 min-h-[220px] border border-white/5"
+               className="p-7 rounded-[1.5rem] bg-transparent backdrop-blur-[2px] flex flex-col justify-between group cursor-pointer hover:bg-red-500/[0.05] transition-all duration-500 min-h-[220px] border border-white/[0.03]"
                onClick={handleEnterApp}
              >
                 <div className="flex justify-between items-start">
