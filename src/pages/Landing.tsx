@@ -151,7 +151,7 @@ const ProcessModal = ({ step, onClose }: { step: any, onClose: () => void }) => 
       initial={{ scale: 0.9, opacity: 0, y: 20 }}
       animate={{ scale: 1, opacity: 1, y: 0 }}
       exit={{ scale: 0.9, opacity: 0, y: 20 }}
-      className="max-w-2xl w-full bg-transparent border border-white/5 rounded-[3rem] p-12 relative overflow-hidden backdrop-blur-xl shadow-2xl"
+      className="max-w-2xl w-full bg-transparent border border-white/5 rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 relative overflow-hidden backdrop-blur-xl shadow-2xl"
       onClick={e => e.stopPropagation()}
     >
        <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/5 blur-[80px]" />
@@ -167,11 +167,11 @@ const ProcessModal = ({ step, onClose }: { step: any, onClose: () => void }) => 
              </div>
              <div>
                 <span className="text-xs font-black text-red-500 uppercase tracking-[0.5em]">Onboarding Protocol</span>
-                <h2 className="text-4xl font-black uppercase tracking-tighter text-white">{step.detail.title}</h2>
+                <h2 className="text-2xl md:text-4xl font-black uppercase tracking-tighter text-white">{step.detail.title}</h2>
              </div>
           </div>
 
-          <p className="text-xl text-white/60 font-medium leading-relaxed">{step.detail.content}</p>
+          <p className="text-base md:text-xl text-white/60 font-medium leading-relaxed">{step.detail.content}</p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
              {step.detail.items.map((item: string, i: number) => (
@@ -302,7 +302,7 @@ export default function Landing() {
       
       {/* Navbar */}
       <nav className="glass-nav">
-        <div className="max-w-7xl mx-auto px-8 lg:px-12 h-20 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12 h-20 flex items-center justify-between">
           <div className="flex items-center gap-4">
              <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center text-[#030711] font-black text-lg">U</div>
              <span className="text-xl font-black uppercase tracking-[0.4em] text-white">Umbra</span>
@@ -320,7 +320,7 @@ export default function Landing() {
       </nav>
 
       {/* ONBOARDING PROTOCOL WITH DYNAMIC SOCIAL PROOF BACKGROUND */}
-      <section id="onboarding" className="pt-4 pb-32 px-8 lg:px-12 bg-transparent relative z-10 overflow-hidden border-t border-white/5">
+      <section id="onboarding" className="py-20 md:py-32 px-4 md:px-8 lg:px-12 bg-transparent relative z-10 overflow-hidden border-t border-white/5">
         {/* BACKGROUND SOCIAL PROOF: NEON GLASS LAYER */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
            {/* Red ambient glows - sharp and aggressive */}
@@ -345,17 +345,17 @@ export default function Landing() {
         </div>
 
         <div className="max-w-7xl mx-auto relative z-30">
-          <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} key={lang} className="mb-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-white/5 pb-6">
-             <div className="space-y-1">
+          <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} key={lang} className="mb-12 flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-white/5 pb-10">
+             <div className="space-y-2">
                 <div className="inline-flex items-center gap-2 px-2 py-0.5 bg-red-500/10 border border-red-500/20 rounded-full">
                    <ShieldCheck className="h-2 w-2 text-red-500" />
                    <span className="text-[7px] font-black uppercase tracking-[0.4em] text-red-500">{t.onboarding.label}</span>
                 </div>
-                <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-none text-white">
+                <h1 className="text-3xl md:text-5xl lg:text-6xl font-black uppercase tracking-tighter leading-[0.9] text-white">
                    {t.onboarding.title_1} <span className="text-red-500">{t.onboarding.title_2}</span>
                 </h1>
              </div>
-             <p className="text-[11px] text-white/30 font-medium max-w-xs leading-tight">{t.onboarding.desc}</p>
+             <p className="text-xs md:text-[11px] text-white/30 font-medium max-w-sm leading-relaxed">{t.onboarding.desc}</p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -383,7 +383,7 @@ export default function Landing() {
       </section>
 
       {/* STATS DIVIDER */}
-      <section className="py-0 px-8 lg:px-12 bg-white/[0.02] backdrop-blur-sm border-y border-white/5 relative overflow-hidden" ref={statsRef}>
+      <section className="py-0 px-4 md:px-8 lg:px-12 bg-white/[0.02] backdrop-blur-sm border-y border-white/5 relative overflow-hidden" ref={statsRef}>
         {/* Subtle red carry-over glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[200px] bg-red-600/10 blur-[80px] pointer-events-none" />
         <div className="max-w-7xl mx-auto">
@@ -443,13 +443,13 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto">
            <div className="text-center mb-24 space-y-6">
               <span className="text-[10px] font-black text-red-500 uppercase tracking-[0.8em]">{t.leadership.label}</span>
-              <h2 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-none text-white">
+              <h2 className="text-4xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter leading-[0.9] text-white">
                  {t.leadership.title_1} <br/>
                  <span className="text-red-500">{t.leadership.title_2}</span>
               </h2>
            </div>
 
-           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
               {FOUNDERS.map((founder, i) => (
                 <div key={i} className="space-y-8 group">
                    <div className="aspect-[4/5] rounded-[3rem] overflow-hidden border border-white/5 relative">
