@@ -368,13 +368,13 @@ export default function Landing() {
              
              {/* NEON CTA BOX */}
              <div 
-               style={{ boxShadow: '0 0 0 1px rgba(220,38,38,0.3), 0 0 60px rgba(220,38,38,0.1)' }}
-               className="p-7 rounded-[1.5rem] bg-red-500/[0.03] backdrop-blur-md flex flex-col justify-between group cursor-pointer hover:bg-red-500/[0.08] transition-all duration-500 min-h-[220px] border border-red-500/20"
+               style={{ boxShadow: '0 0 0 1px rgba(220,38,38,0.5), 0 0 100px rgba(220,38,38,0.15), inset 0 0 20px rgba(220,38,38,0.05)' }}
+               className="p-7 rounded-[1.5rem] bg-red-500/[0.05] backdrop-blur-xl flex flex-col justify-between group cursor-pointer hover:bg-red-500/[0.1] transition-all duration-500 min-h-[220px] border border-red-500/40"
                onClick={handleEnterApp}
              >
                 <div className="flex justify-between items-start">
                    <div className="text-[9px] font-mono font-black text-red-400 uppercase tracking-[0.3em]">{t.onboarding.cta_box_label}</div>
-                   <Rocket className="h-4 w-4 text-red-400/60" />
+                   <Rocket className="h-4 w-4 text-red-500 animate-pulse shadow-[0_0_10px_rgba(220,38,38,0.5)]" />
                 </div>
                 <h3 className="text-2xl font-black uppercase tracking-tighter text-white leading-tight">{t.onboarding.cta_box_title}</h3>
                 <button onClick={handleEnterApp} className="w-full py-3.5 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 text-red-400 border border-red-500/40 bg-red-500/5 hover:bg-red-500/20 transition-all">
