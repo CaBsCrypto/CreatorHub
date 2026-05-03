@@ -124,10 +124,10 @@ const ProcessBox = ({ step, onClick }: { step: any, onClick: () => void }) => (
       <img 
         src={step.img} 
         alt={step.title}
-        className="w-full h-full object-cover opacity-40 group-hover:opacity-80 group-hover:scale-110 transition-all duration-700"
+        className="w-full h-full object-cover opacity-20 group-hover:opacity-80 group-hover:scale-110 transition-all duration-700"
       />
       {/* Absolute minimum overlay for text legibility */}
-      <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors" />
+      <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
     </div>
 
     <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-red-500/5 blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
@@ -153,7 +153,7 @@ const ProcessModal = ({ step, onClose }: { step: any, onClose: () => void }) => 
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
     exit={{ opacity: 0 }}
-    className="fixed inset-0 z-[100] flex items-center justify-center px-6 bg-black/20 backdrop-blur-xl"
+    className="fixed inset-0 z-[100] flex items-center justify-center px-6 bg-black/20 backdrop-blur-2xl"
     onClick={onClose}
   >
     <motion.div 
