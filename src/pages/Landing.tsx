@@ -317,7 +317,7 @@ export default function Landing() {
         </div>
       </nav>
 
-      <section id="onboarding" className="pt-0 pb-20 md:pb-32 px-4 md:px-8 lg:px-12 bg-transparent relative z-10 overflow-hidden border-t border-white/5">
+      <section id="onboarding" className="pt-0 pb-8 md:pb-12 px-4 md:px-8 lg:px-12 bg-transparent relative z-10 overflow-hidden border-t border-white/5">
         <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-80">
            {/* DESKTOP CAROUSEL */}
            <motion.div 
@@ -363,7 +363,7 @@ export default function Landing() {
         </div>
 
         <div className="max-w-7xl mx-auto relative z-30">
-          <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} key={lang} className="mb-12 flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-white/5 pb-10">
+          <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} key={lang} className="mb-4 flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-white/5 pb-6">
              <div className="space-y-2">
                 <div className="inline-flex items-center gap-2 px-2 py-0.5 bg-red-500/10 border border-red-500/20 rounded-full">
                    <ShieldCheck className="h-2 w-2 text-red-500" />
@@ -458,7 +458,7 @@ export default function Landing() {
       </section>
 
       {/* FOUNDERS SECTION */}
-      <section className="py-40 px-8 lg:px-12 bg-transparent relative">
+      <section className="py-12 md:py-20 px-8 lg:px-12 bg-transparent relative">
         <div className="max-w-7xl mx-auto">
            <div className="text-center mb-24 space-y-6">
               <span className="text-[10px] font-black text-red-500 uppercase tracking-[0.8em]">{t.leadership.label}</span>
