@@ -241,7 +241,12 @@ export default function Landing() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [selectedStep, setSelectedStep] = useState<any>(null);
-  const [lang, setLang] = useState<'en' | 'es'>('es');
+  const [lang, setLang] = useState<'en' | 'es'>(() => {
+    if (typeof navigator !== 'undefined' && navigator.language.startsWith('en')) {
+      return 'en';
+    }
+    return 'es';
+  });
   const t = translations[lang];
   const [stats, setStats] = useState({ views: 0, campaigns: 0, creators: 0 });
   const [statsLoaded, setStatsLoaded] = useState(false);
@@ -382,7 +387,7 @@ export default function Landing() {
              ))}
              
              <motion.a 
-               href="https://t.me/CaBsCrypto?text=Hola%20equipo%20de%20Umbra.%20He%20revisado%20el%20Protocolo%20de%20Onboarding%20y%20me%20interesa%20iniciar%20una%20auditor%C3%ADa%20para%20escalar%20mi%20proyecto."
+               href={t.onboarding.telegram_link}
                target="_blank"
                rel="noopener noreferrer"
                whileHover={{ y: -12, scale: 1.02 }}

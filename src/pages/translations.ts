@@ -17,6 +17,7 @@ const translations = {
       cta_box_label: "Initialize_Audit",
       cta_box_title: "Ready to Finalize Your Entry?",
       cta_box_btn: "Confirm_Onboarding",
+      telegram_link: "https://t.me/CaBsCrypto?text=Hello%20Umbra%20team.%20I%20have%20reviewed%20the%20Onboarding%20Protocol%20and%20I%20am%20interested%20in%20starting%20an%20audit%20to%20scale%20my%20project.",
       steps: [
         {
           title: "Project Immersion",
@@ -87,6 +88,7 @@ const translations = {
       cta_box_label: "Inicializar_Auditoria",
       cta_box_title: "¿Listo para finalizar tu entrada?",
       cta_box_btn: "Confirmar_Onboarding",
+      telegram_link: "https://t.me/CaBsCrypto?text=Hola%20equipo%20de%20Umbra.%20He%20revisado%20el%20Protocolo%20de%20Onboarding%20y%20me%20interesa%20iniciar%20una%20auditor%C3%ADa%20para%20escalar%20mi%20proyecto.",
       steps: [
         {
           title: "Inmersión de Proyecto",
