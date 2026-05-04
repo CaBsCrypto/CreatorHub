@@ -117,7 +117,7 @@ const ProcessBox = ({ step, onClick }: { step: any, onClick: () => void }) => (
   <motion.div 
     whileHover={{ y: -12, scale: 1.02 }}
     onClick={onClick}
-    className="relative p-7 rounded-[2rem] bg-black/10 backdrop-blur-sm cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between border border-white/[0.05] hover:border-white/20 hover:bg-white/[0.02]"
+    className="relative p-7 rounded-[2rem] bg-transparent backdrop-blur-none cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between border border-white/10 hover:border-white/30 hover:bg-white/[0.02]"
   >
     <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-red-500/[0.02] blur-[100px] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
     
@@ -317,12 +317,12 @@ export default function Landing() {
         </div>
       </nav>
 
-      <section id="onboarding" className="pt-6 pb-20 md:pt-8 md:pb-32 px-4 md:px-8 lg:px-12 bg-transparent relative z-10 overflow-hidden border-t border-white/5">
+      <section id="onboarding" className="pt-0 pb-20 md:pb-32 px-4 md:px-8 lg:px-12 bg-transparent relative z-10 overflow-hidden border-t border-white/5">
         <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-30">
            <motion.div 
              animate={{ x: [0, -1920] }} 
              transition={{ duration: 70, repeat: Infinity, ease: "linear" }}
-             className="flex gap-8 pt-32 md:pt-40 opacity-60 z-10"
+             className="flex gap-8 pt-24 md:pt-32 opacity-60 z-10"
            >
               {[...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS].map((creator, i) => (
                 <div key={i} className="flex-none w-[280px] h-[380px] rounded-[2rem] overflow-hidden relative">
@@ -354,7 +354,7 @@ export default function Landing() {
              
              <motion.div 
                whileHover={{ y: -12, scale: 1.02 }}
-               className="p-7 rounded-[2rem] bg-red-950/10 backdrop-blur-sm flex flex-col justify-between group cursor-pointer hover:bg-red-900/20 transition-all duration-500 min-h-[220px] border border-red-500/20 hover:border-red-500/40"
+               className="p-7 rounded-[2rem] bg-transparent backdrop-blur-none flex flex-col justify-between group cursor-pointer hover:bg-red-500/[0.05] transition-all duration-500 min-h-[220px] border border-red-500/20 hover:border-red-500/50"
                onClick={handleEnterApp}
              >
                 <div className="flex justify-between items-start">
