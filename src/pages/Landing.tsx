@@ -318,16 +318,16 @@ export default function Landing() {
       </nav>
 
       <section id="onboarding" className="pt-0 pb-20 md:pb-32 px-4 md:px-8 lg:px-12 bg-transparent relative z-10 overflow-hidden border-t border-white/5">
-        <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-30">
+        <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-80">
            <motion.div 
              animate={{ x: [0, -1920] }} 
              transition={{ duration: 70, repeat: Infinity, ease: "linear" }}
-             className="flex gap-8 pt-24 md:pt-32 opacity-60 z-10"
+             className="flex gap-8 pt-24 md:pt-32 opacity-100 z-10"
            >
               {[...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS].map((creator, i) => (
-                <div key={i} className="flex-none w-[280px] h-[380px] rounded-[2rem] overflow-hidden relative">
-                   <img src={creator.img} className="w-full h-full object-cover brightness-[0.5] contrast-[1.2] grayscale-[0.3]" alt="" />
-                   <div className="absolute inset-0 bg-red-950/10 mix-blend-multiply" />
+                <div key={i} className="flex-none w-[280px] h-[380px] rounded-[2rem] overflow-hidden relative border border-white/5 shadow-[0_0_30px_rgba(220,38,38,0.15)]">
+                   <img src={creator.img} className="w-full h-full object-cover brightness-[0.85] contrast-[1.2] grayscale-[0.2]" alt="" />
+                   <div className="absolute inset-0 bg-red-500/20 mix-blend-overlay" />
                 </div>
               ))}
            </motion.div>
