@@ -117,7 +117,7 @@ const ProcessBox = ({ step, onClick }: { step: any, onClick: () => void }) => (
   <motion.div 
     whileHover={{ y: -12, scale: 1.02 }}
     onClick={onClick}
-    className="relative p-7 rounded-[2rem] bg-transparent backdrop-blur-none cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between border border-white/10 hover:border-white/30 hover:bg-white/[0.02]"
+    className="relative p-7 rounded-[2rem] bg-black/50 md:bg-transparent backdrop-blur-lg md:backdrop-blur-none cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between border border-white/10 hover:border-white/30 md:hover:bg-white/[0.02]"
   >
     <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-red-500/[0.02] blur-[100px] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
     
@@ -319,10 +319,11 @@ export default function Landing() {
 
       <section id="onboarding" className="pt-0 pb-20 md:pb-32 px-4 md:px-8 lg:px-12 bg-transparent relative z-10 overflow-hidden border-t border-white/5">
         <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-80">
+           {/* DESKTOP CAROUSEL */}
            <motion.div 
              animate={{ x: [0, -1920] }} 
              transition={{ duration: 70, repeat: Infinity, ease: "linear" }}
-             className="flex gap-8 pt-24 md:pt-32 opacity-100 z-10"
+             className="hidden md:flex gap-8 pt-32 opacity-100 z-10"
            >
               {[...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS].map((creator, i) => (
                 <div key={i} className="flex-none w-[280px] h-[380px] rounded-[2rem] overflow-hidden relative border border-white/5 shadow-[0_0_30px_rgba(220,38,38,0.15)]">
@@ -331,6 +332,34 @@ export default function Landing() {
                 </div>
               ))}
            </motion.div>
+
+           {/* MOBILE CAROUSEL */}
+           <div className="flex md:hidden w-full h-[3000px] gap-3 pt-6 px-2 opacity-90">
+              <motion.div 
+                animate={{ y: [0, -1500] }} 
+                transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
+                className="flex flex-col gap-3 w-1/2"
+              >
+                {[...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS].map((creator, i) => (
+                  <div key={`col1-${i}`} className="flex-none w-full h-[180px] rounded-2xl overflow-hidden relative border border-white/5 shadow-[0_0_20px_rgba(220,38,38,0.1)]">
+                     <img src={creator.img} className="w-full h-full object-cover brightness-[0.75] contrast-[1.2] grayscale-[0.2]" alt="" />
+                     <div className="absolute inset-0 bg-red-500/20 mix-blend-overlay" />
+                  </div>
+                ))}
+              </motion.div>
+              <motion.div 
+                animate={{ y: [-1500, 0] }} 
+                transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+                className="flex flex-col gap-3 w-1/2"
+              >
+                {[...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS].map((creator, i) => (
+                  <div key={`col2-${i}`} className="flex-none w-full h-[180px] rounded-2xl overflow-hidden relative border border-white/5 shadow-[0_0_20px_rgba(220,38,38,0.1)]">
+                     <img src={creator.img} className="w-full h-full object-cover brightness-[0.75] contrast-[1.2] grayscale-[0.2]" alt="" />
+                     <div className="absolute inset-0 bg-red-500/20 mix-blend-overlay" />
+                  </div>
+                ))}
+              </motion.div>
+           </div>
         </div>
 
         <div className="max-w-7xl mx-auto relative z-30">
@@ -354,7 +383,7 @@ export default function Landing() {
              
              <motion.div 
                whileHover={{ y: -12, scale: 1.02 }}
-               className="p-7 rounded-[2rem] bg-transparent backdrop-blur-none flex flex-col justify-between group cursor-pointer hover:bg-red-500/[0.05] transition-all duration-500 min-h-[220px] border border-red-500/20 hover:border-red-500/50"
+               className="p-7 rounded-[2rem] bg-black/50 md:bg-transparent backdrop-blur-lg md:backdrop-blur-none flex flex-col justify-between group cursor-pointer hover:bg-red-500/[0.05] transition-all duration-500 min-h-[220px] border border-red-500/20 hover:border-red-500/50"
                onClick={handleEnterApp}
              >
                 <div className="flex justify-between items-start">
