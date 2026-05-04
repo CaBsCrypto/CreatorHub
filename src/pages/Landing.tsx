@@ -382,7 +382,7 @@ export default function Landing() {
              ))}
              
              <motion.a 
-               href="https://t.me/CaBsCrypto"
+               href="https://t.me/CaBsCrypto?text=Hola%20equipo%20de%20Umbra.%20He%20revisado%20el%20Protocolo%20de%20Onboarding%20y%20me%20interesa%20iniciar%20una%20auditor%C3%ADa%20para%20escalar%20mi%20proyecto."
                target="_blank"
                rel="noopener noreferrer"
                whileHover={{ y: -12, scale: 1.02 }}
