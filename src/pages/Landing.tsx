@@ -321,8 +321,8 @@ export default function Landing() {
         <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-80">
            {/* DESKTOP CAROUSEL */}
            <motion.div 
-             animate={{ x: [0, -1920] }} 
-             transition={{ duration: 70, repeat: Infinity, ease: "linear" }}
+             animate={{ x: [0, -3120] }} 
+             transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
              className="hidden md:flex gap-8 pt-32 opacity-100 z-10"
            >
               {[...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS].map((creator, i) => (
@@ -336,11 +336,11 @@ export default function Landing() {
            {/* MOBILE CAROUSEL */}
            <div className="flex md:hidden w-full h-[3000px] gap-3 pt-6 px-2 opacity-90">
               <motion.div 
-                animate={{ y: [0, -1500] }} 
-                transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
+                animate={{ y: [0, -960] }} 
+                transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
                 className="flex flex-col gap-3 w-1/2"
               >
-                {[...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS].map((creator, i) => (
+                {[...CREATORS.slice(0, 5), ...CREATORS.slice(0, 5), ...CREATORS.slice(0, 5), ...CREATORS.slice(0, 5)].map((creator, i) => (
                   <div key={`col1-${i}`} className="flex-none w-full h-[180px] rounded-2xl overflow-hidden relative border border-white/5 shadow-[0_0_20px_rgba(220,38,38,0.1)]">
                      <img src={creator.img} className="w-full h-full object-cover brightness-[0.75] contrast-[1.2] grayscale-[0.2]" alt="" />
                      <div className="absolute inset-0 bg-red-500/20 mix-blend-overlay" />
@@ -348,11 +348,11 @@ export default function Landing() {
                 ))}
               </motion.div>
               <motion.div 
-                animate={{ y: [-1500, 0] }} 
-                transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+                animate={{ y: [-960, 0] }} 
+                transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
                 className="flex flex-col gap-3 w-1/2"
               >
-                {[...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS].reverse().map((creator, i) => (
+                {[...CREATORS.slice(5, 10), ...CREATORS.slice(5, 10), ...CREATORS.slice(5, 10), ...CREATORS.slice(5, 10)].map((creator, i) => (
                   <div key={`col2-${i}`} className="flex-none w-full h-[180px] rounded-2xl overflow-hidden relative border border-white/5 shadow-[0_0_20px_rgba(220,38,38,0.1)]">
                      <img src={creator.img} className="w-full h-full object-cover brightness-[0.75] contrast-[1.2] grayscale-[0.2]" alt="" />
                      <div className="absolute inset-0 bg-red-500/20 mix-blend-overlay" />
@@ -381,20 +381,22 @@ export default function Landing() {
                <ProcessBox key={step.id} step={step} onClick={() => setSelectedStep(step)} />
              ))}
              
-             <motion.div 
+             <motion.a 
+               href="https://t.me/CaBsCrypto"
+               target="_blank"
+               rel="noopener noreferrer"
                whileHover={{ y: -12, scale: 1.02 }}
-               className="p-7 rounded-[2rem] bg-transparent backdrop-blur-none flex flex-col justify-between group cursor-pointer hover:bg-red-500/[0.05] transition-all duration-500 min-h-[220px] border border-red-500/60 md:border-red-500/30 hover:border-red-500/80 shadow-[inset_0_0_30px_rgba(220,38,38,0.1)]"
-               onClick={handleEnterApp}
+               className="p-7 rounded-[2rem] bg-transparent backdrop-blur-none flex flex-col justify-between group cursor-pointer hover:bg-red-500/[0.05] transition-all duration-500 min-h-[220px] border border-red-500/60 md:border-red-500/30 hover:border-red-500/80 shadow-[inset_0_0_30px_rgba(220,38,38,0.1)] block"
              >
                 <div className="flex justify-between items-start">
                    <div className="text-[9px] font-mono font-black text-red-500/40 uppercase tracking-[0.3em]">{t.onboarding.cta_box_label}</div>
                    <Rocket className="h-4 w-4 text-red-500/60 animate-pulse" />
                 </div>
                 <h3 className="text-2xl font-black uppercase tracking-tighter text-white leading-tight" style={{ textShadow: '0 2px 10px rgba(0,0,0,1), 0 4px 25px rgba(0,0,0,1)' }}>{t.onboarding.cta_box_title}</h3>
-                <button onClick={handleEnterApp} className="w-full py-3.5 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 text-red-500 border border-red-500/20 bg-red-500/5 hover:bg-red-500/20 transition-all">
+                <div className="w-full py-3.5 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 text-red-500 border border-red-500/20 bg-red-500/5 group-hover:bg-red-500/20 transition-all mt-4">
                    {t.onboarding.cta_box_btn} <ArrowRight className="h-3.5 w-3.5" />
-                </button>
-             </motion.div>
+                </div>
+             </motion.a>
           </div>
         </div>
       </section>
