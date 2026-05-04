@@ -117,27 +117,25 @@ const ProcessBox = ({ step, onClick }: { step: any, onClick: () => void }) => (
   <motion.div 
     whileHover={{ y: -12, scale: 1.02 }}
     onClick={onClick}
-    className="relative p-7 rounded-none !bg-transparent !backdrop-blur-none cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between border border-red-500 hover:border-white/40"
-    style={{ backgroundColor: 'transparent' }}
+    className="relative p-7 rounded-[2rem] bg-transparent backdrop-blur-none cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between border border-white/5 hover:border-red-500/30"
   >
-
-
-    <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-red-500/5 blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+    <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-red-500/[0.02] blur-[100px] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
     
     <div className="relative z-10 space-y-4">
        <div className="flex justify-between items-start">
-          <div className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 group-hover:bg-red-600 group-hover:text-black transition-all">
+          <div className="w-10 h-10 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-center text-white/40 group-hover:bg-red-600 group-hover:text-black group-hover:border-red-600 transition-all">
              <step.icon className="h-5 w-5" />
           </div>
-          <span className="text-[9px] font-mono font-black text-white/20 uppercase tracking-[0.3em] group-hover:text-red-500/40 transition-colors">STEP_{step.num}</span>
+          <span className="text-[9px] font-mono font-black text-white/10 uppercase tracking-[0.3em] group-hover:text-red-500/40 transition-colors">STEP_{step.num}</span>
        </div>
        
        <div>
           <h3 className="text-xl font-black text-white leading-tight uppercase tracking-tighter mb-2 group-hover:text-red-500 transition-colors">{step.title}</h3>
-          <p className="text-[11px] font-medium text-white/40 leading-relaxed max-w-[200px] group-hover:text-white/60 transition-colors">{step.desc}</p>
+          <p className="text-[11px] font-medium text-white/30 leading-relaxed max-w-[200px] group-hover:text-white/50 transition-colors">{step.desc}</p>
        </div>
     </div>
   </motion.div>
+);
 );
 
 const ProcessModal = ({ step, onClose }: { step: any, onClose: () => void }) => (
@@ -152,7 +150,7 @@ const ProcessModal = ({ step, onClose }: { step: any, onClose: () => void }) => 
       initial={{ scale: 0.9, opacity: 0, y: 20 }}
       animate={{ scale: 1, opacity: 1, y: 0 }}
       exit={{ scale: 0.9, opacity: 0, y: 20 }}
-      className="max-w-2xl w-full bg-transparent border border-white/5 rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 relative overflow-hidden backdrop-blur-md shadow-2xl"
+      className="max-w-2xl w-full bg-black/60 border border-white/5 rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 relative overflow-y-auto max-h-[90vh] backdrop-blur-xl shadow-2xl"
       onClick={e => e.stopPropagation()}
     >
        <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/5 blur-[80px]" />
@@ -309,11 +307,11 @@ export default function Landing() {
              <span className="text-xl font-black uppercase tracking-[0.4em] text-white">Umbra</span>
           </div>
           
-          <div className="flex items-center gap-6">
-             <button onClick={() => setLang(lang === 'en' ? 'es' : 'en')} className="px-4 py-2 border border-white/10 rounded-xl text-[10px] font-black text-white/40 hover:text-white hover:border-white/20 transition-all uppercase tracking-widest">
+          <div className="flex items-center gap-2 md:gap-6">
+             <button onClick={() => setLang(lang === 'en' ? 'es' : 'en')} className="px-3 md:px-4 py-2 border border-white/10 rounded-xl text-[9px] md:text-[10px] font-black text-white/40 hover:text-white hover:border-white/20 transition-all uppercase tracking-widest">
                 {lang === 'en' ? 'ES' : 'EN'}
              </button>
-             <button onClick={handleEnterApp} className="px-8 py-3 bg-white text-black rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all">
+             <button onClick={handleEnterApp} className="px-5 md:px-8 py-3 bg-white text-black rounded-xl font-black text-[9px] md:text-[10px] uppercase tracking-widest hover:scale-105 transition-all">
                {t.nav.access}
              </button>
           </div>
@@ -358,19 +356,18 @@ export default function Landing() {
              
              <motion.div 
                whileHover={{ y: -12, scale: 1.02 }}
-               style={{ boxShadow: '0 0 0 1px rgba(220,38,38,0.5), 0 0 100px rgba(220,38,38,0.15), inset 0 0 20px rgba(220,38,38,0.05)' }}
-               className="p-7 rounded-[1.5rem] bg-red-500/[0.02] backdrop-blur-md flex flex-col justify-between group cursor-pointer hover:bg-red-500/[0.08] transition-all duration-500 min-h-[220px] border border-red-500/40"
+               className="p-7 rounded-[2rem] bg-transparent backdrop-blur-none flex flex-col justify-between group cursor-pointer hover:bg-red-500/[0.02] transition-all duration-500 min-h-[220px] border border-red-500/20 hover:border-red-500/50"
                onClick={handleEnterApp}
              >
                 <div className="flex justify-between items-start">
-                   <div className="text-[9px] font-mono font-black text-red-400 uppercase tracking-[0.3em]">{t.onboarding.cta_box_label}</div>
-                   <Rocket className="h-4 w-4 text-red-500 animate-pulse shadow-[0_0_10px_rgba(220,38,38,0.5)]" />
+                   <div className="text-[9px] font-mono font-black text-red-500/40 uppercase tracking-[0.3em]">{t.onboarding.cta_box_label}</div>
+                   <Rocket className="h-4 w-4 text-red-500/60 animate-pulse" />
                 </div>
                 <h3 className="text-2xl font-black uppercase tracking-tighter text-white leading-tight">{t.onboarding.cta_box_title}</h3>
-                <button onClick={handleEnterApp} className="w-full py-3.5 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 text-red-400 border border-red-500/40 bg-red-500/5 hover:bg-red-500/20 transition-all">
+                <button onClick={handleEnterApp} className="w-full py-3.5 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 text-red-500 border border-red-500/20 bg-red-500/5 hover:bg-red-500/20 transition-all">
                    {t.onboarding.cta_box_btn} <ArrowRight className="h-3.5 w-3.5" />
                 </button>
-             </div>
+             </motion.div>
           </div>
         </div>
       </section>
