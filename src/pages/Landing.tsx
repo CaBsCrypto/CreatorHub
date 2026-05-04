@@ -317,12 +317,12 @@ export default function Landing() {
         </div>
       </nav>
 
-      <section id="onboarding" className="py-20 md:py-32 px-4 md:px-8 lg:px-12 bg-transparent relative z-10 overflow-hidden border-t border-white/5">
+      <section id="onboarding" className="pt-10 pb-20 md:pt-16 md:pb-32 px-4 md:px-8 lg:px-12 bg-transparent relative z-10 overflow-hidden border-t border-white/5">
         <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-30">
            <motion.div 
              animate={{ x: [0, -1920] }} 
              transition={{ duration: 70, repeat: Infinity, ease: "linear" }}
-             className="flex gap-8 pt-28 opacity-60 z-10"
+             className="flex gap-8 pt-44 opacity-60 z-10"
            >
               {[...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS].map((creator, i) => (
                 <div key={i} className="flex-none w-[280px] h-[380px] rounded-[2rem] overflow-hidden relative">
