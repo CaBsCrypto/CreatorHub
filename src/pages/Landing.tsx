@@ -130,8 +130,8 @@ const ProcessBox = ({ step, onClick }: { step: any, onClick: () => void }) => (
        </div>
        
        <div>
-          <h3 className="text-xl font-black text-white leading-tight uppercase tracking-tighter mb-2 group-hover:text-red-500 transition-colors">{step.title}</h3>
-          <p className="text-[11px] font-medium text-white/30 leading-relaxed max-w-[200px] group-hover:text-white/50 transition-colors">{step.desc}</p>
+          <h3 className="text-xl font-black text-white leading-tight uppercase tracking-tighter mb-2 group-hover:text-red-500 transition-colors" style={{ textShadow: '0 2px 10px rgba(0,0,0,1), 0 4px 25px rgba(0,0,0,1)' }}>{step.title}</h3>
+          <p className="text-[11px] font-medium text-white/90 leading-relaxed max-w-[200px] group-hover:text-white transition-colors" style={{ textShadow: '0 2px 10px rgba(0,0,0,1), 0 4px 20px rgba(0,0,0,0.8)' }}>{step.desc}</p>
        </div>
     </div>
   </motion.div>
@@ -390,7 +390,7 @@ export default function Landing() {
                    <div className="text-[9px] font-mono font-black text-red-500/40 uppercase tracking-[0.3em]">{t.onboarding.cta_box_label}</div>
                    <Rocket className="h-4 w-4 text-red-500/60 animate-pulse" />
                 </div>
-                <h3 className="text-2xl font-black uppercase tracking-tighter text-white leading-tight">{t.onboarding.cta_box_title}</h3>
+                <h3 className="text-2xl font-black uppercase tracking-tighter text-white leading-tight" style={{ textShadow: '0 2px 10px rgba(0,0,0,1), 0 4px 25px rgba(0,0,0,1)' }}>{t.onboarding.cta_box_title}</h3>
                 <button onClick={handleEnterApp} className="w-full py-3.5 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 text-red-500 border border-red-500/20 bg-red-500/5 hover:bg-red-500/20 transition-all">
                    {t.onboarding.cta_box_btn} <ArrowRight className="h-3.5 w-3.5" />
                 </button>
