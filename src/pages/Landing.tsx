@@ -117,7 +117,7 @@ const ProcessBox = ({ step, onClick }: { step: any, onClick: () => void }) => (
   <motion.div 
     whileHover={{ y: -12, scale: 1.02 }}
     onClick={onClick}
-    className="relative p-7 rounded-[2rem] bg-black/50 md:bg-transparent backdrop-blur-lg md:backdrop-blur-none cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between border border-white/10 hover:border-white/30 md:hover:bg-white/[0.02]"
+    className="relative p-7 rounded-[2rem] bg-transparent backdrop-blur-none cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between border border-white/10 hover:border-white/30 hover:bg-white/[0.02]"
   >
     <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-red-500/[0.02] blur-[100px] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
     
@@ -383,7 +383,7 @@ export default function Landing() {
              
              <motion.div 
                whileHover={{ y: -12, scale: 1.02 }}
-               className="p-7 rounded-[2rem] bg-black/50 md:bg-transparent backdrop-blur-lg md:backdrop-blur-none flex flex-col justify-between group cursor-pointer hover:bg-red-500/[0.05] transition-all duration-500 min-h-[220px] border border-red-500/20 hover:border-red-500/50"
+               className="p-7 rounded-[2rem] bg-transparent backdrop-blur-none flex flex-col justify-between group cursor-pointer hover:bg-red-500/[0.05] transition-all duration-500 min-h-[220px] border border-red-500/20 hover:border-red-500/50"
                onClick={handleEnterApp}
              >
                 <div className="flex justify-between items-start">
