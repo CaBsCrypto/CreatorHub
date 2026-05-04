@@ -117,7 +117,7 @@ const ProcessBox = ({ step, onClick }: { step: any, onClick: () => void }) => (
   <motion.div 
     whileHover={{ y: -12, scale: 1.02 }}
     onClick={onClick}
-    className="relative p-7 rounded-[2rem] bg-transparent backdrop-blur-none cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between border-2 border-white/40 md:border-white/25 hover:border-white/60 hover:bg-white/[0.02] shadow-[inset_0_0_30px_rgba(0,0,0,0.3)]"
+    className="relative p-7 rounded-[2rem] bg-transparent backdrop-blur-none cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between border-2 border-white/40 md:border-white/25 hover:border-white/60 hover:bg-white/[0.02] active:scale-[0.98] shadow-[inset_0_0_30px_rgba(0,0,0,0.3)]"
   >
     <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-red-500/[0.02] blur-[100px] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
     
@@ -308,7 +308,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12 h-20 flex items-center justify-between">
           <div className="flex items-center gap-4">
              <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center text-[#030711] font-black text-lg">U</div>
-             <span className="text-xl font-black uppercase tracking-[0.4em] text-white">Umbra</span>
+             <span className="text-xl font-black uppercase tracking-[0.4em] text-white hidden sm:block">Umbra</span>
           </div>
           
           <div className="flex items-center gap-2 md:gap-6">
@@ -374,7 +374,7 @@ export default function Landing() {
                    <ShieldCheck className="h-2 w-2 text-red-500" />
                    <span className="text-[7px] font-black uppercase tracking-[0.4em] text-red-500">{t.onboarding.label}</span>
                 </div>
-                <h1 className="text-3xl md:text-5xl lg:text-6xl font-black uppercase tracking-tighter leading-[0.9] text-white">
+                <h1 className="text-[2.5rem] leading-[0.85] md:leading-[0.9] md:text-5xl lg:text-6xl font-black uppercase tracking-tighter text-white">
                    {t.onboarding.title_1} <span className="text-red-500">{t.onboarding.title_2}</span>
                 </h1>
              </div>
@@ -391,7 +391,7 @@ export default function Landing() {
                target="_blank"
                rel="noopener noreferrer"
                whileHover={{ y: -12, scale: 1.02 }}
-               className="p-7 rounded-[2rem] bg-transparent backdrop-blur-none flex flex-col justify-between group cursor-pointer hover:bg-red-500/[0.05] transition-all duration-500 min-h-[220px] border-2 border-red-500/60 md:border-red-500/30 hover:border-red-500/80 shadow-[inset_0_0_30px_rgba(220,38,38,0.1)] block"
+               className="p-7 rounded-[2rem] bg-transparent backdrop-blur-none flex flex-col justify-between group cursor-pointer hover:bg-red-500/[0.05] active:scale-[0.98] transition-all duration-500 min-h-[220px] border-2 border-red-500/60 md:border-red-500/30 hover:border-red-500/80 shadow-[inset_0_0_30px_rgba(220,38,38,0.1)] block"
              >
                 <div className="flex justify-between items-start">
                    <div className="text-[9px] font-mono font-black text-red-500/40 uppercase tracking-[0.3em]">{t.onboarding.cta_box_label}</div>
