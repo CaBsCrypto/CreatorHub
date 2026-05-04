@@ -352,7 +352,7 @@ export default function Landing() {
                 transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
                 className="flex flex-col gap-3 w-1/2"
               >
-                {[...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS].map((creator, i) => (
+                {[...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS].reverse().map((creator, i) => (
                   <div key={`col2-${i}`} className="flex-none w-full h-[180px] rounded-2xl overflow-hidden relative border border-white/5 shadow-[0_0_20px_rgba(220,38,38,0.1)]">
                      <img src={creator.img} className="w-full h-full object-cover brightness-[0.75] contrast-[1.2] grayscale-[0.2]" alt="" />
                      <div className="absolute inset-0 bg-red-500/20 mix-blend-overlay" />
