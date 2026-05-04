@@ -322,7 +322,7 @@ export default function Landing() {
            {/* DESKTOP CAROUSEL */}
            <motion.div 
              animate={{ x: [0, -3120] }} 
-             transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
+             transition={{ duration: 56, repeat: Infinity, ease: "linear" }}
              className="hidden md:flex gap-8 pt-32 opacity-100 z-10"
            >
               {[...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS].map((creator, i) => (
