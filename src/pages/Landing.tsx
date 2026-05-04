@@ -117,7 +117,7 @@ const ProcessBox = ({ step, onClick }: { step: any, onClick: () => void }) => (
   <motion.div 
     whileHover={{ y: -12, scale: 1.02 }}
     onClick={onClick}
-    className="relative p-7 md:p-10 rounded-[2.5rem] bg-transparent backdrop-blur-none cursor-pointer group transition-all duration-500 overflow-hidden min-h-[260px] flex flex-col justify-between border border-white/5 hover:border-red-500/40"
+    className="relative p-7 md:p-10 rounded-[2.5rem] bg-white/[0.02] backdrop-blur-md cursor-pointer group transition-all duration-500 overflow-hidden min-h-[260px] flex flex-col justify-between border border-white/[0.08] hover:border-white/20 hover:bg-white/[0.05] shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]"
   >
     <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-red-500/[0.02] blur-[100px] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
     
@@ -318,16 +318,16 @@ export default function Landing() {
       </nav>
 
       <section id="onboarding" className="py-20 md:py-32 px-4 md:px-8 lg:px-12 bg-transparent relative z-10 overflow-hidden border-t border-white/5">
-        <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-15">
+        <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-40">
            <motion.div 
              animate={{ x: [0, -1920] }} 
              transition={{ duration: 70, repeat: Infinity, ease: "linear" }}
-             className="flex gap-8 pt-40 opacity-50 z-10"
+             className="flex gap-8 pt-48 opacity-60 z-10"
            >
               {[...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS].map((creator, i) => (
                 <div key={i} className="flex-none w-[280px] h-[380px] rounded-[2rem] overflow-hidden relative">
-                   <img src={creator.img} className="w-full h-full object-cover brightness-[0.4] contrast-[1.2] grayscale-[0.5]" alt="" />
-                   <div className="absolute inset-0 bg-[#020202]/30 mix-blend-multiply" />
+                   <img src={creator.img} className="w-full h-full object-cover brightness-[0.7] contrast-[1.2] grayscale-[0.2]" alt="" />
+                   <div className="absolute inset-0 bg-red-950/10 mix-blend-multiply" />
                 </div>
               ))}
            </motion.div>
@@ -354,7 +354,7 @@ export default function Landing() {
              
              <motion.div 
                whileHover={{ y: -12, scale: 1.02 }}
-               className="p-7 md:p-10 rounded-[2.5rem] bg-transparent backdrop-blur-none flex flex-col justify-between group cursor-pointer hover:bg-red-500/[0.02] transition-all duration-500 min-h-[260px] border border-red-500/20 hover:border-red-500/50"
+               className="p-7 md:p-10 rounded-[2.5rem] bg-red-500/[0.02] backdrop-blur-md flex flex-col justify-between group cursor-pointer hover:bg-red-500/[0.08] transition-all duration-500 min-h-[260px] border border-red-500/30 hover:border-red-500/50 shadow-[0_8px_32px_0_rgba(220,38,38,0.1)]"
                onClick={handleEnterApp}
              >
                 <div className="flex justify-between items-start">
