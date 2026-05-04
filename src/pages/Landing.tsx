@@ -373,7 +373,7 @@ export default function Landing() {
                    {t.onboarding.title_1} <span className="text-red-500">{t.onboarding.title_2}</span>
                 </h1>
              </div>
-             <p className="text-xs md:text-[11px] text-white/30 font-medium max-w-sm leading-relaxed">{t.onboarding.desc}</p>
+             <p className="text-xs md:text-[11px] text-white/80 font-medium max-w-sm leading-relaxed">{t.onboarding.desc}</p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
