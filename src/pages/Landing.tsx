@@ -117,7 +117,8 @@ const ProcessBox = ({ step, onClick }: { step: any, onClick: () => void }) => (
   <motion.div 
     whileHover={{ y: -12, scale: 1.02 }}
     onClick={onClick}
-    className="relative p-7 rounded-[2rem] bg-transparent backdrop-blur-none cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between border border-white/5 hover:border-red-500/30"
+    className="relative p-7 rounded-[2rem] !bg-transparent !backdrop-blur-none cursor-pointer group transition-all duration-500 overflow-hidden min-h-[220px] flex flex-col justify-between border border-white/5 hover:border-red-500/30"
+    style={{ backgroundColor: 'transparent' }}
   >
     <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-red-500/[0.02] blur-[100px] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
     
@@ -135,7 +136,6 @@ const ProcessBox = ({ step, onClick }: { step: any, onClick: () => void }) => (
        </div>
     </div>
   </motion.div>
-);
 );
 
 const ProcessModal = ({ step, onClose }: { step: any, onClose: () => void }) => (
@@ -318,18 +318,16 @@ export default function Landing() {
         </div>
       </nav>
 
-      {/* ONBOARDING PROTOCOL WITH DYNAMIC SOCIAL PROOF BACKGROUND */}
       <section id="onboarding" className="py-20 md:py-32 px-4 md:px-8 lg:px-12 bg-transparent relative z-10 overflow-hidden border-t border-white/5">
-        <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-30">
+        <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-60">
            <motion.div 
              animate={{ x: [0, -1920] }} 
              transition={{ duration: 70, repeat: Infinity, ease: "linear" }}
              className="flex gap-8 pt-28 opacity-60 z-10"
            >
-              {[...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS].map((creator, i) => (
                 <div key={i} className="flex-none w-[280px] h-[380px] rounded-[2rem] overflow-hidden relative">
-                   <img src={creator.img} className="w-full h-full object-cover brightness-[0.65] contrast-[1.2] grayscale-[0.3]" alt="" />
-                   <div className="absolute inset-0 bg-red-950/10 mix-blend-multiply" />
+                   <img src={creator.img} className="w-full h-full object-cover brightness-[0.8] contrast-[1.1] grayscale-[0.2]" alt="" />
+                   <div className="absolute inset-0 bg-red-950/5 mix-blend-multiply" />
                 </div>
               ))}
            </motion.div>
@@ -356,7 +354,8 @@ export default function Landing() {
              
              <motion.div 
                whileHover={{ y: -12, scale: 1.02 }}
-               className="p-7 rounded-[2rem] bg-transparent backdrop-blur-none flex flex-col justify-between group cursor-pointer hover:bg-red-500/[0.02] transition-all duration-500 min-h-[220px] border border-red-500/20 hover:border-red-500/50"
+               className="p-7 rounded-[2rem] !bg-transparent !backdrop-blur-none flex flex-col justify-between group cursor-pointer hover:bg-red-500/[0.02] transition-all duration-500 min-h-[220px] border border-red-500/20 hover:border-red-500/50"
+               style={{ backgroundColor: 'transparent' }}
                onClick={handleEnterApp}
              >
                 <div className="flex justify-between items-start">
