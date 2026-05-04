@@ -325,6 +325,7 @@ export default function Landing() {
              transition={{ duration: 70, repeat: Infinity, ease: "linear" }}
              className="flex gap-8 pt-28 opacity-60 z-10"
            >
+              {[...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS, ...CREATORS].map((creator, i) => (
                 <div key={i} className="flex-none w-[280px] h-[380px] rounded-[2rem] overflow-hidden relative">
                    <img src={creator.img} className="w-full h-full object-cover brightness-[0.8] contrast-[1.1] grayscale-[0.2]" alt="" />
                    <div className="absolute inset-0 bg-red-950/5 mix-blend-multiply" />
