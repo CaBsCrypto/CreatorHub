@@ -436,7 +436,7 @@ export default function Landing() {
               <div>
                 <div className="text-4xl font-black text-white tracking-tighter leading-none">
                   {statsInView && statsLoaded
-                    ? <AnimatedCounter target={stats.campaigns} prefix="+" />
+                    ? <AnimatedCounter target={stats.campaigns} />
                     : <span className="text-white/20">—</span>}
                 </div>
                 <div className="text-[9px] font-black uppercase tracking-[0.4em] text-white/30 mt-1">Campañas Ejecutadas</div>
@@ -451,7 +451,7 @@ export default function Landing() {
               <div>
                 <div className="text-4xl font-black text-white tracking-tighter leading-none">
                   {statsInView && statsLoaded
-                    ? <AnimatedCounter target={stats.creators} prefix="+" />
+                    ? <AnimatedCounter target={CREATORS.length} />
                     : <span className="text-white/20">—</span>}
                 </div>
                 <div className="text-[9px] font-black uppercase tracking-[0.4em] text-white/30 mt-1">Creadores Activos</div>
