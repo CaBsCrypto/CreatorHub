@@ -108,10 +108,37 @@ const creatorRefreshLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-app.get("/api/health", (req, res) => res.json({ status: "ok" }));
+app.get("/api/health", (req, res) => res.json({ status: "ok", timestamp: new Date().toISOString() }));
+
+// CRON KEEP-ALIVE ENDPOINT
+app.get("/api/cron/keep-alive", async (req, res) => {
+  const isCron = req.headers['x-vercel-cron'] === '1';
+  console.log(`[CRON] Keep-alive triggered. Source: ${isCron ? 'Vercel Cron' : 'Manual/External'}`);
+  
+  try {
+    if (!supabaseAdmin) throw new Error("Supabase Admin not initialized");
+
+    // Ultra-light query to just wake up the DB
+    const { data, error } = await supabaseAdmin.from('users').select('id').limit(1);
+    
+    if (error) throw error;
+
+    res.json({ 
+      success: true, 
+      message: "Database is awake", 
+      timestamp: new Date().toISOString() 
+    });
+  } catch (error: any) {
+    console.error("[CRON] Keep-alive failed:", error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 
 // PUBLIC STATS ENDPOINT - No auth required (landing page)
 app.get("/api/public-stats", async (req, res) => {
+  const isCron = req.headers['x-vercel-cron'] === '1';
+  if (isCron) console.log("[CRON] Public stats refresh triggered by Vercel Cron");
+
   console.log("[STATS] Public stats request received");
   try {
     if (!supabaseAdmin) {
@@ -141,9 +168,9 @@ app.get("/api/public-stats", async (req, res) => {
         .is('deleted_at', null),
     ]);
 
-    if (viewsResult.error) console.error("Views Query Error:", viewsResult.error.message);
-    if (campaignsResult.error) console.error("Campaigns Query Error:", campaignsResult.error.message);
-    if (creatorsResult.error) console.error("Creators Query Error:", creatorsResult.error.message);
+    if (viewsResult.error) console.error("❌ Views Query Error:", viewsResult.error);
+    if (campaignsResult.error) console.error("❌ Campaigns Query Error:", campaignsResult.error);
+    if (creatorsResult.error) console.error("❌ Creators Query Error:", creatorsResult.error);
 
     // Sum views manually from the rows
     const totalViews = (viewsResult.data || []).reduce(
