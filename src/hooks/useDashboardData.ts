@@ -107,8 +107,9 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
 
       // --- CAMPAIGN PRIVACY FILTERING ---
       // A campaign is private to Cabs if:
-      // 1. Cabs is the ONLY assigned creator OR the only one who uploaded content.
-      // 2. OR if it has NO assigned creators and client_id is null.
+      // 1. Cabs is the ONLY active creator (assigned or who uploaded content).
+      // 2. OR if it has NO active creators and client_id is null.
+      // All other campaigns (including those with only ONE creator that is NOT Cabs) remain visible.
       const isCabs = user?.email === 'cabscryptocontacto@gmail.com';
       const rawCampaigns = camps.data || [];
       
@@ -119,10 +120,13 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
         // Merge assigned and content creators to get all active creators on this campaign
         const allActiveCreators = new Set([...assignedCreators, ...contentCreators]);
         
-        // If Cabs is the only active creator on it (or it's completely empty/personal)
+        // Check if Cabs is the only one active
         const isOnlyCabs = allActiveCreators.size === 1 && cabsUserId && allActiveCreators.has(cabsUserId);
+        
+        // Check if it's completely empty (no assigned creators, no content) and has no client
         const isEmptyAndPersonal = allActiveCreators.size === 0 && campaign.client_id === null;
 
+        // Hide ONLY if it's only Cabs or completely empty/personal
         if (isOnlyCabs || isEmptyAndPersonal) {
           return false; // Hide from other admins
         }
