@@ -200,12 +200,12 @@ const CREATORS = [
   { name: 'Lady Mufa', img: '/assets/ladymufa.webp', handle: '@ladymufa' },
   { name: 'Cabs', img: '/assets/cabs.webp', handle: '@cabs' },
   { name: 'Lizard', img: '/assets/lizard.webp', handle: '@lizard' },
-  { name: 'Cucaracha', img: '/assets/cucaracha.png', handle: '@cucaracha' },
   { name: 'Oza', img: '/assets/oza.webp', handle: '@oza' },
-  { name: 'Thecocox', img: '/assets/thecocox.png', handle: '@thecocox' },
   { name: 'Eminatr1x', img: '/assets/eminatr1x.webp', handle: '@eminatr1x' },
-  { name: 'Jpweb3', img: '/assets/jpweb3.png', handle: '@jpweb3' },
+  { name: 'Thecocox', img: '/assets/thecocox.png', handle: '@thecocox' },
   { name: '1dory', img: '/assets/1dory.webp', handle: '@1dory' },
+  { name: 'Jpweb3', img: '/assets/jpweb3.png', handle: '@jpweb3' },
+  { name: 'Cucaracha', img: '/assets/cucaracha.png', handle: '@cucaracha' },
 ];
 
 const FOUNDERS = [
