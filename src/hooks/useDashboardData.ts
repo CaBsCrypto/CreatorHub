@@ -64,30 +64,76 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
         .is('deleted_at', null)
         .order('created_at', { ascending: false });
 
-      if (role === 'creator' && user?.id) {
-        const { data: assignments } = await supabase
-          .from('campaign_creators')
-          .select('campaign_id')
-          .eq('creator_id', user.id);
-        
-        setAssignedCampaignIds(assignments?.map(a => (a as any).campaign_id) || []);
-      }
+      // Fetch all campaign creator assignments to determine who is assigned to which campaign
+      const { data: allAssignments, error: assignmentsErr } = await supabase
+        .from('campaign_creators')
+        .select('campaign_id, creator_id');
 
       if (camps.error) throw camps.error;
       if (conts.error) throw conts.error;
       if (usrs.error) throw usrs.error;
+      if (assignmentsErr) throw assignmentsErr;
+
+      const assignmentList = allAssignments || [];
+
+      // Find Cabs user profile
+      const cabsUser = (usrs.data || []).find(u => u.email === 'cabscryptocontacto@gmail.com');
+      const cabsUserId = cabsUser?.id;
+
+      // Group creator IDs by campaign_id
+      const creatorsByCampaign = new Map<string, Set<string>>();
+      assignmentList.forEach(a => {
+        if (!creatorsByCampaign.has(a.campaign_id)) {
+          creatorsByCampaign.set(a.campaign_id, new Set());
+        }
+        creatorsByCampaign.get(a.campaign_id)!.add(a.creator_id);
+      });
+
+      // Also parse content to see if other creators have uploaded to this campaign
+      const rawContent = conts.data || [];
+      const contentByCampaign = new Map<string, Set<string>>();
+      rawContent.forEach(c => {
+        if (c.creator_id) {
+          if (!contentByCampaign.has(c.campaign_id)) {
+            contentByCampaign.set(c.campaign_id, new Set());
+          }
+          contentByCampaign.get(c.campaign_id)!.add(c.creator_id);
+        }
+      });
+
+      if (role === 'creator' && user?.id) {
+        setAssignedCampaignIds(assignmentList.filter(a => a.creator_id === user.id).map(a => a.campaign_id));
+      }
 
       // --- CAMPAIGN PRIVACY FILTERING ---
-      // If the current user is NOT Cabs (cabscryptocontacto@gmail.com), we hide all campaigns that have client_id === null.
+      // A campaign is private to Cabs if:
+      // 1. Cabs is the ONLY assigned creator OR the only one who uploaded content.
+      // 2. OR if it has NO assigned creators and client_id is null.
       const isCabs = user?.email === 'cabscryptocontacto@gmail.com';
       const rawCampaigns = camps.data || [];
-      const visibleCampaigns = isCabs ? rawCampaigns : rawCampaigns.filter(c => c.client_id !== null);
+      
+      const visibleCampaigns = isCabs ? rawCampaigns : rawCampaigns.filter(campaign => {
+        const assignedCreators = creatorsByCampaign.get(campaign.id) || new Set();
+        const contentCreators = contentByCampaign.get(campaign.id) || new Set();
+        
+        // Merge assigned and content creators to get all active creators on this campaign
+        const allActiveCreators = new Set([...assignedCreators, ...contentCreators]);
+        
+        // If Cabs is the only active creator on it (or it's completely empty/personal)
+        const isOnlyCabs = allActiveCreators.size === 1 && cabsUserId && allActiveCreators.has(cabsUserId);
+        const isEmptyAndPersonal = allActiveCreators.size === 0 && campaign.client_id === null;
+
+        if (isOnlyCabs || isEmptyAndPersonal) {
+          return false; // Hide from other admins
+        }
+        return true;
+      });
+      
       const visibleCampaignIds = new Set(visibleCampaigns.map(c => c.id));
 
       setCampaigns(visibleCampaigns);
       
       // Filter content to only include items belonging to visible campaigns
-      const rawContent = conts.data || [];
       const visibleContent = rawContent.filter(c => visibleCampaignIds.has(c.campaign_id));
 
       // Normalize: 'stream' → 'twitch' para que todos los checks existentes funcionen
@@ -125,7 +171,7 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
         const rawDelCont = delCont.data || [];
         const rawDelCamp = delCamp.data || [];
         setDeletedContent(isCabs ? rawDelCont : rawDelCont.filter(c => visibleCampaignIds.has(c.campaign_id)));
-        setDeletedCampaigns(isCabs ? rawDelCamp : rawDelCamp.filter(c => c.client_id !== null));
+        setDeletedCampaigns(isCabs ? rawDelCamp : rawDelCamp.filter(c => visibleCampaignIds.has(c.id)));
         setDeletedUsers(delUsr.data || []);
 
         // Fetch audit logs for admins
@@ -271,6 +317,16 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
   }, [filteredContent, users]);
 
   const campaignStats = useMemo(() => {
+    // Determine Cabs user profile ID
+    const cabsUser = users.find(u => u.email === 'cabscryptocontacto@gmail.com');
+    const cabsUserId = cabsUser?.id;
+
+    // Group assigned creators by campaign
+    const assignmentsByCampaign = new Map<string, Set<string>>();
+    // We can populate this from the state variables if we expose assignments,
+    // but we can also build it on-the-fly or query it. Since we parsed it in fetchData, 
+    // let's do a simple check using content creator ids and client_id.
+    
     return campaigns.map(campaign => {
       const campaignPayments = payments.filter(p => p.campaign_id === campaign.id);
       const spent = campaignPayments.reduce((acc, curr) => acc + Number(curr.amount), 0);
@@ -279,12 +335,20 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
       const campaignContent = content.filter(c => c.campaign_id === campaign.id);
       const views = campaignContent.reduce((acc, curr) => acc + (curr.views || 0), 0);
       
+      // A campaign is personal if only Cabs has uploaded content to it, OR if it has no content and is owned by Cabs
+      const uniqueCreators = new Set(campaignContent.map(c => c.creator_id).filter(Boolean));
+      const isPersonal = cabsUserId && (
+        (uniqueCreators.size === 1 && uniqueCreators.has(cabsUserId)) ||
+        (uniqueCreators.size === 0 && campaign.client_id === null)
+      );
+
       return {
         ...campaign,
         views,
         contentCount: campaignContent.length,
         spent, // For creators, this is "their" spent (earnings)
         remaining,
+        isPersonal: !!isPersonal,
         isAssigned: role === 'admin' ? true : assignedCampaignIds.includes(campaign.id)
       };
     }).sort((a, b) => {
@@ -293,7 +357,7 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
       if (!a.isAssigned && b.isAssigned) return 1;
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
-  }, [campaigns, payments, content, role, assignedCampaignIds]);
+  }, [campaigns, payments, content, role, assignedCampaignIds, users]);
 
   const creatorStats = useMemo(() => {
     const stats: Record<string, any> = {};

@@ -11,6 +11,7 @@ interface CampaignCardProps {
   spent?: number;
   remaining?: number;
   isAssigned?: boolean;
+  isPersonal?: boolean;
   role?: 'admin' | 'creator';
   onClick?: (id: string) => void;
   onDelete: (id: string) => void;
@@ -28,6 +29,7 @@ const CampaignCard = React.memo(({
   spent = 0,
   remaining = 0,
   isAssigned = false,
+  isPersonal = false,
   role = 'admin',
   onDelete,
   onEdit,
@@ -44,7 +46,7 @@ const CampaignCard = React.memo(({
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       className={`group relative bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border ${
-        campaign.client_id === null
+        isPersonal
           ? 'border-red-500/30 bg-red-950/[0.005]'
           : isAssigned ? 'border-indigo-100' : 'border-gray-100'
       } hover:border-indigo-200 flex flex-col overflow-hidden`}
@@ -82,7 +84,7 @@ const CampaignCard = React.memo(({
             {campaign.status === 'active' ? '● Activa' : '○ Borrador'}
           </span>
 
-          {campaign.client_id === null && (
+          {isPersonal && (
             <span className="px-2.5 py-1 bg-red-650/10 text-red-500 border border-red-500/20 rounded-lg text-[9px] font-black uppercase tracking-widest animate-pulse">
               ★ Campaña Personal
             </span>

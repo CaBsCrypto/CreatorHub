@@ -83,6 +83,7 @@ const CampaignsTab = React.memo(({
               spent={campaign.spent}
               remaining={campaign.remaining}
               isAssigned={campaign.isAssigned}
+              isPersonal={campaign.isPersonal}
               role={role}
               onDelete={onDelete}
               onEdit={() => onEdit(campaign)}
