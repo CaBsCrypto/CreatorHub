@@ -77,9 +77,21 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
       if (conts.error) throw conts.error;
       if (usrs.error) throw usrs.error;
 
-      setCampaigns(camps.data || []);
+      // --- CAMPAIGN PRIVACY FILTERING ---
+      // If the current user is NOT Cabs (cabscryptocontacto@gmail.com), we hide all campaigns that have client_id === null.
+      const isCabs = user?.email === 'cabscryptocontacto@gmail.com';
+      const rawCampaigns = camps.data || [];
+      const visibleCampaigns = isCabs ? rawCampaigns : rawCampaigns.filter(c => c.client_id !== null);
+      const visibleCampaignIds = new Set(visibleCampaigns.map(c => c.id));
+
+      setCampaigns(visibleCampaigns);
+      
+      // Filter content to only include items belonging to visible campaigns
+      const rawContent = conts.data || [];
+      const visibleContent = rawContent.filter(c => visibleCampaignIds.has(c.campaign_id));
+
       // Normalize: 'stream' → 'twitch' para que todos los checks existentes funcionen
-      setContent((conts.data || []).map(c => {
+      setContent(visibleContent.map(c => {
         const platform = (c.platform === 'stream' ? 'twitch' : c.platform) as Content['platform'];
         let views = c.views || 0;
         
@@ -105,9 +117,15 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
           supabase.from('users').select('*').not('deleted_at', 'is', null).order('deleted_at', { ascending: false })
         ]);
 
-        setPayments(payRes.data || []);
-        setDeletedContent(delCont.data || []);
-        setDeletedCampaigns(delCamp.data || []);
+        // Filter payments to only include visible campaigns
+        const rawPayments = payRes.data || [];
+        setPayments(isCabs ? rawPayments : rawPayments.filter(p => !p.campaign_id || visibleCampaignIds.has(p.campaign_id)));
+        
+        // Filter deleted items
+        const rawDelCont = delCont.data || [];
+        const rawDelCamp = delCamp.data || [];
+        setDeletedContent(isCabs ? rawDelCont : rawDelCont.filter(c => visibleCampaignIds.has(c.campaign_id)));
+        setDeletedCampaigns(isCabs ? rawDelCamp : rawDelCamp.filter(c => c.client_id !== null));
         setDeletedUsers(delUsr.data || []);
 
         // Fetch audit logs for admins
@@ -133,7 +151,10 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
           .eq('creator_id', user?.id)
           .order('paid_at', { ascending: false });
         
-        if (myPayments) setPayments(myPayments as Payment[]);
+        if (myPayments) {
+          const paymentsFiltered = isCabs ? myPayments : (myPayments as Payment[]).filter(p => !p.campaign_id || visibleCampaignIds.has(p.campaign_id));
+          setPayments(paymentsFiltered);
+        }
       }
     } catch (err: any) {
       console.error("Dashboard data fetch error:", err);
