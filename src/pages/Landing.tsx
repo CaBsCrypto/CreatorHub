@@ -195,15 +195,16 @@ const STEP_ICONS = [ClipboardCheck, Network, Layers, Activity, BarChart];
 
 // --- DATA: CREATORS ---
 const CREATORS = [
-  { name: 'Spadex', img: '/assets/spadex.webp', handle: '@spadex' },
-  { name: 'Seven', img: '/assets/seven.webp', handle: '@seven' },
-  { name: 'Cabs', img: '/assets/cabs.webp', handle: '@cabs' },
   { name: 'Camululis', img: '/assets/camululis.webp', handle: '@camululis' },
+  { name: 'Spadex', img: '/assets/spadex.webp', handle: '@spadex' },
   { name: 'Lady Mufa', img: '/assets/ladymufa.webp', handle: '@ladymufa' },
+  { name: 'Cabs', img: '/assets/cabs.webp', handle: '@cabs' },
   { name: 'Lizard', img: '/assets/lizard.webp', handle: '@lizard' },
+  { name: 'Cucaracha', img: '/assets/cucaracha.png', handle: '@cucaracha' },
   { name: 'Oza', img: '/assets/oza.webp', handle: '@oza' },
+  { name: 'Thecocox', img: '/assets/thecocox.png', handle: '@thecocox' },
   { name: 'Eminatr1x', img: '/assets/eminatr1x.webp', handle: '@eminatr1x' },
-  { name: 'Yagod', img: '/assets/yagod.webp', handle: '@yagod' },
+  { name: 'Jpweb3', img: '/assets/jpweb3.png', handle: '@jpweb3' },
   { name: '1dory', img: '/assets/1dory.webp', handle: '@1dory' },
 ];
 
@@ -339,32 +340,32 @@ export default function Landing() {
            </motion.div>
 
            {/* MOBILE CAROUSEL */}
-           <div className="flex md:hidden w-full h-[3000px] gap-3 pt-6 px-2 opacity-90">
-              <motion.div 
-                animate={{ y: [0, -960] }} 
-                transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-                className="flex flex-col gap-3 w-1/2"
-              >
-                {[...CREATORS.slice(0, 5), ...CREATORS.slice(0, 5), ...CREATORS.slice(0, 5), ...CREATORS.slice(0, 5)].map((creator, i) => (
-                  <div key={`col1-${i}`} className="flex-none w-full h-[180px] rounded-2xl overflow-hidden relative border border-white/5 shadow-[0_0_20px_rgba(220,38,38,0.1)]">
-                     <img src={creator.img} className="w-full h-full object-cover brightness-[0.75] contrast-[1.2] grayscale-[0.2]" alt="" />
-                     <div className="absolute inset-0 bg-red-500/20 mix-blend-overlay" />
-                  </div>
-                ))}
-              </motion.div>
-              <motion.div 
-                animate={{ y: [-960, 0] }} 
-                transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
-                className="flex flex-col gap-3 w-1/2"
-              >
-                {[...CREATORS.slice(5, 10), ...CREATORS.slice(5, 10), ...CREATORS.slice(5, 10), ...CREATORS.slice(5, 10)].map((creator, i) => (
-                  <div key={`col2-${i}`} className="flex-none w-full h-[180px] rounded-2xl overflow-hidden relative border border-white/5 shadow-[0_0_20px_rgba(220,38,38,0.1)]">
-                     <img src={creator.img} className="w-full h-full object-cover brightness-[0.75] contrast-[1.2] grayscale-[0.2]" alt="" />
-                     <div className="absolute inset-0 bg-red-500/20 mix-blend-overlay" />
-                  </div>
-                ))}
-              </motion.div>
-           </div>
+            <div className="flex md:hidden w-full h-[3000px] gap-3 pt-6 px-2 opacity-90">
+               <motion.div 
+                 animate={{ y: [0, -960] }} 
+                 transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+                 className="flex flex-col gap-3 w-1/2"
+               >
+                 {[...CREATORS.slice(0, 6), ...CREATORS.slice(0, 6), ...CREATORS.slice(0, 6), ...CREATORS.slice(0, 6)].map((creator, i) => (
+                   <div key={`col1-${i}`} className="flex-none w-full h-[180px] rounded-2xl overflow-hidden relative border border-white/5 shadow-[0_0_20px_rgba(220,38,38,0.1)]">
+                      <img src={creator.img} className="w-full h-full object-cover brightness-[0.75] contrast-[1.2] grayscale-[0.2]" alt="" />
+                      <div className="absolute inset-0 bg-red-500/20 mix-blend-overlay" />
+                   </div>
+                 ))}
+               </motion.div>
+               <motion.div 
+                 animate={{ y: [-960, 0] }} 
+                 transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
+                 className="flex flex-col gap-3 w-1/2"
+               >
+                 {[...CREATORS.slice(6, 11), ...CREATORS.slice(6, 11), ...CREATORS.slice(6, 11), ...CREATORS.slice(6, 11)].map((creator, i) => (
+                   <div key={`col2-${i}`} className="flex-none w-full h-[180px] rounded-2xl overflow-hidden relative border border-white/5 shadow-[0_0_20px_rgba(220,38,38,0.1)]">
+                      <img src={creator.img} className="w-full h-full object-cover brightness-[0.75] contrast-[1.2] grayscale-[0.2]" alt="" />
+                      <div className="absolute inset-0 bg-red-500/20 mix-blend-overlay" />
+                   </div>
+                 ))}
+               </motion.div>
+            </div>
         </div>
 
         <div className="max-w-7xl mx-auto relative z-30">
