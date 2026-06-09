@@ -1,6 +1,6 @@
 import React from 'react';
 import { X, Youtube, Instagram, Music2, Twitter, Globe, ExternalLink, RefreshCw } from 'lucide-react';
-import { Campaign, Content, UserProfile } from '../../supabase';
+import { supabase, Campaign, Content, UserProfile } from '../../supabase';
 import { resizeImage } from '../../utils/imageUtils';
 import DiscordIcon from '../icons/DiscordIcon';
 
@@ -76,6 +76,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
   const [twitchPreview, setTwitchPreview] = React.useState<string | null>(null);
   const [streamPlatform, setStreamPlatform] = React.useState<'twitch' | 'tiktok'>('twitch');
   const [isCampaignListOpen, setIsCampaignListOpen] = React.useState(false);
+  const [isAnalyzingScreenshot, setIsAnalyzingScreenshot] = React.useState(false);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
 
   const availablePlatforms = React.useMemo(() => [
@@ -142,6 +143,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
       const reader = new FileReader();
       reader.onloadend = () => setTwitchPreview(reader.result as string);
       reader.readAsDataURL(file);
+      setIsAnalyzingScreenshot(true);
       try {
         const base64 = await new Promise<string>((resolve) => {
           const r = new FileReader();
@@ -152,8 +154,37 @@ const ContentModal: React.FC<ContentModalProps> = ({
         const response = await fetch(optimizedBase64);
         const blob = await response.blob();
         setTwitchFile(new File([blob], file.name, { type: 'image/jpeg' }));
+
+        // Send to Gemini AI for stats analysis
+        const { data: { session } } = await supabase.auth.getSession();
+        const analyzeRes = await fetch('/api/analyze-twitch', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token}`
+          },
+          body: JSON.stringify({ image: optimizedBase64 })
+        });
+
+        if (analyzeRes.ok) {
+          const data = await analyzeRes.json();
+          if (data && !data.error) {
+            setFormData(prev => ({
+              ...prev,
+              duration_minutes: data.duration_minutes || prev.duration_minutes,
+              average_viewers: data.average_viewers || prev.average_viewers,
+              peek_viewers: data.peek_viewers || prev.peek_viewers,
+              unique_viewers: data.unique_viewers || prev.unique_viewers,
+              unique_chatters: data.unique_chatters || prev.unique_chatters,
+              views: data.views || prev.views,
+              title: data.title || prev.title || 'Resumen de Stream'
+            }));
+          }
+        }
       } catch (err) {
-        setTwitchFile(file);
+        console.error("AI Analysis failed:", err);
+      } finally {
+        setIsAnalyzingScreenshot(false);
       }
     }
   };
@@ -245,6 +276,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
                   formData={formData} setFormData={setFormData}
                   streamPlatform={streamPlatform} setStreamPlatform={setStreamPlatform}
                   twitchPreview={twitchPreview} onFileChange={handleFileChange}
+                  isAnalyzing={isAnalyzingScreenshot}
                 />
               ) : (formData.platform as any) === 'discord' || (formData.platform as any) === 'baseapp' ? (
                 <DiscordFormSection
