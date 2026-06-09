@@ -469,7 +469,7 @@ export default function AdminDashboard() {
             setIsCreatingCampaign(false);
             setIsEditingCampaign(false);
             setEditingCampaignId(null);
-            setNewCampaign({ name: '', description: '', client_id: '', twitter_url: '', contact_info: '', budget: 0, slug: '', notes: '', assigned_creator_ids: [] });
+            setNewCampaign({ name: '', description: '', client_id: '', twitter_url: '', contact_info: '', budget: 0, slug: '', notes: '', show_to_all: false, assigned_creator_ids: [] });
           }} 
           onSubmit={isEditingCampaign ? handleUpdateCampaign : handleCreateCampaign} 
           newCampaign={newCampaign} 

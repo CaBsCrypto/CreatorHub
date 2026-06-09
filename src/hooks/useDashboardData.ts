@@ -120,14 +120,11 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
         // Merge assigned and content creators to get all active creators on this campaign
         const allActiveCreators = new Set([...assignedCreators, ...contentCreators]);
         
-        // Check if Cabs is the only one active
         const isOnlyCabs = allActiveCreators.size === 1 && cabsUserId && allActiveCreators.has(cabsUserId);
-        
-        // Check if it's completely empty (no assigned creators, no content) and has no client
         const isEmptyAndPersonal = allActiveCreators.size === 0 && campaign.client_id === null;
 
-        // Hide ONLY if it's only Cabs or completely empty/personal
-        if (isOnlyCabs || isEmptyAndPersonal) {
+        // Hide ONLY if it's only Cabs or completely empty/personal, AND show_to_all is not true
+        if ((isOnlyCabs || isEmptyAndPersonal) && !campaign.show_to_all) {
           return false; // Hide from other admins
         }
         return true;

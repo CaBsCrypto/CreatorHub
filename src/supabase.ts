@@ -68,6 +68,7 @@ export interface Campaign {
   share_token?: string;
   slug?: string | null;
   notes?: string | null;
+  show_to_all?: boolean;
   created_by: string;
   deleted_at?: string | null;
   created_at: string;

@@ -14,6 +14,7 @@ interface AddCampaignModalProps {
     budget?: number;
     slug?: string | null;
     notes?: string | null;
+    show_to_all?: boolean;
   };
   setNewCampaign: (campaign: any) => void;
   clients: any[];
@@ -129,6 +130,24 @@ const AddCampaignModal: React.FC<AddCampaignModalProps> = ({
             <p className="mt-2 text-[9px] text-indigo-400 font-bold leading-relaxed uppercase tracking-tighter">
               ⚡ Link de acceso exclusivo. Se genera solo si queda vacío.
             </p>
+          </div>
+
+          <div className="bg-slate-50 p-4 rounded-2xl border border-gray-100 flex items-center justify-between">
+            <div className="space-y-0.5">
+              <label className="block text-[10px] font-black text-slate-700 uppercase tracking-widest">Mostrar a todos</label>
+              <p className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">
+                Permite que todos los administradores vean esta campaña
+              </p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input 
+                type="checkbox" 
+                className="sr-only peer"
+                checked={!!newCampaign.show_to_all}
+                onChange={(e) => setNewCampaign({ ...newCampaign, show_to_all: e.target.checked })}
+              />
+              <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+            </label>
           </div>
 
           <div>

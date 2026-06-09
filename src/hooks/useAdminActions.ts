@@ -23,6 +23,7 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
     budget: 0,
     slug: '',
     notes: '',
+    show_to_all: false,
     assigned_creator_ids: [] as string[]
   });
 
@@ -78,6 +79,7 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
       budget: newCampaign.budget || 0,
       slug: finalSlug,
       notes: newCampaign.notes || null,
+      show_to_all: newCampaign.show_to_all || false,
       status: 'active', 
       created_by: currentUser?.id 
     }]).select();
@@ -97,7 +99,7 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
 
       success("Campaña creada con éxito");
       setIsCreatingCampaign(false);
-      setNewCampaign({ name: '', description: '', client_id: '', twitter_url: '', contact_info: '', budget: 0, slug: '', notes: '', assigned_creator_ids: [] });
+      setNewCampaign({ name: '', description: '', client_id: '', twitter_url: '', contact_info: '', budget: 0, slug: '', notes: '', show_to_all: false, assigned_creator_ids: [] });
       refresh();
     }
   }, [newCampaign, currentUser?.id, generateSecureSlug, refresh, success, toastError]);
@@ -122,6 +124,7 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
       budget: campaign.budget || 0,
       slug: campaign.slug || '',
       notes: campaign.notes || '',
+      show_to_all: campaign.show_to_all || false,
       assigned_creator_ids: assignedIds as any
     });
     setIsEditingCampaign(true);
@@ -141,7 +144,8 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
         contact_info: newCampaign.contact_info || null,
         budget: newCampaign.budget || 0,
         slug: newCampaign.slug || null,
-        notes: newCampaign.notes || null
+        notes: newCampaign.notes || null,
+        show_to_all: newCampaign.show_to_all || false
       })
       .eq('id', editingCampaignId);
 
@@ -163,7 +167,7 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
       success("Campaña actualizada con éxito");
       setIsEditingCampaign(false);
       setEditingCampaignId(null);
-      setNewCampaign({ name: '', description: '', client_id: '', twitter_url: '', contact_info: '', budget: 0, slug: '', notes: '', assigned_creator_ids: [] });
+      setNewCampaign({ name: '', description: '', client_id: '', twitter_url: '', contact_info: '', budget: 0, slug: '', notes: '', show_to_all: false, assigned_creator_ids: [] });
       refresh();
     }
   }, [editingCampaignId, newCampaign, refresh, success, toastError]);
