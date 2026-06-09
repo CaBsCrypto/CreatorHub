@@ -22,7 +22,10 @@ const ReviewContentCard: React.FC<ReviewContentCardProps> = ({
   onStreamClick,
   translations
 }) => {
-  const isStream = item.platform === 'twitch';
+  const isStream = item.platform === 'twitch' || 
+                   (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0) ||
+                   (item.thumbnail ? (item.thumbnail.includes('supabase.co') || item.thumbnail.includes('content-attachments') || item.thumbnail.includes('storage') || item.thumbnail.includes('supabase.co/storage')) : false) ||
+                   (item.url ? item.url.includes('twitch.tv/stats-') : false);
   const isGamenight = item.platform === 'discord' || item.platform === 'baseapp';
   const platformColors: Record<string, string> = {
     youtube: 'from-rose-600 to-red-700', instagram: 'from-pink-600 to-rose-600',

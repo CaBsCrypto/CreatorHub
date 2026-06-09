@@ -233,7 +233,12 @@ const ContentTab: React.FC<ContentTabProps> = ({
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: i * 0.01, duration: 0.5 }}
                 onClick={() => {
-                  const isPopup = item.platform === 'twitch' || item.platform === 'discord' || item.platform === 'baseapp' || (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0) || (item.thumbnail && (item.thumbnail.includes('supabase.co') || item.thumbnail.includes('content-attachments') || item.thumbnail.includes('storage')));
+                  const isPopup = item.platform === 'twitch' || 
+                                  item.platform === 'discord' || 
+                                  item.platform === 'baseapp' || 
+                                  (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0) || 
+                                  (item.thumbnail && (item.thumbnail.includes('supabase.co') || item.thumbnail.includes('content-attachments') || item.thumbnail.includes('storage') || item.thumbnail.includes('supabase.co/storage'))) ||
+                                  (item.url && item.url.includes('twitch.tv/stats-'));
                   if (isPopup) setViewingContent(item as any);
                   else window.open(item.url, '_blank');
                 }}
@@ -257,7 +262,12 @@ const ContentTab: React.FC<ContentTabProps> = ({
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.02, duration: 0.5 }}
                 onClick={() => {
-                  const isPopup = item.platform === 'twitch' || item.platform === 'discord' || item.platform === 'baseapp' || (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0) || (item.thumbnail && (item.thumbnail.includes('supabase.co') || item.thumbnail.includes('content-attachments') || item.thumbnail.includes('storage')));
+                  const isPopup = item.platform === 'twitch' || 
+                                  item.platform === 'discord' || 
+                                  item.platform === 'baseapp' || 
+                                  (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0) || 
+                                  (item.thumbnail && (item.thumbnail.includes('supabase.co') || item.thumbnail.includes('content-attachments') || item.thumbnail.includes('storage') || item.thumbnail.includes('supabase.co/storage'))) ||
+                                  (item.url && item.url.includes('twitch.tv/stats-'));
                   if (isPopup) setViewingContent(item as any);
                   else window.open(item.url, '_blank');
                 }}
