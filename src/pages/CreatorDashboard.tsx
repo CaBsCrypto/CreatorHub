@@ -372,7 +372,7 @@ export default function CreatorDashboard() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.03 }}
                       onClick={() => {
-                        const isPopup = item.platform === 'twitch' || item.platform === 'discord' || item.platform === 'baseapp' || (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0) || (item.url && (item.url.includes('supabase.co') || item.url.includes('content-attachments') || item.url.includes('storage')));
+                        const isPopup = item.platform === 'twitch' || item.platform === 'discord' || item.platform === 'baseapp' || (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0) || (item.thumbnail && (item.thumbnail.includes('supabase.co') || item.thumbnail.includes('content-attachments') || item.thumbnail.includes('storage')));
                         if (isPopup) setViewingContent(item as any);
                         else window.open(item.url, '_blank');
                       }}
@@ -436,7 +436,7 @@ export default function CreatorDashboard() {
                             }
                         }} 
                         onClick={() => {
-                             const isStream = item.platform === 'twitch' || (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0) || item.platform === 'discord' || (item.url && (item.url.includes('supabase.co') || item.url.includes('content-attachments') || item.url.includes('storage')));
+                             const isStream = item.platform === 'twitch' || (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0) || item.platform === 'discord' || (item.thumbnail && (item.thumbnail.includes('supabase.co') || item.thumbnail.includes('content-attachments') || item.thumbnail.includes('storage')));
                              if (isStream) setViewingContent(item as any);
                              else window.open(item.url, '_blank');
                          }}
