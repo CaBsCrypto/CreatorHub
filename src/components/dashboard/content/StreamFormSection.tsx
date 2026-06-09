@@ -107,7 +107,7 @@ const StreamFormSection: React.FC<StreamFormSectionProps> = ({
                   const m = formData.duration_minutes % 60;
                   setFormData({ ...formData, duration_minutes: (h * 60) + m });
                 }}
-                className="w-10 bg-gray-50 border border-gray-100 py-1 rounded-lg text-xs font-bold text-center outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 text-slate-700 font-mono"
+                className="w-14 bg-gray-50 border border-gray-100 py-1 rounded-lg text-xs font-bold text-center outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 text-slate-700 font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
               <span className="text-slate-400 font-bold">:</span>
               <input
@@ -120,7 +120,7 @@ const StreamFormSection: React.FC<StreamFormSectionProps> = ({
                   const m = parseInt(e.target.value) || 0;
                   setFormData({ ...formData, duration_minutes: (h * 60) + m });
                 }}
-                className="w-10 bg-gray-50 border border-gray-100 py-1 rounded-lg text-xs font-bold text-center outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 text-slate-700 font-mono"
+                className="w-14 bg-gray-50 border border-gray-100 py-1 rounded-lg text-xs font-bold text-center outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 text-slate-700 font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
             </div>
           </div>
@@ -136,7 +136,7 @@ const StreamFormSection: React.FC<StreamFormSectionProps> = ({
                 if (streamPlatform === 'tiktok') setFormData({ ...formData, views: v });
                 else setFormData({ ...formData, average_viewers: v });
               }}
-              className="block w-full bg-gray-50 border border-gray-100 py-1 px-1 rounded-lg text-xs font-bold text-center outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 text-slate-700 font-mono"
+              className="block w-full bg-gray-50 border border-gray-100 py-1 px-1 rounded-lg text-xs font-bold text-center outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 text-slate-700 font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               placeholder="0"
             />
           </div>
@@ -152,7 +152,7 @@ const StreamFormSection: React.FC<StreamFormSectionProps> = ({
                 if (streamPlatform === 'tiktok') setFormData({ ...formData, unique_viewers: v });
                 else setFormData({ ...formData, peek_viewers: v });
               }}
-              className="block w-full bg-gray-50 border border-gray-100 py-1 px-1 rounded-lg text-xs font-bold text-center outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 text-slate-700 font-mono"
+              className="block w-full bg-gray-50 border border-gray-100 py-1 px-1 rounded-lg text-xs font-bold text-center outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 text-slate-700 font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               placeholder="0"
             />
           </div>
@@ -166,7 +166,7 @@ const StreamFormSection: React.FC<StreamFormSectionProps> = ({
                 type="number"
                 value={formData.unique_viewers || ''}
                 onChange={(e) => setFormData({ ...formData, unique_viewers: parseInt(e.target.value) || 0 })}
-                className="block w-full bg-gray-50 border border-gray-100 py-1 px-1 rounded-lg text-xs font-bold text-center outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 text-slate-700 font-mono"
+                className="block w-full bg-gray-50 border border-gray-100 py-1 px-1 rounded-lg text-xs font-bold text-center outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 text-slate-700 font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 placeholder="0"
               />
             </div>
@@ -183,7 +183,7 @@ const StreamFormSection: React.FC<StreamFormSectionProps> = ({
                 if (streamPlatform === 'tiktok') setFormData({ ...formData, likes: v });
                 else setFormData({ ...formData, unique_chatters: v });
               }}
-              className="block w-full bg-gray-50 border border-gray-100 py-1 px-1 rounded-lg text-xs font-bold text-center outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 text-slate-700 font-mono"
+              className="block w-full bg-gray-50 border border-gray-100 py-1 px-1 rounded-lg text-xs font-bold text-center outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 text-slate-700 font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               placeholder="0"
             />
           </div>
@@ -199,7 +199,7 @@ const StreamFormSection: React.FC<StreamFormSectionProps> = ({
                 if (streamPlatform === 'tiktok') setFormData({ ...formData, comments: v });
                 else setFormData({ ...formData, views: v });
               }}
-              className="block w-full bg-gray-50 border border-gray-100 py-1 px-1 rounded-lg text-xs font-bold text-center outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 text-slate-700 font-mono"
+              className="block w-full bg-gray-50 border border-gray-100 py-1 px-1 rounded-lg text-xs font-bold text-center outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 text-slate-700 font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               placeholder="0"
             />
           </div>

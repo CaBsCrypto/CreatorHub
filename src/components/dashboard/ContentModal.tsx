@@ -308,7 +308,13 @@ const ContentModal: React.FC<ContentModalProps> = ({
             </button>
             <button type="submit" disabled={isProcessing} className="flex-[2] px-4 py-3 rounded-xl bg-indigo-600 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-indigo-100 hover:bg-indigo-700 disabled:opacity-50 transition-all flex items-center justify-center gap-2">
               {isProcessing && <RefreshCw className="h-4 w-4 animate-spin" />}
-              {isProcessing ? 'Procesando...' : (editingContent ? 'Guardar Cambios' : 'Sincronizar')}
+              {isProcessing 
+                ? 'Procesando...' 
+                : (editingContent 
+                    ? 'Guardar Cambios' 
+                    : (['stream', 'discord', 'baseapp'].includes(formData.platform) ? 'Guardar' : 'Sincronizar')
+                  )
+              }
             </button>
           </div>
         </form>
