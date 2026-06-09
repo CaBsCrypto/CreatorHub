@@ -350,7 +350,7 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
         spent, // For creators, this is "their" spent (earnings)
         remaining,
         isPersonal: !!isPersonal,
-        isAssigned: role === 'admin' ? true : assignedCampaignIds.includes(campaign.id)
+        isAssigned: role === 'admin' ? true : (assignedCampaignIds.includes(campaign.id) || !!campaign.show_to_all)
       };
     }).sort((a, b) => {
       // Sort assigned campaigns first, then by date

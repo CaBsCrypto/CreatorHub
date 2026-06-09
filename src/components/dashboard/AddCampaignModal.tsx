@@ -136,7 +136,7 @@ const AddCampaignModal: React.FC<AddCampaignModalProps> = ({
             <div className="space-y-0.5">
               <label className="block text-[10px] font-black text-slate-700 uppercase tracking-widest">Mostrar a todos</label>
               <p className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">
-                Permite que todos los administradores vean esta campaña
+                Permite que todos los creadores y administradores vean esta campaña
               </p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
