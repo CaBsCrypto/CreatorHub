@@ -337,8 +337,9 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
       const views = campaignContent.reduce((acc, curr) => acc + (curr.views || 0), 0);
       
       // A campaign is personal if only Cabs has uploaded content to it, OR if it has no content and is owned by Cabs
+      // AND it is not marked as show_to_all
       const uniqueCreators = new Set(campaignContent.map(c => c.creator_id).filter(Boolean));
-      const isPersonal = cabsUserId && (
+      const isPersonal = !campaign.show_to_all && cabsUserId && (
         (uniqueCreators.size === 1 && uniqueCreators.has(cabsUserId)) ||
         (uniqueCreators.size === 0 && campaign.client_id === null)
       );
