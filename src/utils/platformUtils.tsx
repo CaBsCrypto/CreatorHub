@@ -8,7 +8,8 @@ export function getPlatformIcon(platform: string, className = 'h-4 w-4') {
   const p = platform.toLowerCase();
   switch (p) {
     case 'tiktok': return <Music2 className={className} />;
-    case 'instagram': return <Instagram className={className} />;
+    case 'instagram': 
+    case 'instagram_story': return <Instagram className={className} />;
     case 'youtube': return <Youtube className={className} />;
     case 'x': return <Twitter className={className} />;
     case 'twitch': return <Zap className={className} />;
@@ -25,6 +26,7 @@ export function getPlatformColor(platform: string) {
   switch (p) {
     case 'tiktok': return 'bg-slate-900 text-white';
     case 'instagram': return 'bg-pink-50 text-pink-600';
+    case 'instagram_story': return 'bg-rose-50 text-rose-500';
     case 'youtube': return 'bg-red-50 text-red-600';
     case 'x': return 'bg-sky-50 text-sky-600';
     case 'twitch': return 'bg-indigo-50 text-indigo-600';

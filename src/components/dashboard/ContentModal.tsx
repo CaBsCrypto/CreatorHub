@@ -10,6 +10,8 @@ import StreamFormSection from './content/StreamFormSection';
 import DiscordFormSection from './content/DiscordFormSection';
 import CampaignSelector from './content/CampaignSelector';
 
+import StoryFormSection from './content/StoryFormSection';
+
 interface ContentModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -17,7 +19,7 @@ interface ContentModalProps {
   users?: UserProfile[];
   editingContent: Content | null;
   onSubmit: (data: any) => Promise<void>;
-  onTwitchUpload: (file: File, creator_id?: string, dCount?: number, aCount?: number, pCount?: number, uvCount?: number, uChatters?: number, vCount?: number, fCount?: number, sCount?: number, shCount?: number, title?: string, campaign_id?: string, platform?: 'twitch' | 'tiktok' | 'discord') => Promise<void>;
+  onTwitchUpload: (file: File, creator_id?: string, dCount?: number, aCount?: number, pCount?: number, uvCount?: number, uChatters?: number, vCount?: number, fCount?: number, sCount?: number, shCount?: number, title?: string, campaign_id?: string, platform?: 'twitch' | 'tiktok' | 'discord' | 'baseapp' | 'instagram_story') => Promise<void>;
   isProcessing: boolean;
 }
 
@@ -82,6 +84,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
   const availablePlatforms = React.useMemo(() => [
     { id: 'youtube', icon: Youtube, color: 'text-red-600', label: 'YouTube' },
     { id: 'instagram', icon: Instagram, color: 'text-pink-600', label: 'Instagram' },
+    { id: 'instagram_story', icon: Instagram, color: 'text-rose-500', label: 'Historia IG' },
     { id: 'tiktok', icon: Music2, color: 'text-black', label: 'TikTok' },
     { id: 'x', icon: Twitter, color: 'text-slate-900', label: 'X' },
     { id: 'coinmarketcap', icon: Globe, color: 'text-indigo-600', label: 'CMC' },
@@ -198,6 +201,8 @@ const ContentModal: React.FC<ContentModalProps> = ({
       onTwitchUpload(twitchFile, formData.creator_id, formData.duration_minutes, formData.average_viewers, formData.peek_viewers, formData.unique_viewers, formData.unique_chatters, formData.views, formData.followers, formData.new_subscriptions, formData.shares_count, formData.title, formData.campaign_id, (formData.platform as any) === 'discord' ? 'discord' : streamPlatform);
     } else if ((formData.platform === 'discord' || formData.platform === ('baseapp' as any)) && twitchFile) {
        onTwitchUpload(twitchFile, formData.creator_id, formData.duration_minutes, 0, formData.peek_viewers, formData.unique_viewers, 0, formData.views, 0, 0, formData.shares_count, formData.title, formData.campaign_id, formData.platform as 'discord' | 'baseapp' as any);
+    } else if ((formData.platform as any) === 'instagram_story' && twitchFile) {
+       onTwitchUpload(twitchFile, formData.creator_id, 0, 0, 0, 0, 0, formData.views, 0, 0, 0, formData.title, formData.campaign_id, 'instagram_story');
     } else {
       onSubmit(finalData);
     }
@@ -268,7 +273,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
 
             <div>
               <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">
-                {(formData.platform as any) === 'stream' ? 'Captura y Métricas' : 'URL de la publicación'}
+                {['stream', 'discord', 'baseapp', 'instagram_story'].includes(formData.platform) ? 'Captura y Métricas' : 'URL de la publicación'}
               </label>
 
               {(formData.platform as any) === 'stream' ? (
@@ -285,6 +290,12 @@ const ContentModal: React.FC<ContentModalProps> = ({
                   twitchFile={twitchFile} setTwitchFile={setTwitchFile}
                   twitchPreview={twitchPreview} setTwitchPreview={setTwitchPreview}
                   onFileChange={handleFileChange}
+                />
+              ) : (formData.platform as any) === 'instagram_story' ? (
+                <StoryFormSection
+                  formData={formData} setFormData={setFormData}
+                  twitchPreview={twitchPreview} onFileChange={handleFileChange}
+                  isAnalyzing={isAnalyzingScreenshot}
                 />
               ) : (
                 <div className="relative group animate-in fade-in slide-in-from-top-1">
@@ -312,7 +323,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
                 ? 'Procesando...' 
                 : (editingContent 
                     ? 'Guardar Cambios' 
-                    : (['stream', 'discord', 'baseapp'].includes(formData.platform) ? 'Guardar' : 'Sincronizar')
+                    : (['stream', 'discord', 'baseapp', 'instagram_story'].includes(formData.platform) ? 'Guardar' : 'Sincronizar')
                   )
               }
             </button>

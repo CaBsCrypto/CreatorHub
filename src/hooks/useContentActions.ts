@@ -24,7 +24,7 @@ export function useContentActions(refresh: () => void) {
     shCount?: number,
     title?: string,
     campaign_id?: string,
-    platform?: 'twitch' | 'tiktok' | 'discord' | 'baseapp'
+    platform?: 'twitch' | 'tiktok' | 'discord' | 'baseapp' | 'instagram_story'
   ) => {
     setIsProcessing(true);
     try {
@@ -46,7 +46,13 @@ export function useContentActions(refresh: () => void) {
 
       const finalCampaignId = campaign_id || editingContent?.campaign_id || campaigns[0]?.id || '';
       const finalPlatform = platform || 'twitch';
-      const defaultUrl = `https://${finalPlatform}.com/manual-${Date.now()}`;
+      const defaultUrl = finalPlatform === 'instagram_story' 
+        ? `https://instagram.com/story-stats-${Date.now()}` 
+        : finalPlatform === 'discord' 
+        ? `https://discord.com/stats-${Date.now()}`
+        : finalPlatform === 'baseapp'
+        ? `https://baseapp.com/stats-${Date.now()}`
+        : `https://twitch.tv/stats-${Date.now()}`;
 
       const { error: dbError } = await supabase.from('content').insert([{
         campaign_id: finalCampaignId,

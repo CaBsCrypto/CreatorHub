@@ -236,6 +236,7 @@ const ContentTab: React.FC<ContentTabProps> = ({
                   const isPopup = item.platform === 'twitch' || 
                                   item.platform === 'discord' || 
                                   item.platform === 'baseapp' || 
+                                  item.platform === 'instagram_story' || 
                                   (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0) || 
                                   (item.thumbnail && (item.thumbnail.includes('supabase.co') || item.thumbnail.includes('content-attachments') || item.thumbnail.includes('storage') || item.thumbnail.includes('supabase.co/storage'))) ||
                                   (item.url && item.url.includes('twitch.tv/stats-'));
@@ -265,6 +266,7 @@ const ContentTab: React.FC<ContentTabProps> = ({
                   const isPopup = item.platform === 'twitch' || 
                                   item.platform === 'discord' || 
                                   item.platform === 'baseapp' || 
+                                  item.platform === 'instagram_story' || 
                                   (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0) || 
                                   (item.thumbnail && (item.thumbnail.includes('supabase.co') || item.thumbnail.includes('content-attachments') || item.thumbnail.includes('storage') || item.thumbnail.includes('supabase.co/storage'))) ||
                                   (item.url && item.url.includes('twitch.tv/stats-'));

@@ -34,7 +34,19 @@ export async function analyzeTwitchScreenshot(image: string) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("AI Key not configured");
 
-  const prompt = "Analiza esta captura de pantalla de las estadísticas de un stream de Twitch. Extrae los siguientes datos en formato JSON: { 'views': número (reproducciones en vivo), 'peek_viewers': número (máximo de espectadores), 'duration_minutes': número (duración total en minutos), 'average_viewers': número (promedio de espectadores), 'title': cadena, 'stream_date': cadena ISO }. Si no encuentras alguno, pon 0 o null. No incluyas markdown, solo el objeto JSON puro.";
+  const prompt = `Analiza esta captura de pantalla de estadísticas. Puede ser un resumen de stream de Twitch, estadísticas de Discord, estadísticas de TikTok o visualizaciones/espectadores de una Historia de Instagram (Instagram Story).
+Extrae los siguientes datos y devuélvelos en formato JSON:
+{ 
+  "views": número (visualizaciones, vistas totales, reproducciones en vivo, espectadores totales o visualizaciones de historia/views de Instagram Story), 
+  "peek_viewers": número (máximo de espectadores/peak, si aplica), 
+  "duration_minutes": número (duración total en minutos, si aplica), 
+  "average_viewers": número (promedio de espectadores, si aplica), 
+  "unique_viewers": número (espectadores únicos, alcance o reach, si aplica),
+  "unique_chatters": número (chatters únicos, si aplica),
+  "title": cadena (título descriptivo extraído o generado automáticamente según corresponda, ej. 'Estadísticas de Historia', 'Resumen de Stream'), 
+  "platform": cadena (debe ser uno de los siguientes: 'twitch', 'discord', 'tiktok', 'instagram_story', 'baseapp')
+}
+Si no encuentras alguno de los campos numéricos, pon 0. Si no encuentras el título, pon null o genera uno adecuado. Responde únicamente con el objeto JSON puro y sin bloques de markdown.`;
   const base64Data = image.split(',')[1] || image;
   
   // Use gemini-2.0-flash as confirmed by list-models diagnostic

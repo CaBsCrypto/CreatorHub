@@ -46,7 +46,8 @@ const platformConfig = {
   coinmarketcap: { icon: Globe, color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-100' },
   twitch: { icon: Globe, color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-100' },
   discord: { icon: DiscordIcon, color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-100' },
-  baseapp: { icon: Globe, color: 'text-cyan-600', bg: 'bg-cyan-50', border: 'border-cyan-100' }
+  baseapp: { icon: Globe, color: 'text-cyan-600', bg: 'bg-cyan-50', border: 'border-cyan-100' },
+  instagram_story: { icon: Instagram, color: 'text-rose-500', bg: 'bg-rose-50', border: 'border-rose-100' }
 };
 
 const ContentCard = React.memo(({ item, campaignName, onEdit, onDelete, onClick, index }: ContentCardProps) => {
@@ -81,7 +82,7 @@ const ContentCard = React.memo(({ item, campaignName, onEdit, onDelete, onClick,
         <div className={`absolute top-4 left-4 z-10 flex items-center gap-2 px-3 py-1.5 ${platformBg} ${platformBorder} border rounded-xl shadow-sm`}>
           <PlatformIcon className={`h-3.5 w-3.5 ${platformColor}`} />
           <span className={`text-[9px] font-black uppercase tracking-widest ${platformColor}`}>
-            {item.platform === 'twitch' ? 'stream' : item.platform === 'discord' ? 'jornada' : item.platform}
+            {item.platform === 'twitch' ? 'stream' : item.platform === 'discord' ? 'jornada' : item.platform === 'instagram_story' ? 'historia ig' : item.platform}
           </span>
         </div>
 

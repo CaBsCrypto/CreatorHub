@@ -23,6 +23,7 @@ const ReviewContentCard: React.FC<ReviewContentCardProps> = ({
   translations
 }) => {
   const isStream = item.platform === 'twitch' || 
+                   item.platform === 'instagram_story' ||
                    (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0) ||
                    (item.thumbnail ? (item.thumbnail.includes('supabase.co') || item.thumbnail.includes('content-attachments') || item.thumbnail.includes('storage') || item.thumbnail.includes('supabase.co/storage')) : false) ||
                    (item.url ? item.url.includes('twitch.tv/stats-') : false);
@@ -31,7 +32,8 @@ const ReviewContentCard: React.FC<ReviewContentCardProps> = ({
     youtube: 'from-rose-600 to-red-700', instagram: 'from-pink-600 to-rose-600',
     tiktok: 'from-gray-800 to-gray-900', x: 'from-sky-600 to-blue-700',
     twitch: 'from-violet-700 to-purple-800', coinmarketcap: 'from-amber-600 to-orange-600',
-    discord: 'from-indigo-600 to-blue-700', baseapp: 'from-blue-600 to-indigo-700'
+    discord: 'from-indigo-600 to-blue-700', baseapp: 'from-blue-600 to-indigo-700',
+    instagram_story: 'from-rose-500 to-pink-600'
   };
   const gradient = platformColors[item.platform] || 'from-indigo-600 to-blue-700';
 
@@ -62,7 +64,7 @@ const ReviewContentCard: React.FC<ReviewContentCardProps> = ({
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
           <span className={`absolute top-1.5 right-1.5 px-1.5 py-0.5 ${isGamenight ? 'bg-indigo-600 shadow-[0_0_8px_rgba(99,102,241,0.6)]' : 'bg-indigo-600'} text-white text-[6px] font-black uppercase tracking-wider rounded flex items-center gap-1`}>
             {isGamenight && <div className="w-1 h-1 bg-white rounded-full animate-pulse" />}
-            {isGamenight ? 'GAMENIGHT' : 'STREAM'}
+            {isGamenight ? 'GAMENIGHT' : item.platform === 'instagram_story' ? 'HISTORIA IG' : 'STREAM'}
           </span>
           <div className="absolute bottom-1.5 left-1.5 right-1.5 flex items-end justify-between">
             <div>

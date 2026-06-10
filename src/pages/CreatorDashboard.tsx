@@ -375,6 +375,7 @@ export default function CreatorDashboard() {
                         const isPopup = item.platform === 'twitch' || 
                                         item.platform === 'discord' || 
                                         item.platform === 'baseapp' || 
+                                        item.platform === 'instagram_story' || 
                                         (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0) || 
                                         (item.thumbnail && (item.thumbnail.includes('supabase.co') || item.thumbnail.includes('content-attachments') || item.thumbnail.includes('storage') || item.thumbnail.includes('supabase.co/storage'))) ||
                                         (item.url && item.url.includes('twitch.tv/stats-'));
@@ -444,6 +445,7 @@ export default function CreatorDashboard() {
                              const isStream = item.platform === 'twitch' || 
                                               item.platform === 'discord' || 
                                               item.platform === 'baseapp' || 
+                                              item.platform === 'instagram_story' || 
                                               (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0) || 
                                               (item.thumbnail && (item.thumbnail.includes('supabase.co') || item.thumbnail.includes('content-attachments') || item.thumbnail.includes('storage') || item.thumbnail.includes('supabase.co/storage'))) ||
                                               (item.url && item.url.includes('twitch.tv/stats-'));
@@ -520,7 +522,7 @@ export default function CreatorDashboard() {
             const { error: dbError } = await supabase.from('content').insert([{
               campaign_id: currentCampaignId,
               platform: finalPlatform,
-              url: 'https://twitch.tv/stats-' + Date.now(),
+              url: finalPlatform === 'instagram_story' ? 'https://instagram.com/story-stats-' + Date.now() : finalPlatform === 'discord' ? 'https://discord.com/stats-' + Date.now() : 'https://twitch.tv/stats-' + Date.now(),
               title: title || null,
               thumbnail: publicUrl,
               creator_id: explicitCreatorId || user?.id,
