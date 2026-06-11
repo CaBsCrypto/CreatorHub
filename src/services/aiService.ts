@@ -38,6 +38,8 @@ export async function analyzeTwitchScreenshot(image: string) {
 Extrae los siguientes datos y devuélvelos en formato JSON:
 { 
   "views": número (visualizaciones, vistas totales, reproducciones en vivo, espectadores totales o visualizaciones de historia/views de Instagram Story), 
+  "likes": número (interacciones, interactions, o likes si es historia de Instagram; de lo contrario likes estándar),
+  "comments": número (actividad de perfil, profile activity, o comentarios si es historia de Instagram; de lo contrario comentarios estándar),
   "peek_viewers": número (máximo de espectadores/peak, si aplica), 
   "duration_minutes": número (duración total en minutos, si aplica), 
   "average_viewers": número (promedio de espectadores, si aplica), 

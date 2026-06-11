@@ -68,7 +68,7 @@ const StoryFormSection: React.FC<StoryFormSectionProps> = ({
         />
       </div>
 
-      <div className="p-4 bg-gray-50/50 rounded-2xl border border-gray-100">
+      <div className="p-4 bg-gray-50/50 rounded-2xl border border-gray-100 space-y-3">
         <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-xs flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Eye className="h-4 w-4 text-indigo-500" />
@@ -81,6 +81,38 @@ const StoryFormSection: React.FC<StoryFormSectionProps> = ({
             required
             value={formData.views || ''}
             onChange={(e) => setFormData({ ...formData, views: parseInt(e.target.value) || 0 })}
+            className="w-24 bg-gray-50 border border-gray-100 py-1.5 px-3 rounded-lg text-sm font-black text-center outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 text-slate-700 font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            placeholder="0"
+          />
+        </div>
+
+        <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-xs flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Plus className="h-4 w-4 text-rose-500" />
+            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest">
+              Interacciones
+            </label>
+          </div>
+          <input
+            type="number"
+            value={formData.likes || ''}
+            onChange={(e) => setFormData({ ...formData, likes: parseInt(e.target.value) || 0 })}
+            className="w-24 bg-gray-50 border border-gray-100 py-1.5 px-3 rounded-lg text-sm font-black text-center outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 text-slate-700 font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            placeholder="0"
+          />
+        </div>
+
+        <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-xs flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Plus className="h-4 w-4 text-sky-500" />
+            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest">
+              Actividad en Perfil
+            </label>
+          </div>
+          <input
+            type="number"
+            value={formData.comments || ''}
+            onChange={(e) => setFormData({ ...formData, comments: parseInt(e.target.value) || 0 })}
             className="w-24 bg-gray-50 border border-gray-100 py-1.5 px-3 rounded-lg text-sm font-black text-center outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 text-slate-700 font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             placeholder="0"
           />

@@ -24,7 +24,9 @@ export function useContentActions(refresh: () => void) {
     shCount?: number,
     title?: string,
     campaign_id?: string,
-    platform?: 'twitch' | 'tiktok' | 'discord' | 'baseapp' | 'instagram_story'
+    platform?: 'twitch' | 'tiktok' | 'discord' | 'baseapp' | 'instagram_story',
+    likesCount?: number,
+    commentsCount?: number
   ) => {
     setIsProcessing(true);
     try {
@@ -71,6 +73,8 @@ export function useContentActions(refresh: () => void) {
         new_subscriptions: sCount || 0,
         duration_minutes: dCount || 0,
         shares_count: shCount || 0,
+        likes: likesCount || 0,
+        comments: commentsCount || 0,
         uploaded_at: new Date().toISOString()
       }]);
 

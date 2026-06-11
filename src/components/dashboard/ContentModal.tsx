@@ -19,7 +19,7 @@ interface ContentModalProps {
   users?: UserProfile[];
   editingContent: Content | null;
   onSubmit: (data: any) => Promise<void>;
-  onTwitchUpload: (file: File, creator_id?: string, dCount?: number, aCount?: number, pCount?: number, uvCount?: number, uChatters?: number, vCount?: number, fCount?: number, sCount?: number, shCount?: number, title?: string, campaign_id?: string, platform?: 'twitch' | 'tiktok' | 'discord' | 'baseapp' | 'instagram_story') => Promise<void>;
+  onTwitchUpload: (file: File, creator_id?: string, dCount?: number, aCount?: number, pCount?: number, uvCount?: number, uChatters?: number, vCount?: number, fCount?: number, sCount?: number, shCount?: number, title?: string, campaign_id?: string, platform?: 'twitch' | 'tiktok' | 'discord' | 'baseapp' | 'instagram_story', likes?: number, comments?: number) => Promise<void>;
   isProcessing: boolean;
 }
 
@@ -180,6 +180,8 @@ const ContentModal: React.FC<ContentModalProps> = ({
               unique_viewers: data.unique_viewers || prev.unique_viewers,
               unique_chatters: data.unique_chatters || prev.unique_chatters,
               views: data.views || prev.views,
+              likes: data.likes || prev.likes,
+              comments: data.comments || prev.comments,
               title: data.title || prev.title || 'Resumen de Stream'
             }));
           }
@@ -202,7 +204,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
     } else if ((formData.platform === 'discord' || formData.platform === ('baseapp' as any)) && twitchFile) {
        onTwitchUpload(twitchFile, formData.creator_id, formData.duration_minutes, 0, formData.peek_viewers, formData.unique_viewers, 0, formData.views, 0, 0, formData.shares_count, formData.title, formData.campaign_id, formData.platform as 'discord' | 'baseapp' as any);
     } else if ((formData.platform as any) === 'instagram_story' && twitchFile) {
-       onTwitchUpload(twitchFile, formData.creator_id, 0, 0, 0, 0, 0, formData.views, 0, 0, 0, formData.title, formData.campaign_id, 'instagram_story');
+       onTwitchUpload(twitchFile, formData.creator_id, 0, 0, 0, 0, 0, formData.views, 0, 0, 0, formData.title, formData.campaign_id, 'instagram_story', formData.likes, formData.comments);
     } else {
       onSubmit(finalData);
     }

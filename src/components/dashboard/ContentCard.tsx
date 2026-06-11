@@ -132,7 +132,7 @@ const ContentCard = React.memo(({ item, campaignName, onEdit, onDelete, onClick,
                 {item.platform === 'twitch' || item.platform === 'discord' ? (item.peek_viewers || 0).toLocaleString() : (item.likes || 0).toLocaleString()}
               </span>
               <span className="text-[9px] font-bold text-slate-400 uppercase mt-1 tracking-widest">
-                {item.platform === 'twitch' || item.platform === 'discord' ? 'Peak' : 'Likes'}
+                {item.platform === 'twitch' || item.platform === 'discord' ? 'Peak' : item.platform === 'instagram_story' ? 'Interac.' : 'Likes'}
               </span>
             </div>
           </div>

@@ -112,13 +112,13 @@ const ReviewContentCard: React.FC<ReviewContentCardProps> = ({
             <Eye className="h-2 w-2 text-gray-300" />
             <span className="text-[8px] font-black text-slate-900">{(item.views ?? 0).toLocaleString()}</span>
           </div>
-          {!isStream && (item.likes || 0) > 0 && (
+          {(!isStream || item.platform === 'instagram_story') && (item.likes || 0) > 0 && (
             <div className="flex items-center gap-1">
               <Heart className="h-2 w-2 text-gray-300" />
               <span className="text-[8px] font-black text-slate-500">{(item.likes || 0).toLocaleString()}</span>
             </div>
           )}
-          {!isStream && (item.comments || 0) > 0 && (
+          {(!isStream || item.platform === 'instagram_story') && (item.comments || 0) > 0 && (
             <div className="flex items-center gap-1">
               <MessageSquare className="h-2 w-2 text-gray-300" />
               <span className="text-[8px] font-black text-slate-500">{(item.comments || 0).toLocaleString()}</span>

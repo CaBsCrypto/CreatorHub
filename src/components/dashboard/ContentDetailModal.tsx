@@ -161,12 +161,13 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
                   );
                 }
 
+                const isStory = item.platform === 'instagram_story';
                 return (
                   <div className="space-y-4">
                     <div className="bg-white rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden group mb-4">
                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                        <p className="text-[11px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-3 flex items-center gap-2 relative z-10">
-                         <Eye className="h-5 w-5" /> Impressions
+                         <Eye className="h-5 w-5" /> {isStory ? 'Visualizaciones' : 'Impressions'}
                        </p>
                        <p className="text-5xl font-black text-white relative z-10 tracking-tighter">
                          {(item.views || 0).toLocaleString()}
@@ -176,14 +177,14 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
                     <div className="grid grid-cols-2 gap-4">
                       <div className="bg-white/5 border border-slate-200 rounded-[2rem] p-6 shadow-sm group hover:bg-white/10 transition-colors cursor-default">
                         <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-                          <TrendingUp className="h-4 w-4" /> Interaction
+                          <TrendingUp className="h-4 w-4" /> {isStory ? 'Interacciones' : 'Interaction'}
                         </p>
                         <p className="text-2xl font-black text-white font-mono">{(item.likes || 0).toLocaleString()}</p>
                       </div>
-                      {(item.comments > 0 || item.platform === 'coinmarketcap' || item.platform === 'youtube') && (
+                      {(item.comments > 0 || item.platform === 'coinmarketcap' || item.platform === 'youtube' || isStory) && (
                         <div className="bg-white/5 border border-slate-200 rounded-[2rem] p-6 shadow-sm group hover:bg-white/10 transition-colors cursor-default">
                           <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-3 flex items-center gap-2">
-                            <MessageSquare className="h-4 w-4" /> Sentiment
+                            <MessageSquare className="h-4 w-4" /> {isStory ? 'Actividad Perfil' : 'Sentiment'}
                           </p>
                           <p className="text-2xl font-black text-white font-mono">{(item.comments || 0).toLocaleString()}</p>
                         </div>
