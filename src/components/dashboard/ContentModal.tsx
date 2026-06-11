@@ -275,7 +275,13 @@ const ContentModal: React.FC<ContentModalProps> = ({
 
             <div>
               <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">
-                {['stream', 'discord', 'baseapp', 'instagram_story'].includes(formData.platform) ? 'Captura y Métricas' : 'URL de la publicación'}
+                {['stream', 'instagram_story'].includes(formData.platform) 
+                  ? 'Captura y Métricas' 
+                  : formData.platform === 'discord' 
+                    ? 'Reporte de Sesión Discord' 
+                    : formData.platform === 'baseapp' 
+                      ? 'Reporte de Sesión BaseApp' 
+                      : 'URL de la publicación'}
               </label>
 
               {(formData.platform as any) === 'stream' ? (
@@ -292,6 +298,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
                   twitchFile={twitchFile} setTwitchFile={setTwitchFile}
                   twitchPreview={twitchPreview} setTwitchPreview={setTwitchPreview}
                   onFileChange={handleFileChange}
+                  isAnalyzing={isAnalyzingScreenshot}
                 />
               ) : (formData.platform as any) === 'instagram_story' ? (
                 <StoryFormSection

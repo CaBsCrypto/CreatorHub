@@ -80,7 +80,14 @@ export function useContentActions(refresh: () => void) {
 
       if (dbError) throw dbError;
 
-      success("Captura de Twitch guardada");
+      const platformNames: Record<string, string> = {
+        twitch: 'Twitch',
+        tiktok: 'TikTok',
+        discord: 'Discord',
+        baseapp: 'BaseApp',
+        instagram_story: 'Historia IG'
+      };
+      success(`Captura de ${platformNames[finalPlatform] || finalPlatform} guardada`);
       refresh();
       return true;
     } catch (err: any) {
