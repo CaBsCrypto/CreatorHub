@@ -19,7 +19,7 @@ interface ContentModalProps {
   users?: UserProfile[];
   editingContent: Content | null;
   onSubmit: (data: any) => Promise<void>;
-  onTwitchUpload: (file: File, creator_id?: string, dCount?: number, aCount?: number, pCount?: number, uvCount?: number, uChatters?: number, vCount?: number, fCount?: number, sCount?: number, shCount?: number, title?: string, campaign_id?: string, platform?: 'twitch' | 'tiktok' | 'discord' | 'baseapp' | 'instagram_story', likes?: number, comments?: number) => Promise<void>;
+  onTwitchUpload: (file: File, creator_id?: string, dCount?: number, aCount?: number, pCount?: number, uvCount?: number, uChatters?: number, vCount?: number, fCount?: number, sCount?: number, shCount?: number, title?: string, campaign_id?: string, platform?: 'twitch' | 'tiktok' | 'discord' | 'baseapp' | 'instagram_story', likes?: number, comments?: number, contentType?: 'video_largo' | 'video_corto' | null, isRepost?: boolean, parentId?: string | null) => Promise<void>;
   isProcessing: boolean;
 }
 

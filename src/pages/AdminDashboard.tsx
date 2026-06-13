@@ -502,8 +502,8 @@ export default function AdminDashboard() {
           users={users.filter(u => u.role !== 'client')}
           editingContent={editingContent as any}
           isProcessing={isProcessingContent}
-          onTwitchUpload={async (file, creatorId, dCount, aCount, pCount, uvCount, uChatters, vCount, fCount, sCount, shCount, title, campaign_id, platform, likes, comments) => {
-            await handleTwitchUpload(file, user?.id || '', creatorId || null, editingContent as any, campaigns, dCount, aCount, pCount, uvCount, uChatters, vCount, fCount, sCount, shCount, title, campaign_id, platform as any, likes, comments);
+          onTwitchUpload={async (file, creatorId, dCount, aCount, pCount, uvCount, uChatters, vCount, fCount, sCount, shCount, title, campaign_id, platform, likes, comments, contentType, isRepost, parentId) => {
+            await handleTwitchUpload(file, user?.id || '', creatorId || null, editingContent as any, campaigns, dCount, aCount, pCount, uvCount, uChatters, vCount, fCount, sCount, shCount, title, campaign_id, platform as any, likes, comments, contentType, isRepost, parentId);
           }}
           onSubmit={async (data) => {
             await handleContentSubmit(data, user?.id || '', editingContent as any, () => setIsContentModalOpen(false));
