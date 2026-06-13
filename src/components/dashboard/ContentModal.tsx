@@ -71,7 +71,19 @@ const ContentModal: React.FC<ContentModalProps> = ({
     avg_duration_minutes: 0,
     shares_count: 0,
     guest_name: '',
-    description: ''
+    description: '',
+    content_type: null as 'video_largo' | 'video_corto' | null,
+    is_repost: false,
+    parent_id: ''
+  });
+
+  const [campaignContents, setCampaignContents] = React.useState<Content[]>([]);
+  const [isMultiPlatform, setIsMultiPlatform] = React.useState(false);
+  const [multiPlatformUrls, setMultiPlatformUrls] = React.useState<Record<string, string>>({
+    youtube: '',
+    tiktok: '',
+    instagram: '',
+    x: ''
   });
 
   const [twitchFile, setTwitchFile] = React.useState<File | null>(null);
@@ -104,6 +116,8 @@ const ContentModal: React.FC<ContentModalProps> = ({
   React.useEffect(() => {
     setTwitchFile(null);
     setTwitchPreview(null);
+    setIsMultiPlatform(false);
+    setMultiPlatformUrls({ youtube: '', tiktok: '', instagram: '', x: '' });
     if (editingContent) {
       const isStream = editingContent.platform === 'twitch' || (editingContent.platform === 'tiktok' && (editingContent.duration_minutes || 0) > 0);
       if (isStream) setStreamPlatform(editingContent.platform === 'tiktok' ? 'tiktok' : 'twitch');
@@ -126,7 +140,10 @@ const ContentModal: React.FC<ContentModalProps> = ({
         avg_duration_minutes: editingContent.avg_duration_minutes || 0,
         shares_count: editingContent.shares_count || 0,
         guest_name: editingContent.guest_name || '',
-        description: editingContent.description || ''
+        description: editingContent.description || '',
+        content_type: editingContent.content_type || null,
+        is_repost: editingContent.is_repost || false,
+        parent_id: editingContent.parent_id || ''
       });
     } else {
       setStreamPlatform('twitch');
@@ -135,10 +152,41 @@ const ContentModal: React.FC<ContentModalProps> = ({
         views: 0, likes: 0, comments: 0, peek_viewers: 0, duration_minutes: 0,
         average_viewers: 0, unique_chatters: 0, unique_viewers: 0, followers: 0,
         new_subscriptions: 0, avg_duration_minutes: 0, shares_count: 0, guest_name: '',
-        description: ''
+        description: '',
+        content_type: null,
+        is_repost: false,
+        parent_id: ''
       });
     }
   }, [editingContent, isOpen]);
+
+  // Fetch campaign contents when campaign changes
+  React.useEffect(() => {
+    if (!formData.campaign_id) {
+      setCampaignContents([]);
+      return;
+    }
+    const fetchContents = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('content')
+          .select('id, title, url, platform')
+          .eq('campaign_id', formData.campaign_id)
+          .eq('is_repost', false)
+          .is('deleted_at', null);
+        if (!error && data) {
+          setCampaignContents(data);
+        }
+      } catch (err) {
+        console.error("Error fetching campaign contents for linking:", err);
+      }
+    };
+    fetchContents();
+  }, [formData.campaign_id]);
+
+  const linkableContents = React.useMemo(() => {
+    return campaignContents.filter(item => !editingContent || item.id !== editingContent.id);
+  }, [campaignContents, editingContent]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -197,14 +245,19 @@ const ContentModal: React.FC<ContentModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const cleanUrl = sanitizeUrl(formData.url, formData.platform);
-    const finalData = { ...formData, url: cleanUrl };
+    const finalData = { 
+      ...formData, 
+      url: cleanUrl,
+      isMultiPlatform,
+      multiUrls: Object.entries(multiPlatformUrls).map(([p, u]) => ({ platform: p, url: u }))
+    };
     if ((finalData.platform as any) === 'stream') finalData.platform = streamPlatform as any;
     if ((formData.platform as any) === 'stream' && twitchFile) {
-      onTwitchUpload(twitchFile, formData.creator_id, formData.duration_minutes, formData.average_viewers, formData.peek_viewers, formData.unique_viewers, formData.unique_chatters, formData.views, formData.followers, formData.new_subscriptions, formData.shares_count, formData.title, formData.campaign_id, (formData.platform as any) === 'discord' ? 'discord' : streamPlatform);
+      onTwitchUpload(twitchFile, formData.creator_id, formData.duration_minutes, formData.average_viewers, formData.peek_viewers, formData.unique_viewers, formData.unique_chatters, formData.views, formData.followers, formData.new_subscriptions, formData.shares_count, formData.title, formData.campaign_id, (formData.platform as any) === 'discord' ? 'discord' : streamPlatform, formData.likes, formData.comments, formData.content_type, formData.is_repost, formData.parent_id);
     } else if ((formData.platform === 'discord' || formData.platform === ('baseapp' as any)) && twitchFile) {
-       onTwitchUpload(twitchFile, formData.creator_id, formData.duration_minutes, 0, formData.peek_viewers, formData.unique_viewers, 0, formData.views, 0, 0, formData.shares_count, formData.title, formData.campaign_id, formData.platform as 'discord' | 'baseapp' as any);
+       onTwitchUpload(twitchFile, formData.creator_id, formData.duration_minutes, 0, formData.peek_viewers, formData.unique_viewers, 0, formData.views, 0, 0, formData.shares_count, formData.title, formData.campaign_id, formData.platform as 'discord' | 'baseapp' as any, 0, 0, formData.content_type, formData.is_repost, formData.parent_id);
     } else if ((formData.platform as any) === 'instagram_story' && twitchFile) {
-       onTwitchUpload(twitchFile, formData.creator_id, 0, 0, 0, 0, 0, formData.views, 0, 0, 0, formData.title, formData.campaign_id, 'instagram_story', formData.likes, formData.comments);
+       onTwitchUpload(twitchFile, formData.creator_id, 0, 0, 0, 0, 0, formData.views, 0, 0, 0, formData.title, formData.campaign_id, 'instagram_story', formData.likes, formData.comments, formData.content_type, formData.is_repost, formData.parent_id);
     } else {
       onSubmit(finalData);
     }
@@ -320,6 +373,115 @@ const ContentModal: React.FC<ContentModalProps> = ({
                 </div>
               )}
             </div>
+
+            {/* --- Tipo de Formato --- */}
+            {['youtube', 'tiktok', 'instagram', 'x', 'stream'].includes(formData.platform) && (
+              <div className="animate-in fade-in slide-in-from-top-1">
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Tipo de Formato</label>
+                <select
+                  value={formData.content_type || ''}
+                  onChange={(e) => setFormData({ ...formData, content_type: (e.target.value as any) || null })}
+                  className="block w-full rounded-xl border border-gray-100 bg-gray-50 py-2.5 px-4 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300"
+                >
+                  <option value="">No especificado</option>
+                  <option value="video_largo">Video Largo</option>
+                  <option value="video_corto">Video Corto (Short/Reel/TikTok)</option>
+                </select>
+              </div>
+            )}
+
+            {/* --- Carga Multi-plataforma --- */}
+            {!editingContent && !['discord', 'baseapp', 'instagram_story'].includes(formData.platform) && (
+              <div className="border border-gray-100 rounded-2xl p-4 bg-slate-50/50 space-y-4 animate-in fade-in">
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={isMultiPlatform}
+                    onChange={(e) => setIsMultiPlatform(e.target.checked)}
+                    className="w-4 h-4 rounded text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                  />
+                  <span className="text-xs font-black text-slate-700 uppercase tracking-wide">Carga Multi-plataforma (Reposts)</span>
+                </label>
+                {isMultiPlatform && (
+                  <div className="space-y-3 pt-2 pl-6 border-l-2 border-indigo-100 animate-in slide-in-from-left-2 duration-200">
+                    {['youtube', 'tiktok', 'instagram', 'x'].map(plat => {
+                      if (plat === formData.platform) return null;
+                      const isChecked = multiPlatformUrls[plat] !== undefined;
+                      return (
+                        <div key={plat} className="space-y-1">
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setMultiPlatformUrls(prev => ({ ...prev, [plat]: '' }));
+                                } else {
+                                  setMultiPlatformUrls(prev => {
+                                    const copy = { ...prev };
+                                    delete copy[plat];
+                                    return copy;
+                                  });
+                                }
+                              }}
+                              className="w-3.5 h-3.5 rounded text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                            />
+                            <span className="text-[10px] font-black uppercase text-slate-600 tracking-wider">
+                              URL {plat.toUpperCase()}
+                            </span>
+                          </label>
+                          {isChecked && (
+                            <input
+                              type="url"
+                              value={multiPlatformUrls[plat] || ''}
+                              onChange={(e) => setMultiPlatformUrls(prev => ({ ...prev, [plat]: e.target.value }))}
+                              placeholder={`https://${plat}.com/...`}
+                              className="block w-full rounded-xl border border-gray-100 bg-white py-2 px-3 text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 transition-all"
+                            />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* --- Repost Tagging --- */}
+            {!isMultiPlatform && (
+              <div className="border border-gray-100 rounded-2xl p-4 bg-slate-50/50 space-y-4 animate-in fade-in">
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={formData.is_repost}
+                    onChange={(e) => setFormData({ 
+                      ...formData, 
+                      is_repost: e.target.checked,
+                      parent_id: e.target.checked ? formData.parent_id : ''
+                    })}
+                    className="w-4 h-4 rounded text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                  />
+                  <span className="text-xs font-black text-slate-700 uppercase tracking-wide">Es un Repost</span>
+                </label>
+                {formData.is_repost && (
+                  <div className="space-y-2 pt-2 pl-6 border-l-2 border-indigo-100 animate-in slide-in-from-left-2 duration-200">
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 ml-1">Vincular al Video Original</label>
+                    <select
+                      value={formData.parent_id || ''}
+                      onChange={(e) => setFormData({ ...formData, parent_id: e.target.value || null })}
+                      className="block w-full rounded-xl border border-gray-100 bg-white py-2.5 px-4 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300"
+                    >
+                      <option value="">Seleccionar Video Original</option>
+                      {linkableContents.map(c => (
+                        <option key={c.id} value={c.id}>
+                          [{c.platform.toUpperCase()}] {c.title || c.url.substring(0, 40) + '...'}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="flex gap-3 pt-4 border-t border-gray-50">

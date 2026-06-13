@@ -26,7 +26,10 @@ export function useContentActions(refresh: () => void) {
     campaign_id?: string,
     platform?: 'twitch' | 'tiktok' | 'discord' | 'baseapp' | 'instagram_story',
     likesCount?: number,
-    commentsCount?: number
+    commentsCount?: number,
+    contentType?: 'video_largo' | 'video_corto' | null,
+    isRepost?: boolean,
+    parentId?: string | null
   ) => {
     setIsProcessing(true);
     try {
@@ -75,7 +78,10 @@ export function useContentActions(refresh: () => void) {
         shares_count: shCount || 0,
         likes: likesCount || 0,
         comments: commentsCount || 0,
-        uploaded_at: new Date().toISOString()
+        uploaded_at: new Date().toISOString(),
+        content_type: contentType || null,
+        is_repost: isRepost || false,
+        parent_id: parentId || null
       }]);
 
       if (dbError) throw dbError;
@@ -134,7 +140,10 @@ export function useContentActions(refresh: () => void) {
             likes: data.likes,
             comments: data.comments,
             avg_duration_minutes: data.avg_duration_minutes,
-            shares_count: data.shares_count
+            shares_count: data.shares_count,
+            content_type: data.content_type || null,
+            is_repost: data.is_repost || false,
+            parent_id: data.parent_id || null
           })
           .eq('id', editingContent.id);
         
@@ -193,11 +202,14 @@ export function useContentActions(refresh: () => void) {
             return false;
         }
 
+        // Extract multi-platform details
+        const { isMultiPlatform, multiUrls, ...mainInsertData } = data;
+
         // 2. INSERT IMMEDIATELY (FAST)
         const { data: insertedData, error } = await supabase.from('content').insert([{
-          ...data,
+          ...mainInsertData,
           url: cleanUrl,
-          title: 'Cargando métricas...',
+          title: data.title || 'Cargando métricas...',
           thumbnail: '',
           views: data.platform === 'discord' ? (data.unique_viewers || 0) : (data.views || 0),
           unique_viewers: data.unique_viewers || 0,
@@ -214,51 +226,99 @@ export function useContentActions(refresh: () => void) {
           creator_id: activeCreatorId,
           guest_name: guestName,
           status: 'active',
+          content_type: data.content_type || null,
+          is_repost: data.is_repost || false,
+          parent_id: data.parent_id || null,
           uploaded_at: new Date().toISOString()
         }]).select();
         
         if (error) throw error;
 
+        const masterPost = insertedData?.[0];
+        if (!masterPost) throw new Error("No se pudo obtener el post insertado");
+
         success("¡Contenido creado! Las métricas se actualizarán en breve.");
 
-        // 3. FETCH METADATA IN BACKGROUND
-        const { data: { session } } = await supabase.auth.getSession();
-        fetch('/api/fetch-metadata', { 
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session?.access_token}`
-          },
-          body: JSON.stringify({ url: cleanUrl, platform: data.platform })
-        }).then(async (res) => {
-          if (res.status === 429) {
-            const errorData = await res.json();
-            if (errorData.error === 'IG_QUOTA_EXCEEDED') {
-              toastError("🚨 Límite de API agotado en RapidAPI. Revisa tus suscripciones o agrega una nueva clave (RAPIDAPI_KEY_3) para reactivar los scrapers.");
-              return;
+        // Helper to fetch metadata in background
+        const triggerMetadataFetch = async (contentId: string, urlStr: string, platformStr: string) => {
+          try {
+            const { data: { session } } = await supabase.auth.getSession();
+            const res = await fetch('/api/fetch-metadata', { 
+              method: 'POST',
+              headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session?.access_token}`
+              },
+              body: JSON.stringify({ url: urlStr, platform: platformStr })
+            });
+            if (res.status === 429) {
+              const errorData = await res.json();
+              if (errorData.error === 'IG_QUOTA_EXCEEDED') {
+                toastError("🚨 Límite de API agotado en RapidAPI. Revisa tus suscripciones o agrega una clave RAPIDAPI_KEY.");
+                return;
+              }
             }
-          }
-          if (res.ok && insertedData?.[0]) {
-            const metadata = await res.json();
-            // ... (rest of update logic)
-            // Only update if scraper found real data to avoid overwriting manual values with 0
-            const updates: any = {};
-            if (metadata.title && metadata.title !== 'Instagram Post' && metadata.title !== 'YouTube Video') {
-              updates.title = metadata.title;
-            }
-            if (metadata.thumbnail) updates.thumbnail = metadata.thumbnail;
-            
-            // Only update metrics if they are > 0 to avoid overwriting manual data with scraper failures
-            if (metadata.views > 0) updates.views = metadata.views;
-            if (metadata.likes > 0) updates.likes = metadata.likes;
-            if (metadata.comments > 0) updates.comments = metadata.comments;
+            if (res.ok) {
+              const metadata = await res.json();
+              const updates: any = {};
+              if (metadata.title && metadata.title !== 'Instagram Post' && metadata.title !== 'YouTube Video') {
+                updates.title = metadata.title;
+              }
+              if (metadata.thumbnail) updates.thumbnail = metadata.thumbnail;
+              if (metadata.views > 0) updates.views = metadata.views;
+              if (metadata.likes > 0) updates.likes = metadata.likes;
+              if (metadata.comments > 0) updates.comments = metadata.comments;
 
-            if (Object.keys(updates).length > 0) {
-              await supabase.from('content').update(updates).eq('id', insertedData[0].id);
-              refresh();
+              if (Object.keys(updates).length > 0) {
+                await supabase.from('content').update(updates).eq('id', contentId);
+                refresh();
+              }
+            }
+          } catch (e) {
+            console.warn("Background update failed:", e);
+          }
+        };
+
+        // Fetch master metadata
+        triggerMetadataFetch(masterPost.id, cleanUrl, data.platform);
+
+        // If multi-platform is enabled, insert secondary platforms as child reposts
+        if (isMultiPlatform && Array.isArray(multiUrls)) {
+          for (const item of multiUrls) {
+            if (item.url && item.url.trim() !== '') {
+              const secUrl = normalizeUrl(item.url, item.platform);
+              
+              // Check duplicate for secondary URL
+              const { data: secExisting } = await supabase.from('content').select('id').eq('campaign_id', data.campaign_id).eq('url', secUrl).is('deleted_at', null).limit(1);
+              if (secExisting && secExisting.length > 0) {
+                console.warn(`URL ${secUrl} ya registrada, omitiendo.`);
+                continue;
+              }
+
+              const { data: secInserted, error: secError } = await supabase.from('content').insert([{
+                campaign_id: data.campaign_id,
+                platform: item.platform,
+                url: secUrl,
+                title: 'Cargando repost...',
+                thumbnail: '',
+                views: 0,
+                likes: 0,
+                comments: 0,
+                creator_id: activeCreatorId,
+                guest_name: guestName,
+                status: 'active',
+                content_type: data.content_type || null,
+                is_repost: true,
+                parent_id: masterPost.id,
+                uploaded_at: new Date().toISOString()
+              }]).select();
+
+              if (!secError && secInserted?.[0]) {
+                triggerMetadataFetch(secInserted[0].id, secUrl, item.platform);
+              }
             }
           }
-        }).catch(e => console.warn("Admin background update failed:", e));
+        }
       }
       onClose();
       refresh();

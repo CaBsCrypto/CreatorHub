@@ -101,6 +101,9 @@ export interface Content {
   deleted_at?: string | null;
   created_at: string;
   updated_at?: string;
+  content_type?: 'video_largo' | 'video_corto' | null;
+  is_repost?: boolean;
+  parent_id?: string | null;
 }
 
 export interface DiscordSessionEvent {

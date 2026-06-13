@@ -261,8 +261,9 @@ export default function CampaignReportModal({
     );
   }
 
-  const totalContent = campaignContent.length;
-  const progressPercentage = Math.min(100, Math.round((totalContent / (campaign.target_posts || 1)) * 100));
+  const uniqueContentCount = campaignContent.filter(c => !c.is_repost).length;
+  const repostContentCount = campaignContent.filter(c => c.is_repost).length;
+  const progressPercentage = Math.min(100, Math.round((uniqueContentCount / (campaign.target_posts || 1)) * 100));
 
   const PlatformIcon = ({ platform, className = "w-4 h-4" }: { platform: string, className?: string }) => {
     switch (platform) {
@@ -394,11 +395,16 @@ export default function CampaignReportModal({
             {/* Global Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <div className="bg-white/5 p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-center">
-                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Campaign Progression</p>
-                <div className="flex items-end gap-2 mb-2">
-                  <span className="text-4xl font-black text-white">{totalContent}</span>
-                  <span className="text-sm font-bold text-slate-500 mb-1">/ {campaign.target_posts} posts</span>
+                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Progreso de Entregables</p>
+                <div className="flex items-end gap-2 mb-1">
+                  <span className="text-4xl font-black text-white">{uniqueContentCount}</span>
+                  <span className="text-sm font-bold text-slate-500 mb-1">/ {campaign.target_posts} únicos</span>
                 </div>
+                {repostContentCount > 0 && (
+                  <p className="text-[10px] font-bold text-slate-400 mb-2 uppercase tracking-wide">
+                    + {repostContentCount} reposts (no contados)
+                  </p>
+                )}
                 <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
                   <div className="bg-indigo-500 h-full rounded-full transition-all duration-1000" style={{ width: `${progressPercentage}%` }} />
                 </div>

@@ -171,7 +171,8 @@ export default function PublicReview() {
     );
   }
 
-  const progressPercentage = Math.min(100, Math.round((content.length / (campaign.target_posts || 1)) * 100));
+  const uniqueContentCount = content.filter(item => !item.is_repost).length;
+  const progressPercentage = Math.min(100, Math.round((uniqueContentCount / (campaign.target_posts || 1)) * 100));
 
   return (
     <div className="min-h-screen bg-[#fafafc] pb-20 selection:bg-indigo-100 selection:text-indigo-900">
@@ -190,7 +191,7 @@ export default function PublicReview() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <PublicHeroStats
           stats={stats}
-          postsCount={content.length}
+          postsCount={uniqueContentCount}
           creatorsCount={users.length}
           translations={{ totalViews: t.totalViews, posts: t.posts, activeCreators: t.activeCreators }}
           onViewsClick={() => setShowTop5Modal(true)}

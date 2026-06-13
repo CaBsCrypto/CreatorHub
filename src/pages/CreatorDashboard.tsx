@@ -14,6 +14,7 @@ import { normalizeUrl } from '../utils/urlParser';
 import { useDashboardData, AGENCY_TIERS } from '../hooks/useDashboardData';
 import { useToast } from '../hooks/useToast';
 import { useFilterParams } from '../hooks/useTabNavigation';
+import { useContentActions } from '../hooks/useContentActions';
 
 // Modular Components
 import StatsCard from '../components/dashboard/StatsCard';
@@ -41,7 +42,8 @@ export default function CreatorDashboard() {
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isSavingPayment, setIsSavingPayment] = useState(false);
-  const [isProcessingContent, setIsProcessingContent] = useState(false);
+
+  const { isProcessing: isProcessingContent, handleTwitchUpload, handleContentSubmit } = useContentActions(refresh);
   const [previewRankIndex, setPreviewRankIndex] = useState<number | null>(null);
   const [editingContent, setEditingContent] = useState<any>(null);
   const [viewingContent, setViewingContent] = useState<ContentItem | null>(null);
@@ -502,114 +504,12 @@ export default function CreatorDashboard() {
         campaigns={campaigns} 
         editingContent={editingContent}
         isProcessing={isProcessingContent}
-        onTwitchUpload={async (file, explicitCreatorId, dCount, aCount, pCount, uvCount, uChatters, vCount, fCount, sCount, shCount, title, campaign_id, platform, likes, comments) => {
-          setIsProcessingContent(true);
-          try {
-            const currentCampaignId = campaign_id || (filters.campaign === 'all' ? (campaigns[0]?.id || '') : filters.campaign);
-            const finalPlatform = platform || 'twitch';
-            const fileName = `${explicitCreatorId || user?.id}/${Date.now()}-${file.name}`;
-            
-            const { error: uploadError } = await supabase.storage
-              .from('content-attachments')
-              .upload(fileName, file, { cacheControl: '3600', upsert: false });
-
-            if (uploadError) throw uploadError;
-
-            const { data: { publicUrl } } = supabase.storage
-              .from('content-attachments')
-              .getPublicUrl(fileName);
-
-            const { error: dbError } = await supabase.from('content').insert([{
-              campaign_id: currentCampaignId,
-              platform: finalPlatform,
-              url: finalPlatform === 'instagram_story' ? 'https://instagram.com/story-stats-' + Date.now() : finalPlatform === 'discord' ? 'https://discord.com/stats-' + Date.now() : 'https://twitch.tv/stats-' + Date.now(),
-              title: title || null,
-              thumbnail: publicUrl,
-              creator_id: explicitCreatorId || user?.id,
-              status: 'active',
-              views: finalPlatform === 'discord' ? (uvCount || 0) : (vCount || 0),
-              likes: likes || 0,
-              comments: comments || 0,
-              unique_viewers: uvCount || 0,
-              peek_viewers: pCount || 0,
-              average_viewers: aCount || 0,
-              unique_chatters: uChatters || 0,
-              followers: fCount || 0,
-              new_subscriptions: sCount || 0,
-              duration_minutes: dCount || 0,
-              shares_count: shCount || 0,
-              uploaded_at: new Date().toISOString()
-            }]);
-
-            if (dbError) throw dbError;
-
-            success("¡Captura subida con éxito!");
-            setIsContentModalOpen(false);
-            refresh();
-          } catch (err: any) {
-            toastError("Error: " + err.message);
-          } finally {
-            setIsProcessingContent(false);
-          }
-        }}
-        onSubmit={async (data) => {
-          setIsProcessingContent(true);
-          try {
-            const cleanUrl = normalizeUrl(data.url, data.platform);
-            if (editingContent) {
-              const { error } = await supabase.from('content').update({ 
-                campaign_id: data.campaign_id, platform: data.platform, url: cleanUrl, title: data.title,
-                views: data.views, likes: data.likes, comments: data.comments,
-                avg_duration_minutes: data.avg_duration_minutes, shares_count: data.shares_count
-              }).eq('id', editingContent.id).eq('creator_id', user?.id);
-                
-              if (error) throw error;
-              success("Contenido actualizado");
-              setIsContentModalOpen(false);
-              setEditingContent(null);
-              refresh();
-            } else {
-              const { data: existing } = await supabase.from('content').select('id').eq('campaign_id', data.campaign_id).eq('url', cleanUrl).is('deleted_at', null).limit(1);
-              if (existing && existing.length > 0) {
-                  toastError("¡Este contenido ya está registrado!");
-                  return;
-              }
-              const { data: insertedData, error } = await supabase.from('content').insert([{
-                ...data, url: cleanUrl, title: 'Cargando...', thumbnail: '', views: 0, likes: 0, comments: 0,
-                creator_id: user?.id, status: 'active', uploaded_at: new Date().toISOString()
-              }]).select();
-              if (error) throw error;
-
-              success("¡Contenido vinculado!");
-              setIsContentModalOpen(false);
-              setEditingContent(null);
-              refresh();
-
-              const { data: { session } } = await supabase.auth.getSession();
-              fetch('/api/fetch-metadata', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
-                body: JSON.stringify({ url: cleanUrl, platform: data.platform })
-              }).then(async (res) => {
-                if (res.ok && insertedData?.[0]) {
-                  const metadata = await res.json();
-                  await supabase.from('content').update({
-                    title: metadata.title || 'Nuevo Contenido',
-                    thumbnail: metadata.thumbnail || '',
-                    views: metadata.views || 0,
-                    likes: metadata.likes || 0,
-                    comments: metadata.comments || 0
-                  }).eq('id', insertedData[0].id);
-                  refresh();
-                }
-              }).catch(e => console.warn(e));
-            }
-          } catch (err: any) {
-            toastError("Error: " + err.message);
-          } finally {
-            setIsProcessingContent(false);
-          }
-        }}
+        onTwitchUpload={(file, explicitCreatorId, dCount, aCount, pCount, uvCount, uChatters, vCount, fCount, sCount, shCount, title, campaign_id, platform, likes, comments, contentType, isRepost, parentId) => 
+          handleTwitchUpload(file, user?.id || '', explicitCreatorId || null, editingContent, campaigns, dCount, aCount, pCount, uvCount, uChatters, vCount, fCount, sCount, shCount, title, campaign_id || (filters.campaign === 'all' ? (campaigns[0]?.id || '') : filters.campaign), platform, likes, comments, contentType, isRepost, parentId)
+        }
+        onSubmit={(data) => 
+          handleContentSubmit(data, user?.id || '', editingContent, () => { setIsContentModalOpen(false); setEditingContent(null); })
+        }
       />
       <PaymentModal 
         isOpen={isPaymentModalOpen} 

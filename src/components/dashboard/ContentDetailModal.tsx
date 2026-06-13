@@ -87,9 +87,22 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
                 </div>
               </div>
 
-              <h2 className="text-2xl font-black text-slate-800 mb-8 tracking-tight leading-tight uppercase">
+              <h2 className="text-2xl font-black text-slate-800 mb-4 tracking-tight leading-tight uppercase">
                 {item.title || 'Métricas de la Publicación'}
               </h2>
+
+              <div className="flex flex-wrap gap-2 mb-8">
+                {item.content_type && (
+                  <span className="inline-flex items-center px-3 py-1.5 bg-indigo-50 border border-indigo-100 text-indigo-600 text-[10px] font-black uppercase tracking-wider rounded-xl shadow-sm">
+                    {item.content_type === 'video_largo' ? 'Video Largo' : 'Video Corto'}
+                  </span>
+                )}
+                {item.is_repost && (
+                  <span className="inline-flex items-center px-3 py-1.5 bg-slate-100 border border-slate-200 text-slate-600 text-[10px] font-black uppercase tracking-wider rounded-xl shadow-sm">
+                    Repost
+                  </span>
+                )}
+              </div>
 
               {(() => {
                 const isTikTokStream = item.platform === 'tiktok' && (item.duration_minutes || 0) > 0;

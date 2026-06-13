@@ -25,6 +25,9 @@ export interface ContentItem {
   created_at: string;
   updated_at?: string;
   creator_id: string;
+  content_type?: 'video_largo' | 'video_corto' | null;
+  is_repost?: boolean;
+  parent_id?: string | null;
 }
 
 interface ContentCardProps {
@@ -78,12 +81,26 @@ const ContentCard = React.memo(({ item, campaignName, onEdit, onDelete, onClick,
           <PlatformIcon className={`h-16 w-16 ${platformColor} opacity-20`} />
         )}
         
-        {/* Platform Badge */}
-        <div className={`absolute top-4 left-4 z-10 flex items-center gap-2 px-3 py-1.5 ${platformBg} ${platformBorder} border rounded-xl shadow-sm`}>
-          <PlatformIcon className={`h-3.5 w-3.5 ${platformColor}`} />
-          <span className={`text-[9px] font-black uppercase tracking-widest ${platformColor}`}>
-            {item.platform === 'twitch' ? 'stream' : item.platform === 'discord' ? 'jornada' : item.platform === 'instagram_story' ? 'historia ig' : item.platform}
-          </span>
+        {/* Badges Container */}
+        <div className="absolute top-4 left-4 z-10 flex flex-wrap gap-2">
+          <div className={`flex items-center gap-2 px-3 py-1.5 ${platformBg} ${platformBorder} border rounded-xl shadow-sm`}>
+            <PlatformIcon className={`h-3.5 w-3.5 ${platformColor}`} />
+            <span className={`text-[9px] font-black uppercase tracking-widest ${platformColor}`}>
+              {item.platform === 'twitch' ? 'stream' : item.platform === 'discord' ? 'jornada' : item.platform === 'instagram_story' ? 'historia ig' : item.platform}
+            </span>
+          </div>
+          {item.is_repost && (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 border border-slate-200 text-slate-600 rounded-xl shadow-sm">
+              <span className="text-[9px] font-black uppercase tracking-widest">REPOST</span>
+            </div>
+          )}
+          {item.content_type && (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 border border-indigo-100 text-indigo-600 rounded-xl shadow-sm">
+              <span className="text-[9px] font-black uppercase tracking-widest">
+                {item.content_type === 'video_largo' ? 'Largo' : 'Corto'}
+              </span>
+            </div>
+          )}
         </div>
 
         {isGamenight && (
