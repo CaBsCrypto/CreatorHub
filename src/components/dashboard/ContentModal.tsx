@@ -326,162 +326,191 @@ const ContentModal: React.FC<ContentModalProps> = ({
               onSelect={(id) => setFormData({ ...formData, platform: id as any })}
             />
 
-            <div>
-              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">
-                {['stream', 'instagram_story'].includes(formData.platform) 
-                  ? 'Captura y Métricas' 
-                  : formData.platform === 'discord' 
-                    ? 'Reporte de Sesión Discord' 
-                    : formData.platform === 'baseapp' 
-                      ? 'Reporte de Sesión BaseApp' 
-                      : 'URL de la publicación'}
-              </label>
-
-              {(formData.platform as any) === 'stream' ? (
-                <StreamFormSection
-                  formData={formData} setFormData={setFormData}
-                  streamPlatform={streamPlatform} setStreamPlatform={setStreamPlatform}
-                  twitchPreview={twitchPreview} onFileChange={handleFileChange}
-                  isAnalyzing={isAnalyzingScreenshot}
-                />
-              ) : (formData.platform as any) === 'discord' || (formData.platform as any) === 'baseapp' ? (
-                <DiscordFormSection
-                  platform={formData.platform as any}
-                  formData={formData} setFormData={setFormData}
-                  twitchFile={twitchFile} setTwitchFile={setTwitchFile}
-                  twitchPreview={twitchPreview} setTwitchPreview={setTwitchPreview}
-                  onFileChange={handleFileChange}
-                  isAnalyzing={isAnalyzingScreenshot}
-                />
-              ) : (formData.platform as any) === 'instagram_story' ? (
-                <StoryFormSection
-                  formData={formData} setFormData={setFormData}
-                  twitchPreview={twitchPreview} onFileChange={handleFileChange}
-                  isAnalyzing={isAnalyzingScreenshot}
-                />
-              ) : (
-                <div className="relative group animate-in fade-in slide-in-from-top-1">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <ExternalLink className="h-4 w-4 text-slate-300" />
+            {!['stream', 'instagram_story', 'discord', 'baseapp'].includes(formData.platform) ? (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 animate-in fade-in">
+                <div className="sm:col-span-2">
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">
+                    URL de la publicación
+                  </label>
+                  <div className="relative group">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <ExternalLink className="h-4 w-4 text-slate-300" />
+                    </div>
+                    <input
+                      type="url" required value={formData.url}
+                      onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                      placeholder="https://plataforma.com/video/..."
+                      className="block w-full pl-11 rounded-xl border border-gray-100 bg-gray-50 py-3.5 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 transition-all"
+                    />
                   </div>
-                  <input
-                    type="url" required value={formData.url}
-                    onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-                    placeholder="https://plataforma.com/video/..."
-                    className="block w-full pl-11 rounded-xl border border-gray-100 bg-gray-50 py-3 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 transition-all"
-                  />
                 </div>
-              )}
-            </div>
-
-            {/* --- Tipo de Formato --- */}
-            {['youtube', 'tiktok', 'instagram', 'x', 'stream'].includes(formData.platform) && (
-              <div className="animate-in fade-in slide-in-from-top-1">
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Tipo de Formato</label>
-                <select
-                  value={formData.content_type || ''}
-                  onChange={(e) => setFormData({ ...formData, content_type: (e.target.value as any) || null })}
-                  className="block w-full rounded-xl border border-gray-100 bg-gray-50 py-2.5 px-4 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300"
-                >
-                  <option value="">No especificado</option>
-                  <option value="video_largo">Video Largo</option>
-                  <option value="video_corto">Video Corto (Short/Reel/TikTok)</option>
-                </select>
+                <div>
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">
+                    Formato
+                  </label>
+                  <select
+                    value={formData.content_type || ''}
+                    onChange={(e) => setFormData({ ...formData, content_type: (e.target.value as any) || null })}
+                    className="block w-full rounded-xl border border-gray-100 bg-gray-50 py-3.5 px-4 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 cursor-pointer"
+                  >
+                    <option value="">No especificado</option>
+                    <option value="video_largo">Video Largo</option>
+                    <option value="video_corto">Video Corto</option>
+                  </select>
+                </div>
               </div>
-            )}
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">
+                    {['stream', 'instagram_story'].includes(formData.platform) 
+                      ? 'Captura y Métricas' 
+                      : formData.platform === 'discord' 
+                        ? 'Reporte de Sesión Discord' 
+                        : 'Reporte de Sesión BaseApp'}
+                  </label>
 
-            {/* --- Carga Multi-plataforma --- */}
-            {!editingContent && !['discord', 'baseapp', 'instagram_story'].includes(formData.platform) && (
-              <div className="border border-gray-100 rounded-2xl p-4 bg-slate-50/50 space-y-4 animate-in fade-in">
-                <label className="flex items-center gap-2 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={isMultiPlatform}
-                    onChange={(e) => setIsMultiPlatform(e.target.checked)}
-                    className="w-4 h-4 rounded text-indigo-600 border-gray-300 focus:ring-indigo-500"
-                  />
-                  <span className="text-xs font-black text-slate-700 uppercase tracking-wide">Carga Multi-plataforma (Reposts)</span>
-                </label>
-                {isMultiPlatform && (
-                  <div className="space-y-3 pt-2 pl-6 border-l-2 border-indigo-100 animate-in slide-in-from-left-2 duration-200">
-                    {['youtube', 'tiktok', 'instagram', 'x'].map(plat => {
-                      if (plat === formData.platform) return null;
-                      const isChecked = multiPlatformUrls[plat] !== undefined;
-                      return (
-                        <div key={plat} className="space-y-1">
-                          <label className="flex items-center gap-2 cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              onChange={(e) => {
-                                if (e.target.checked) {
-                                  setMultiPlatformUrls(prev => ({ ...prev, [plat]: '' }));
-                                } else {
-                                  setMultiPlatformUrls(prev => {
-                                    const copy = { ...prev };
-                                    delete copy[plat];
-                                    return copy;
-                                  });
-                                }
-                              }}
-                              className="w-3.5 h-3.5 rounded text-indigo-600 border-gray-300 focus:ring-indigo-500"
-                            />
-                            <span className="text-[10px] font-black uppercase text-slate-600 tracking-wider">
-                              URL {plat.toUpperCase()}
-                            </span>
-                          </label>
-                          {isChecked && (
-                            <input
-                              type="url"
-                              value={multiPlatformUrls[plat] || ''}
-                              onChange={(e) => setMultiPlatformUrls(prev => ({ ...prev, [plat]: e.target.value }))}
-                              placeholder={`https://${plat}.com/...`}
-                              className="block w-full rounded-xl border border-gray-100 bg-white py-2 px-3 text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 transition-all"
-                            />
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            )}
+                  {(formData.platform as any) === 'stream' ? (
+                    <StreamFormSection
+                      formData={formData} setFormData={setFormData}
+                      streamPlatform={streamPlatform} setStreamPlatform={setStreamPlatform}
+                      twitchPreview={twitchPreview} onFileChange={handleFileChange}
+                      isAnalyzing={isAnalyzingScreenshot}
+                    />
+                  ) : (formData.platform as any) === 'discord' || (formData.platform as any) === 'baseapp' ? (
+                    <DiscordFormSection
+                      platform={formData.platform as any}
+                      formData={formData} setFormData={setFormData}
+                      twitchFile={twitchFile} setTwitchFile={setTwitchFile}
+                      twitchPreview={twitchPreview} setTwitchPreview={setTwitchPreview}
+                      onFileChange={handleFileChange}
+                      isAnalyzing={isAnalyzingScreenshot}
+                    />
+                  ) : (
+                    <StoryFormSection
+                      formData={formData} setFormData={setFormData}
+                      twitchPreview={twitchPreview} onFileChange={handleFileChange}
+                      isAnalyzing={isAnalyzingScreenshot}
+                    />
+                  )}
+                </div>
 
-            {/* --- Repost Tagging --- */}
-            {!isMultiPlatform && (
-              <div className="border border-gray-100 rounded-2xl p-4 bg-slate-50/50 space-y-4 animate-in fade-in">
-                <label className="flex items-center gap-2 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={formData.is_repost}
-                    onChange={(e) => setFormData({ 
-                      ...formData, 
-                      is_repost: e.target.checked,
-                      parent_id: e.target.checked ? formData.parent_id : ''
-                    })}
-                    className="w-4 h-4 rounded text-indigo-600 border-gray-300 focus:ring-indigo-500"
-                  />
-                  <span className="text-xs font-black text-slate-700 uppercase tracking-wide">Es un Repost</span>
-                </label>
-                {formData.is_repost && (
-                  <div className="space-y-2 pt-2 pl-6 border-l-2 border-indigo-100 animate-in slide-in-from-left-2 duration-200">
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 ml-1">Vincular al Video Original</label>
+                {['stream'].includes(formData.platform) && (
+                  <div className="animate-in fade-in slide-in-from-top-1">
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Tipo de Formato</label>
                     <select
-                      value={formData.parent_id || ''}
-                      onChange={(e) => setFormData({ ...formData, parent_id: e.target.value || null })}
-                      className="block w-full rounded-xl border border-gray-100 bg-white py-2.5 px-4 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300"
+                      value={formData.content_type || ''}
+                      onChange={(e) => setFormData({ ...formData, content_type: (e.target.value as any) || null })}
+                      className="block w-full rounded-xl border border-gray-100 bg-gray-50 py-2.5 px-4 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 cursor-pointer"
                     >
-                      <option value="">Seleccionar Video Original</option>
-                      {linkableContents.map(c => (
-                        <option key={c.id} value={c.id}>
-                          [{c.platform.toUpperCase()}] {c.title || c.url.substring(0, 40) + '...'}
-                        </option>
-                      ))}
+                      <option value="">No especificado</option>
+                      <option value="video_largo">Video Largo</option>
+                      <option value="video_corto">Video Corto</option>
                     </select>
                   </div>
                 )}
               </div>
             )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* --- Carga Multi-plataforma --- */}
+              {!editingContent && !['discord', 'baseapp', 'instagram_story'].includes(formData.platform) && (
+                <div className="border border-gray-100 rounded-2xl p-4 bg-slate-50/50 space-y-4 animate-in fade-in h-fit">
+                  <label className="flex items-center gap-2 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={isMultiPlatform}
+                      onChange={(e) => {
+                        setIsMultiPlatform(e.target.checked);
+                        if (e.target.checked) {
+                          setFormData(prev => ({ ...prev, is_repost: false, parent_id: '' }));
+                        }
+                      }}
+                      className="w-4 h-4 rounded text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                    />
+                    <span className="text-xs font-black text-slate-700 uppercase tracking-wide">Multi-plataforma</span>
+                  </label>
+                  {isMultiPlatform && (
+                    <div className="space-y-3 pt-2 pl-4 border-l-2 border-indigo-100 animate-in slide-in-from-left-2 duration-200">
+                      {['youtube', 'tiktok', 'instagram', 'x'].map(plat => {
+                        if (plat === formData.platform) return null;
+                        const isChecked = multiPlatformUrls[plat] !== undefined;
+                        return (
+                          <div key={plat} className="space-y-1">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setMultiPlatformUrls(prev => ({ ...prev, [plat]: '' }));
+                                  } else {
+                                    setMultiPlatformUrls(prev => {
+                                      const copy = { ...prev };
+                                      delete copy[plat];
+                                      return copy;
+                                    });
+                                  }
+                                }}
+                                className="w-3.5 h-3.5 rounded text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                              />
+                              <span className="text-[10px] font-black uppercase text-slate-600 tracking-wider">
+                                URL {plat.toUpperCase()}
+                              </span>
+                            </label>
+                            {isChecked && (
+                              <input
+                                type="url"
+                                value={multiPlatformUrls[plat] || ''}
+                                onChange={(e) => setMultiPlatformUrls(prev => ({ ...prev, [plat]: e.target.value }))}
+                                placeholder={`https://${plat}.com/...`}
+                                className="block w-full rounded-xl border border-gray-100 bg-white py-2 px-3 text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 transition-all"
+                              />
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* --- Repost Tagging --- */}
+              {!isMultiPlatform && (
+                <div className="border border-gray-100 rounded-2xl p-4 bg-slate-50/50 space-y-4 animate-in fade-in h-fit">
+                  <label className="flex items-center gap-2 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={formData.is_repost}
+                      onChange={(e) => setFormData({ 
+                        ...formData, 
+                        is_repost: e.target.checked,
+                        parent_id: e.target.checked ? formData.parent_id : ''
+                      })}
+                      className="w-4 h-4 rounded text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                    />
+                    <span className="text-xs font-black text-slate-700 uppercase tracking-wide">Es un Repost</span>
+                  </label>
+                  {formData.is_repost && (
+                    <div className="space-y-2 pt-2 pl-4 border-l-2 border-indigo-100 animate-in slide-in-from-left-2 duration-200">
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 ml-1">Video Original</label>
+                      <select
+                        value={formData.parent_id || ''}
+                        onChange={(e) => setFormData({ ...formData, parent_id: e.target.value || null })}
+                        className="block w-full rounded-xl border border-gray-100 bg-white py-2 px-3 text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300"
+                      >
+                        <option value="">Seleccionar Video</option>
+                        {linkableContents.map(c => (
+                          <option key={c.id} value={c.id}>
+                            [{c.platform.toUpperCase()}] {c.title || c.url.substring(0, 40) + '...'}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="flex gap-3 pt-4 border-t border-gray-50">
