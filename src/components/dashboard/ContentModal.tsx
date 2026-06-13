@@ -327,8 +327,41 @@ const ContentModal: React.FC<ContentModalProps> = ({
             />
 
             {!['stream', 'instagram_story', 'discord', 'baseapp'].includes(formData.platform) ? (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 animate-in fade-in">
-                <div className="sm:col-span-2">
+              ['youtube', 'tiktok', 'instagram'].includes(formData.platform) ? (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 animate-in fade-in">
+                  <div className="sm:col-span-2">
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">
+                      URL de la publicación
+                    </label>
+                    <div className="relative group">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <ExternalLink className="h-4 w-4 text-slate-300" />
+                      </div>
+                      <input
+                        type="url" required value={formData.url}
+                        onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                        placeholder="https://plataforma.com/video/..."
+                        className="block w-full pl-11 rounded-xl border border-gray-100 bg-gray-50 py-3.5 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 transition-all"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">
+                      Formato
+                    </label>
+                    <select
+                      value={formData.content_type || ''}
+                      onChange={(e) => setFormData({ ...formData, content_type: (e.target.value as any) || null })}
+                      className="block w-full rounded-xl border border-gray-100 bg-gray-50 py-3.5 px-4 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 cursor-pointer"
+                    >
+                      <option value="">No especificado</option>
+                      <option value="video_largo">Video Largo</option>
+                      <option value="video_corto">Video Corto</option>
+                    </select>
+                  </div>
+                </div>
+              ) : (
+                <div className="animate-in fade-in">
                   <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">
                     URL de la publicación
                   </label>
@@ -339,26 +372,12 @@ const ContentModal: React.FC<ContentModalProps> = ({
                     <input
                       type="url" required value={formData.url}
                       onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-                      placeholder="https://plataforma.com/video/..."
+                      placeholder="https://plataforma.com/..."
                       className="block w-full pl-11 rounded-xl border border-gray-100 bg-gray-50 py-3.5 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 transition-all"
                     />
                   </div>
                 </div>
-                <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">
-                    Formato
-                  </label>
-                  <select
-                    value={formData.content_type || ''}
-                    onChange={(e) => setFormData({ ...formData, content_type: (e.target.value as any) || null })}
-                    className="block w-full rounded-xl border border-gray-100 bg-gray-50 py-3.5 px-4 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 cursor-pointer"
-                  >
-                    <option value="">No especificado</option>
-                    <option value="video_largo">Video Largo</option>
-                    <option value="video_corto">Video Corto</option>
-                  </select>
-                </div>
-              </div>
+              )
             ) : (
               <div className="space-y-4">
                 <div>
