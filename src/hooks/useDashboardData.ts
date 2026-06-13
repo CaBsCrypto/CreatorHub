@@ -279,7 +279,7 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
   const metrics = useMemo(() => {
     const totalViews = filteredContent.reduce((acc, curr) => acc + (curr.views || 0), 0);
     const totalEngagement = filteredContent.reduce((acc, curr) => acc + (curr.likes || 0) + (curr.comments || 0), 0);
-    const totalPosts = filteredContent.length;
+    const totalPosts = filteredContent.filter(c => !c.is_repost).length;
 
     // Calculate month-over-month trends
     const now = new Date();
@@ -297,8 +297,8 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
 
     const thisMonthViews = thisMonthContent.reduce((s, c) => s + (c.views || 0), 0);
     const lastMonthViews = lastMonthContent.reduce((s, c) => s + (c.views || 0), 0);
-    const thisMonthPosts = thisMonthContent.length;
-    const lastMonthPosts = lastMonthContent.length;
+    const thisMonthPosts = thisMonthContent.filter(c => !c.is_repost).length;
+    const lastMonthPosts = lastMonthContent.filter(c => !c.is_repost).length;
 
     const calcTrend = (current: number, previous: number) => {
       if (previous === 0) return current > 0 ? { value: 100, isPositive: true } : null;
@@ -347,7 +347,7 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
       return {
         ...campaign,
         views,
-        contentCount: campaignContent.length,
+        contentCount: campaignContent.filter(c => !c.is_repost).length,
         spent, // For creators, this is "their" spent (earnings)
         remaining,
         isPersonal: !!isPersonal,
@@ -373,7 +373,9 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
       const views = c.views || 0;
       stats[c.creator_id].views += views;
       stats[c.creator_id].engagement += (c.likes || 0) + (c.comments || 0);
-      stats[c.creator_id].contentCount += 1;
+      if (!c.is_repost) {
+        stats[c.creator_id].contentCount += 1;
+      }
       stats[c.creator_id].estimatedValue += (views / 1000) * 2.5;
     });
 
