@@ -100,6 +100,18 @@ const ReviewContentCard: React.FC<ReviewContentCardProps> = ({
             </div>
             <span className="text-[8px] font-bold text-slate-500 truncate">{creator?.display_name || translations.anonymous}</span>
           </div>
+          <div className="flex gap-1 flex-shrink-0">
+            {item.is_repost && (
+              <span className="px-1 py-0.5 bg-slate-100 border border-slate-200 text-slate-600 text-[6px] font-black uppercase tracking-wider rounded">
+                REPOST
+              </span>
+            )}
+            {item.content_type && (
+              <span className="px-1 py-0.5 bg-indigo-50 border border-indigo-100 text-indigo-600 text-[6px] font-black uppercase tracking-wider rounded">
+                {item.content_type === 'video_largo' ? 'LARGO' : 'CORTO'}
+              </span>
+            )}
+          </div>
         </div>
         {/* Title */}
         <p className="text-[9px] font-bold text-slate-800 line-clamp-2 leading-tight flex-1">
