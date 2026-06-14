@@ -576,7 +576,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
             </div>
 
             {!['stream', 'instagram_story', 'discord', 'baseapp'].includes(formData.platform) ? (
-              ['youtube', 'tiktok', 'instagram'].includes(formData.platform) ? (
+              ['youtube', 'tiktok', 'instagram', 'x'].includes(formData.platform) ? (
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 animate-in fade-in">
                   <div className="sm:col-span-2">
                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">
