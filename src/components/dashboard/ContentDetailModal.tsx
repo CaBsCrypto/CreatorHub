@@ -97,11 +97,11 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
                     {item.content_type === 'video_largo' ? 'Video Largo' : 'Video Corto'}
                   </span>
                 )}
-                {item.is_repost && (
+                 {item.is_repost && (
                   <span className="inline-flex items-center px-3 py-1.5 bg-slate-100 border border-slate-200 text-slate-600 text-[10px] font-black uppercase tracking-wider rounded-xl shadow-sm">
-                    Repost
+                    Mismo Post
                   </span>
-                )}
+                 )}
               </div>
 
               {(() => {

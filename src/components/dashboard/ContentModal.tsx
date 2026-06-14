@@ -113,11 +113,17 @@ const ContentModal: React.FC<ContentModalProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const [selectedChildIds, setSelectedChildIds] = React.useState<string[]>([]);
+  const [showCoupling, setShowCoupling] = React.useState(false);
+
   React.useEffect(() => {
     setTwitchFile(null);
     setTwitchPreview(null);
     setIsMultiPlatform(false);
     setMultiPlatformUrls({ youtube: '', tiktok: '', instagram: '', x: '' });
+    setSelectedChildIds([]);
+    setShowCoupling(false);
+
     if (editingContent) {
       const isStream = editingContent.platform === 'twitch' || (editingContent.platform === 'tiktok' && (editingContent.duration_minutes || 0) > 0);
       if (isStream) setStreamPlatform(editingContent.platform === 'tiktok' ? 'tiktok' : 'twitch');
@@ -145,6 +151,29 @@ const ContentModal: React.FC<ContentModalProps> = ({
         is_repost: editingContent.is_repost || false,
         parent_id: editingContent.parent_id || ''
       });
+
+      // Cargar posts hijos si es publicación principal
+      if (!editingContent.is_repost) {
+        const fetchChildren = async () => {
+          try {
+            const { data, error } = await supabase
+              .from('content')
+              .select('id')
+              .eq('parent_id', editingContent.id)
+              .is('deleted_at', null);
+            if (!error && data) {
+              const ids = data.map(d => d.id);
+              setSelectedChildIds(ids);
+              if (ids.length > 0) {
+                setShowCoupling(true);
+              }
+            }
+          } catch (err) {
+            console.error("Error al cargar posts hijos:", err);
+          }
+        };
+        fetchChildren();
+      }
     } else {
       setStreamPlatform('twitch');
       setFormData({
@@ -170,9 +199,8 @@ const ContentModal: React.FC<ContentModalProps> = ({
       try {
         const { data, error } = await supabase
           .from('content')
-          .select('id, title, url, platform, creator_id, guest_name')
+          .select('id, title, url, platform, creator_id, guest_name, parent_id')
           .eq('campaign_id', formData.campaign_id)
-          .eq('is_repost', false)
           .is('deleted_at', null);
         if (!error && data) {
           setCampaignContents(data);
@@ -186,6 +214,8 @@ const ContentModal: React.FC<ContentModalProps> = ({
 
   const linkableContents = React.useMemo(() => {
     return campaignContents.filter(item => {
+      // No debe ser repost
+      if (item.is_repost) return false;
       // Excluir el post que se está editando
       if (editingContent && item.id === editingContent.id) return false;
       
@@ -200,6 +230,23 @@ const ContentModal: React.FC<ContentModalProps> = ({
       }
       
       return true;
+    });
+  }, [campaignContents, editingContent, formData.creator_id, formData.guest_name]);
+
+  const eligibleChildContents = React.useMemo(() => {
+    return campaignContents.filter(item => {
+      // Excluir el post que se está editando
+      if (editingContent && item.id === editingContent.id) return false;
+      
+      // Debe pertenecer al mismo creador
+      if (formData.creator_id && formData.creator_id !== 'guest') {
+        if (item.creator_id !== formData.creator_id) return false;
+      } else if (formData.creator_id === 'guest' && formData.guest_name) {
+        if (item.guest_name !== formData.guest_name) return false;
+      }
+      
+      // Debe ser un post independiente (sin parent_id) o ya ser hijo de este post
+      return !item.parent_id || (editingContent && item.parent_id === editingContent.id);
     });
   }, [campaignContents, editingContent, formData.creator_id, formData.guest_name]);
 
@@ -264,7 +311,8 @@ const ContentModal: React.FC<ContentModalProps> = ({
       ...formData, 
       url: cleanUrl,
       isMultiPlatform,
-      multiUrls: Object.entries(multiPlatformUrls).map(([p, u]) => ({ platform: p, url: u }))
+      multiUrls: Object.entries(multiPlatformUrls).map(([p, u]) => ({ platform: p, url: u })),
+      selectedChildIds
     };
     if ((finalData.platform as any) === 'stream') finalData.platform = streamPlatform as any;
     if ((formData.platform as any) === 'stream' && twitchFile) {
@@ -341,7 +389,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
               onSelect={(id) => setFormData({ ...formData, platform: id as any })}
             />
 
-            {/* --- Sección Unificada: Carga y Reposts --- */}
+            {/* --- Sección Unificada: Carga y Mismos Posts --- */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* --- Carga Multi-plataforma --- */}
               {!editingContent && !['discord', 'baseapp', 'instagram_story'].includes(formData.platform) && (
@@ -408,37 +456,111 @@ const ContentModal: React.FC<ContentModalProps> = ({
                 </div>
               )}
 
-              {/* --- Repost Tagging --- */}
+              {/* --- Mismo Post / Vinculación --- */}
               {!isMultiPlatform && (
                 <div className="border border-gray-100 rounded-2xl p-4 bg-slate-50/50 space-y-4 animate-in fade-in h-fit">
-                  <label className="flex items-center gap-2 cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={formData.is_repost}
-                      onChange={(e) => setFormData({ 
-                        ...formData, 
-                        is_repost: e.target.checked,
-                        parent_id: e.target.checked ? formData.parent_id : ''
-                      })}
-                      className="w-4 h-4 rounded text-indigo-600 border-gray-300 focus:ring-indigo-500"
-                    />
-                    <span className="text-xs font-black text-slate-700 uppercase tracking-wide">Es un Repost</span>
-                  </label>
-                  {formData.is_repost && (
-                    <div className="space-y-2 pt-2 pl-4 border-l-2 border-indigo-100 animate-in slide-in-from-left-2 duration-200">
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 ml-1">Video Original</label>
-                      <select
-                        value={formData.parent_id || ''}
-                        onChange={(e) => setFormData({ ...formData, parent_id: e.target.value || null })}
-                        className="block w-full rounded-xl border border-gray-100 bg-white py-2 px-3 text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300"
-                      >
-                        <option value="">Seleccionar Video</option>
-                        {linkableContents.map(c => (
-                          <option key={c.id} value={c.id}>
-                            [{c.platform.toUpperCase()}] {c.title || c.url.substring(0, 40) + '...'}
-                          </option>
-                        ))}
-                      </select>
+                  {formData.is_repost ? (
+                    <div className="space-y-4">
+                      <label className="flex items-center gap-2 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={formData.is_repost}
+                          onChange={(e) => setFormData({ 
+                            ...formData, 
+                            is_repost: e.target.checked,
+                            parent_id: e.target.checked ? formData.parent_id : ''
+                          })}
+                          className="w-4 h-4 rounded text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                        />
+                        <span className="text-xs font-black text-slate-700 uppercase tracking-wide">Es un Mismo Post</span>
+                      </label>
+                      <div className="space-y-2 pt-2 pl-4 border-l-2 border-indigo-100 animate-in slide-in-from-left-2 duration-200">
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 ml-1">Publicación Principal</label>
+                        <select
+                          value={formData.parent_id || ''}
+                          onChange={(e) => setFormData({ ...formData, parent_id: e.target.value || null })}
+                          className="block w-full rounded-xl border border-gray-100 bg-white py-2 px-3 text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300"
+                        >
+                          <option value="">Seleccionar Publicación Principal</option>
+                          {linkableContents.map(c => (
+                            <option key={c.id} value={c.id}>
+                              [{c.platform.toUpperCase()}] {c.title || c.url.substring(0, 40) + '...'}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <label className="flex items-center gap-2 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={showCoupling}
+                          onChange={(e) => {
+                            setShowCoupling(e.target.checked);
+                            if (!e.target.checked) {
+                              setSelectedChildIds([]);
+                            }
+                          }}
+                          className="w-4 h-4 rounded text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                        />
+                        <span className="text-xs font-black text-slate-700 uppercase tracking-wide">Acoplar Mismos Posts</span>
+                      </label>
+                      
+                      {showCoupling && (
+                        <div className="space-y-3 pt-2 pl-4 border-l-2 border-indigo-100 animate-in slide-in-from-left-2 duration-200">
+                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-2">
+                            Seleccionar posts del mismo creador:
+                          </p>
+                          {eligibleChildContents.length > 0 ? (
+                            <div className="max-h-36 overflow-y-auto space-y-2 pr-1">
+                              {eligibleChildContents.map(c => {
+                                const isChecked = selectedChildIds.includes(c.id);
+                                return (
+                                  <label key={c.id} className="flex items-start gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-white transition-all">
+                                    <input
+                                      type="checkbox"
+                                      checked={isChecked}
+                                      onChange={(e) => {
+                                        if (e.target.checked) {
+                                          setSelectedChildIds(prev => [...prev, c.id]);
+                                        } else {
+                                          setSelectedChildIds(prev => prev.filter(id => id !== c.id));
+                                        }
+                                      }}
+                                      className="w-3.5 h-3.5 rounded text-indigo-600 border-gray-300 focus:ring-indigo-500 mt-0.5"
+                                    />
+                                    <div className="flex flex-col min-w-0">
+                                      <span className="text-[10px] font-black text-indigo-600 uppercase tracking-wider leading-none mb-0.5">
+                                        [{c.platform.toUpperCase()}]
+                                      </span>
+                                      <span className="text-[9px] font-bold text-slate-600 truncate max-w-[200px]">
+                                        {c.title || c.url}
+                                      </span>
+                                    </div>
+                                  </label>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <p className="text-[9px] font-medium text-slate-400 italic">
+                              No hay otros posts independientes de este creador en esta campaña.
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      {!showCoupling && (
+                        <div className="pt-2 border-t border-slate-100">
+                          <button
+                            type="button"
+                            onClick={() => setFormData(prev => ({ ...prev, is_repost: true }))}
+                            className="text-[9px] font-black uppercase tracking-wider text-indigo-600 hover:text-indigo-800 transition-colors"
+                          >
+                            ¿Vincular este post a otro principal?
+                          </button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

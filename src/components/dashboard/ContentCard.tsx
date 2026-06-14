@@ -91,7 +91,7 @@ const ContentCard = React.memo(({ item, campaignName, onEdit, onDelete, onClick,
           </div>
           {item.is_repost && (
             <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 border border-slate-200 text-slate-600 rounded-xl shadow-sm">
-              <span className="text-[9px] font-black uppercase tracking-widest">REPOST</span>
+              <span className="text-[9px] font-black uppercase tracking-widest">MISMO POST</span>
             </div>
           )}
           {item.content_type && (

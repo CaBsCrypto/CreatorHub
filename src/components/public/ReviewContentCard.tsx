@@ -103,7 +103,7 @@ const ReviewContentCard: React.FC<ReviewContentCardProps> = ({
           <div className="flex gap-1 flex-shrink-0">
             {item.is_repost && (
               <span className="px-1 py-0.5 bg-slate-100 border border-slate-200 text-slate-600 text-[6px] font-black uppercase tracking-wider rounded">
-                REPOST
+                MISMO POST
               </span>
             )}
             {item.content_type && (

@@ -400,11 +400,11 @@ export default function CampaignReportModal({
                   <span className="text-4xl font-black text-white">{uniqueContentCount}</span>
                   <span className="text-sm font-bold text-slate-500 mb-1">/ {campaign.target_posts} únicos</span>
                 </div>
-                {repostContentCount > 0 && (
+                 {repostContentCount > 0 && (
                   <p className="text-[10px] font-bold text-slate-400 mb-2 uppercase tracking-wide">
-                    + {repostContentCount} reposts (no contados)
+                    + {repostContentCount} mismos posts (no contados)
                   </p>
-                )}
+                 )}
                 <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
                   <div className="bg-indigo-500 h-full rounded-full transition-all duration-1000" style={{ width: `${progressPercentage}%` }} />
                 </div>
