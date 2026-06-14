@@ -15,6 +15,7 @@ interface PublicContentGridProps {
   setFilterCreatorId: (val: string) => void;
   setFilters: (updates: any) => void;
   setSelectedImage: (val: string | null) => void;
+  onCoupledClick?: (item: any) => void;
   setShowPlatformsModal: (val: boolean) => void;
   lang: 'en' | 'es';
   translations: {
@@ -39,6 +40,7 @@ const PublicContentGrid: React.FC<PublicContentGridProps> = ({
   setFilterCreatorId,
   setFilters,
   setSelectedImage,
+  onCoupledClick,
   setShowPlatformsModal,
   lang,
   translations
@@ -175,6 +177,7 @@ const PublicContentGrid: React.FC<PublicContentGridProps> = ({
                 creator={users.find(u => u.id === item.creator_id)}
                 index={i}
                 onStreamClick={setSelectedImage}
+                onCoupledClick={onCoupledClick}
                 lang={lang}
                 translations={{ anonymous: translations.anonymous }}
               />

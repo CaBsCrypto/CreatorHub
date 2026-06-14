@@ -2,8 +2,8 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { supabase, Campaign, Content, UserProfile } from '../supabase';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { Globe, StickyNote } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Globe, StickyNote, Youtube, Instagram, Music2, Twitter, X, ExternalLink } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Refactored Components
 import PublicReviewHeader from '../components/public/PublicReviewHeader';
@@ -15,6 +15,18 @@ import PublicModals from '../components/public/PublicModals';
 // Hooks & Utils
 import { getProxiedUrl } from '../utils/urlHelpers';
 import { getReviewTranslations } from '../components/public/translations';
+
+const platformConfig = {
+  youtube: { icon: Youtube, color: 'text-red-500', bg: 'bg-red-50', label: 'YouTube' },
+  instagram: { icon: Instagram, color: 'text-pink-500', bg: 'bg-pink-50', label: 'Instagram' },
+  instagram_story: { icon: Instagram, color: 'text-rose-500', bg: 'bg-rose-50', label: 'Instagram Story' },
+  tiktok: { icon: Music2, color: 'text-gray-900', bg: 'bg-gray-100', label: 'TikTok' },
+  x: { icon: Twitter, color: 'text-indigo-900', bg: 'bg-indigo-50', label: 'X (Twitter)' },
+  coinmarketcap: { icon: Globe, color: 'text-indigo-600', bg: 'bg-indigo-50', label: 'CoinMarketCap' },
+  twitch: { icon: Globe, color: 'text-purple-600', bg: 'bg-purple-50', label: 'Stream' },
+  discord: { icon: Globe, color: 'text-indigo-500', bg: 'bg-indigo-50', label: 'Discord' },
+  baseapp: { icon: Globe, color: 'text-blue-600', bg: 'bg-blue-50', label: 'BaseApp' }
+};
 
 function aggregateContentItems(filteredItems: Content[], allItems: Content[]): Content[] {
   const allGroups = new Map<string, Content[]>();
@@ -83,6 +95,7 @@ export default function PublicReview() {
   const [project, setProject] = useState<UserProfile | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [viewingCoupledContent, setViewingCoupledContent] = useState<Content | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   
   const [filterPlatform, setFilterPlatformLocal] = useState(searchParams.get('platform') || 'all');
@@ -284,6 +297,7 @@ export default function PublicReview() {
             setFilterCreatorId={setFilterCreatorId}
             setFilters={setFilters}
             setSelectedImage={setSelectedImage}
+            onCoupledClick={setViewingCoupledContent}
             setShowPlatformsModal={setShowPlatformsModal}
             lang={lang}
             translations={{
@@ -335,6 +349,68 @@ export default function PublicReview() {
           allContent: t.allContent
         }}
       />
+
+      <AnimatePresence>
+        {viewingCoupledContent && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-y-auto">
+            <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm animate-in fade-in" onClick={() => setViewingCoupledContent(null)} />
+            <div className="relative w-full max-w-lg rounded-3xl bg-white p-6 sm:p-8 shadow-2xl border border-gray-100 animate-in zoom-in-95 slide-in-from-bottom-8 overflow-y-auto max-h-[90vh]">
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Publicaciones Acopladas</h2>
+                  <p className="text-xs font-medium text-slate-500 mt-1 font-bold text-slate-500">Este post agrupa las métricas de las siguientes publicaciones</p>
+                </div>
+                <button onClick={() => setViewingCoupledContent(null)} className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-gray-50 transition-all">
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {(viewingCoupledContent as any).coupledPosts?.map((post: any) => {
+                  const postConfig = platformConfig[post.platform as 'youtube'] || { icon: Globe, color: 'text-gray-400', bg: 'bg-gray-50', label: post.platform };
+                  const PostIcon = postConfig.icon;
+
+                  return (
+                    <div key={post.id} className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-2xl hover:border-indigo-100 transition-all">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className={`w-10 h-10 rounded-xl ${postConfig.bg} flex items-center justify-center`}>
+                          <PostIcon className={`h-5 w-5 ${postConfig.color}`} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-black text-slate-800 uppercase tracking-wide truncate max-w-[200px] leading-tight">
+                            {postConfig.label}
+                          </p>
+                          <p className="text-[10px] font-bold text-slate-400 truncate max-w-[200px] leading-none mt-1">
+                            {post.title || post.url}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="text-right">
+                          <p className="text-sm font-black text-slate-800 leading-tight">
+                            {(post.views || 0).toLocaleString()}
+                          </p>
+                          <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mt-0.5">
+                            Vistas
+                          </p>
+                        </div>
+                        <a
+                          href={post.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-white rounded-xl shadow-sm border border-slate-100 hover:border-indigo-100 transition-all"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                        </a>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

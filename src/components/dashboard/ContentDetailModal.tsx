@@ -212,6 +212,56 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
                 );
               })()}
 
+              {item.coupledPosts && item.coupledPosts.length > 1 && (
+                <div className="mt-8 pt-6 border-t border-slate-100">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">
+                    Publicaciones Acopladas ({item.coupledPosts.length})
+                  </p>
+                  <div className="space-y-3">
+                    {item.coupledPosts.map((post) => {
+                      const postConfig = platformConfig[post.platform as 'youtube'] || { icon: Globe, color: 'text-gray-400', bg: 'bg-gray-50', label: post.platform };
+                      const PostIcon = postConfig.icon;
+                      
+                      return (
+                        <div key={post.id} className="flex items-center justify-between p-3.5 bg-slate-50 border border-slate-100 rounded-2xl hover:border-indigo-100 transition-colors">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className={`w-8 h-8 rounded-xl ${postConfig.bg} flex items-center justify-center`}>
+                              <PostIcon className={`h-4 w-4 ${postConfig.color}`} />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-xs font-black text-slate-800 uppercase tracking-wide truncate max-w-[200px] leading-tight">
+                                {postConfig.label}
+                              </p>
+                              <p className="text-[9px] font-medium text-slate-400 truncate max-w-[200px] leading-none mt-0.5">
+                                {post.title || post.url}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <div className="text-right">
+                              <p className="text-[10px] font-bold text-slate-700 leading-tight">
+                                {(post.views || 0).toLocaleString()}
+                              </p>
+                              <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none mt-0.5">
+                                Vistas
+                              </p>
+                            </div>
+                            <a
+                              href={post.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-white rounded-xl shadow-sm border border-slate-100 hover:border-indigo-100 transition-all"
+                            >
+                              <ExternalLink className="h-3.5 w-3.5" />
+                            </a>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               <div className="mt-12">
                 <a 
                   href={item.url} 

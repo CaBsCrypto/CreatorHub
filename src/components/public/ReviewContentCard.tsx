@@ -5,10 +5,11 @@ import { Content, UserProfile } from '../../supabase';
 import { getProxiedUrl } from '../../utils/urlHelpers';
 
 interface ReviewContentCardProps {
-  item: Content & { coupledPlatforms?: string[] };
+  item: Content & { coupledPlatforms?: string[]; coupledPosts?: Content[] };
   creator: UserProfile | undefined;
   index: number;
   onStreamClick: (thumbnail: string) => void;
+  onCoupledClick?: (item: any) => void;
   lang: 'en' | 'es';
   translations: {
     anonymous: string;
@@ -20,6 +21,7 @@ const ReviewContentCard: React.FC<ReviewContentCardProps> = ({
   creator,
   index,
   onStreamClick,
+  onCoupledClick,
   translations
 }) => {
   const isStream = item.platform === 'twitch' || 
@@ -37,17 +39,21 @@ const ReviewContentCard: React.FC<ReviewContentCardProps> = ({
   };
   const gradient = platformColors[item.platform] || 'from-indigo-600 to-blue-700';
 
+  const handleClick = (e: React.MouseEvent) => {
+    if (item.coupledPosts && item.coupledPosts.length > 1 && onCoupledClick) {
+      e.preventDefault();
+      onCoupledClick(item);
+    } else if ((isStream || isGamenight) && item.thumbnail) {
+      e.preventDefault();
+      onStreamClick(item.thumbnail!);
+    } else {
+      window.open(item.url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   return (
-    <motion.a
-      href={(isStream || isGamenight) ? '#' : item.url}
-      onClick={(e) => { 
-        if ((isStream || isGamenight) && item.thumbnail) { 
-          e.preventDefault(); 
-          onStreamClick(item.thumbnail!); 
-        } 
-      }}
-      target={(isStream || isGamenight) ? undefined : '_blank'}
-      rel="noopener noreferrer"
+    <motion.div
+      onClick={handleClick}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.025 }}
@@ -141,10 +147,22 @@ const ReviewContentCard: React.FC<ReviewContentCardProps> = ({
               <span className="text-[8px] font-black text-slate-500">{(item.comments || 0).toLocaleString()}</span>
             </div>
           )}
-          <ExternalLink className="h-2 w-2 text-gray-200 ml-auto group-hover:text-indigo-400 transition-colors" />
+          {item.coupledPosts && item.coupledPosts.length > 1 ? (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open(item.url, '_blank', 'noopener,noreferrer');
+              }}
+              className="p-1 hover:bg-slate-100 rounded-md transition-all ml-auto text-slate-400 hover:text-indigo-600 flex items-center justify-center"
+            >
+              <ExternalLink className="h-2.5 w-2.5" />
+            </button>
+          ) : (
+            <ExternalLink className="h-2 w-2 text-gray-200 ml-auto group-hover:text-indigo-400 transition-colors" />
+          )}
         </div>
       </div>
-    </motion.a>
+    </motion.div>
   );
 };
 

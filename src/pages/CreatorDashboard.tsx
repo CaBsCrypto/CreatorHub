@@ -451,7 +451,8 @@ export default function CreatorDashboard() {
                                               (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0) || 
                                               (item.thumbnail && (item.thumbnail.includes('supabase.co') || item.thumbnail.includes('content-attachments') || item.thumbnail.includes('storage') || item.thumbnail.includes('supabase.co/storage'))) ||
                                               (item.url && item.url.includes('twitch.tv/stats-'));
-                             if (isStream) setViewingContent(item as any);
+                             const hasCoupled = (item as any).coupledPosts && (item as any).coupledPosts.length > 1;
+                             if (isStream || hasCoupled) setViewingContent(item as any);
                              else window.open(item.url, '_blank');
                          }}
                     />
