@@ -206,13 +206,21 @@ export default function PublicReview() {
     const totalEngagement = content.reduce((s, c) => s + (c.likes || 0) + (c.comments || 0), 0);
     const platforms: Record<string, number> = {};
     const platformStats: Record<string, { views: number; likes: number; comments: number }> = {};
+    const contentIds = new Set(content.map(c => c.id));
     
     content.forEach(c => { 
       if (c.platform) { 
         const p = c.platform.toLowerCase(); 
-        if (!c.is_repost) {
-          platforms[p] = (platforms[p] || 0) + 1;
+        if (!(p in platforms)) {
+          platforms[p] = 0;
         }
+        
+        // Count as unique post if it is not a repost, OR if its parent is not in this campaign content list
+        const isUniqueInCampaign = !c.is_repost || (c.parent_id && !contentIds.has(c.parent_id));
+        if (isUniqueInCampaign) {
+          platforms[p]++;
+        }
+        
         if (!platformStats[p]) {
           platformStats[p] = { views: 0, likes: 0, comments: 0 };
         }
