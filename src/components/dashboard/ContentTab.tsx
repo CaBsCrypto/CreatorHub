@@ -102,6 +102,56 @@ const ContentTab: React.FC<ContentTabProps> = ({
                 className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium text-slate-900 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 transition-all outline-none"
               />
             </div>
+
+            {/* Campaign Select Filter */}
+            <select
+              value={filterCampaign}
+              onChange={(e) => setFilter('campaign', e.target.value)}
+              className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-xs font-bold text-slate-700 uppercase tracking-wider focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 outline-none transition-all cursor-pointer min-w-[130px]"
+            >
+              <option value="all">Campañas: Todas</option>
+              {campaigns.map(c => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+
+            {/* Platform Select Filter */}
+            <select
+              value={filterPlatform}
+              onChange={(e) => setFilter('platform', e.target.value)}
+              className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-xs font-bold text-slate-700 uppercase tracking-wider focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 outline-none transition-all cursor-pointer min-w-[130px]"
+            >
+              <option value="all">Redes: Todas</option>
+              <option value="tiktok">TikTok</option>
+              <option value="instagram">Instagram</option>
+              <option value="youtube">YouTube</option>
+              <option value="stream">Streams</option>
+              <option value="x">X / Twitter</option>
+              <option value="coinmarketcap">CoinMarketCap</option>
+            </select>
+
+            {/* Creator Select Filter */}
+            <select
+              value={filterCreator}
+              onChange={(e) => setFilter('creator', e.target.value)}
+              className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-xs font-bold text-slate-700 uppercase tracking-wider focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 outline-none transition-all cursor-pointer min-w-[170px]"
+            >
+              <option value="all">Creadores: Todos</option>
+              <optgroup label="Personal" className="bg-white text-slate-400">
+                {users.filter(u => u.role !== 'client').map(u => (
+                  <option key={u.id} value={u.id} className="text-slate-700">
+                    {u.admin_alias || u.display_name || u.email.split('@')[0]}
+                  </option>
+                ))}
+              </optgroup>
+              {content.some(c => !c.creator_id && c.guest_name) && (
+                <optgroup label="Invitados" className="bg-white text-slate-400">
+                  {[...new Set(content.filter(c => !c.creator_id && c.guest_name).map(c => c.guest_name))].map(name => (
+                    <option key={name} value={`guest:${name}`} className="text-slate-700">{name}</option>
+                  ))}
+                </optgroup>
+              )}
+            </select>
             
             {/* View Mode Switcher */}
             <div className="flex items-center gap-1 p-1 bg-gray-50 rounded-xl border border-gray-100">
