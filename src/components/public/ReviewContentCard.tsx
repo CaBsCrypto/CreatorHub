@@ -5,7 +5,7 @@ import { Content, UserProfile } from '../../supabase';
 import { getProxiedUrl } from '../../utils/urlHelpers';
 
 interface ReviewContentCardProps {
-  item: Content;
+  item: Content & { coupledPlatforms?: string[] };
   creator: UserProfile | undefined;
   index: number;
   onStreamClick: (thumbnail: string) => void;
@@ -100,7 +100,12 @@ const ReviewContentCard: React.FC<ReviewContentCardProps> = ({
             </div>
             <span className="text-[8px] font-bold text-slate-500 truncate">{creator?.display_name || translations.anonymous}</span>
           </div>
-          <div className="flex gap-1 flex-shrink-0">
+          <div className="flex gap-1 flex-shrink-0 flex-wrap justify-end">
+            {item.coupledPlatforms && item.coupledPlatforms.length > 0 && (
+              <span className="px-1 py-0.5 bg-indigo-600 text-white text-[6px] font-black uppercase tracking-wider rounded shadow-sm">
+                + {item.coupledPlatforms.map(p => p.toUpperCase()).join(' · ')}
+              </span>
+            )}
             {item.is_repost && (
               <span className="px-1 py-0.5 bg-slate-100 border border-slate-200 text-slate-600 text-[6px] font-black uppercase tracking-wider rounded">
                 MISMO POST

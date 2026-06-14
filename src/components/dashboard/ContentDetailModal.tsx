@@ -92,6 +92,11 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
               </h2>
 
               <div className="flex flex-wrap gap-2 mb-8">
+                {item.coupledPlatforms && item.coupledPlatforms.length > 0 && (
+                  <span className="inline-flex items-center px-3 py-1.5 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-wider rounded-xl shadow-sm shadow-indigo-600/10">
+                    + {item.coupledPlatforms.map(p => p.toUpperCase()).join(' · ')}
+                  </span>
+                )}
                 {item.content_type && (
                   <span className="inline-flex items-center px-3 py-1.5 bg-indigo-50 border border-indigo-100 text-indigo-600 text-[10px] font-black uppercase tracking-wider rounded-xl shadow-sm">
                     {item.content_type === 'video_largo' ? 'Video Largo' : 'Video Corto'}

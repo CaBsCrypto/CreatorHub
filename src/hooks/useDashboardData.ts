@@ -35,6 +35,64 @@ export const getAgencyRank = (posts: number, views: number) => {
   return AGENCY_TIERS[0];
 };
 
+function aggregateContentItems(filteredItems: Content[], allItems: Content[]): Content[] {
+  const allGroups = new Map<string, Content[]>();
+  allItems.forEach(item => {
+    const groupId = item.parent_id || item.id;
+    if (!allGroups.has(groupId)) {
+      allGroups.set(groupId, []);
+    }
+    allGroups.get(groupId)!.push(item);
+  });
+
+  const matchedGroupIds = new Set<string>();
+  filteredItems.forEach(item => {
+    const groupId = item.parent_id || item.id;
+    matchedGroupIds.add(groupId);
+  });
+
+  const result: Content[] = [];
+  
+  matchedGroupIds.forEach(groupId => {
+    const groupMembers = allGroups.get(groupId) || [];
+    const filteredGroupMembers = groupMembers.filter(m => filteredItems.some(f => f.id === m.id));
+    if (filteredGroupMembers.length === 0) return;
+    
+    const masterInFiltered = filteredGroupMembers.find(m => m.id === groupId);
+    const representative = masterInFiltered || filteredGroupMembers[0];
+    
+    const totalViews = groupMembers.reduce((acc, curr) => acc + (curr.views || 0), 0);
+    const totalLikes = groupMembers.reduce((acc, curr) => acc + (curr.likes || 0), 0);
+    const totalComments = groupMembers.reduce((acc, curr) => acc + (curr.comments || 0), 0);
+    const totalUniqueViewers = groupMembers.reduce((acc, curr) => acc + (curr.unique_viewers || 0), 0);
+    const totalPeekViewers = groupMembers.reduce((acc, curr) => acc + (curr.peek_viewers || 0), 0);
+    const totalSharesCount = groupMembers.reduce((acc, curr) => acc + (curr.shares_count || 0), 0);
+    const totalFollowers = groupMembers.reduce((acc, curr) => acc + (curr.followers || 0), 0);
+    const totalNewSubscriptions = groupMembers.reduce((acc, curr) => acc + (curr.new_subscriptions || 0), 0);
+    
+    const otherPlatforms = groupMembers
+      .filter(m => m.id !== representative.id)
+      .map(m => m.platform);
+    const uniqueOtherPlatforms = [...new Set(otherPlatforms)];
+
+    result.push({
+      ...representative,
+      is_repost: false, // Ensure it is treated as master since it represents the group
+      views: totalViews,
+      likes: totalLikes,
+      comments: totalComments,
+      unique_viewers: totalUniqueViewers,
+      peek_viewers: totalPeekViewers,
+      shares_count: totalSharesCount,
+      followers: totalFollowers,
+      new_subscriptions: totalNewSubscriptions,
+      coupledPlatforms: uniqueOtherPlatforms
+    } as any);
+  });
+
+  return result.sort((a, b) => (b.views || 0) - (a.views || 0));
+}
+
 export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform?: string, campaign?: string, creator?: string, showOnlyZeroViews?: boolean }) => {
   const { user } = useAuth();
   const { error: toastError } = useToast();
@@ -273,7 +331,7 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
       
     }
 
-    return result;
+    return aggregateContentItems(result, content);
   }, [content, role, user, filters?.platform, filters?.campaign, filters?.creator, filters?.showOnlyZeroViews]);
 
   const metrics = useMemo(() => {

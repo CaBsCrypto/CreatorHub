@@ -28,6 +28,7 @@ export interface ContentItem {
   content_type?: 'video_largo' | 'video_corto' | null;
   is_repost?: boolean;
   parent_id?: string | null;
+  coupledPlatforms?: string[];
 }
 
 interface ContentCardProps {
@@ -89,6 +90,11 @@ const ContentCard = React.memo(({ item, campaignName, onEdit, onDelete, onClick,
               {item.platform === 'twitch' ? 'stream' : item.platform === 'discord' ? 'jornada' : item.platform === 'instagram_story' ? 'historia ig' : item.platform}
             </span>
           </div>
+          {item.coupledPlatforms && item.coupledPlatforms.length > 0 && (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 text-white rounded-xl shadow-sm">
+              <span className="text-[9px] font-black uppercase tracking-widest">+ {item.coupledPlatforms.map(p => p.toUpperCase()).join(' · ')}</span>
+            </div>
+          )}
           {item.is_repost && (
             <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 border border-slate-200 text-slate-600 rounded-xl shadow-sm">
               <span className="text-[9px] font-black uppercase tracking-widest">MISMO POST</span>
