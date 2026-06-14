@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { X, Download, Youtube, Instagram, Twitter, Globe, Zap, Users, Music2, FileSpreadsheet, Star } from 'lucide-react';
+import { X, Download, Youtube, Instagram, Twitter, Globe, Zap, Users, Music2, FileSpreadsheet, Star, BarChart3 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Campaign, Content, UserProfile } from '../../supabase';
 import { useToast } from '../../hooks/useToast';
@@ -97,6 +97,14 @@ export default function CampaignReportModal({
     const platformCounts = { ...defaultPlatforms };
     let totalViews = 0;
     
+    // Platform-specific engagement stats
+    const platformStats: Record<string, {
+      posts: number;
+      views: number;
+      likes: number;
+      comments: number;
+    }> = {};
+
     // Group by creator
     const creatorStats: Record<string, {
       user: UserProfile | undefined,
@@ -112,6 +120,17 @@ export default function CampaignReportModal({
         platformCounts[p as keyof typeof platformCounts]++;
       }
       totalViews += (item.views || 0);
+
+      // Platform stats aggregation
+      if (p) {
+        if (!platformStats[p]) {
+          platformStats[p] = { posts: 0, views: 0, likes: 0, comments: 0 };
+        }
+        platformStats[p].posts++;
+        platformStats[p].views += (item.views || 0);
+        platformStats[p].likes += (item.likes || 0);
+        platformStats[p].comments += (item.comments || 0);
+      }
 
       // Creator totals
       if (item.creator_id) {
@@ -132,7 +151,7 @@ export default function CampaignReportModal({
       }
     });
 
-    return { platformCounts, totalViews, creatorStats: Object.values(creatorStats) };
+    return { platformCounts, totalViews, platformStats, creatorStats: Object.values(creatorStats) };
   }, [campaignContent, users]);
 
   const handleCopyToClipboard = async () => {
@@ -447,6 +466,64 @@ export default function CampaignReportModal({
                   })}
                   {campaignContent.length === 0 && <span className="text-xs text-slate-500">Sin contenido publicado</span>}
                 </div>
+              </div>
+            </div>
+
+            {/* Platform Engagement Breakdown */}
+            <div className="mb-8">
+              <h3 className="text-sm font-black text-white uppercase tracking-[0.2em] flex items-center gap-2 mb-4">
+                <BarChart3 className="h-4 w-4 text-indigo-400" /> Engagement por Plataforma
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Object.entries(stats.platformStats).map(([platform, data]) => {
+                  if (data.posts === 0) return null;
+                  
+                  const getPlatformLabel = (p: string) => {
+                    switch (p) {
+                      case 'tiktok': return 'TikTok';
+                      case 'instagram': return 'Instagram';
+                      case 'instagram_story': return 'Instagram Story';
+                      case 'youtube': return 'YouTube';
+                      case 'x': return 'X (Twitter)';
+                      case 'x_video': return 'X Video';
+                      case 'twitch': return 'Twitch';
+                      case 'coinmarketcap': return 'CoinMarketCap';
+                      default: return p.toUpperCase();
+                    }
+                  };
+
+                  return (
+                    <div key={platform} className="bg-white/5 p-5 rounded-3xl border border-slate-200/50 shadow-sm flex flex-col justify-between hover:bg-white/10 transition-all duration-300">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                            <PlatformIcon platform={platform} className="h-4 w-4" />
+                          </div>
+                          <span className="text-xs font-black uppercase text-white tracking-wider">
+                            {getPlatformLabel(platform)}
+                          </span>
+                        </div>
+                        <span className="px-2.5 py-1 rounded-xl text-[9px] font-black uppercase tracking-wider bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                          {data.posts} {data.posts === 1 ? 'Post' : 'Posts'}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2 border-t border-white/5 pt-3">
+                        <div className="text-center">
+                          <p className="text-[9px] font-black text-slate-500 uppercase tracking-wider mb-0.5">Vistas</p>
+                          <p className="text-xs font-black text-white">{data.views.toLocaleString()}</p>
+                        </div>
+                        <div className="text-center border-x border-white/5">
+                          <p className="text-[9px] font-black text-slate-500 uppercase tracking-wider mb-0.5">Likes</p>
+                          <p className="text-xs font-black text-white">{data.likes.toLocaleString()}</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-[9px] font-black text-slate-500 uppercase tracking-wider mb-0.5">Comentarios</p>
+                          <p className="text-xs font-black text-white">{data.comments.toLocaleString()}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 

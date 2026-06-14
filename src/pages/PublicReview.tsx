@@ -205,8 +205,23 @@ export default function PublicReview() {
     const totalViews = content.reduce((s, c) => s + (c.views || 0), 0);
     const totalEngagement = content.reduce((s, c) => s + (c.likes || 0) + (c.comments || 0), 0);
     const platforms: Record<string, number> = {};
-    content.forEach(c => { if (c.platform && !c.is_repost) { const p = c.platform.toLowerCase(); platforms[p] = (platforms[p] || 0) + 1; } });
-    return { totalViews, totalEngagement, platforms };
+    const platformStats: Record<string, { views: number; likes: number; comments: number }> = {};
+    
+    content.forEach(c => { 
+      if (c.platform) { 
+        const p = c.platform.toLowerCase(); 
+        if (!c.is_repost) {
+          platforms[p] = (platforms[p] || 0) + 1;
+        }
+        if (!platformStats[p]) {
+          platformStats[p] = { views: 0, likes: 0, comments: 0 };
+        }
+        platformStats[p].views += (c.views || 0);
+        platformStats[p].likes += (c.likes || 0);
+        platformStats[p].comments += (c.comments || 0);
+      } 
+    });
+    return { totalViews, totalEngagement, platforms, platformStats };
   }, [campaign, content]);
 
   const filteredContent = useMemo(() => {
