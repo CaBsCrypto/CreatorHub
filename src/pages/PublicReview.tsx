@@ -63,10 +63,8 @@ function aggregateContentItems(filteredItems: Content[], allItems: Content[]): C
     const totalFollowers = groupMembers.reduce((acc, curr) => acc + (curr.followers || 0), 0);
     const totalNewSubscriptions = groupMembers.reduce((acc, curr) => acc + (curr.new_subscriptions || 0), 0);
     
-    const otherPlatforms = groupMembers
-      .filter(m => m.id !== representative.id)
-      .map(m => m.platform);
-    const uniqueOtherPlatforms = [...new Set(otherPlatforms)];
+    const allPlatforms = groupMembers.map(m => m.platform);
+    const uniqueGroupPlatforms = [...new Set(allPlatforms)];
 
     result.push({
       ...representative,
@@ -79,7 +77,8 @@ function aggregateContentItems(filteredItems: Content[], allItems: Content[]): C
       shares_count: totalSharesCount,
       followers: totalFollowers,
       new_subscriptions: totalNewSubscriptions,
-      coupledPlatforms: uniqueOtherPlatforms
+      coupledPlatforms: uniqueGroupPlatforms,
+      coupledPosts: groupMembers
     } as any);
   });
 
@@ -371,7 +370,13 @@ export default function PublicReview() {
                   const PostIcon = postConfig.icon;
 
                   return (
-                    <div key={post.id} className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-2xl hover:border-indigo-100 transition-all">
+                    <a
+                      key={post.id}
+                      href={post.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-2xl hover:border-indigo-200 hover:bg-indigo-50/20 transition-all cursor-pointer text-left group"
+                    >
                       <div className="flex items-center gap-3 min-w-0">
                         <div className={`w-10 h-10 rounded-xl ${postConfig.bg} flex items-center justify-center`}>
                           <PostIcon className={`h-5 w-5 ${postConfig.color}`} />
@@ -385,25 +390,39 @@ export default function PublicReview() {
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <div className="text-right">
-                          <p className="text-sm font-black text-slate-800 leading-tight">
+                      <div className="flex items-center gap-3 shrink-0">
+                        {/* Views */}
+                        <div className="text-right min-w-[50px]">
+                          <p className="text-xs font-black text-slate-800 leading-tight">
                             {(post.views || 0).toLocaleString()}
                           </p>
-                          <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mt-0.5">
+                          <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none mt-0.5">
                             Vistas
                           </p>
                         </div>
-                        <a
-                          href={post.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-white rounded-xl shadow-sm border border-slate-100 hover:border-indigo-100 transition-all"
-                        >
+                        {/* Likes */}
+                        <div className="text-right min-w-[45px]">
+                          <p className="text-xs font-black text-slate-700 leading-tight">
+                            {(post.likes || 0).toLocaleString()}
+                          </p>
+                          <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none mt-0.5">
+                            Likes
+                          </p>
+                        </div>
+                        {/* Comments */}
+                        <div className="text-right min-w-[45px]">
+                          <p className="text-xs font-black text-slate-700 leading-tight">
+                            {(post.comments || 0).toLocaleString()}
+                          </p>
+                          <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none mt-0.5">
+                            Coment.
+                          </p>
+                        </div>
+                        <div className="p-2 text-slate-400 group-hover:text-indigo-650 group-hover:bg-white rounded-xl shadow-sm border border-slate-100 group-hover:border-indigo-200 transition-all">
                           <ExternalLink className="h-4 w-4" />
-                        </a>
+                        </div>
                       </div>
-                    </div>
+                    </a>
                   );
                 })}
               </div>

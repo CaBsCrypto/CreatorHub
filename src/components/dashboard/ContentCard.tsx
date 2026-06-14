@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 export interface ContentItem {
   id: string;
   campaign_id: string;
-  platform: 'youtube' | 'instagram' | 'tiktok' | 'x' | 'coinmarketcap' | 'twitch' | 'discord' | 'baseapp';
+  platform: 'youtube' | 'instagram' | 'tiktok' | 'x' | 'coinmarketcap' | 'twitch' | 'discord' | 'baseapp' | 'instagram_story' | 'stream';
   url: string;
   title: string | null;
   description?: string | null;
@@ -29,6 +29,7 @@ export interface ContentItem {
   is_repost?: boolean;
   parent_id?: string | null;
   coupledPlatforms?: string[];
+  coupledPosts?: any[];
 }
 
 interface ContentCardProps {
@@ -64,7 +65,11 @@ const ContentCard = React.memo(({ item, campaignName, onEdit, onDelete, onClick,
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.03 * index, duration: 0.5 }}
       onClick={onClick}
-      className="group relative flex flex-col rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer overflow-hidden"
+      className={`group relative flex flex-col rounded-2xl bg-white transition-all duration-300 cursor-pointer overflow-hidden ${
+        (item.coupledPlatforms && item.coupledPlatforms.length > 1)
+          ? 'border-[3px] border-indigo-200 hover:border-indigo-400 hover:shadow-md'
+          : 'border border-gray-100 hover:border-indigo-100 hover:shadow-md'
+      }`}
     >
       {/* Thumbnail / Platform Header */}
       <div className="relative h-44 w-full bg-gray-50 flex items-center justify-center overflow-hidden border-b border-gray-50">
@@ -90,9 +95,9 @@ const ContentCard = React.memo(({ item, campaignName, onEdit, onDelete, onClick,
               {item.platform === 'twitch' ? 'stream' : item.platform === 'discord' ? 'jornada' : item.platform === 'instagram_story' ? 'historia ig' : item.platform}
             </span>
           </div>
-          {item.coupledPlatforms && item.coupledPlatforms.length > 0 && (
+          {item.coupledPlatforms && item.coupledPlatforms.length > 1 && (
             <div className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 text-white rounded-xl shadow-sm">
-              <span className="text-[9px] font-black uppercase tracking-widest">+ {item.coupledPlatforms.map(p => p.toUpperCase()).join(' · ')}</span>
+              <span className="text-[9px] font-black uppercase tracking-widest">MULTIPLATAFORMA</span>
             </div>
           )}
           {item.is_repost && (

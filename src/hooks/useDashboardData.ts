@@ -70,10 +70,8 @@ function aggregateContentItems(filteredItems: Content[], allItems: Content[]): C
     const totalFollowers = groupMembers.reduce((acc, curr) => acc + (curr.followers || 0), 0);
     const totalNewSubscriptions = groupMembers.reduce((acc, curr) => acc + (curr.new_subscriptions || 0), 0);
     
-    const otherPlatforms = groupMembers
-      .filter(m => m.id !== representative.id)
-      .map(m => m.platform);
-    const uniqueOtherPlatforms = [...new Set(otherPlatforms)];
+    const allPlatforms = groupMembers.map(m => m.platform);
+    const uniqueGroupPlatforms = [...new Set(allPlatforms)];
 
     result.push({
       ...representative,
@@ -86,7 +84,8 @@ function aggregateContentItems(filteredItems: Content[], allItems: Content[]): C
       shares_count: totalSharesCount,
       followers: totalFollowers,
       new_subscriptions: totalNewSubscriptions,
-      coupledPlatforms: uniqueOtherPlatforms
+      coupledPlatforms: uniqueGroupPlatforms,
+      coupledPosts: groupMembers
     } as any);
   });
 

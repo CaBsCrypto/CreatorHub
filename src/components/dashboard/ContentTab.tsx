@@ -239,11 +239,16 @@ const ContentTab: React.FC<ContentTabProps> = ({
                                   item.platform === 'instagram_story' || 
                                   (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0) || 
                                   (item.thumbnail && (item.thumbnail.includes('supabase.co') || item.thumbnail.includes('content-attachments') || item.thumbnail.includes('storage') || item.thumbnail.includes('supabase.co/storage'))) ||
-                                  (item.url && item.url.includes('twitch.tv/stats-'));
+                                  (item.url && item.url.includes('twitch.tv/stats-')) ||
+                                  (item.coupledPosts && item.coupledPosts.length > 1);
                   if (isPopup) setViewingContent(item as any);
                   else window.open(item.url, '_blank');
                 }}
-                className="aspect-square rounded-2xl overflow-hidden border border-gray-100 hover:border-indigo-200 transition-all duration-300 group relative cursor-pointer bg-gray-50"
+                className={`aspect-square rounded-2xl overflow-hidden transition-all duration-300 group relative cursor-pointer bg-gray-50 ${
+                  (item.coupledPlatforms && item.coupledPlatforms.length > 1)
+                    ? 'border-[3px] border-indigo-200 hover:border-indigo-400 hover:shadow-md'
+                    : 'border border-gray-100 hover:border-indigo-200 hover:shadow-md'
+                }`}
               >
                 {item.thumbnail ? (
                   <img src={item.thumbnail} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
@@ -252,6 +257,21 @@ const ContentTab: React.FC<ContentTabProps> = ({
                     <ImageIcon className="h-6 w-6 text-slate-200 group-hover:text-indigo-400 transition-colors" />
                   </div>
                 )}
+                
+                {/* Badges on top of thumbnail in gallery view */}
+                <div className="absolute top-2 left-2 z-10 flex flex-wrap gap-1">
+                  {item.coupledPlatforms && item.coupledPlatforms.length > 1 && (
+                    <span className="px-1.5 py-0.5 bg-indigo-650 text-white text-[7px] font-black uppercase tracking-wider rounded shadow-sm">
+                      MULTIPLATAFORMA
+                    </span>
+                  )}
+                  {item.is_repost && (
+                    <span className="px-1.5 py-0.5 bg-slate-100 border border-slate-200 text-slate-600 text-[7px] font-black uppercase tracking-wider rounded shadow-sm">
+                      MISMO POST
+                    </span>
+                  )}
+                </div>
+
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-4 flex flex-col justify-end">
                   <p className="text-[10px] font-black text-white line-clamp-1 uppercase tracking-tight">{item.title || 'Sin título'}</p>
                 </div>
@@ -269,11 +289,16 @@ const ContentTab: React.FC<ContentTabProps> = ({
                                   item.platform === 'instagram_story' || 
                                   (item.platform === 'tiktok' && (item.duration_minutes || 0) > 0) || 
                                   (item.thumbnail && (item.thumbnail.includes('supabase.co') || item.thumbnail.includes('content-attachments') || item.thumbnail.includes('storage') || item.thumbnail.includes('supabase.co/storage'))) ||
-                                  (item.url && item.url.includes('twitch.tv/stats-'));
+                                  (item.url && item.url.includes('twitch.tv/stats-')) ||
+                                  (item.coupledPosts && item.coupledPosts.length > 1);
                   if (isPopup) setViewingContent(item as any);
                   else window.open(item.url, '_blank');
                 }}
-                className="bg-white px-5 py-4 rounded-xl border border-gray-100 flex items-center hover:border-indigo-100 hover:shadow-md transition-all duration-300 group gap-6 cursor-pointer"
+                className={`bg-white px-5 py-4 rounded-xl flex items-center hover:shadow-md transition-all duration-300 group gap-6 cursor-pointer ${
+                  (item.coupledPlatforms && item.coupledPlatforms.length > 1)
+                    ? 'border-[3px] border-indigo-200 hover:border-indigo-400 hover:shadow-indigo-500/10'
+                    : 'border border-gray-100 hover:border-indigo-100 hover:shadow-indigo-500/5'
+                }`}
               >
                 <div className="w-12 h-12 bg-gray-50 rounded-lg overflow-hidden flex items-center justify-center border border-gray-50 shrink-0">
                   {item.thumbnail ? (
@@ -289,6 +314,16 @@ const ContentTab: React.FC<ContentTabProps> = ({
                     <span className="text-[9px] font-black text-indigo-500 uppercase tracking-widest">
                       {item.platform}
                     </span>
+                    {item.coupledPlatforms && item.coupledPlatforms.length > 1 && (
+                      <span className="px-1.5 py-0.5 bg-indigo-600 text-white text-[8px] font-black uppercase tracking-wider rounded shadow-sm">
+                        MULTIPLATAFORMA
+                      </span>
+                    )}
+                    {item.is_repost && (
+                      <span className="px-1.5 py-0.5 bg-slate-100 border border-slate-200 text-slate-600 text-[8px] font-black uppercase tracking-wider rounded">
+                        MISMO POST
+                      </span>
+                    )}
                     <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
                       <List className="h-3 w-3" />
                       {campaigns.find(c => c.id === item.campaign_id)?.name || 'Sin campaña'}

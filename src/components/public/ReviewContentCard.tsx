@@ -22,6 +22,7 @@ const ReviewContentCard: React.FC<ReviewContentCardProps> = ({
   index,
   onStreamClick,
   onCoupledClick,
+  lang,
   translations
 }) => {
   const isStream = item.platform === 'twitch' || 
@@ -60,12 +61,14 @@ const ReviewContentCard: React.FC<ReviewContentCardProps> = ({
       className={`bg-white rounded-xl overflow-hidden group hover:shadow-2xl transition-all duration-300 flex flex-col cursor-pointer ${
         isGamenight 
           ? 'ring-2 ring-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.2)] border-none' 
-          : 'border border-gray-100 hover:border-indigo-100 hover:shadow-indigo-500/5'
+          : (item.coupledPlatforms && item.coupledPlatforms.length > 1)
+            ? 'border-[3px] border-indigo-200 hover:border-indigo-400 hover:shadow-indigo-500/10'
+            : 'border border-gray-100 hover:border-indigo-100 hover:shadow-indigo-500/5'
       }`}
     >
       {/* Thumbnail / Color Bar */}
       {(isStream || isGamenight) && item.thumbnail ? (
-        <div className="relative h-16 overflow-hidden flex-shrink-0 bg-slate-900 border-b border-white/5">
+        <div className="relative h-20 overflow-hidden flex-shrink-0 bg-slate-900 border-b border-white/5">
           <img src={getProxiedUrl(item.thumbnail, 'https://cdn-icons-png.flaticon.com/512/174/174855.png')} alt={item.title || 'Stream'} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500 opacity-80" />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
           <span className={`absolute top-1.5 right-1.5 px-1.5 py-0.5 ${isGamenight ? 'bg-indigo-600 shadow-[0_0_8px_rgba(99,102,241,0.6)]' : 'bg-indigo-600'} text-white text-[6px] font-black uppercase tracking-wider rounded flex items-center gap-1`}>
@@ -86,7 +89,7 @@ const ReviewContentCard: React.FC<ReviewContentCardProps> = ({
           </div>
         </div>
       ) : item.thumbnail ? (
-        <div className="relative h-14 overflow-hidden flex-shrink-0 bg-gray-50">
+        <div className="relative h-20 overflow-hidden flex-shrink-0 bg-gray-50">
           <img src={getProxiedUrl(item.thumbnail, 'https://cdn-icons-png.flaticon.com/512/174/174855.png')} alt={item.title || ''} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
         </div>
@@ -94,57 +97,60 @@ const ReviewContentCard: React.FC<ReviewContentCardProps> = ({
         <div className={`h-1.5 w-full bg-gradient-to-r ${gradient} flex-shrink-0`} />
       )}
 
-      <div className="p-2 flex flex-col gap-1 flex-1">
-        {/* Creator + platform row */}
-        <div className="flex items-center justify-between gap-1">
-          <div className="flex items-center gap-1 min-w-0">
-            <div className={`w-4 h-4 rounded-full flex items-center justify-center text-[7px] font-black text-white overflow-hidden flex-shrink-0 ${!creator?.photo_url ? `bg-gradient-to-br ${gradient}` : ''}`}>
-              {creator?.photo_url
-                ? <img src={creator.photo_url} alt="" className="w-full h-full object-cover" />
-                : (creator?.display_name || '?').charAt(0).toUpperCase()
-              }
-            </div>
-            <span className="text-[8px] font-bold text-slate-500 truncate">{creator?.display_name || translations.anonymous}</span>
+      <div className="p-3 flex flex-col gap-1.5 flex-1">
+        {/* Creator Info Row */}
+        <div className="flex items-center gap-1.5 min-w-0">
+          <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-black text-white overflow-hidden flex-shrink-0 ${!creator?.photo_url ? `bg-gradient-to-br ${gradient}` : ''}`}>
+            {creator?.photo_url
+              ? <img src={creator.photo_url} alt="" className="w-full h-full object-cover" />
+              : (creator?.display_name || '?').charAt(0).toUpperCase()
+            }
           </div>
-          <div className="flex gap-1 flex-shrink-0 flex-wrap justify-end">
-            {item.coupledPlatforms && item.coupledPlatforms.length > 0 && (
-              <span className="px-1 py-0.5 bg-indigo-600 text-white text-[6px] font-black uppercase tracking-wider rounded shadow-sm">
-                + {item.coupledPlatforms.map(p => p.toUpperCase()).join(' · ')}
+          <span className="text-[9px] font-bold text-slate-600 truncate">{creator?.display_name || translations.anonymous}</span>
+        </div>
+
+        {/* Badges Row (Mismo Post, Platforms, Formato) */}
+        {( (item.coupledPlatforms && item.coupledPlatforms.length > 0) || item.is_repost || item.content_type ) && (
+          <div className="flex flex-wrap gap-1">
+            {item.coupledPlatforms && item.coupledPlatforms.length > 1 && (
+              <span className="px-1.5 py-0.5 bg-indigo-600 text-white text-[6px] font-black uppercase tracking-wider rounded shadow-sm">
+                {lang === 'en' ? 'MULTIPLATFORM' : 'MULTIPLATAFORMA'}
               </span>
             )}
             {item.is_repost && (
-              <span className="px-1 py-0.5 bg-slate-100 border border-slate-200 text-slate-600 text-[6px] font-black uppercase tracking-wider rounded">
+              <span className="px-1.5 py-0.5 bg-slate-100 border border-slate-200 text-slate-600 text-[6px] font-black uppercase tracking-wider rounded">
                 MISMO POST
               </span>
             )}
             {item.content_type && (
-              <span className="px-1 py-0.5 bg-indigo-50 border border-indigo-100 text-indigo-600 text-[6px] font-black uppercase tracking-wider rounded">
+              <span className="px-1.5 py-0.5 bg-indigo-50 border border-indigo-100 text-indigo-600 text-[6px] font-black uppercase tracking-wider rounded">
                 {item.content_type === 'video_largo' ? 'LARGO' : 'CORTO'}
               </span>
             )}
           </div>
-        </div>
+        )}
+
         {/* Title */}
-        <p className="text-[9px] font-bold text-slate-800 line-clamp-2 leading-tight flex-1">
+        <p className="text-[10px] font-bold text-slate-800 line-clamp-2 leading-snug flex-1">
           {item.title || (isStream ? `Stream · ${new Date(item.uploaded_at || item.created_at).toLocaleDateString()}` : '—')}
         </p>
 
         {/* Stats row */}
-        <div className="flex items-center gap-2 pt-1 border-t border-gray-50">
-          <div className="flex items-center gap-1">
-            <Eye className="h-2 w-2 text-gray-300" />
-            <span className="text-[8px] font-black text-slate-900">{(item.views ?? 0).toLocaleString()}</span>
+        <div className="flex items-center gap-2 pt-2 border-t border-gray-100 mt-1 min-w-0 w-full overflow-hidden">
+          <div className="flex items-center gap-0.5 shrink-0">
+            <Eye className="h-2.5 w-2.5 text-slate-300 shrink-0" />
+            <span className="text-[8px] font-bold text-slate-700">{(item.views ?? 0).toLocaleString()}</span>
           </div>
           {(!isStream || item.platform === 'instagram_story') && (item.likes || 0) > 0 && (
-            <div className="flex items-center gap-1">
-              <Heart className="h-2 w-2 text-gray-300" />
-              <span className="text-[8px] font-black text-slate-500">{(item.likes || 0).toLocaleString()}</span>
+            <div className="flex items-center gap-0.5 shrink-0">
+              <Heart className="h-2.5 w-2.5 text-slate-300 shrink-0" />
+              <span className="text-[8px] font-bold text-slate-500">{(item.likes || 0).toLocaleString()}</span>
             </div>
           )}
           {(!isStream || item.platform === 'instagram_story') && (item.comments || 0) > 0 && (
-            <div className="flex items-center gap-1">
-              <MessageSquare className="h-2 w-2 text-gray-300" />
-              <span className="text-[8px] font-black text-slate-500">{(item.comments || 0).toLocaleString()}</span>
+            <div className="flex items-center gap-0.5 shrink-0">
+              <MessageSquare className="h-2.5 w-2.5 text-slate-300 shrink-0" />
+              <span className="text-[8px] font-bold text-slate-500">{(item.comments || 0).toLocaleString()}</span>
             </div>
           )}
           {item.coupledPosts && item.coupledPosts.length > 1 ? (
@@ -153,12 +159,12 @@ const ReviewContentCard: React.FC<ReviewContentCardProps> = ({
                 e.stopPropagation();
                 window.open(item.url, '_blank', 'noopener,noreferrer');
               }}
-              className="p-1 hover:bg-slate-100 rounded-md transition-all ml-auto text-slate-400 hover:text-indigo-600 flex items-center justify-center"
+              className="p-1 hover:bg-slate-50 rounded-lg transition-all ml-auto text-slate-400 hover:text-indigo-600 flex items-center justify-center shrink-0"
             >
-              <ExternalLink className="h-2.5 w-2.5" />
+              <ExternalLink className="h-3 w-3" />
             </button>
           ) : (
-            <ExternalLink className="h-2 w-2 text-gray-200 ml-auto group-hover:text-indigo-400 transition-colors" />
+            <ExternalLink className="h-2.5 w-2.5 text-slate-300 ml-auto group-hover:text-indigo-500 transition-colors shrink-0" />
           )}
         </div>
       </div>
