@@ -68,7 +68,7 @@ const PublicContentGrid: React.FC<PublicContentGridProps> = ({
         </div>
         <button
           onClick={() => setShowPlatformsModal(true)}
-          className="w-12 h-12 flex items-center justify-center bg-white/5 rounded-2xl border border-white/10 text-gray-400 hover:text-indigo-400 hover:border-indigo-500/30 transition-all"
+          className="w-12 h-12 flex items-center justify-center bg-indigo-600 rounded-2xl text-white shadow-lg shadow-indigo-600/30 active:scale-95 transition-all hover:bg-indigo-700 hover:shadow-indigo-600/50 shrink-0"
         >
           <PieChart className="h-5 w-5" />
         </button>
