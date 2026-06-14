@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Award, StickyNote, Eye } from 'lucide-react';
+import { X, Award, StickyNote, Eye, Heart, MessageSquare } from 'lucide-react';
 import { Content, UserProfile, Campaign } from '../../supabase';
 import { getProxiedUrl } from '../../utils/urlHelpers';
 import { getPlatformIcon, getPlatformColor } from '../../utils/platformUtils';
@@ -119,11 +119,19 @@ const PublicModals: React.FC<PublicModalsProps> = ({
                           <span className={`font-black capitalize leading-tight ${filterPlatform === lowerPlatform ? 'text-white' : 'text-slate-700'}`}>
                             {lowerPlatform === 'coinmarketcap' ? 'CMC' : lowerPlatform === 'twitch' ? 'Stream' : platform}
                           </span>
-                          <span className={`text-[9px] font-bold mt-0.5 whitespace-nowrap truncate ${
-                            filterPlatform === lowerPlatform ? 'text-white/80' : 'text-slate-400'
-                          }`}>
-                            {pStats ? `${formatCompact(pStats.views)} views • ${formatCompact(pStats.likes)} likes • ${formatCompact(pStats.comments)} comments` : '0 views'}
-                          </span>
+                          {pStats && (
+                            <div className="flex items-center gap-2 mt-1 min-w-0 flex-wrap">
+                              <span className={`flex items-center gap-0.5 text-[10px] font-bold ${filterPlatform === lowerPlatform ? 'text-white/80' : 'text-slate-400'}`}>
+                                <Eye className="h-3 w-3 opacity-70" /> {formatCompact(pStats.views)}
+                              </span>
+                              <span className={`flex items-center gap-0.5 text-[10px] font-bold ${filterPlatform === lowerPlatform ? 'text-white/80' : 'text-slate-400'}`}>
+                                <Heart className="h-3 w-3 opacity-70" /> {formatCompact(pStats.likes)}
+                              </span>
+                              <span className={`flex items-center gap-0.5 text-[10px] font-bold ${filterPlatform === lowerPlatform ? 'text-white/80' : 'text-slate-400'}`}>
+                                <MessageSquare className="h-3 w-3 opacity-70" /> {formatCompact(pStats.comments)}
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
                       <span className={`text-xs font-black px-2 py-0.5 rounded-lg shrink-0 ${

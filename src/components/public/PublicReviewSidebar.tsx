@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, TrendingUp } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Eye, Heart, MessageSquare } from 'lucide-react';
 import { getPlatformIcon, getPlatformColor } from '../../utils/platformUtils';
 import { UserProfile } from '../../supabase';
 
@@ -50,7 +50,7 @@ const PublicReviewSidebar: React.FC<PublicReviewSidebarProps> = ({
             const pStats = stats?.platformStats?.[lowerPlatform];
             return (
               <button key={platform} onClick={() => setFilters({ platform, section: 'content' })}
-                className={`w-full flex items-center justify-between p-3 rounded-2xl transition-all duration-200 border gap-3 ${
+                className={`w-full flex items-center justify-between p-3.5 rounded-2xl transition-all duration-200 border gap-3 ${
                   filterPlatform === lowerPlatform
                     ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-100'
                     : 'bg-white border-gray-50 hover:bg-gray-50 hover:border-gray-200'
@@ -66,11 +66,19 @@ const PublicReviewSidebar: React.FC<PublicReviewSidebarProps> = ({
                     <span className={`text-sm font-black capitalize leading-tight ${filterPlatform === lowerPlatform ? 'text-white' : 'text-slate-700'}`}>
                       {lowerPlatform === 'coinmarketcap' ? 'CMC' : lowerPlatform === 'twitch' ? 'Stream' : platform}
                     </span>
-                    <span className={`text-[9px] font-bold mt-0.5 whitespace-nowrap truncate ${
-                      filterPlatform === lowerPlatform ? 'text-white/80' : 'text-slate-400'
-                    }`}>
-                      {pStats ? `${formatCompact(pStats.views)} views • ${formatCompact(pStats.likes)} likes • ${formatCompact(pStats.comments)} comments` : '0 views'}
-                    </span>
+                    {pStats && (
+                      <div className="flex items-center gap-2 mt-1 min-w-0 flex-wrap">
+                        <span className={`flex items-center gap-0.5 text-[10px] font-bold ${filterPlatform === lowerPlatform ? 'text-white/80' : 'text-slate-400'}`}>
+                          <Eye className="h-3 w-3 opacity-70" /> {formatCompact(pStats.views)}
+                        </span>
+                        <span className={`flex items-center gap-0.5 text-[10px] font-bold ${filterPlatform === lowerPlatform ? 'text-white/80' : 'text-slate-400'}`}>
+                          <Heart className="h-3 w-3 opacity-70" /> {formatCompact(pStats.likes)}
+                        </span>
+                        <span className={`flex items-center gap-0.5 text-[10px] font-bold ${filterPlatform === lowerPlatform ? 'text-white/80' : 'text-slate-400'}`}>
+                          <MessageSquare className="h-3 w-3 opacity-70" /> {formatCompact(pStats.comments)}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <span className={`text-xs font-black px-2 py-0.5 rounded-lg shrink-0 ${
