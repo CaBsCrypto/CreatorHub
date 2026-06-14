@@ -50,54 +50,34 @@ const PublicReviewSidebar: React.FC<PublicReviewSidebarProps> = ({
             const pStats = stats?.platformStats?.[lowerPlatform];
             return (
               <button key={platform} onClick={() => setFilters({ platform, section: 'content' })}
-                className={`w-full flex flex-col p-2.5 rounded-xl transition-all duration-200 border gap-1.5 ${
+                className={`w-full flex items-center justify-between p-3 rounded-2xl transition-all duration-200 border gap-3 ${
                   filterPlatform === lowerPlatform
                     ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-100'
                     : 'bg-white border-gray-50 hover:bg-gray-50 hover:border-gray-200'
                 }`}
               >
-                {/* Header Row */}
-                <div className="w-full flex items-center justify-between">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <div className={`w-7 h-7 rounded-lg flex-shrink-0 flex items-center justify-center ${
-                      filterPlatform === lowerPlatform ? 'bg-white/20 text-white' : getPlatformColor(platform)
-                    }`}>
-                      {getPlatformIcon(platform, 'h-3.5 w-3.5')}
-                    </div>
-                    <span className={`text-xs font-black capitalize leading-tight ${filterPlatform === lowerPlatform ? 'text-white' : 'text-slate-700'}`}>
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className={`w-8 h-8 rounded-xl flex-shrink-0 flex items-center justify-center ${
+                    filterPlatform === lowerPlatform ? 'bg-white/20 text-white' : getPlatformColor(platform)
+                  }`}>
+                    {getPlatformIcon(platform, 'h-4 w-4')}
+                  </div>
+                  <div className="flex flex-col text-left min-w-0">
+                    <span className={`text-sm font-black capitalize leading-tight ${filterPlatform === lowerPlatform ? 'text-white' : 'text-slate-700'}`}>
                       {lowerPlatform === 'coinmarketcap' ? 'CMC' : lowerPlatform === 'twitch' ? 'Stream' : platform}
                     </span>
+                    <span className={`text-[9px] font-bold mt-0.5 whitespace-nowrap truncate ${
+                      filterPlatform === lowerPlatform ? 'text-white/80' : 'text-slate-400'
+                    }`}>
+                      {pStats ? `${formatCompact(pStats.views)} views • ${formatCompact(pStats.likes)} likes • ${formatCompact(pStats.comments)} comments` : '0 views'}
+                    </span>
                   </div>
-                  <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded shrink-0 ${
-                    filterPlatform === lowerPlatform ? 'bg-white/20 text-white' : 'bg-gray-50 text-slate-400 border border-gray-100'
-                  }`}>
-                    {count} {count === 1 ? 'post' : 'posts'}
-                  </span>
                 </div>
-
-                {/* Metrics Row / Grid */}
-                <div className={`grid grid-cols-3 gap-1 w-full pt-1.5 border-t ${
-                  filterPlatform === lowerPlatform ? 'border-white/10' : 'border-gray-100'
+                <span className={`text-xs font-black px-2 py-0.5 rounded-lg shrink-0 ${
+                  filterPlatform === lowerPlatform ? 'bg-white/20 text-white' : 'bg-gray-50 text-slate-400 border border-gray-100'
                 }`}>
-                  <div className="text-left">
-                    <p className={`text-[7px] font-black uppercase tracking-wider ${filterPlatform === lowerPlatform ? 'text-white/60' : 'text-slate-400'}`}>Views</p>
-                    <p className={`text-[10px] font-black mt-0.5 ${filterPlatform === lowerPlatform ? 'text-white' : 'text-slate-700'}`}>
-                      {pStats ? formatCompact(pStats.views) : '0'}
-                    </p>
-                  </div>
-                  <div className="text-center">
-                    <p className={`text-[7px] font-black uppercase tracking-wider ${filterPlatform === lowerPlatform ? 'text-white/60' : 'text-slate-400'}`}>Likes</p>
-                    <p className={`text-[10px] font-black mt-0.5 ${filterPlatform === lowerPlatform ? 'text-white' : 'text-slate-700'}`}>
-                      {pStats ? formatCompact(pStats.likes) : '0'}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className={`text-[7px] font-black uppercase tracking-wider ${filterPlatform === lowerPlatform ? 'text-white/60' : 'text-slate-400'}`}>Comments</p>
-                    <p className={`text-[10px] font-black mt-0.5 ${filterPlatform === lowerPlatform ? 'text-white' : 'text-slate-700'}`}>
-                      {pStats ? formatCompact(pStats.comments) : '0'}
-                    </p>
-                  </div>
-                </div>
+                  {count}
+                </span>
               </button>
             );
           })}
