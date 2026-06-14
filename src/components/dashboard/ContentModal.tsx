@@ -199,7 +199,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
       try {
         const { data, error } = await supabase
           .from('content')
-          .select('id, title, url, platform, creator_id, guest_name, parent_id')
+          .select('id, title, url, platform, creator_id, guest_name, parent_id, content_type')
           .eq('campaign_id', formData.campaign_id)
           .is('deleted_at', null);
         if (!error && data) {
@@ -478,7 +478,15 @@ const ContentModal: React.FC<ContentModalProps> = ({
                         <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 ml-1">Publicación Principal</label>
                         <select
                           value={formData.parent_id || ''}
-                          onChange={(e) => setFormData({ ...formData, parent_id: e.target.value || null })}
+                          onChange={(e) => {
+                            const parentId = e.target.value;
+                            const parentPost = linkableContents.find(c => c.id === parentId);
+                            setFormData({ 
+                              ...formData, 
+                              parent_id: parentId || null,
+                              content_type: parentPost ? parentPost.content_type : formData.content_type
+                            });
+                          }}
                           className="block w-full rounded-xl border border-gray-100 bg-white py-2 px-3 text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300"
                         >
                           <option value="">Seleccionar Publicación Principal</option>
@@ -593,12 +601,18 @@ const ContentModal: React.FC<ContentModalProps> = ({
                     <select
                       value={formData.content_type || ''}
                       onChange={(e) => setFormData({ ...formData, content_type: (e.target.value as any) || null })}
-                      className="block w-full rounded-xl border border-gray-100 bg-gray-50 py-3.5 px-4 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 cursor-pointer"
+                      disabled={formData.is_repost}
+                      className="block w-full rounded-xl border border-gray-100 bg-gray-50 py-3.5 px-4 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                       <option value="">No especificado</option>
                       <option value="video_largo">Video Largo</option>
                       <option value="video_corto">Video Corto</option>
                     </select>
+                    {formData.is_repost && (
+                      <p className="text-[9px] font-medium text-slate-400 mt-1 italic ml-1">
+                        Heredado de la publicación principal
+                      </p>
+                    )}
                   </div>
                 </div>
               ) : (
@@ -661,12 +675,18 @@ const ContentModal: React.FC<ContentModalProps> = ({
                     <select
                       value={formData.content_type || ''}
                       onChange={(e) => setFormData({ ...formData, content_type: (e.target.value as any) || null })}
-                      className="block w-full rounded-xl border border-gray-100 bg-gray-50 py-2.5 px-4 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 cursor-pointer"
+                      disabled={formData.is_repost}
+                      className="block w-full rounded-xl border border-gray-100 bg-gray-50 py-2.5 px-4 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                       <option value="">No especificado</option>
                       <option value="video_largo">Video Largo</option>
                       <option value="video_corto">Video Corto</option>
                     </select>
+                    {formData.is_repost && (
+                      <p className="text-[9px] font-medium text-slate-400 mt-1 italic ml-1">
+                        Heredado de la publicación principal
+                      </p>
+                    )}
                   </div>
                 )}
               </div>

@@ -200,7 +200,11 @@ export function useContentActions(refresh: () => void) {
           if (Array.isArray(selectedChildIds) && selectedChildIds.length > 0) {
             const { error: childErr } = await supabase
               .from('content')
-              .update({ parent_id: editingContent.id, is_repost: true })
+              .update({ 
+                parent_id: editingContent.id, 
+                is_repost: true,
+                content_type: mainData.content_type || null
+              })
               .in('id', selectedChildIds);
             
             if (!childErr) {
@@ -284,7 +288,11 @@ export function useContentActions(refresh: () => void) {
         if (!mainData.is_repost && Array.isArray(selectedChildIds) && selectedChildIds.length > 0) {
           const { error: childErr } = await supabase
             .from('content')
-            .update({ parent_id: masterPost.id, is_repost: true })
+            .update({ 
+              parent_id: masterPost.id, 
+              is_repost: true,
+              content_type: mainData.content_type || null
+            })
             .in('id', selectedChildIds);
           
           if (!childErr) {
