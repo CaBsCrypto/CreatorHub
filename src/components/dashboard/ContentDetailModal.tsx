@@ -97,9 +97,9 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
                     + {item.coupledPlatforms.map(p => p.toUpperCase()).join(' · ')}
                   </span>
                 )}
-                {item.content_type && (
+                {item.content_type === 'video_corto' && (
                   <span className="inline-flex items-center px-3 py-1.5 bg-indigo-50 border border-indigo-100 text-indigo-600 text-[10px] font-black uppercase tracking-wider rounded-xl shadow-sm">
-                    {item.content_type === 'video_largo' ? 'Video Largo' : 'Video Corto'}
+                    Video Corto
                   </span>
                 )}
                  {item.is_repost && (

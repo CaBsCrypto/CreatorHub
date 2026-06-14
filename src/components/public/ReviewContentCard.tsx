@@ -110,7 +110,7 @@ const ReviewContentCard: React.FC<ReviewContentCardProps> = ({
         </div>
 
         {/* Badges Row (Mismo Post, Platforms, Formato) */}
-        {( (item.coupledPlatforms && item.coupledPlatforms.length > 0) || item.is_repost || item.content_type ) && (
+        {( (item.coupledPlatforms && item.coupledPlatforms.length > 0) || item.is_repost || item.content_type === 'video_corto' ) && (
           <div className="flex flex-wrap gap-1">
             {item.coupledPlatforms && item.coupledPlatforms.length > 1 && (
               <span className="px-1.5 py-0.5 bg-indigo-600 text-white text-[6px] font-black uppercase tracking-wider rounded shadow-sm">
@@ -122,9 +122,9 @@ const ReviewContentCard: React.FC<ReviewContentCardProps> = ({
                 MISMO POST
               </span>
             )}
-            {item.content_type && (
+            {item.content_type === 'video_corto' && (
               <span className="px-1.5 py-0.5 bg-indigo-50 border border-indigo-100 text-indigo-600 text-[6px] font-black uppercase tracking-wider rounded">
-                {item.content_type === 'video_largo' ? 'LARGO' : 'CORTO'}
+                {lang === 'en' ? 'SHORT video' : 'Video Corto'}
               </span>
             )}
           </div>

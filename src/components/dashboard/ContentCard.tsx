@@ -105,10 +105,10 @@ const ContentCard = React.memo(({ item, campaignName, onEdit, onDelete, onClick,
               <span className="text-[9px] font-black uppercase tracking-widest">MISMO POST</span>
             </div>
           )}
-          {item.content_type && (
+          {item.content_type === 'video_corto' && (
             <div className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 border border-indigo-100 text-indigo-600 rounded-xl shadow-sm">
               <span className="text-[9px] font-black uppercase tracking-widest">
-                {item.content_type === 'video_largo' ? 'Largo' : 'Corto'}
+                Corto
               </span>
             </div>
           )}
