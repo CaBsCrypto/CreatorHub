@@ -170,7 +170,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
       try {
         const { data, error } = await supabase
           .from('content')
-          .select('id, title, url, platform')
+          .select('id, title, url, platform, creator_id, guest_name')
           .eq('campaign_id', formData.campaign_id)
           .eq('is_repost', false)
           .is('deleted_at', null);
@@ -185,8 +185,23 @@ const ContentModal: React.FC<ContentModalProps> = ({
   }, [formData.campaign_id]);
 
   const linkableContents = React.useMemo(() => {
-    return campaignContents.filter(item => !editingContent || item.id !== editingContent.id);
-  }, [campaignContents, editingContent]);
+    return campaignContents.filter(item => {
+      // Excluir el post que se está editando
+      if (editingContent && item.id === editingContent.id) return false;
+      
+      // Si el post tiene un creador específico asignado
+      if (formData.creator_id && formData.creator_id !== 'guest') {
+        return item.creator_id === formData.creator_id;
+      }
+      
+      // Si es un invitado externo (guest)
+      if (formData.creator_id === 'guest' && formData.guest_name) {
+        return item.guest_name === formData.guest_name;
+      }
+      
+      return true;
+    });
+  }, [campaignContents, editingContent, formData.creator_id, formData.guest_name]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
