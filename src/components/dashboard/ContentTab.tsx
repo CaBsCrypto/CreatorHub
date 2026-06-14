@@ -83,6 +83,57 @@ const ContentTab: React.FC<ContentTabProps> = ({
     }
   };
 
+  const campaignCreators = React.useMemo(() => {
+    if (filterCampaign === 'all') return [];
+
+    const campaignContent = content.filter(c => c.campaign_id === filterCampaign && !deletedContentIds.includes(c.id));
+    const creatorIds = new Set<string>();
+    const guestNames = new Set<string>();
+
+    campaignContent.forEach(c => {
+      if (c.creator_id) {
+        creatorIds.add(c.creator_id);
+      } else if (c.guest_name) {
+        guestNames.add(c.guest_name);
+      }
+    });
+
+    const result: Array<{ id: string; name: string; avatar: string | null; isGuest: boolean; postsCount: number; viewsCount: number }> = [];
+
+    creatorIds.forEach(id => {
+      const u = users.find(usr => usr.id === id);
+      const userContent = campaignContent.filter(c => c.creator_id === id);
+      const postsCount = userContent.filter(c => !c.is_repost).length;
+      const viewsCount = userContent.reduce((sum, c) => sum + (c.views || 0), 0);
+
+      result.push({
+        id,
+        name: u?.admin_alias || u?.display_name || u?.email?.split('@')[0] || 'Desconocido',
+        avatar: u?.photo_url || null,
+        isGuest: false,
+        postsCount,
+        viewsCount
+      });
+    });
+
+    guestNames.forEach(name => {
+      const guestContent = campaignContent.filter(c => !c.creator_id && c.guest_name === name);
+      const postsCount = guestContent.filter(c => !c.is_repost).length;
+      const viewsCount = guestContent.reduce((sum, c) => sum + (c.views || 0), 0);
+
+      result.push({
+        id: `guest:${name}`,
+        name,
+        avatar: null,
+        isGuest: true,
+        postsCount,
+        viewsCount
+      });
+    });
+
+    return result.sort((a, b) => b.viewsCount - a.viewsCount);
+  }, [filterCampaign, content, users, deletedContentIds]);
+
   const activeContent = filteredContent.filter(item => !deletedContentIds.includes(item.id));
 
   return (
@@ -137,19 +188,33 @@ const ContentTab: React.FC<ContentTabProps> = ({
               className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-xs font-bold text-slate-700 uppercase tracking-wider focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 outline-none transition-all cursor-pointer min-w-[170px]"
             >
               <option value="all">Creadores: Todos</option>
-              <optgroup label="Personal" className="bg-white text-slate-400">
-                {users.filter(u => u.role !== 'client').map(u => (
-                  <option key={u.id} value={u.id} className="text-slate-700">
-                    {u.admin_alias || u.display_name || u.email.split('@')[0]}
-                  </option>
-                ))}
-              </optgroup>
-              {content.some(c => !c.creator_id && c.guest_name) && (
-                <optgroup label="Invitados" className="bg-white text-slate-400">
-                  {[...new Set(content.filter(c => !c.creator_id && c.guest_name).map(c => c.guest_name))].map(name => (
-                    <option key={name} value={`guest:${name}`} className="text-slate-700">{name}</option>
-                  ))}
-                </optgroup>
+              {filterCampaign !== 'all' ? (
+                <>
+                  <optgroup label="En esta Campaña" className="bg-white text-slate-400">
+                    {campaignCreators.map(creator => (
+                      <option key={creator.id} value={creator.id} className="text-slate-700">
+                        {creator.name} {creator.isGuest ? '[INVITADO]' : ''}
+                      </option>
+                    ))}
+                  </optgroup>
+                </>
+              ) : (
+                <>
+                  <optgroup label="Personal" className="bg-white text-slate-400">
+                    {users.filter(u => u.role !== 'client').map(u => (
+                      <option key={u.id} value={u.id} className="text-slate-700">
+                        {u.admin_alias || u.display_name || u.email.split('@')[0]}
+                      </option>
+                    ))}
+                  </optgroup>
+                  {content.some(c => !c.creator_id && c.guest_name) && (
+                    <optgroup label="Invitados" className="bg-white text-slate-400">
+                      {[...new Set(content.filter(c => !c.creator_id && c.guest_name).map(c => c.guest_name))].map(name => (
+                        <option key={name} value={`guest:${name}`} className="text-slate-700">{name}</option>
+                      ))}
+                    </optgroup>
+                  )}
+                </>
               )}
             </select>
             
@@ -231,6 +296,54 @@ const ContentTab: React.FC<ContentTabProps> = ({
           >
             Limpiar Filtros
           </button>
+        </div>
+      )}
+
+      {/* Campaign Creators Cards Row */}
+      {filterCampaign !== 'all' && campaignCreators.length > 0 && (
+        <div className="space-y-3 animate-in fade-in duration-500 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+            <Users className="h-3.5 w-3.5 text-indigo-600" /> Creadores en esta Campaña
+          </p>
+          <div className="flex flex-wrap gap-3">
+            {campaignCreators.map((creator) => {
+              const isActive = filterCreator === creator.id;
+              return (
+                <div
+                  key={creator.id}
+                  onClick={() => setFilter('creator', isActive ? 'all' : creator.id)}
+                  className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl cursor-pointer transition-all duration-200 select-none border active:scale-95 ${
+                    isActive 
+                      ? 'bg-indigo-600 text-white border-indigo-700 shadow-md shadow-indigo-200' 
+                      : 'bg-slate-50 hover:bg-slate-100 border-slate-100 hover:border-indigo-200 text-slate-700 hover:text-indigo-600'
+                  }`}
+                >
+                  {/* Avatar or Initials */}
+                  <div className={`w-8 h-8 rounded-full overflow-hidden flex items-center justify-center text-xs font-black shrink-0 ${
+                    isActive 
+                      ? 'bg-white/20 text-white' 
+                      : 'bg-white text-indigo-600 border border-slate-100'
+                  }`}>
+                    {creator.avatar ? (
+                      <img src={creator.avatar} alt={creator.name} className="w-full h-full object-cover" />
+                    ) : (
+                      creator.name.charAt(0).toUpperCase()
+                    )}
+                  </div>
+                  
+                  {/* Name and Stats */}
+                  <div className="min-w-0">
+                    <p className="text-xs font-black truncate leading-tight uppercase tracking-tight">{creator.name}</p>
+                    <p className={`text-[8px] font-black uppercase tracking-wider mt-0.5 ${
+                      isActive ? 'text-white/60' : 'text-slate-400'
+                    }`}>
+                      {creator.postsCount} {creator.postsCount === 1 ? 'post' : 'posts'} · {creator.viewsCount.toLocaleString()} vistas
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 
