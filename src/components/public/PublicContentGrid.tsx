@@ -48,7 +48,7 @@ const PublicContentGrid: React.FC<PublicContentGridProps> = ({
   translations
 }) => {
   return (
-    <div className={`lg:col-span-2 ${activeSection === 'stats' ? 'hidden lg:block' : 'block'}`}>
+    <div className={`lg:col-span-3 ${activeSection === 'stats' ? 'hidden lg:block' : 'block'}`}>
       {/* Mobile Nav Tabs */}
       <div className="lg:hidden flex items-center gap-2 mb-6">
         <div className="flex-1 flex items-center bg-white/5 border border-white/10 p-1 rounded-2xl">
@@ -127,7 +127,7 @@ const PublicContentGrid: React.FC<PublicContentGridProps> = ({
 
       {/* Creators Grid */}
       {activeSection === 'creators' ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 animate-in fade-in slide-in-from-bottom-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-3 animate-in fade-in slide-in-from-bottom-4">
           {users.map((u, i) => {
             const posts = filteredContent.filter(c => c.creator_id === u.id); // Note: showing only filtered content posts or all posts? Original code used full content list. Let's stick to consistent logic.
             const views = posts.reduce((s, c) => s + (c.views || 0), 0);
@@ -177,7 +177,7 @@ const PublicContentGrid: React.FC<PublicContentGridProps> = ({
         </div>
       ) : filteredContent.length > 0 ? (
         <div className="relative">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2.5 max-h-[78vh] overflow-y-auto pr-1 pb-12" style={{ scrollbarWidth: 'thin', scrollbarColor: '#1e1e2e transparent' }}>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-2.5 max-h-[78vh] overflow-y-auto pr-1 pb-12" style={{ scrollbarWidth: 'thin', scrollbarColor: '#1e1e2e transparent' }}>
             {filteredContent.map((item, i) => (
               <ReviewContentCard
                 key={item.id}

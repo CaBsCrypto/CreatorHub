@@ -332,7 +332,7 @@ export default function PublicReview() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8 items-start">
           {/* Left Column: Creator Ranking (Desktop Only) */}
           <div className="hidden lg:block lg:col-span-1">
             <div className="bg-white border border-gray-100 rounded-[2rem] p-6 shadow-sm sticky top-24">
