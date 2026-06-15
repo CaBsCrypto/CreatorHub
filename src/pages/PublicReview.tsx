@@ -303,6 +303,8 @@ export default function PublicReview() {
           stats={stats}
           postsCount={uniqueContentCount}
           creatorsCount={users.length}
+          deliverableProgress={deliverableProgress}
+          lang={lang}
           translations={{ totalViews: t.totalViews, posts: t.posts, activeCreators: t.activeCreators }}
           onViewsClick={() => setShowTop5Modal(true)}
           onPostsClick={() => setFilters({ section: 'content', platform: 'all', creator: 'all' })}
@@ -359,7 +361,6 @@ export default function PublicReview() {
             setFilters={setFilters}
             setShowCreatorRankingModal={setShowCreatorRankingModal}
             creatorRanking={creatorRanking}
-            deliverableProgress={deliverableProgress}
             lang={lang}
             translations={{ platformDistribution: t.platformDistribution, viewAllPlatforms: t.viewAllPlatforms }}
           />
