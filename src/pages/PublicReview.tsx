@@ -383,25 +383,22 @@ export default function PublicReview() {
                           {u.display_name || 'Anonymous'}
                         </span>
 
-                        {/* Second Row: Posts Count & Metrics */}
-                        <div className="flex items-center justify-between gap-1.5 mt-1 text-[9px] font-black">
-                          {/* Posts count */}
-                          <span className={`shrink-0 uppercase tracking-wide leading-none ${isSelected ? 'text-white/80' : 'text-slate-400'}`}>
-                            {creator.postsCount} {creator.postsCount === 1 ? 'post' : 'posts'}
-                          </span>
+                        {/* Second Row: Posts Count */}
+                        <span className={`text-[9px] font-bold uppercase tracking-wide leading-none mt-1 ${isSelected ? 'text-white/80' : 'text-slate-400'}`}>
+                          {creator.postsCount} {creator.postsCount === 1 ? 'post' : 'posts'}
+                        </span>
 
-                          {/* Grouped metrics */}
-                          <div className="flex items-center gap-1.5 shrink-0 ml-auto">
-                            <span className={`flex items-center gap-0.5 leading-none ${isSelected ? 'text-white' : 'text-indigo-650'}`}>
-                              <Eye className="h-3 w-3 opacity-80" /> {formatCompact(creator.views)}
-                            </span>
-                            <span className={`flex items-center gap-0.5 leading-none ${isSelected ? 'text-white/80' : 'text-slate-400'}`}>
-                              <Heart className="h-2.5 w-2.5 opacity-70" /> {formatCompact(creator.likes)}
-                            </span>
-                            <span className={`flex items-center gap-0.5 leading-none ${isSelected ? 'text-white/80' : 'text-slate-400'}`}>
-                              <MessageSquare className="h-2.5 w-2.5 opacity-70" /> {formatCompact(creator.comments)}
-                            </span>
-                          </div>
+                        {/* Third Row: Grouped metrics */}
+                        <div className="flex items-center gap-2 mt-1.5 text-[9px] font-black">
+                          <span className={`flex items-center gap-0.5 leading-none ${isSelected ? 'text-white' : 'text-indigo-600'}`}>
+                            <Eye className="h-3 w-3 opacity-80" /> {formatCompact(creator.views)}
+                          </span>
+                          <span className={`flex items-center gap-0.5 leading-none ${isSelected ? 'text-white/80' : 'text-slate-400'}`}>
+                            <Heart className="h-2.5 w-2.5 opacity-70" /> {formatCompact(creator.likes)}
+                          </span>
+                          <span className={`flex items-center gap-0.5 leading-none ${isSelected ? 'text-white/80' : 'text-slate-400'}`}>
+                            <MessageSquare className="h-2.5 w-2.5 opacity-70" /> {formatCompact(creator.comments)}
+                          </span>
                         </div>
                       </div>
                     </button>
