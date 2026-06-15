@@ -6,6 +6,7 @@ import { useToast } from '../../hooks/useToast';
 import { HistoryChart } from './HistoryChart';
 import { supabase } from '../../supabase';
 import { ContentMetricsHistory } from '../../supabase';
+import { parseCampaignDeliverables, getDeliverableStats } from '../../utils/campaignHelpers';
 interface CampaignReportModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -280,9 +281,26 @@ export default function CampaignReportModal({
     );
   }
 
+  const deliverableProgress = useMemo(() => {
+    if (!campaign) return null;
+    const { targets } = parseCampaignDeliverables(campaign.description);
+    return getDeliverableStats(campaignContent, targets);
+  }, [campaign, campaignContent]);
+
+  const hasDeliverableTargets = deliverableProgress ? !Object.values(deliverableProgress.targets).every(t => t === 0) : false;
+
   const uniqueContentCount = campaignContent.filter(c => !c.is_repost).length;
   const repostContentCount = campaignContent.filter(c => c.is_repost).length;
-  const progressPercentage = Math.min(100, Math.round((uniqueContentCount / (campaign.target_posts || 1)) * 100));
+  
+  // Calculate progress percentage based on deliverables if targets are set, otherwise fallback to target_posts
+  const progressPercentage = useMemo(() => {
+    if (hasDeliverableTargets && deliverableProgress) {
+      const totalTargets = Object.values(deliverableProgress.targets).reduce((a, b) => a + b, 0);
+      const totalCompleted = Object.values(deliverableProgress.completed).reduce((a, b) => a + b, 0);
+      return Math.min(100, Math.round((totalCompleted / (totalTargets || 1)) * 100));
+    }
+    return Math.min(100, Math.round((uniqueContentCount / (campaign.target_posts || 1)) * 100));
+  }, [hasDeliverableTargets, deliverableProgress, uniqueContentCount, campaign.target_posts]);
 
   const PlatformIcon = ({ platform, className = "w-4 h-4" }: { platform: string, className?: string }) => {
     switch (platform) {
@@ -415,18 +433,61 @@ export default function CampaignReportModal({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <div className="bg-white/5 p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-center">
                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Progreso de Entregables</p>
-                <div className="flex items-end gap-2 mb-1">
-                  <span className="text-4xl font-black text-white">{uniqueContentCount}</span>
-                  <span className="text-sm font-bold text-slate-500 mb-1">/ {campaign.target_posts} únicos</span>
-                </div>
-                 {repostContentCount > 0 && (
-                  <p className="text-[10px] font-bold text-slate-400 mb-2 uppercase tracking-wide">
-                    + {repostContentCount} mismos posts (no contados)
-                  </p>
-                 )}
-                <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
-                  <div className="bg-indigo-500 h-full rounded-full transition-all duration-1000" style={{ width: `${progressPercentage}%` }} />
-                </div>
+                
+                {hasDeliverableTargets && deliverableProgress ? (
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-end mb-1">
+                      <span className="text-4xl font-black text-white">
+                        {Object.values(deliverableProgress.completed).reduce((a, b) => a + b, 0)}
+                      </span>
+                      <span className="text-sm font-bold text-slate-500 mb-1">
+                        / {Object.values(deliverableProgress.targets).reduce((a, b) => a + b, 0)} entregables
+                      </span>
+                    </div>
+                    <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden mb-3">
+                      <div className="bg-indigo-500 h-full rounded-full transition-all duration-1000" style={{ width: `${progressPercentage}%` }} />
+                    </div>
+                    
+                    {/* Compact targets list */}
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 pt-2 border-t border-white/5">
+                      {[
+                        { key: 'video_largo', label: 'Videos Largos' },
+                        { key: 'video_corto', label: 'Videos Cortos' },
+                        { key: 'stream', label: 'Streams' },
+                        { key: 'game_night', label: 'Game Nights' },
+                        { key: 'post', label: 'Posts' }
+                      ].map(d => {
+                        const target = deliverableProgress.targets[d.key as keyof typeof deliverableProgress.targets] || 0;
+                        if (target === 0) return null;
+                        const completed = deliverableProgress.completed[d.key as keyof typeof deliverableProgress.completed] || 0;
+                        const isDone = completed >= target;
+                        return (
+                          <div key={d.key} className="flex justify-between items-center text-[10px]">
+                            <span className="text-slate-400 font-bold uppercase truncate max-w-[80px]">{d.label}</span>
+                            <span className={`font-mono font-black ${isDone ? 'text-emerald-500' : 'text-slate-350'}`}>
+                              {completed}/{target}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex items-end gap-2 mb-1">
+                      <span className="text-4xl font-black text-white">{uniqueContentCount}</span>
+                      <span className="text-sm font-bold text-slate-500 mb-1">/ {campaign.target_posts || 1} únicos</span>
+                    </div>
+                    {repostContentCount > 0 && (
+                      <p className="text-[10px] font-bold text-slate-400 mb-2 uppercase tracking-wide">
+                        + {repostContentCount} mismos posts (no contados)
+                      </p>
+                    )}
+                    <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
+                      <div className="bg-indigo-500 h-full rounded-full transition-all duration-1000" style={{ width: `${progressPercentage}%` }} />
+                    </div>
+                  </>
+                )}
               </div>
 
               <div className="bg-white/5 p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-center">

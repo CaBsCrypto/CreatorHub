@@ -15,6 +15,13 @@ interface AddCampaignModalProps {
     slug?: string | null;
     notes?: string | null;
     show_to_all?: boolean;
+    deliverables?: {
+      video_largo: number;
+      video_corto: number;
+      stream: number;
+      game_night: number;
+      post: number;
+    };
   };
   setNewCampaign: (campaign: any) => void;
   clients: any[];
@@ -148,6 +155,72 @@ const AddCampaignModal: React.FC<AddCampaignModalProps> = ({
               />
               <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
             </label>
+          </div>
+
+          <div className="bg-indigo-50/50 p-5 rounded-2xl border border-indigo-100/50 space-y-4">
+            <label className="block text-[10px] font-black text-indigo-600 uppercase tracking-widest">Objetivos de Entregables</label>
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+              <div>
+                <label className="block text-[9px] font-black text-slate-500 uppercase tracking-wider mb-1">Vid. Largos</label>
+                <input
+                  type="number" min="0"
+                  className="block w-full rounded-xl border border-gray-100 bg-white py-2 px-3 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 transition-all text-center"
+                  value={newCampaign.deliverables?.video_largo ?? 0}
+                  onChange={(e) => setNewCampaign({
+                    ...newCampaign,
+                    deliverables: { ...newCampaign.deliverables, video_largo: parseInt(e.target.value) || 0 }
+                  })}
+                />
+              </div>
+              <div>
+                <label className="block text-[9px] font-black text-slate-500 uppercase tracking-wider mb-1">Vid. Cortos</label>
+                <input
+                  type="number" min="0"
+                  className="block w-full rounded-xl border border-gray-100 bg-white py-2 px-3 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 transition-all text-center"
+                  value={newCampaign.deliverables?.video_corto ?? 0}
+                  onChange={(e) => setNewCampaign({
+                    ...newCampaign,
+                    deliverables: { ...newCampaign.deliverables, video_corto: parseInt(e.target.value) || 0 }
+                  })}
+                />
+              </div>
+              <div>
+                <label className="block text-[9px] font-black text-slate-500 uppercase tracking-wider mb-1">Streams</label>
+                <input
+                  type="number" min="0"
+                  className="block w-full rounded-xl border border-gray-100 bg-white py-2 px-3 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 transition-all text-center"
+                  value={newCampaign.deliverables?.stream ?? 0}
+                  onChange={(e) => setNewCampaign({
+                    ...newCampaign,
+                    deliverables: { ...newCampaign.deliverables, stream: parseInt(e.target.value) || 0 }
+                  })}
+                />
+              </div>
+              <div>
+                <label className="block text-[9px] font-black text-slate-500 uppercase tracking-wider mb-1">Game Nights</label>
+                <input
+                  type="number" min="0"
+                  className="block w-full rounded-xl border border-gray-100 bg-white py-2 px-3 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 transition-all text-center"
+                  value={newCampaign.deliverables?.game_night ?? 0}
+                  onChange={(e) => setNewCampaign({
+                    ...newCampaign,
+                    deliverables: { ...newCampaign.deliverables, game_night: parseInt(e.target.value) || 0 }
+                  })}
+                />
+              </div>
+              <div className="col-span-2 sm:col-span-1">
+                <label className="block text-[9px] font-black text-slate-500 uppercase tracking-wider mb-1">Posts</label>
+                <input
+                  type="number" min="0"
+                  className="block w-full rounded-xl border border-gray-100 bg-white py-2 px-3 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 transition-all text-center"
+                  value={newCampaign.deliverables?.post ?? 0}
+                  onChange={(e) => setNewCampaign({
+                    ...newCampaign,
+                    deliverables: { ...newCampaign.deliverables, post: parseInt(e.target.value) || 0 }
+                  })}
+                />
+              </div>
+            </div>
           </div>
 
           <div>

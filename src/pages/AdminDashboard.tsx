@@ -469,7 +469,19 @@ export default function AdminDashboard() {
             setIsCreatingCampaign(false);
             setIsEditingCampaign(false);
             setEditingCampaignId(null);
-            setNewCampaign({ name: '', description: '', client_id: '', twitter_url: '', contact_info: '', budget: 0, slug: '', notes: '', show_to_all: false, assigned_creator_ids: [] });
+            setNewCampaign({
+              name: '',
+              description: '',
+              client_id: '',
+              twitter_url: '',
+              contact_info: '',
+              budget: 0,
+              slug: '',
+              notes: '',
+              show_to_all: false,
+              assigned_creator_ids: [],
+              deliverables: { video_largo: 0, video_corto: 0, stream: 0, game_night: 0, post: 0 }
+            });
           }} 
           onSubmit={isEditingCampaign ? handleUpdateCampaign : handleCreateCampaign} 
           newCampaign={newCampaign} 

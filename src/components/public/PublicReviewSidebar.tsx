@@ -2,6 +2,7 @@ import React from 'react';
 import { ArrowLeft, TrendingUp, Eye, Heart, MessageSquare, Trophy, ArrowRight } from 'lucide-react';
 import { getPlatformIcon, getPlatformColor } from '../../utils/platformUtils';
 import { UserProfile } from '../../supabase';
+import { DeliverableTargets } from '../../utils/campaignHelpers';
 
 interface PublicReviewSidebarProps {
   stats: {
@@ -14,6 +15,10 @@ interface PublicReviewSidebarProps {
   setFilters: (updates: any) => void;
   setShowCreatorRankingModal: (val: boolean) => void;
   creatorRanking: any[];
+  deliverableProgress: {
+    completed: DeliverableTargets;
+    targets: DeliverableTargets;
+  } | null;
   lang: 'en' | 'es';
   translations: {
     platformDistribution: string;
@@ -29,6 +34,7 @@ const PublicReviewSidebar: React.FC<PublicReviewSidebarProps> = ({
   setFilters,
   setShowCreatorRankingModal,
   creatorRanking,
+  deliverableProgress,
   lang,
   translations
 }) => {
@@ -97,6 +103,50 @@ const PublicReviewSidebar: React.FC<PublicReviewSidebarProps> = ({
           })}
         </div>
       </div>
+
+      {/* Deliverables Progress Panel */}
+      {deliverableProgress && !Object.values(deliverableProgress.targets).every(t => t === 0) && (
+        <div className="bg-white border border-gray-100 rounded-[2rem] p-6 shadow-sm">
+          <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-5">
+            {lang === 'en' ? 'DELIVERABLES PROGRESS' : 'PROGRESO DE ENTREGABLES'}
+          </h3>
+          <div className="space-y-4">
+            {[
+              { key: 'video_largo', label: lang === 'en' ? 'Long Videos' : 'Videos Largos' },
+              { key: 'video_corto', label: lang === 'en' ? 'Short Videos' : 'Videos Cortos' },
+              { key: 'stream', label: lang === 'en' ? 'Streams' : 'Streams' },
+              { key: 'game_night', label: lang === 'en' ? 'Game Nights' : 'Game Nights' },
+              { key: 'post', label: lang === 'en' ? 'Posts' : 'Posts' }
+            ].map(deliv => {
+              const target = deliverableProgress.targets[deliv.key as keyof typeof deliverableProgress.targets] || 0;
+              if (target === 0) return null;
+
+              const completed = deliverableProgress.completed[deliv.key as keyof typeof deliverableProgress.completed] || 0;
+              const pct = Math.min(100, Math.round((completed / target) * 100));
+              const isCompleted = completed >= target;
+
+              return (
+                <div key={deliv.key} className="space-y-1.5">
+                  <div className="flex justify-between items-center text-xs font-bold">
+                    <span className="text-slate-600 font-black uppercase tracking-wide text-[9px]">{deliv.label}</span>
+                    <span className={`font-mono text-[10px] ${isCompleted ? 'text-emerald-600 font-black' : 'text-slate-500'}`}>
+                      {completed} / {target}
+                    </span>
+                  </div>
+                  <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-550 ${
+                        isCompleted ? 'bg-emerald-500' : 'bg-indigo-600'
+                      }`}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Creator Ranking Panel (Inline) */}
       <div className="bg-white border border-gray-100 rounded-[2rem] p-6 shadow-sm">

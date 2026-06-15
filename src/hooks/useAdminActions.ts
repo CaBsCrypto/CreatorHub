@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { supabase, UserRole, UserProfile, Campaign } from '../supabase';
 import { useToast } from './useToast';
+import { parseCampaignDeliverables, serializeCampaignDeliverables } from '../utils/campaignHelpers';
 
 export function useAdminActions(refresh: () => Promise<void>, currentUser: UserProfile | { id: string } | null) {
   const { success, error: toastError } = useToast();
@@ -24,7 +25,14 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
     slug: '',
     notes: '',
     show_to_all: false,
-    assigned_creator_ids: [] as string[]
+    assigned_creator_ids: [] as string[],
+    deliverables: {
+      video_largo: 0,
+      video_corto: 0,
+      stream: 0,
+      game_night: 0,
+      post: 0
+    }
   });
 
   const [newUser, setNewUser] = useState<{ email: string; role: UserRole; linked_campaign_id?: string }>({ 
@@ -69,10 +77,11 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
   const handleCreateCampaign = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     const finalSlug = newCampaign.slug || generateSecureSlug(newCampaign.name);
+    const finalDescription = serializeCampaignDeliverables(newCampaign.description, newCampaign.deliverables);
     
     const { data: campData, error } = await supabase.from('campaigns').insert([{ 
       name: newCampaign.name,
-      description: newCampaign.description,
+      description: finalDescription,
       client_id: newCampaign.client_id || null,
       twitter_url: newCampaign.twitter_url || null,
       contact_info: newCampaign.contact_info || null,
@@ -99,7 +108,19 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
 
       success("Campaña creada con éxito");
       setIsCreatingCampaign(false);
-      setNewCampaign({ name: '', description: '', client_id: '', twitter_url: '', contact_info: '', budget: 0, slug: '', notes: '', show_to_all: false, assigned_creator_ids: [] });
+      setNewCampaign({
+        name: '',
+        description: '',
+        client_id: '',
+        twitter_url: '',
+        contact_info: '',
+        budget: 0,
+        slug: '',
+        notes: '',
+        show_to_all: false,
+        assigned_creator_ids: [],
+        deliverables: { video_largo: 0, video_corto: 0, stream: 0, game_night: 0, post: 0 }
+      });
       refresh();
     }
   }, [newCampaign, currentUser?.id, generateSecureSlug, refresh, success, toastError]);
@@ -114,10 +135,11 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
       .eq('campaign_id', campaign.id);
     
     const assignedIds = assignments?.map(a => a.creator_id) || [];
+    const { cleanDescription, targets } = parseCampaignDeliverables(campaign.description);
 
     setNewCampaign({
       name: campaign.name,
-      description: campaign.description || '',
+      description: cleanDescription,
       client_id: campaign.client_id || '',
       twitter_url: campaign.twitter_url || '',
       contact_info: campaign.contact_info || '',
@@ -125,7 +147,8 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
       slug: campaign.slug || '',
       notes: campaign.notes || '',
       show_to_all: campaign.show_to_all || false,
-      assigned_creator_ids: assignedIds as any
+      assigned_creator_ids: assignedIds as any,
+      deliverables: targets
     });
     setIsEditingCampaign(true);
   }, []);
@@ -134,11 +157,13 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
     e.preventDefault();
     if (!editingCampaignId) return;
 
+    const finalDescription = serializeCampaignDeliverables(newCampaign.description, newCampaign.deliverables);
+
     const { error } = await supabase
       .from('campaigns')
       .update({ 
         name: newCampaign.name,
-        description: newCampaign.description,
+        description: finalDescription,
         client_id: newCampaign.client_id || null,
         twitter_url: newCampaign.twitter_url || null,
         contact_info: newCampaign.contact_info || null,
@@ -167,7 +192,19 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
       success("Campaña actualizada con éxito");
       setIsEditingCampaign(false);
       setEditingCampaignId(null);
-      setNewCampaign({ name: '', description: '', client_id: '', twitter_url: '', contact_info: '', budget: 0, slug: '', notes: '', show_to_all: false, assigned_creator_ids: [] });
+      setNewCampaign({
+        name: '',
+        description: '',
+        client_id: '',
+        twitter_url: '',
+        contact_info: '',
+        budget: 0,
+        slug: '',
+        notes: '',
+        show_to_all: false,
+        assigned_creator_ids: [],
+        deliverables: { video_largo: 0, video_corto: 0, stream: 0, game_night: 0, post: 0 }
+      });
       refresh();
     }
   }, [editingCampaignId, newCampaign, refresh, success, toastError]);

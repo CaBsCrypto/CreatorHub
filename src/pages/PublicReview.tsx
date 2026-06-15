@@ -15,6 +15,7 @@ import PublicModals from '../components/public/PublicModals';
 // Hooks & Utils
 import { getProxiedUrl } from '../utils/urlHelpers';
 import { getReviewTranslations } from '../components/public/translations';
+import { parseCampaignDeliverables, getDeliverableStats } from '../utils/campaignHelpers';
 
 const platformConfig = {
   youtube: { icon: Youtube, color: 'text-red-500', bg: 'bg-red-50', label: 'YouTube' },
@@ -224,6 +225,12 @@ export default function PublicReview() {
     return { totalViews, totalEngagement, platforms, platformStats };
   }, [campaign, content]);
 
+  const deliverableProgress = useMemo(() => {
+    if (!campaign) return null;
+    const { targets } = parseCampaignDeliverables(campaign.description);
+    return getDeliverableStats(content, targets);
+  }, [campaign, content]);
+
   const filteredContent = useMemo(() => {
     const arr = content.filter(item => {
       const matchPlatform = filterPlatform === 'all' || item.platform?.toLowerCase() === filterPlatform.toLowerCase();
@@ -352,6 +359,7 @@ export default function PublicReview() {
             setFilters={setFilters}
             setShowCreatorRankingModal={setShowCreatorRankingModal}
             creatorRanking={creatorRanking}
+            deliverableProgress={deliverableProgress}
             lang={lang}
             translations={{ platformDistribution: t.platformDistribution, viewAllPlatforms: t.viewAllPlatforms }}
           />

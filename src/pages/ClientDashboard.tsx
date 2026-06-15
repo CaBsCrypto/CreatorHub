@@ -6,6 +6,7 @@ import { useAuth, logout } from '../AuthContext';
 import { useToast } from '../hooks/useToast';
 import CampaignReportModal from '../components/dashboard/CampaignReportModal';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { parseCampaignDeliverables } from '../utils/campaignHelpers';
 
 export default function ClientDashboard() {
   const { user, profile } = useAuth();
@@ -177,7 +178,7 @@ export default function ClientDashboard() {
                 </div>
                 
                 <h3 className="text-xl font-bold text-gray-900 mb-2 leading-tight group-hover:text-indigo-600 transition-colors uppercase tracking-tight">{campaign.name}</h3>
-                <p className="text-sm text-gray-500 line-clamp-2 mb-4 min-h-[40px] leading-relaxed">{campaign.description || 'Sin descripción.'}</p>
+                <p className="text-sm text-gray-500 line-clamp-2 mb-4 min-h-[40px] leading-relaxed">{parseCampaignDeliverables(campaign.description).cleanDescription || 'Sin descripción.'}</p>
                 
                 {/* 📝 Note Toggle if exists */}
                 {campaign.notes && (

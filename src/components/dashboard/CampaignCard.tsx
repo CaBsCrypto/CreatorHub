@@ -3,6 +3,7 @@ import { Calendar, Trash2, Edit2, Link, Zap, StickyNote, Maximize2 } from 'lucid
 import { motion, AnimatePresence } from 'framer-motion';
 import { Campaign } from '../../supabase';
 import { format } from 'date-fns';
+import { parseCampaignDeliverables } from '../../utils/campaignHelpers';
 
 interface CampaignCardProps {
   campaign: Campaign;
@@ -134,7 +135,7 @@ const CampaignCard = React.memo(({
           {campaign.name}
         </h3>
         <p className="text-xs text-slate-500 font-medium line-clamp-2 leading-relaxed mb-6">
-          {campaign.description || 'Sin descripción.'}
+          {parseCampaignDeliverables(campaign.description).cleanDescription || 'Sin descripción.'}
         </p>
 
         {/* Expandable Notes */}
