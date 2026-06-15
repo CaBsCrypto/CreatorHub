@@ -12,6 +12,7 @@ interface PublicReviewSidebarProps {
   setFilterPlatform: (val: string) => void;
   setFilters: (updates: any) => void;
   setShowCreatorRankingModal: (val: boolean) => void;
+  creatorRanking: any[];
   lang: 'en' | 'es';
   translations: {
     platformDistribution: string;
@@ -25,6 +26,7 @@ const PublicReviewSidebar: React.FC<PublicReviewSidebarProps> = ({
   setFilterPlatform,
   setFilters,
   setShowCreatorRankingModal,
+  creatorRanking,
   lang,
   translations
 }) => {
@@ -66,7 +68,7 @@ const PublicReviewSidebar: React.FC<PublicReviewSidebarProps> = ({
                   </div>
                   <div className="flex flex-col text-left min-w-0">
                     <span className={`text-sm font-black capitalize leading-tight ${filterPlatform === lowerPlatform ? 'text-white' : 'text-slate-700'}`}>
-                      {lowerPlatform === 'coinmarketcap' ? 'CMC' : lowerPlatform === 'twitch' ? 'Stream' : platform}
+                       {lowerPlatform === 'coinmarketcap' ? 'CMC' : lowerPlatform === 'twitch' ? 'Stream' : platform}
                     </span>
                     {pStats && (
                       <div className="flex items-center gap-2 mt-1 min-w-0 flex-wrap">
@@ -94,27 +96,63 @@ const PublicReviewSidebar: React.FC<PublicReviewSidebarProps> = ({
         </div>
       </div>
 
-      {/* Creator Ranking Card (Trigger) */}
-      <button 
-        onClick={() => setShowCreatorRankingModal(true)}
-        className="relative text-left w-full bg-gradient-to-br from-indigo-900 to-indigo-950 text-white border-none rounded-[2rem] p-6 overflow-hidden shadow-xl shadow-indigo-950/20 hover:scale-[1.02] active:scale-95 transition-all duration-300 group cursor-pointer"
-      >
-        <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-indigo-500/20 transition-all duration-500" />
-        <div className="relative z-10">
-          <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
-            <Trophy className="h-5 w-5 text-indigo-400 group-hover:scale-110 transition-transform" />
-          </div>
-          <h3 className="text-lg font-black mb-2 leading-tight uppercase tracking-wide">Ranking de Creadores</h3>
-          <p className="text-indigo-200/80 text-xs font-medium leading-relaxed mb-4">
-            {lang === 'en'
-              ? 'Check how each creator performed sorted by views and engagement.'
-              : 'Mira el rendimiento de cada creador ordenados por vistas y engagement.'}
-          </p>
-          <div className="text-[9px] font-black text-indigo-400 uppercase tracking-[0.2em] flex items-center gap-1">
-            Ver Ranking <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
-          </div>
+      {/* Creator Ranking Panel (Inline) */}
+      <div className="bg-white border border-gray-100 rounded-[2rem] p-6 shadow-sm">
+        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-5">
+          {lang === 'en' ? 'CREATOR RANKING' : 'RANKING DE CREADORES'}
+        </h3>
+        <div className="space-y-2.5">
+          {creatorRanking.map((creator, index) => {
+            const u = creator.user;
+            return (
+              <div
+                key={u.id || index}
+                className="flex items-center justify-between gap-3 p-3 rounded-2xl border border-gray-50 bg-slate-50/30 hover:border-indigo-100 hover:bg-indigo-50/10 transition-all duration-200"
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span className="text-xs font-black text-slate-300 w-5 shrink-0 text-center">
+                    #{index + 1}
+                  </span>
+
+                  {/* Creator Avatar */}
+                  <div className="w-8 h-8 rounded-full overflow-hidden bg-indigo-500/10 text-indigo-600 border border-indigo-100 flex items-center justify-center font-bold text-xs uppercase shrink-0">
+                    {u.photo_url ? (
+                      <img src={u.photo_url} alt={u.display_name || ''} className="w-full h-full object-cover" />
+                    ) : (
+                      (u.display_name || '?').charAt(0)
+                    )}
+                  </div>
+
+                  {/* Creator Name & Post count */}
+                  <div className="flex flex-col text-left min-w-0">
+                    <span className="text-xs font-black text-slate-800 truncate leading-snug">
+                      {u.display_name || 'Anonymous'}
+                    </span>
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide leading-none mt-0.5">
+                      {creator.postsCount} {creator.postsCount === 1 ? 'post' : 'posts'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Metrics */}
+                <div className="flex flex-col text-right shrink-0">
+                  <span className="text-[11px] font-black text-indigo-600 flex items-center justify-end gap-0.5 leading-none">
+                    <Eye className="h-3.5 w-3.5 opacity-75" /> {formatCompact(creator.views)}
+                  </span>
+                  <div className="flex items-center justify-end gap-1.5 mt-1">
+                    <span className="text-[8px] font-bold text-slate-400 flex items-center gap-0.5 leading-none">
+                      <Heart className="h-2.5 w-2.5 opacity-60" /> {formatCompact(creator.likes)}
+                    </span>
+                    <span className="text-[8px] font-bold text-slate-400 flex items-center gap-0.5 leading-none">
+                      <MessageSquare className="h-2.5 w-2.5 opacity-60" /> {formatCompact(creator.comments)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
-      </button>
+      </div>
     </div>
   );
 };

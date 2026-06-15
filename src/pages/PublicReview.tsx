@@ -350,6 +350,7 @@ export default function PublicReview() {
             setFilterPlatform={setFilterPlatform}
             setFilters={setFilters}
             setShowCreatorRankingModal={setShowCreatorRankingModal}
+            creatorRanking={creatorRanking}
             lang={lang}
             translations={{ platformDistribution: t.platformDistribution, viewAllPlatforms: t.viewAllPlatforms }}
           />
