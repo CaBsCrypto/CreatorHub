@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Award, X, ChevronRight, Globe, LayoutGrid, Users, PieChart } from 'lucide-react';
+import { Award, X, ChevronRight, Globe, LayoutGrid, Users, PieChart, Trophy } from 'lucide-react';
 import { Content, UserProfile } from '../../supabase';
 import ReviewContentCard from './ReviewContentCard';
 
@@ -17,6 +17,7 @@ interface PublicContentGridProps {
   setSelectedImage: (val: string | null) => void;
   onCoupledClick?: (item: any) => void;
   setShowPlatformsModal: (val: boolean) => void;
+  setShowCreatorRankingModal: (val: boolean) => void;
   lang: 'en' | 'es';
   translations: {
     publishedContent: string;
@@ -42,6 +43,7 @@ const PublicContentGrid: React.FC<PublicContentGridProps> = ({
   setSelectedImage,
   onCoupledClick,
   setShowPlatformsModal,
+  setShowCreatorRankingModal,
   lang,
   translations
 }) => {
@@ -71,6 +73,12 @@ const PublicContentGrid: React.FC<PublicContentGridProps> = ({
           className="w-12 h-12 flex items-center justify-center bg-indigo-600 rounded-2xl text-white shadow-lg shadow-indigo-600/30 active:scale-95 transition-all hover:bg-indigo-700 hover:shadow-indigo-600/50 shrink-0"
         >
           <PieChart className="h-5 w-5" />
+        </button>
+        <button
+          onClick={() => setShowCreatorRankingModal(true)}
+          className="w-12 h-12 flex items-center justify-center bg-indigo-600 rounded-2xl text-white shadow-lg shadow-indigo-600/30 active:scale-95 transition-all hover:bg-indigo-700 hover:shadow-indigo-600/50 shrink-0"
+        >
+          <Trophy className="h-5 w-5" />
         </button>
       </div>
 

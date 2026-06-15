@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Award, StickyNote, Eye, Heart, MessageSquare } from 'lucide-react';
+import { X, Award, StickyNote, Eye, Heart, MessageSquare, Trophy } from 'lucide-react';
 import { Content, UserProfile, Campaign } from '../../supabase';
 import { getProxiedUrl } from '../../utils/urlHelpers';
 import { getPlatformIcon, getPlatformColor } from '../../utils/platformUtils';
@@ -12,6 +12,8 @@ interface PublicModalsProps {
   setShowPlatformsModal: (val: boolean) => void;
   showTop5Modal: boolean;
   setShowTop5Modal: (val: boolean) => void;
+  showCreatorRankingModal: boolean;
+  setShowCreatorRankingModal: (val: boolean) => void;
   showNotesModal: boolean;
   setShowNotesModal: (val: boolean) => void;
   stats: {
@@ -21,6 +23,7 @@ interface PublicModalsProps {
   filterPlatform: string;
   setFilters: (updates: any) => void;
   rankingContent: Content[];
+  creatorRanking: any[];
   users: UserProfile[];
   campaign: Campaign | null;
   modalLimit: '5' | '10' | 'all';
@@ -40,9 +43,10 @@ const PublicModals: React.FC<PublicModalsProps> = ({
   selectedImage, setSelectedImage,
   showPlatformsModal, setShowPlatformsModal,
   showTop5Modal, setShowTop5Modal,
+  showCreatorRankingModal, setShowCreatorRankingModal,
   showNotesModal, setShowNotesModal,
   stats, filterPlatform, setFilters,
-  rankingContent, users, campaign,
+  rankingContent, creatorRanking, users, campaign,
   modalLimit, setModalLimit,
   lang, translations
 }) => {
@@ -258,6 +262,92 @@ const PublicModals: React.FC<PublicModalsProps> = ({
                 </div>
               </div>
               <button onClick={() => setShowNotesModal(false)}
+                className="w-full mt-6 py-4 bg-gray-50 border border-gray-100 text-gray-500 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-gray-100"
+              >
+                {translations.close}
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Creator Ranking Modal */}
+      <AnimatePresence>
+        {showCreatorRankingModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setShowCreatorRankingModal(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              className="relative w-full max-w-lg bg-white border border-gray-100 rounded-[2.5rem] p-6 shadow-2xl"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center">
+                    <Trophy className="h-5 w-5" />
+                  </div>
+                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Ranking de Creadores</h3>
+                </div>
+                <button onClick={() => setShowCreatorRankingModal(false)} className="w-8 h-8 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-2" style={{ scrollbarWidth: 'thin', scrollbarColor: '#e2e8f0 transparent' }}>
+                {creatorRanking.map((creator, index) => {
+                  const u = creator.user;
+                  return (
+                    <div
+                      key={u.id || index}
+                      className="flex items-center justify-between gap-4 p-3.5 rounded-2xl border border-gray-100 hover:border-indigo-100 transition-all group bg-slate-50/50"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-9 h-9 flex-shrink-0 bg-gray-100 rounded-xl flex items-center justify-center text-sm font-black text-slate-300 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                          #{index + 1}
+                        </div>
+
+                        {/* Creator Avatar / Image */}
+                        <div className="w-10 h-10 rounded-full overflow-hidden bg-indigo-500/10 text-indigo-600 border border-indigo-100 flex items-center justify-center font-bold text-sm uppercase shrink-0">
+                          {u.photo_url ? (
+                            <img src={u.photo_url} alt={u.display_name || ''} className="w-full h-full object-cover" />
+                          ) : (
+                            (u.display_name || '?').charAt(0)
+                          )}
+                        </div>
+
+                        {/* Creator Name & Subtitle */}
+                        <div className="flex-col text-left min-w-0">
+                          <p className="text-xs font-bold text-slate-900 truncate leading-snug">{u.display_name || translations.anonymous}</p>
+                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wide leading-none mt-1">
+                            {creator.postsCount} {creator.postsCount === 1 ? 'post' : 'posts'}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Performance metrics row */}
+                      <div className="flex items-center gap-2 shrink-0">
+                        <div className="flex flex-col text-right">
+                          <span className="text-[11px] font-black text-indigo-600 flex items-center justify-end gap-0.5 leading-none">
+                            <Eye className="h-3.5 w-3.5 opacity-70" /> {formatCompact(creator.views)}
+                          </span>
+                          <div className="flex items-center justify-end gap-1.5 mt-1">
+                            <span className="text-[8px] font-bold text-slate-400 flex items-center gap-0.5 leading-none">
+                              <Heart className="h-2.5 w-2.5 opacity-60" /> {formatCompact(creator.likes)}
+                            </span>
+                            <span className="text-[8px] font-bold text-slate-400 flex items-center gap-0.5 leading-none">
+                              <MessageSquare className="h-2.5 w-2.5 opacity-60" /> {formatCompact(creator.comments)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <button onClick={() => setShowCreatorRankingModal(false)}
                 className="w-full mt-6 py-4 bg-gray-50 border border-gray-100 text-gray-500 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-gray-100"
               >
                 {translations.close}

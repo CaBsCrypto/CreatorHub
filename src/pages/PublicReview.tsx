@@ -102,6 +102,7 @@ export default function PublicReview() {
   const [activeSection, setActiveSectionLocal] = useState<'content' | 'creators' | 'stats'>('content');
   const [showPlatformsModal, setShowPlatformsModal] = useState(false);
   const [showTop5Modal, setShowTop5Modal] = useState(false);
+  const [showCreatorRankingModal, setShowCreatorRankingModal] = useState(false);
   const [modalLimit, setModalLimit] = useState<'5'|'10'|'all'>('10');
   const [showNotesModal, setShowNotesModal] = useState(false);
   const [lang, setLangLocal] = useState<'en' | 'es'>((searchParams.get('lang') as 'en' | 'es') || 'en');
@@ -169,7 +170,7 @@ export default function PublicReview() {
             const finalUsers = (userData || []).map(u => ({ 
               ...u, 
               display_name: (u as any).admin_alias || u.display_name || nameFallbackMap.get(u.id) || null,
-              photo_url: u.photo_url ? getProxiedUrl(u.photo_url, 'https://cdn-icons-png.flaticon.com/512/1144/1144760.png') : null
+              photo_url: u.photo_url ? getProxiedUrl(u.photo_url, 'https://cdn-icons-png.flaticon.com/512/114/1144760.png') : null
             }));
             const fetchedIds = new Set(finalUsers.map(u => u.id));
             const stubs: UserProfile[] = creatorIds.filter(id => id && !fetchedIds.has(id)).map(id => ({
@@ -237,6 +238,24 @@ export default function PublicReview() {
     if (modalLimit === '10') return filteredContent.slice(0, 10);
     return filteredContent;
   }, [filteredContent, modalLimit]);
+
+  const creatorRanking = useMemo(() => {
+    return users.map(user => {
+      const creatorContent = content.filter(c => c.creator_id === user.id);
+      const views = creatorContent.reduce((sum, c) => sum + (c.views || 0), 0);
+      const likes = creatorContent.reduce((sum, c) => sum + (c.likes || 0), 0);
+      const comments = creatorContent.reduce((sum, c) => sum + (c.comments || 0), 0);
+      const postsCount = creatorContent.length;
+
+      return {
+        user,
+        views,
+        likes,
+        comments,
+        postsCount
+      };
+    }).sort((a, b) => b.views - a.views);
+  }, [users, content]);;
 
   if (loading) return <LoadingSpinner message={t.loading} />;
 
@@ -312,6 +331,7 @@ export default function PublicReview() {
             setSelectedImage={setSelectedImage}
             onCoupledClick={setViewingCoupledContent}
             setShowPlatformsModal={setShowPlatformsModal}
+            setShowCreatorRankingModal={setShowCreatorRankingModal}
             lang={lang}
             translations={{
               publishedContent: t.publishedContent,
@@ -329,6 +349,7 @@ export default function PublicReview() {
             filterPlatform={filterPlatform}
             setFilterPlatform={setFilterPlatform}
             setFilters={setFilters}
+            setShowCreatorRankingModal={setShowCreatorRankingModal}
             lang={lang}
             translations={{ platformDistribution: t.platformDistribution, viewAllPlatforms: t.viewAllPlatforms }}
           />
@@ -342,12 +363,15 @@ export default function PublicReview() {
         setShowPlatformsModal={setShowPlatformsModal}
         showTop5Modal={showTop5Modal}
         setShowTop5Modal={setShowTop5Modal}
+        showCreatorRankingModal={showCreatorRankingModal}
+        setShowCreatorRankingModal={setShowCreatorRankingModal}
         showNotesModal={showNotesModal}
         setShowNotesModal={setShowNotesModal}
         stats={stats}
         filterPlatform={filterPlatform}
         setFilters={setFilters}
         rankingContent={rankingContent}
+        creatorRanking={creatorRanking}
         users={users}
         campaign={campaign}
         modalLimit={modalLimit}

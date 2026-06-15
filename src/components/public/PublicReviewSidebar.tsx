@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, TrendingUp, Eye, Heart, MessageSquare } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Eye, Heart, MessageSquare, Trophy, ArrowRight } from 'lucide-react';
 import { getPlatformIcon, getPlatformColor } from '../../utils/platformUtils';
 import { UserProfile } from '../../supabase';
 
@@ -11,6 +11,7 @@ interface PublicReviewSidebarProps {
   filterPlatform: string;
   setFilterPlatform: (val: string) => void;
   setFilters: (updates: any) => void;
+  setShowCreatorRankingModal: (val: boolean) => void;
   lang: 'en' | 'es';
   translations: {
     platformDistribution: string;
@@ -23,6 +24,7 @@ const PublicReviewSidebar: React.FC<PublicReviewSidebarProps> = ({
   filterPlatform,
   setFilterPlatform,
   setFilters,
+  setShowCreatorRankingModal,
   lang,
   translations
 }) => {
@@ -92,22 +94,27 @@ const PublicReviewSidebar: React.FC<PublicReviewSidebarProps> = ({
         </div>
       </div>
 
-      {/* Brand Card */}
-      <div className="relative bg-white border border-gray-100 rounded-[2rem] p-6 overflow-hidden shadow-sm">
-        <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-50 rounded-full blur-3xl -mr-10 -mt-10" />
+      {/* Creator Ranking Card (Trigger) */}
+      <button 
+        onClick={() => setShowCreatorRankingModal(true)}
+        className="relative text-left w-full bg-gradient-to-br from-indigo-900 to-indigo-950 text-white border-none rounded-[2rem] p-6 overflow-hidden shadow-xl shadow-indigo-950/20 hover:scale-[1.02] active:scale-95 transition-all duration-300 group cursor-pointer"
+      >
+        <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-indigo-500/20 transition-all duration-500" />
         <div className="relative z-10">
-          <div className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-indigo-100">
-            <TrendingUp className="h-5 w-5 text-white" />
+          <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
+            <Trophy className="h-5 w-5 text-indigo-400 group-hover:scale-110 transition-transform" />
           </div>
-          <h3 className="text-lg font-black text-slate-900 mb-2 leading-tight">Umbra Creator Hub</h3>
-          <p className="text-gray-500 text-xs font-medium leading-relaxed mb-4">
+          <h3 className="text-lg font-black mb-2 leading-tight uppercase tracking-wide">Ranking de Creadores</h3>
+          <p className="text-indigo-200/80 text-xs font-medium leading-relaxed mb-4">
             {lang === 'en'
-              ? 'Real-time campaign metrics connecting brands with top creators.'
-              : 'Métricas de campaña en tiempo real.'}
+              ? 'Check how each creator performed sorted by views and engagement.'
+              : 'Mira el rendimiento de cada creador ordenados por vistas y engagement.'}
           </p>
-          <div className="text-[9px] font-black text-gray-300 uppercase tracking-[0.2em]">© 2026 UMBRA AGENCY</div>
+          <div className="text-[9px] font-black text-indigo-400 uppercase tracking-[0.2em] flex items-center gap-1">
+            Ver Ranking <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
+          </div>
         </div>
-      </div>
+      </button>
     </div>
   );
 };
