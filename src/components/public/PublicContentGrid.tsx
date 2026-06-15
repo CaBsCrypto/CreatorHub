@@ -177,7 +177,7 @@ const PublicContentGrid: React.FC<PublicContentGridProps> = ({
         </div>
       ) : filteredContent.length > 0 ? (
         <div className="relative">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-2.5 max-h-[78vh] overflow-y-auto pr-1 pb-12" style={{ scrollbarWidth: 'thin', scrollbarColor: '#1e1e2e transparent' }}>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-2.5 pb-12">
             {filteredContent.map((item, i) => (
               <ReviewContentCard
                 key={item.id}

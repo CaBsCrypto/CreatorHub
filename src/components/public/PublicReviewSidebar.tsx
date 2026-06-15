@@ -36,7 +36,7 @@ const PublicReviewSidebar: React.FC<PublicReviewSidebarProps> = ({
   };
 
   return (
-    <div className="hidden lg:flex flex-col gap-6">
+    <div className="hidden lg:flex flex-col gap-6 sticky top-24">
       {/* Platform Filter Panel */}
       <div className="bg-white border border-gray-100 rounded-[2rem] p-4 shadow-sm">
         <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">{translations.platformDistribution}</h3>
