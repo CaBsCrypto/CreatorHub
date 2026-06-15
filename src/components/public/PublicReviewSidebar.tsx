@@ -10,6 +10,7 @@ interface PublicReviewSidebarProps {
   } | null;
   filterPlatform: string;
   setFilterPlatform: (val: string) => void;
+  filterCreatorId: string;
   setFilters: (updates: any) => void;
   setShowCreatorRankingModal: (val: boolean) => void;
   creatorRanking: any[];
@@ -24,6 +25,7 @@ const PublicReviewSidebar: React.FC<PublicReviewSidebarProps> = ({
   stats,
   filterPlatform,
   setFilterPlatform,
+  filterCreatorId,
   setFilters,
   setShowCreatorRankingModal,
   creatorRanking,
@@ -102,20 +104,35 @@ const PublicReviewSidebar: React.FC<PublicReviewSidebarProps> = ({
           {lang === 'en' ? 'CREATOR RANKING' : 'RANKING DE CREADORES'}
         </h3>
         <div className="space-y-2.5">
+          {filterCreatorId !== 'all' && (
+            <button onClick={() => setFilters({ creator: 'all' })}
+              className="flex items-center gap-1.5 py-1 text-[10px] font-black text-indigo-600 hover:text-indigo-800 uppercase tracking-widest transition-colors mb-2"
+            >
+              <ArrowLeft className="h-3 w-3" /> {lang === 'en' ? 'VIEW ALL CREATORS' : 'VER TODOS'}
+            </button>
+          )}
           {creatorRanking.map((creator, index) => {
             const u = creator.user;
+            const isSelected = filterCreatorId === u.id;
             return (
-              <div
+              <button
                 key={u.id || index}
-                className="flex items-center justify-between gap-3 p-3 rounded-2xl border border-gray-50 bg-slate-50/30 hover:border-indigo-100 hover:bg-indigo-50/10 transition-all duration-200"
+                onClick={() => setFilters({ creator: isSelected ? 'all' : u.id, section: 'content' })}
+                className={`w-full flex items-center justify-between gap-3 p-3 rounded-2xl transition-all duration-200 border text-left cursor-pointer ${
+                  isSelected
+                    ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-100'
+                    : 'bg-white border-gray-50 hover:bg-gray-50 hover:border-gray-200'
+                }`}
               >
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <span className="text-xs font-black text-slate-300 w-5 shrink-0 text-center">
+                  <span className={`text-xs font-black w-5 shrink-0 text-center ${isSelected ? 'text-white/80' : 'text-slate-300'}`}>
                     #{index + 1}
                   </span>
 
                   {/* Creator Avatar */}
-                  <div className="w-8 h-8 rounded-full overflow-hidden bg-indigo-500/10 text-indigo-600 border border-indigo-100 flex items-center justify-center font-bold text-xs uppercase shrink-0">
+                  <div className={`w-8 h-8 rounded-full overflow-hidden flex items-center justify-center font-bold text-xs uppercase shrink-0 border ${
+                    isSelected ? 'bg-white/20 text-white border-white/20' : 'bg-indigo-500/10 text-indigo-600 border-indigo-100'
+                  }`}>
                     {u.photo_url ? (
                       <img src={u.photo_url} alt={u.display_name || ''} className="w-full h-full object-cover" />
                     ) : (
@@ -125,10 +142,10 @@ const PublicReviewSidebar: React.FC<PublicReviewSidebarProps> = ({
 
                   {/* Creator Name & Post count */}
                   <div className="flex flex-col text-left min-w-0">
-                    <span className="text-xs font-black text-slate-800 truncate leading-snug">
+                    <span className={`text-xs font-black truncate leading-snug ${isSelected ? 'text-white' : 'text-slate-800'}`}>
                       {u.display_name || 'Anonymous'}
                     </span>
-                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide leading-none mt-0.5">
+                    <span className={`text-[9px] font-bold uppercase tracking-wide leading-none mt-0.5 ${isSelected ? 'text-white/80' : 'text-slate-400'}`}>
                       {creator.postsCount} {creator.postsCount === 1 ? 'post' : 'posts'}
                     </span>
                   </div>
@@ -136,19 +153,19 @@ const PublicReviewSidebar: React.FC<PublicReviewSidebarProps> = ({
 
                 {/* Metrics */}
                 <div className="flex flex-col text-right shrink-0">
-                  <span className="text-[11px] font-black text-indigo-600 flex items-center justify-end gap-0.5 leading-none">
+                  <span className={`text-[11px] font-black flex items-center justify-end gap-0.5 leading-none ${isSelected ? 'text-white' : 'text-indigo-600'}`}>
                     <Eye className="h-3.5 w-3.5 opacity-75" /> {formatCompact(creator.views)}
                   </span>
                   <div className="flex items-center justify-end gap-1.5 mt-1">
-                    <span className="text-[8px] font-bold text-slate-400 flex items-center gap-0.5 leading-none">
+                    <span className={`text-[8px] font-bold flex items-center gap-0.5 leading-none ${isSelected ? 'text-white/80' : 'text-slate-400'}`}>
                       <Heart className="h-2.5 w-2.5 opacity-60" /> {formatCompact(creator.likes)}
                     </span>
-                    <span className="text-[8px] font-bold text-slate-400 flex items-center gap-0.5 leading-none">
+                    <span className={`text-[8px] font-bold flex items-center gap-0.5 leading-none ${isSelected ? 'text-white/80' : 'text-slate-400'}`}>
                       <MessageSquare className="h-2.5 w-2.5 opacity-60" /> {formatCompact(creator.comments)}
                     </span>
                   </div>
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>

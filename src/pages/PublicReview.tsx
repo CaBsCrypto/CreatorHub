@@ -348,6 +348,7 @@ export default function PublicReview() {
             stats={stats}
             filterPlatform={filterPlatform}
             setFilterPlatform={setFilterPlatform}
+            filterCreatorId={filterCreatorId}
             setFilters={setFilters}
             setShowCreatorRankingModal={setShowCreatorRankingModal}
             creatorRanking={creatorRanking}
