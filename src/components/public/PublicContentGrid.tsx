@@ -48,7 +48,7 @@ const PublicContentGrid: React.FC<PublicContentGridProps> = ({
   translations
 }) => {
   return (
-    <div className={`lg:col-span-3 ${activeSection === 'stats' ? 'hidden lg:block' : 'block'}`}>
+    <div className={`lg:col-span-2 ${activeSection === 'stats' ? 'hidden lg:block' : 'block'}`}>
       {/* Mobile Nav Tabs */}
       <div className="lg:hidden flex items-center gap-2 mb-6">
         <div className="flex-1 flex items-center bg-white/5 border border-white/10 p-1 rounded-2xl">

@@ -505,11 +505,11 @@ export default function CreatorDashboard() {
         campaigns={campaigns} 
         editingContent={editingContent}
         isProcessing={isProcessingContent}
-        onTwitchUpload={(file, explicitCreatorId, dCount, aCount, pCount, uvCount, uChatters, vCount, fCount, sCount, shCount, title, campaign_id, platform, likes, comments, contentType, isRepost, parentId) => {
-          handleTwitchUpload(file, user?.id || '', explicitCreatorId || null, editingContent, campaigns, dCount, aCount, pCount, uvCount, uChatters, vCount, fCount, sCount, shCount, title, campaign_id || (filters.campaign === 'all' ? (campaigns[0]?.id || '') : filters.campaign), platform, likes, comments, contentType, isRepost, parentId);
+        onTwitchUpload={async (file, explicitCreatorId, dCount, aCount, pCount, uvCount, uChatters, vCount, fCount, sCount, shCount, title, campaign_id, platform, likes, comments, contentType, isRepost, parentId) => {
+          await handleTwitchUpload(file, user?.id || '', explicitCreatorId || null, editingContent, campaigns, dCount, aCount, pCount, uvCount, uChatters, vCount, fCount, sCount, shCount, title, campaign_id || (filters.campaign === 'all' ? (campaigns[0]?.id || '') : filters.campaign), platform, likes, comments, contentType, isRepost, parentId);
         }}
-        onSubmit={(data) => {
-          handleContentSubmit(data, user?.id || '', editingContent, () => { setIsContentModalOpen(false); setEditingContent(null); });
+        onSubmit={async (data) => {
+          await handleContentSubmit(data, user?.id || '', editingContent, () => { setIsContentModalOpen(false); setEditingContent(null); });
         }}
       />
       <PaymentModal 
