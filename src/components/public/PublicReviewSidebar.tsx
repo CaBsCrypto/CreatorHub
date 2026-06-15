@@ -38,12 +38,12 @@ const PublicReviewSidebar: React.FC<PublicReviewSidebarProps> = ({
   return (
     <div className="hidden lg:flex flex-col gap-6">
       {/* Platform Filter Panel */}
-      <div className="bg-white border border-gray-100 rounded-[2rem] p-6 shadow-sm">
-        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-5">{translations.platformDistribution}</h3>
-        <div className="space-y-2">
+      <div className="bg-white border border-gray-100 rounded-[2rem] p-4 shadow-sm">
+        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">{translations.platformDistribution}</h3>
+        <div className="space-y-1.5">
           {filterPlatform !== 'all' && (
             <button onClick={() => setFilterPlatform('all')}
-              className="flex items-center gap-1.5 py-2 text-[10px] font-black text-indigo-600 hover:text-indigo-800 uppercase tracking-widest transition-colors"
+              className="flex items-center gap-1 py-1.5 text-[10px] font-black text-indigo-600 hover:text-indigo-800 uppercase tracking-widest transition-colors"
             >
               <ArrowLeft className="h-3 w-3" /> {translations.viewAllPlatforms}
             </button>
@@ -53,38 +53,38 @@ const PublicReviewSidebar: React.FC<PublicReviewSidebarProps> = ({
             const pStats = stats?.platformStats?.[lowerPlatform];
             return (
               <button key={platform} onClick={() => setFilters({ platform, section: 'content' })}
-                className={`w-full flex items-center justify-between p-3.5 rounded-2xl transition-all duration-200 border gap-3 ${
+                className={`w-full flex items-center justify-between p-2.5 rounded-2xl transition-all duration-200 border gap-2 ${
                   filterPlatform === lowerPlatform
                     ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-100'
                     : 'bg-white border-gray-50 hover:bg-gray-50 hover:border-gray-200'
                 }`}
               >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className={`w-8 h-8 rounded-xl flex-shrink-0 flex items-center justify-center ${
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className={`w-7 h-7 rounded-lg flex-shrink-0 flex items-center justify-center ${
                     filterPlatform === lowerPlatform ? 'bg-white/20 text-white' : getPlatformColor(platform)
                   }`}>
-                    {getPlatformIcon(platform, 'h-4 w-4')}
+                    {getPlatformIcon(platform, 'h-3.5 w-3.5')}
                   </div>
                   <div className="flex flex-col text-left min-w-0">
-                    <span className={`text-sm font-black capitalize leading-tight ${filterPlatform === lowerPlatform ? 'text-white' : 'text-slate-700'}`}>
+                    <span className={`text-xs font-black capitalize leading-tight ${filterPlatform === lowerPlatform ? 'text-white' : 'text-slate-700'}`}>
                        {lowerPlatform === 'coinmarketcap' ? 'CMC' : lowerPlatform === 'twitch' ? 'Stream' : platform}
                     </span>
                     {pStats && (
-                      <div className="flex items-center gap-2 mt-1 min-w-0 flex-wrap">
-                        <span className={`flex items-center gap-0.5 text-[10px] font-bold ${filterPlatform === lowerPlatform ? 'text-white/80' : 'text-slate-400'}`}>
+                      <div className="flex items-center gap-1.5 mt-0.5 min-w-0 flex-wrap">
+                        <span className={`flex items-center gap-0.5 text-[9px] font-bold ${filterPlatform === lowerPlatform ? 'text-white/80' : 'text-slate-400'}`}>
                           <Eye className="h-3 w-3 opacity-70" /> {formatCompact(pStats.views)}
                         </span>
-                        <span className={`flex items-center gap-0.5 text-[10px] font-bold ${filterPlatform === lowerPlatform ? 'text-white/80' : 'text-slate-400'}`}>
-                          <Heart className="h-3 w-3 opacity-70" /> {formatCompact(pStats.likes)}
+                        <span className={`flex items-center gap-0.5 text-[9px] font-bold ${filterPlatform === lowerPlatform ? 'text-white/80' : 'text-slate-400'}`}>
+                          <Heart className="h-2.5 w-2.5 opacity-70" /> {formatCompact(pStats.likes)}
                         </span>
-                        <span className={`flex items-center gap-0.5 text-[10px] font-bold ${filterPlatform === lowerPlatform ? 'text-white/80' : 'text-slate-400'}`}>
-                          <MessageSquare className="h-3 w-3 opacity-70" /> {formatCompact(pStats.comments)}
+                        <span className={`flex items-center gap-0.5 text-[9px] font-bold ${filterPlatform === lowerPlatform ? 'text-white/80' : 'text-slate-400'}`}>
+                          <MessageSquare className="h-2.5 w-2.5 opacity-70" /> {formatCompact(pStats.comments)}
                         </span>
                       </div>
                     )}
                   </div>
                 </div>
-                <span className={`text-xs font-black px-2 py-0.5 rounded-lg shrink-0 ${
+                <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-lg shrink-0 ${
                   filterPlatform === lowerPlatform ? 'bg-white/20 text-white' : 'bg-gray-50 text-slate-400 border border-gray-100'
                 }`}>
                   {count}
