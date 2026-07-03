@@ -165,6 +165,22 @@ export default function PublicReview() {
           if (c.creator_id && (c as any).guest_name) nameFallbackMap.set(c.creator_id, (c as any).guest_name); 
         });
 
+        // Gather unique guest names
+        const guestNames = [...new Set(contentData?.filter(c => !c.creator_id && c.guest_name).map(c => c.guest_name))].filter(Boolean) as string[];
+        const guestUsers: UserProfile[] = guestNames.map(name => ({
+          id: `guest:${name}`,
+          role: 'creator',
+          email: '',
+          display_name: name,
+          photo_url: null,
+          payment_method: null,
+          binance_id: null,
+          wallet_address: null,
+          wallet_network: null,
+          created_at: new Date().toISOString()
+        }));
+
+        let finalRegisteredUsers: UserProfile[] = [];
         if (creatorIds.length > 0) {
           try {
             const { data: userData } = await supabase.from('users').select('*').in('id', creatorIds);
@@ -179,15 +195,17 @@ export default function PublicReview() {
               photo_url: null, payment_method: null, binance_id: null, wallet_address: null,
               wallet_network: null, created_at: new Date().toISOString()
             }));
-            setUsers([...finalUsers, ...stubs]);
+            finalRegisteredUsers = [...finalUsers, ...stubs];
           } catch {
-            setUsers(creatorIds.map(id => ({
+            finalRegisteredUsers = creatorIds.map(id => ({
               id: id as string, role: 'creator', email: '', display_name: nameFallbackMap.get(id as string) || null,
               photo_url: null, payment_method: null, binance_id: null, wallet_address: null,
               wallet_network: null, created_at: new Date().toISOString()
-            })));
+            }));
           }
         }
+
+        setUsers([...finalRegisteredUsers, ...guestUsers]);
 
         if (campaignData.client_id) {
           const { data: projectData } = await supabase.from('users').select('*').eq('id', campaignData.client_id).single();
@@ -234,7 +252,15 @@ export default function PublicReview() {
   const filteredContent = useMemo(() => {
     const arr = content.filter(item => {
       const matchPlatform = filterPlatform === 'all' || item.platform?.toLowerCase() === filterPlatform.toLowerCase();
-      const matchCreator = filterCreatorId === 'all' || item.creator_id === filterCreatorId;
+      let matchCreator = false;
+      if (filterCreatorId === 'all') {
+        matchCreator = true;
+      } else if (filterCreatorId.startsWith('guest:')) {
+        const gName = filterCreatorId.replace('guest:', '');
+        matchCreator = !item.creator_id && item.guest_name === gName;
+      } else {
+        matchCreator = item.creator_id === filterCreatorId;
+      }
       return matchPlatform && matchCreator;
     });
     return aggregateContentItems(arr, content);
@@ -248,7 +274,13 @@ export default function PublicReview() {
 
   const creatorRanking = useMemo(() => {
     return users.map(user => {
-      const creatorContent = content.filter(c => c.creator_id === user.id);
+      const creatorContent = content.filter(c => {
+        if (user.id.startsWith('guest:')) {
+          const gName = user.id.replace('guest:', '');
+          return !c.creator_id && c.guest_name === gName;
+        }
+        return c.creator_id === user.id;
+      });
       const views = creatorContent.reduce((sum, c) => sum + (c.views || 0), 0);
       const likes = creatorContent.reduce((sum, c) => sum + (c.likes || 0), 0);
       const comments = creatorContent.reduce((sum, c) => sum + (c.comments || 0), 0);
@@ -379,9 +411,18 @@ export default function PublicReview() {
                       {/* Content Column */}
                       <div className="flex-1 min-w-0 flex flex-col justify-center">
                         {/* First Row: Creator Name */}
-                        <span className={`text-xs font-black truncate leading-snug ${isSelected ? 'text-white' : 'text-slate-800'}`}>
-                          {u.display_name || 'Anonymous'}
-                        </span>
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className={`text-xs font-black truncate leading-snug ${isSelected ? 'text-white' : 'text-slate-800'}`}>
+                            {u.display_name || 'Anonymous'}
+                          </span>
+                          {u.id.startsWith('guest:') && (
+                            <span className={`shrink-0 px-1 py-0.5 rounded text-[7px] font-black uppercase tracking-widest leading-none ${
+                              isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500 border border-slate-200'
+                            }`}>
+                              {lang === 'en' ? 'GUEST' : 'INVITADO'}
+                            </span>
+                          )}
+                        </div>
 
                         {/* Second Row: Posts Count */}
                         <span className={`text-[9px] font-bold uppercase tracking-wide leading-none mt-1 ${isSelected ? 'text-white/80' : 'text-slate-400'}`}>

@@ -129,7 +129,13 @@ const PublicContentGrid: React.FC<PublicContentGridProps> = ({
       {activeSection === 'creators' ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-3 animate-in fade-in slide-in-from-bottom-4">
           {users.map((u, i) => {
-            const posts = filteredContent.filter(c => c.creator_id === u.id); // Note: showing only filtered content posts or all posts? Original code used full content list. Let's stick to consistent logic.
+            const posts = filteredContent.filter(c => {
+              if (u.id.startsWith('guest:')) {
+                const gName = u.id.replace('guest:', '');
+                return !c.creator_id && c.guest_name === gName;
+              }
+              return c.creator_id === u.id;
+            });
             const views = posts.reduce((s, c) => s + (c.views || 0), 0);
             const isFiltered = filterCreatorId === u.id;
             return (
@@ -161,8 +167,13 @@ const PublicContentGrid: React.FC<PublicContentGridProps> = ({
                       </div>
                     )}
                   </div>
-                  <div>
+                  <div className="flex flex-col items-center">
                     <p className="font-black text-slate-800 text-sm leading-tight">{u.display_name || translations.anonymous}</p>
+                    {u.id.startsWith('guest:') && (
+                      <span className="mt-1 px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded text-[7px] font-black uppercase tracking-widest leading-none border border-slate-200">
+                        {lang === 'en' ? 'GUEST' : 'INVITADO'}
+                      </span>
+                    )}
                     <div className="flex items-center justify-center gap-2 mt-1.5">
                       <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{posts.length} {translations.posts}</span>
                       <span className="w-0.5 h-3 bg-gray-200 rounded-full" />
@@ -182,7 +193,12 @@ const PublicContentGrid: React.FC<PublicContentGridProps> = ({
               <ReviewContentCard
                 key={item.id}
                 item={item}
-                creator={users.find(u => u.id === item.creator_id)}
+                creator={item.creator_id 
+                  ? users.find(u => u.id === item.creator_id)
+                  : item.guest_name
+                  ? users.find(u => u.id === `guest:${item.guest_name}`)
+                  : undefined
+                }
                 index={i}
                 onStreamClick={setSelectedImage}
                 onCoupledClick={onCoupledClick}

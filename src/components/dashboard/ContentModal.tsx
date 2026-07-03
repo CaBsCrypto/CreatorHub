@@ -250,6 +250,10 @@ const ContentModal: React.FC<ContentModalProps> = ({
     });
   }, [campaignContents, editingContent, formData.creator_id, formData.guest_name]);
 
+  const existingGuests = React.useMemo(() => {
+    return [...new Set(campaignContents.filter(c => !c.creator_id && c.guest_name).map(c => c.guest_name))].filter(Boolean) as string[];
+  }, [campaignContents]);
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -372,14 +376,37 @@ const ContentModal: React.FC<ContentModalProps> = ({
             </div>
 
             {formData.creator_id === 'guest' && (
-              <div className="animate-in fade-in slide-in-from-top-2">
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Nombre Invitado</label>
-                <input
-                  type="text" required value={formData.guest_name}
-                  onChange={e => setFormData({ ...formData, guest_name: e.target.value })}
-                  placeholder="Ej: Proxy User"
-                  className="block w-full rounded-xl border border-gray-100 bg-gray-50 py-2.5 px-4 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300"
-                />
+              <div className="animate-in fade-in slide-in-from-top-2 space-y-2">
+                <div>
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Nombre Invitado</label>
+                  <input
+                    type="text" required value={formData.guest_name}
+                    onChange={e => setFormData({ ...formData, guest_name: e.target.value })}
+                    placeholder="Ej: Proxy User"
+                    className="block w-full rounded-xl border border-gray-100 bg-gray-50 py-2.5 px-4 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300"
+                  />
+                </div>
+                {existingGuests.length > 0 && (
+                  <div className="mt-2">
+                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-wider mb-1.5 ml-1">Invitados en esta campaña (haz clic para seleccionar):</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {existingGuests.map(name => (
+                        <button
+                          key={name}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, guest_name: name })}
+                          className={`px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all ${
+                            formData.guest_name === name
+                              ? 'bg-indigo-600 border-indigo-500 text-white shadow-sm'
+                              : 'bg-white border-gray-100 text-slate-600 hover:bg-gray-50 hover:border-gray-200'
+                          }`}
+                        >
+                          {name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
             

@@ -107,6 +107,11 @@ const ReviewContentCard: React.FC<ReviewContentCardProps> = ({
             }
           </div>
           <span className="text-[9px] font-bold text-slate-600 truncate">{creator?.display_name || translations.anonymous}</span>
+          {creator?.id?.startsWith('guest:') && (
+            <span className="shrink-0 px-1 py-0.5 bg-slate-100 border border-slate-200 text-slate-500 text-[6px] font-black uppercase tracking-wider rounded scale-90 origin-left">
+              INVITADO
+            </span>
+          )}
         </div>
 
         {/* Badges Row (Mismo Post, Platforms, Formato) */}
