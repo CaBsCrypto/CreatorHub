@@ -49,6 +49,14 @@ const sanitizeUrl = (url: string, platform: string): string => {
   }
 };
 
+const normalizeName = (name: string): string => {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+};
+
 const ContentModal: React.FC<ContentModalProps> = ({ 
   isOpen, onClose, campaigns, users, editingContent, onSubmit, onTwitchUpload, isProcessing 
 }) => {
@@ -226,7 +234,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
       
       // Si es un invitado externo (guest)
       if (formData.creator_id === 'guest' && formData.guest_name) {
-        return item.guest_name === formData.guest_name;
+        return normalizeName(item.guest_name || '') === normalizeName(formData.guest_name);
       }
       
       return true;
@@ -242,7 +250,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
       if (formData.creator_id && formData.creator_id !== 'guest') {
         if (item.creator_id !== formData.creator_id) return false;
       } else if (formData.creator_id === 'guest' && formData.guest_name) {
-        if (item.guest_name !== formData.guest_name) return false;
+        if (normalizeName(item.guest_name || '') !== normalizeName(formData.guest_name)) return false;
       }
       
       // Debe ser un post independiente (sin parent_id) o ya ser hijo de este post
@@ -251,7 +259,16 @@ const ContentModal: React.FC<ContentModalProps> = ({
   }, [campaignContents, editingContent, formData.creator_id, formData.guest_name]);
 
   const existingGuests = React.useMemo(() => {
-    return [...new Set(campaignContents.filter(c => !c.creator_id && c.guest_name).map(c => c.guest_name))].filter(Boolean) as string[];
+    const normalizedMap = new Map<string, string>();
+    campaignContents.forEach(c => {
+      if (!c.creator_id && c.guest_name) {
+        const norm = normalizeName(c.guest_name);
+        if (!normalizedMap.has(norm)) {
+          normalizedMap.set(norm, c.guest_name);
+        }
+      }
+    });
+    return Array.from(normalizedMap.values());
   }, [campaignContents]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {

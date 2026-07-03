@@ -4,6 +4,14 @@ import { Award, X, ChevronRight, Globe, LayoutGrid, Users, PieChart, Trophy } fr
 import { Content, UserProfile } from '../../supabase';
 import ReviewContentCard from './ReviewContentCard';
 
+const normalizeName = (name: string): string => {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+};
+
 interface PublicContentGridProps {
   activeSection: 'content' | 'creators' | 'stats';
   setActiveSection: (val: 'content' | 'creators' | 'stats') => void;
@@ -131,8 +139,8 @@ const PublicContentGrid: React.FC<PublicContentGridProps> = ({
           {users.map((u, i) => {
             const posts = filteredContent.filter(c => {
               if (u.id.startsWith('guest:')) {
-                const gName = u.id.replace('guest:', '');
-                return !c.creator_id && c.guest_name === gName;
+                const normFilter = u.id.replace('guest:', '');
+                return !c.creator_id && normalizeName(c.guest_name || '') === normFilter;
               }
               return c.creator_id === u.id;
             });
@@ -196,7 +204,7 @@ const PublicContentGrid: React.FC<PublicContentGridProps> = ({
                 creator={item.creator_id 
                   ? users.find(u => u.id === item.creator_id)
                   : item.guest_name
-                  ? users.find(u => u.id === `guest:${item.guest_name}`)
+                  ? users.find(u => u.id === `guest:${normalizeName(item.guest_name)}`)
                   : undefined
                 }
                 index={i}

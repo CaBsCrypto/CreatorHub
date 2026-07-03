@@ -29,6 +29,14 @@ const platformConfig = {
   baseapp: { icon: Globe, color: 'text-blue-600', bg: 'bg-blue-50', label: 'BaseApp' }
 };
 
+const normalizeName = (name: string): string => {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+};
+
 function aggregateContentItems(filteredItems: Content[], allItems: Content[]): Content[] {
   const allGroups = new Map<string, Content[]>();
   allItems.forEach(item => {
@@ -165,13 +173,21 @@ export default function PublicReview() {
           if (c.creator_id && (c as any).guest_name) nameFallbackMap.set(c.creator_id, (c as any).guest_name); 
         });
 
-        // Gather unique guest names
-        const guestNames = [...new Set(contentData?.filter(c => !c.creator_id && c.guest_name).map(c => c.guest_name))].filter(Boolean) as string[];
-        const guestUsers: UserProfile[] = guestNames.map(name => ({
-          id: `guest:${name}`,
+        // Gather unique guest names, grouping by normalized name
+        const normalizedGuestsMap = new Map<string, string>();
+        contentData?.forEach(c => {
+          if (!c.creator_id && c.guest_name) {
+            const norm = normalizeName(c.guest_name);
+            if (!normalizedGuestsMap.has(norm)) {
+              normalizedGuestsMap.set(norm, c.guest_name);
+            }
+          }
+        });
+        const guestUsers: UserProfile[] = Array.from(normalizedGuestsMap.entries()).map(([norm, originalName]) => ({
+          id: `guest:${norm}`,
           role: 'creator',
           email: '',
-          display_name: name,
+          display_name: originalName,
           photo_url: null,
           payment_method: null,
           binance_id: null,
@@ -256,8 +272,8 @@ export default function PublicReview() {
       if (filterCreatorId === 'all') {
         matchCreator = true;
       } else if (filterCreatorId.startsWith('guest:')) {
-        const gName = filterCreatorId.replace('guest:', '');
-        matchCreator = !item.creator_id && item.guest_name === gName;
+        const normFilter = filterCreatorId.replace('guest:', '');
+        matchCreator = !item.creator_id && normalizeName(item.guest_name || '') === normFilter;
       } else {
         matchCreator = item.creator_id === filterCreatorId;
       }
@@ -276,8 +292,8 @@ export default function PublicReview() {
     return users.map(user => {
       const creatorContent = content.filter(c => {
         if (user.id.startsWith('guest:')) {
-          const gName = user.id.replace('guest:', '');
-          return !c.creator_id && c.guest_name === gName;
+          const normFilter = user.id.replace('guest:', '');
+          return !c.creator_id && normalizeName(c.guest_name || '') === normFilter;
         }
         return c.creator_id === user.id;
       });
