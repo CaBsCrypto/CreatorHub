@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { supabase, Campaign, Content, UserProfile, Payment } from '../supabase';
 import { useAuth } from '../AuthContext';
 import { useToast } from './useToast';
+import { aggregateContentItems } from '../utils/campaignHelpers';
 import { 
   Trophy, Zap, Target, Award, Shield, Sparkles, Flame, Rocket, Star,
   CheckCircle2, LucideIcon
@@ -34,63 +35,6 @@ export const getAgencyRank = (posts: number, views: number) => {
   }
   return AGENCY_TIERS[0];
 };
-
-function aggregateContentItems(filteredItems: Content[], allItems: Content[]): Content[] {
-  const allGroups = new Map<string, Content[]>();
-  allItems.forEach(item => {
-    const groupId = item.parent_id || item.id;
-    if (!allGroups.has(groupId)) {
-      allGroups.set(groupId, []);
-    }
-    allGroups.get(groupId)!.push(item);
-  });
-
-  const matchedGroupIds = new Set<string>();
-  filteredItems.forEach(item => {
-    const groupId = item.parent_id || item.id;
-    matchedGroupIds.add(groupId);
-  });
-
-  const result: Content[] = [];
-  
-  matchedGroupIds.forEach(groupId => {
-    const groupMembers = allGroups.get(groupId) || [];
-    const filteredGroupMembers = groupMembers.filter(m => filteredItems.some(f => f.id === m.id));
-    if (filteredGroupMembers.length === 0) return;
-    
-    const masterInFiltered = filteredGroupMembers.find(m => m.id === groupId);
-    const representative = masterInFiltered || filteredGroupMembers[0];
-    
-    const totalViews = groupMembers.reduce((acc, curr) => acc + (curr.views || 0), 0);
-    const totalLikes = groupMembers.reduce((acc, curr) => acc + (curr.likes || 0), 0);
-    const totalComments = groupMembers.reduce((acc, curr) => acc + (curr.comments || 0), 0);
-    const totalUniqueViewers = groupMembers.reduce((acc, curr) => acc + (curr.unique_viewers || 0), 0);
-    const totalPeekViewers = groupMembers.reduce((acc, curr) => acc + (curr.peek_viewers || 0), 0);
-    const totalSharesCount = groupMembers.reduce((acc, curr) => acc + (curr.shares_count || 0), 0);
-    const totalFollowers = groupMembers.reduce((acc, curr) => acc + (curr.followers || 0), 0);
-    const totalNewSubscriptions = groupMembers.reduce((acc, curr) => acc + (curr.new_subscriptions || 0), 0);
-    
-    const allPlatforms = groupMembers.map(m => m.platform);
-    const uniqueGroupPlatforms = [...new Set(allPlatforms)];
-
-    result.push({
-      ...representative,
-      is_repost: false, // Ensure it is treated as master since it represents the group
-      views: totalViews,
-      likes: totalLikes,
-      comments: totalComments,
-      unique_viewers: totalUniqueViewers,
-      peek_viewers: totalPeekViewers,
-      shares_count: totalSharesCount,
-      followers: totalFollowers,
-      new_subscriptions: totalNewSubscriptions,
-      coupledPlatforms: uniqueGroupPlatforms,
-      coupledPosts: groupMembers
-    } as any);
-  });
-
-  return result.sort((a, b) => (b.views || 0) - (a.views || 0));
-}
 
 export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform?: string, campaign?: string, creator?: string, showOnlyZeroViews?: boolean }) => {
   const { user } = useAuth();
@@ -147,14 +91,16 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
       });
 
       // Also parse content to see if other creators have uploaded to this campaign
+      // Guests (creator_id null + guest_name) count as separate creators too
       const rawContent = conts.data || [];
       const contentByCampaign = new Map<string, Set<string>>();
       rawContent.forEach(c => {
-        if (c.creator_id) {
+        const authorKey = c.creator_id || (c.guest_name ? `guest:${c.guest_name}` : null);
+        if (authorKey) {
           if (!contentByCampaign.has(c.campaign_id)) {
             contentByCampaign.set(c.campaign_id, new Set());
           }
-          contentByCampaign.get(c.campaign_id)!.add(c.creator_id);
+          contentByCampaign.get(c.campaign_id)!.add(authorKey);
         }
       });
 
@@ -395,7 +341,12 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
       
       // A campaign is personal if only Cabs has uploaded content to it, OR if it has no content and is owned by Cabs
       // AND it is not marked as show_to_all
-      const uniqueCreators = new Set(campaignContent.map(c => c.creator_id).filter(Boolean));
+      // Guests (creator_id null + guest_name) count as separate creators too
+      const uniqueCreators = new Set(
+        campaignContent
+          .map(c => c.creator_id || (c.guest_name ? `guest:${c.guest_name}` : null))
+          .filter(Boolean)
+      );
       const isPersonal = !campaign.show_to_all && cabsUserId && (
         (uniqueCreators.size === 1 && uniqueCreators.has(cabsUserId)) ||
         (uniqueCreators.size === 0 && campaign.client_id === null)
