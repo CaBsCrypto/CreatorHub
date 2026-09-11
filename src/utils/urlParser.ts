@@ -24,6 +24,8 @@ export function normalizeUrl(url: string, platform: string): string {
     }
 
     if (platform === 'instagram') {
+      const igUrl = normalizeInstagramUrl(url);
+      const urlObj = new URL(igUrl);
       // Instagram /p/ID or /reel/ID
       // Strip everything after the ID, including trailing slashes and query params
       const parts = urlObj.pathname.split('/').filter(Boolean);
@@ -46,4 +48,27 @@ export function normalizeUrl(url: string, platform: string): string {
     // If it's not a valid URL (e.g. they typed nonsense), return it as-is
     return url.split('?')[0]; 
   }
+}
+
+export function idToShortcode(id: string): string {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+  let shortcode = '';
+  let idBigInt = BigInt(id);
+  while (idBigInt > 0n) {
+    let remainder = idBigInt % 64n;
+    shortcode = alphabet[Number(remainder)] + shortcode;
+    idBigInt = idBigInt / 64n;
+  }
+  return shortcode;
+}
+
+export function normalizeInstagramUrl(url: string): string {
+  if (url.includes('/insights/media/')) {
+    const match = url.match(/\/insights\/media\/(\d+)/);
+    if (match && match[1]) {
+      const shortcode = idToShortcode(match[1]);
+      return `https://www.instagram.com/p/${shortcode}/`;
+    }
+  }
+  return url;
 }

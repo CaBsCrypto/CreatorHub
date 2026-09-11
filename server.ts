@@ -48,6 +48,10 @@ app.use(helmet({
 const allowedOrigins = [
   'https://creator-hub-three-lake.vercel.app',
   'https://creator-hub-three-lake-cabs-projects.vercel.app',
+  'https://umbra-hub.vercel.app',
+  'https://umbra-hub-cabs-projects.vercel.app',
+  'https://umbrahub.vercel.app',
+  'https://umbrahub-cabs-projects.vercel.app',
   'http://localhost:5173',
   'http://localhost:3000'
 ];

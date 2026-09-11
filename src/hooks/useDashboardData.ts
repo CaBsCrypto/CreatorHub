@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { supabase, Campaign, Content, UserProfile, Payment } from '../supabase';
+import { supabase, Campaign, Content, UserProfile, Payment, CreatorGroup, CreatorGroupMember } from '../supabase';
 import { useAuth } from '../AuthContext';
 import { useToast } from './useToast';
 import { aggregateContentItems } from '../utils/campaignHelpers';
@@ -49,7 +49,17 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
   const [deletedUsers, setDeletedUsers] = useState<UserProfile[]>([]);
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
   const [assignedCampaignIds, setAssignedCampaignIds] = useState<string[]>([]);
+  const [groups, setGroups] = useState<CreatorGroup[]>([]);
+  const [groupMembers, setGroupMembers] = useState<CreatorGroupMember[]>([]);
+  const [activeGroupId, setActiveGroupIdState] = useState<string>(() => {
+    try { return localStorage.getItem('creatorhub_active_group') || 'all'; } catch { return 'all'; }
+  });
   const [loading, setLoading] = useState(true);
+
+  const setActiveGroupId = useCallback((groupId: string) => {
+    try { localStorage.setItem('creatorhub_active_group', groupId); } catch { /* ignore */ }
+    setActiveGroupIdState(groupId);
+  }, []);
 
   const fetchData = useCallback(async () => {
     try {
@@ -70,10 +80,19 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
         .from('campaign_creators')
         .select('campaign_id, creator_id');
 
+      // Fetch creator groups and memberships
+      const [groupsRes, membersRes] = await Promise.all([
+        supabase.from('creator_groups').select('*').is('deleted_at', null).order('created_at', { ascending: true }),
+        supabase.from('creator_group_members').select('*')
+      ]);
+
       if (camps.error) throw camps.error;
       if (conts.error) throw conts.error;
       if (usrs.error) throw usrs.error;
       if (assignmentsErr) throw assignmentsErr;
+
+      setGroups(groupsRes.data || []);
+      setGroupMembers(membersRes.data || []);
 
       const assignmentList = allAssignments || [];
 
@@ -239,9 +258,51 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
     };
   }, [user, fetchData]);
 
+  // --- GROUP FILTERING (view-level ordering, not RLS isolation) ---
+  // activeGroupId 'all' => no filtering. Otherwise: campaigns of that group,
+  // content of those campaigns, creators that are members of that group.
+  const groupCampaignIds = useMemo(() => {
+    if (activeGroupId === 'all') return null; // null = no group filtering
+    return new Set(campaigns.filter(c => c.group_id === activeGroupId).map(c => c.id));
+  }, [campaigns, activeGroupId]);
+
+  const groupMemberCreatorIds = useMemo(() => {
+    if (activeGroupId === 'all') return null;
+    return new Set(groupMembers.filter(m => m.group_id === activeGroupId).map(m => m.creator_id));
+  }, [groupMembers, activeGroupId]);
+
+  // Campaigns restricted to the active group (for tabs consuming `campaigns`-derived data)
+  const visibleCampaignsForGroup = useMemo(() => {
+    if (!groupCampaignIds) return campaigns;
+    return campaigns.filter(c => groupCampaignIds.has(c.id));
+  }, [campaigns, groupCampaignIds]);
+
+  // Users restricted to the active group membership (guest creators are group-agnostic)
+  const visibleUsers = useMemo(() => {
+    if (!groupMemberCreatorIds) return users;
+    return users.filter(u => u.role === 'admin' || groupMemberCreatorIds.has(u.id));
+  }, [users, groupMemberCreatorIds]);
+
+  // Content restricted to the active group
+  const groupFilteredBaseContent = useMemo(() => {
+    if (!groupCampaignIds) return content;
+    return content.filter(c => groupCampaignIds.has(c.campaign_id));
+  }, [content, groupCampaignIds]);
+
+  // Payments visible for the active group: tied to a group campaign, or campaign-less
+  // payments for group members. Campaign-less guests/hidden entries show only on 'all'.
+  const visiblePayments = useMemo(() => {
+    if (!groupCampaignIds) return payments;
+    return payments.filter(p => {
+      if (p.campaign_id) return groupCampaignIds.has(p.campaign_id);
+      if (p.creator_id) return groupMemberCreatorIds?.has(p.creator_id) ?? false;
+      return false;
+    });
+  }, [payments, groupCampaignIds, groupMemberCreatorIds]);
+
   const filteredContent = useMemo(() => {
-    let result = role === 'creator' ? content.filter(c => c.creator_id === user?.id) : content;
-    
+    let result = role === 'creator' ? groupFilteredBaseContent.filter(c => c.creator_id === user?.id) : groupFilteredBaseContent;
+
     if (filters) {
       // Improved defensive filtering
       if (filters.platform && filters.platform !== 'all' && filters.platform !== '') {
@@ -277,7 +338,7 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
     }
 
     return aggregateContentItems(result, content);
-  }, [content, role, user, filters?.platform, filters?.campaign, filters?.creator, filters?.showOnlyZeroViews]);
+  }, [content, groupFilteredBaseContent, role, user, filters?.platform, filters?.campaign, filters?.creator, filters?.showOnlyZeroViews]);
 
   const metrics = useMemo(() => {
     const totalViews = filteredContent.reduce((acc, curr) => acc + (curr.views || 0), 0);
@@ -313,12 +374,12 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
       totalViews,
       totalEngagement,
       totalPosts,
-      activeCreators: users.filter(u => u.role === 'creator').length,
+      activeCreators: visibleUsers.filter(u => u.role === 'creator').length,
       roi: (totalViews / 1000) * 2.5,
       viewsTrend: calcTrend(thisMonthViews, lastMonthViews),
       postsTrend: calcTrend(thisMonthPosts, lastMonthPosts)
     };
-  }, [filteredContent, users]);
+  }, [filteredContent, visibleUsers]);
 
   const campaignStats = useMemo(() => {
     // Determine Cabs user profile ID
@@ -331,7 +392,7 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
     // but we can also build it on-the-fly or query it. Since we parsed it in fetchData, 
     // let's do a simple check using content creator ids and client_id.
     
-    return campaigns.map(campaign => {
+    return visibleCampaignsForGroup.map(campaign => {
       const campaignPayments = payments.filter(p => p.campaign_id === campaign.id);
       const spent = campaignPayments.reduce((acc, curr) => acc + Number(curr.amount), 0);
       const remaining = (campaign.budget || 0) - spent;
@@ -367,11 +428,11 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
       if (!a.isAssigned && b.isAssigned) return 1;
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
-  }, [campaigns, payments, content, role, assignedCampaignIds, users]);
+  }, [visibleCampaignsForGroup, payments, content, role, assignedCampaignIds, users]);
 
   const creatorStats = useMemo(() => {
     const stats: Record<string, any> = {};
-    const statsContent = role === 'admin' ? content : filteredContent;
+    const statsContent = role === 'admin' ? groupFilteredBaseContent : filteredContent;
     
     statsContent.forEach(c => {
       // Skip orphaned content or content without a valid creator linked
@@ -400,13 +461,17 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
         ...data
       };
     }).sort((a, b) => b.views - a.views);
-  }, [content, filteredContent, users, payments, role]);
+  }, [groupFilteredBaseContent, filteredContent, users, payments, role]);
 
   return {
     campaigns,
-    content,
-    users,
-    payments,
+    content: groupFilteredBaseContent,
+    users: visibleUsers,
+    payments: visiblePayments,
+    groups,
+    groupMembers,
+    activeGroupId,
+    setActiveGroupId,
     deletedContent,
     deletedCampaigns,
     deletedUsers,

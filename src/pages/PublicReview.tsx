@@ -15,7 +15,7 @@ import PublicModals from '../components/public/PublicModals';
 // Hooks & Utils
 import { getProxiedUrl } from '../utils/urlHelpers';
 import { getReviewTranslations } from '../components/public/translations';
-import { parseCampaignDeliverables, getDeliverableStats } from '../utils/campaignHelpers';
+import { parseCampaignDeliverables, getDeliverableStats, aggregateContentItems } from '../utils/campaignHelpers';
 
 const platformConfig = {
   youtube: { icon: Youtube, color: 'text-red-500', bg: 'bg-red-50', label: 'YouTube' },
@@ -36,63 +36,6 @@ const normalizeName = (name: string): string => {
     .replace(/[\u0300-\u036f]/g, "")
     .trim();
 };
-
-function aggregateContentItems(filteredItems: Content[], allItems: Content[]): Content[] {
-  const allGroups = new Map<string, Content[]>();
-  allItems.forEach(item => {
-    const groupId = item.parent_id || item.id;
-    if (!allGroups.has(groupId)) {
-      allGroups.set(groupId, []);
-    }
-    allGroups.get(groupId)!.push(item);
-  });
-
-  const matchedGroupIds = new Set<string>();
-  filteredItems.forEach(item => {
-    const groupId = item.parent_id || item.id;
-    matchedGroupIds.add(groupId);
-  });
-
-  const result: Content[] = [];
-  
-  matchedGroupIds.forEach(groupId => {
-    const groupMembers = allGroups.get(groupId) || [];
-    const filteredGroupMembers = groupMembers.filter(m => filteredItems.some(f => f.id === m.id));
-    if (filteredGroupMembers.length === 0) return;
-    
-    const masterInFiltered = filteredGroupMembers.find(m => m.id === groupId);
-    const representative = masterInFiltered || filteredGroupMembers[0];
-    
-    const totalViews = groupMembers.reduce((acc, curr) => acc + (curr.views || 0), 0);
-    const totalLikes = groupMembers.reduce((acc, curr) => acc + (curr.likes || 0), 0);
-    const totalComments = groupMembers.reduce((acc, curr) => acc + (curr.comments || 0), 0);
-    const totalUniqueViewers = groupMembers.reduce((acc, curr) => acc + (curr.unique_viewers || 0), 0);
-    const totalPeekViewers = groupMembers.reduce((acc, curr) => acc + (curr.peek_viewers || 0), 0);
-    const totalSharesCount = groupMembers.reduce((acc, curr) => acc + (curr.shares_count || 0), 0);
-    const totalFollowers = groupMembers.reduce((acc, curr) => acc + (curr.followers || 0), 0);
-    const totalNewSubscriptions = groupMembers.reduce((acc, curr) => acc + (curr.new_subscriptions || 0), 0);
-    
-    const allPlatforms = groupMembers.map(m => m.platform);
-    const uniqueGroupPlatforms = [...new Set(allPlatforms)];
-
-    result.push({
-      ...representative,
-      is_repost: false, // Treat as master to represent group
-      views: totalViews,
-      likes: totalLikes,
-      comments: totalComments,
-      unique_viewers: totalUniqueViewers,
-      peek_viewers: totalPeekViewers,
-      shares_count: totalSharesCount,
-      followers: totalFollowers,
-      new_subscriptions: totalNewSubscriptions,
-      coupledPlatforms: uniqueGroupPlatforms,
-      coupledPosts: groupMembers
-    } as any);
-  });
-
-  return result.sort((a, b) => (b.views || 0) - (a.views || 0));
-}
 
 export default function PublicReview() {
   const { token } = useParams<{ token: string }>();

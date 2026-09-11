@@ -39,13 +39,13 @@ const AdminHeader = React.memo(({
   const activeFiltersCount = [platform, campaign, creator, pay_month, team_role].filter(f => f !== 'all').length;
 
   return (
-    <header className="flex flex-col items-start gap-8 mb-12">
-      <div className="flex flex-col md:flex-row md:items-center justify-between w-full gap-6 animate-in fade-in slide-in-from-left-4 duration-700">
+    <header className="flex flex-col items-start gap-4 mb-6 flex-shrink-0">
+      <div className="flex flex-col md:flex-row md:items-center justify-between w-full gap-4 animate-in fade-in slide-in-from-left-4 duration-700">
         <div>
-          <h1 className="text-4xl lg:text-6xl font-black text-slate-900 leading-none tracking-tighter uppercase mb-3">
+          <h1 className="text-2xl lg:text-3xl font-black text-slate-900 leading-none tracking-tighter uppercase mb-1">
             Control <span className="text-indigo-600">Panel</span>
           </h1>
-          <p className="text-base font-medium text-slate-400 max-w-xl">
+          <p className="text-xs lg:text-sm font-medium text-slate-400 max-w-xl">
             Centralized monitoring of the creator network, campaign deployment, and protocol synchronization.
           </p>
         </div>
@@ -54,25 +54,25 @@ const AdminHeader = React.memo(({
         </div>
       </div>
       
-      <div className="flex flex-wrap items-center justify-start gap-4 w-full animate-in fade-in slide-in-from-bottom-4 duration-700 relative">
+      <div className="flex flex-wrap items-center justify-start gap-3 w-full animate-in fade-in slide-in-from-bottom-4 duration-700 relative">
         <div className="relative w-full sm:w-auto">
           <button 
             onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)} 
-            className={`w-full flex items-center justify-center gap-3 px-6 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 border ${
+            className={`w-full flex items-center justify-center gap-3 px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all active:scale-95 border ${
               isFilterMenuOpen || activeFiltersCount > 0
                 ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-200' 
                 : 'bg-white text-slate-400 border-slate-200 hover:bg-slate-50 hover:border-slate-300'
             }`}
           >
-            <Filter className="h-4 w-4" /> 
+            <Filter className="h-3.5 w-3.5" /> 
             <span>Filters</span>
             {activeFiltersCount > 0 && (
-              <span className={`ml-2 w-5 h-5 ${isFilterMenuOpen || activeFiltersCount > 0 ? 'bg-white/20 text-white' : 'bg-indigo-600 text-white'} text-[10px] rounded-full flex items-center justify-center flex-shrink-0 font-black`}>
+              <span className={`ml-1.5 w-4.5 h-4.5 ${isFilterMenuOpen || activeFiltersCount > 0 ? 'bg-white/20 text-white' : 'bg-indigo-600 text-white'} text-[9px] rounded-full flex items-center justify-center flex-shrink-0 font-black`}>
                 {activeFiltersCount}
               </span>
             )}
           </button>
-
+ 
           <FilterMenu 
             isOpen={isFilterMenuOpen}
             onClose={() => setIsFilterMenuOpen(false)}
@@ -86,34 +86,34 @@ const AdminHeader = React.memo(({
             activeTab={activeTab}
           />
         </div>
-
+ 
         <button 
           onClick={() => setIsAnalyzingCreator(true)} 
-          className="w-full sm:w-auto flex items-center justify-center gap-3 px-6 py-3.5 bg-white text-slate-400 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all border border-slate-200 hover:border-slate-300 active:scale-95 whitespace-nowrap"
+          className="w-full sm:w-auto flex items-center justify-center gap-3 px-4 py-2.5 bg-white text-slate-400 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all border border-slate-200 hover:border-slate-300 active:scale-95 whitespace-nowrap"
         >
-          <Search className="h-4 w-4 text-indigo-500" /> Analyze Creator
+          <Search className="h-3.5 w-3.5 text-indigo-500" /> Analyze Creator
         </button>
         
         <button 
           onClick={() => setIsCreatingCampaign(true)} 
-          className="w-full sm:w-auto flex items-center justify-center gap-3 px-6 py-3.5 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all active:scale-95 whitespace-nowrap"
+          className="w-full sm:w-auto flex items-center justify-center gap-3 px-4 py-2.5 bg-indigo-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all active:scale-95 whitespace-nowrap"
         >
-          <Plus className="h-4 w-4" /> New Campaign
+          <Plus className="h-3.5 w-3.5" /> New Campaign
         </button>
         
         <button 
           onClick={() => setIsAddingUser(true)} 
-          className="w-full sm:w-auto flex items-center justify-center gap-3 px-6 py-3.5 bg-white text-slate-400 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-95 whitespace-nowrap"
+          className="w-full sm:w-auto flex items-center justify-center gap-3 px-4 py-2.5 bg-white text-slate-400 rounded-xl text-[9px] font-black uppercase tracking-widest border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-95 whitespace-nowrap"
         >
-          <Users className="h-4 w-4 text-indigo-500" /> New Agent
+          <Users className="h-3.5 w-3.5 text-indigo-500" /> New Agent
         </button>
-
+ 
         <a 
           href="/" 
           target="_blank"
-          className="w-full sm:w-auto flex items-center justify-center gap-3 px-6 py-3.5 bg-white text-slate-400 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-50 hover:text-indigo-600 transition-all border border-slate-200 hover:border-indigo-200 active:scale-95 whitespace-nowrap"
+          className="w-full sm:w-auto flex items-center justify-center gap-3 px-4 py-2.5 bg-white text-slate-400 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-indigo-50 hover:text-indigo-600 transition-all border border-slate-200 hover:border-indigo-200 active:scale-95 whitespace-nowrap"
         >
-          <Globe className="h-4 w-4" /> Public Portal
+          <Globe className="h-3.5 w-3.5" /> Public Portal
         </a>
       </div>
     </header>

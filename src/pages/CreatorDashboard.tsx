@@ -136,7 +136,9 @@ export default function CreatorDashboard() {
   const handleCopyShareLink = useCallback(async (token: string, e: React.MouseEvent, type: 'review' | 'slug' = 'review') => {
     e.stopPropagation();
     try {
-      const BASE_URL = window.location.origin;
+      const BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'https://umbrahub.vercel.app'
+        : window.location.origin;
       const path = type === 'slug' ? `/v/${token}` : `/review/${token}`;
       const url = `${BASE_URL}${path}`;
       await navigator.clipboard.writeText(url);

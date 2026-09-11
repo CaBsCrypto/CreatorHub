@@ -1,9 +1,10 @@
 import React from 'react';
-import { Calendar, Trash2, Edit2, Link, Zap, StickyNote, Maximize2 } from 'lucide-react';
+import { Calendar, Trash2, Edit2, Link, Zap, StickyNote, Maximize2, Share2, Check, MessageSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Campaign } from '../../supabase';
 import { format } from 'date-fns';
 import { parseCampaignDeliverables } from '../../utils/campaignHelpers';
+import { useToast } from '../../hooks/useToast';
 
 interface CampaignCardProps {
   campaign: Campaign;
@@ -41,6 +42,49 @@ const CampaignCard = React.memo(({
   onEditNotes
 }: CampaignCardProps) => {
   const [showNotes, setShowNotes] = React.useState(false);
+  const [showShareMenu, setShowShareMenu] = React.useState(false);
+  const [copiedType, setCopiedType] = React.useState<string | null>(null);
+  const { success, error: toastError } = useToast();
+
+  const handleCopyOption = async (
+    type: 'review' | 'slug',
+    format: 'url' | 'message',
+    e: React.MouseEvent
+  ) => {
+    e.stopPropagation();
+    try {
+      const BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'https://umbrahub.vercel.app'
+        : window.location.origin;
+
+      const tokenOrSlug = type === 'slug' ? campaign.slug : campaign.share_token;
+      const path = type === 'slug' ? `/v/${tokenOrSlug}` : `/review/${tokenOrSlug}`;
+      const url = `${BASE_URL}${path}`;
+
+      let textToCopy = url;
+      if (format === 'message') {
+        textToCopy = `📊 *Reporte de Campaña - Umbra Hub*\n\n¡Hola! Te comparto el enlace de seguimiento en tiempo real para la campaña *${campaign.name}*:\n🔗 ${url}\n\n¡Quedamos atentos a cualquier duda o comentario!`;
+      }
+
+      await navigator.clipboard.writeText(textToCopy);
+
+      const copyKey = `${type}_${format}`;
+      setCopiedType(copyKey);
+
+      if (format === 'message') {
+        success("¡Mensaje listo para enviar copiado!");
+      } else {
+        success(type === 'slug' ? "¡Enlace personalizado copiado!" : "¡Enlace de reporte copiado!");
+      }
+
+      setTimeout(() => {
+        setCopiedType(null);
+        setShowShareMenu(false);
+      }, 1500);
+    } catch (err) {
+      toastError("No se pudo copiar el enlace.");
+    }
+  };
 
   return (
     <motion.div
@@ -198,14 +242,100 @@ const CampaignCard = React.memo(({
             </button>
           )}
 
-          {campaign.share_token && onCopyLink && (
-            <button
-              onClick={(e) => { e.stopPropagation(); onCopyLink(campaign.share_token!, e, 'review'); }}
-              className="p-2 bg-gray-50 text-slate-400 hover:text-indigo-600 rounded-lg border border-gray-100 hover:border-indigo-200 transition-all"
-              title="Copiar Link de Review"
-            >
-              <Link className="h-3.5 w-3.5" />
-            </button>
+          {campaign.share_token && (
+            <div className="relative">
+              <button
+                onClick={(e) => { 
+                  e.stopPropagation(); 
+                  setShowShareMenu(!showShareMenu); 
+                }}
+                className={`p-2 rounded-lg border transition-all flex items-center justify-center ${
+                  showShareMenu 
+                    ? 'bg-indigo-50 text-indigo-600 border-indigo-200' 
+                    : 'bg-gray-50 text-slate-400 hover:text-indigo-600 border-gray-100 hover:border-indigo-200'
+                }`}
+                title="Compartir Campaña"
+              >
+                <Share2 className="h-3.5 w-3.5" />
+              </button>
+              
+              <AnimatePresence>
+                {showShareMenu && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-20" 
+                      onClick={(e) => { 
+                        e.stopPropagation(); 
+                        setShowShareMenu(false); 
+                      }} 
+                    />
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                      className="absolute right-0 bottom-full mb-2 w-64 bg-white rounded-xl shadow-xl border border-slate-100 p-2 z-30 flex flex-col gap-1 text-left origin-bottom-right"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="px-3 py-1.5 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-50 mb-1">
+                        Compartir Reporte
+                      </div>
+                      
+                      <button
+                        onClick={(e) => handleCopyOption('review', 'url', e)}
+                        className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg flex items-center justify-between transition-colors group/item"
+                      >
+                        <span className="flex items-center gap-2">
+                          <Link className="h-3.5 w-3.5 text-slate-400 group-hover/item:text-indigo-500" />
+                          Copiar Enlace Directo
+                        </span>
+                        {copiedType === 'review_url' && <Check className="h-3.5 w-3.5 text-emerald-500" />}
+                      </button>
+
+                      <button
+                        onClick={(e) => handleCopyOption('review', 'message', e)}
+                        className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg flex items-center justify-between transition-colors group/item"
+                      >
+                        <span className="flex items-center gap-2">
+                          <MessageSquare className="h-3.5 w-3.5 text-slate-400 group-hover/item:text-indigo-500" />
+                          Mensaje para Cliente
+                        </span>
+                        {copiedType === 'review_message' && <Check className="h-3.5 w-3.5 text-emerald-500" />}
+                      </button>
+
+                      {campaign.slug && (
+                        <>
+                          <div className="px-3 py-1.5 text-[9px] font-black text-slate-400 uppercase tracking-widest border-t border-slate-50 mt-1 mb-1">
+                            Enlace Personalizado ({campaign.slug})
+                          </div>
+                          
+                          <button
+                            onClick={(e) => handleCopyOption('slug', 'url', e)}
+                            className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg flex items-center justify-between transition-colors group/item"
+                          >
+                            <span className="flex items-center gap-2">
+                              <Zap className="h-3.5 w-3.5 text-slate-400 group-hover/item:text-indigo-500" />
+                              Copiar URL Personalizada
+                            </span>
+                            {copiedType === 'slug_url' && <Check className="h-3.5 w-3.5 text-emerald-500" />}
+                          </button>
+
+                          <button
+                            onClick={(e) => handleCopyOption('slug', 'message', e)}
+                            className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg flex items-center justify-between transition-colors group/item"
+                          >
+                            <span className="flex items-center gap-2">
+                              <MessageSquare className="h-3.5 w-3.5 text-slate-400 group-hover/item:text-indigo-500" />
+                              Mensaje con URL Pers.
+                            </span>
+                            {copiedType === 'slug_message' && <Check className="h-3.5 w-3.5 text-emerald-500" />}
+                          </button>
+                        </>
+                      )}
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
           )}
 
           <button

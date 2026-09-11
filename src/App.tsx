@@ -77,11 +77,12 @@ export default function App() {
 function AppContent() {
   const { pathname } = window.location;
   const isPublicRoute = pathname === '/' || pathname.startsWith('/review/') || pathname.startsWith('/v/') || pathname === '/login';
+  const isAdminRoute = pathname.startsWith('/admin');
 
   return (
     <>
       {!isPublicRoute && <Navbar />}
-      <main className={!isPublicRoute ? "mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 py-6 pb-10" : ""}>
+      <main className={!isPublicRoute && !isAdminRoute ? "mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 py-6 pb-10" : ""}>
         <React.Suspense fallback={<LoadingSpinner message="Cargando panel..." />}>
           <Routes>
             <Route path="/login" element={<Login />} />

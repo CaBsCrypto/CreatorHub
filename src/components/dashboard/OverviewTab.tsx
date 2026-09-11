@@ -51,8 +51,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
   })), [filteredContent]);
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="flex-1 min-h-0 flex flex-col justify-between gap-4 lg:gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700 py-1">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 flex-shrink-0">
         {isLoading ? (
           <>
             <StatsSkeleton />
@@ -65,7 +65,6 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
             <AdminMetricCard
               title="Vistas Totales"
               value={metrics.totalViews.toLocaleString()}
-              trend={metrics.viewsTrend || undefined}
               icon={TrendingUp}
               onClick={() => setActiveTab('content')}
             />
@@ -78,7 +77,6 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
             <AdminMetricCard
               title="Posts Totales"
               value={metrics.totalPosts.toLocaleString()}
-              trend={metrics.postsTrend || undefined}
               icon={List}
               onClick={() => setActiveTab('content')}
             />
@@ -92,20 +90,21 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 flex-1 min-h-0">
         {/* Posts por plataforma */}
-        <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
-          <h3 className="text-base font-black text-slate-900 mb-6 flex items-center gap-2 uppercase tracking-tight">
-            <BarChart3 className="h-5 w-5 text-indigo-600" /> Posts by Platform
+        <div className="bg-white p-5 lg:p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col h-full min-h-0">
+          <h3 className="text-[13px] font-black text-slate-900 mb-3 flex items-center gap-2 uppercase tracking-tight flex-shrink-0">
+            <BarChart3 className="h-4.5 w-4.5 text-indigo-600" /> Posts by Platform
           </h3>
-          <div className="h-[260px]">
+          
+          <div className="flex-1 min-h-0 w-full h-full flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={platformCount}
-                  innerRadius={70}
-                  outerRadius={100}
-                  paddingAngle={6}
+                  innerRadius={60}
+                  outerRadius={90}
+                  paddingAngle={5}
                   dataKey="value"
                   stroke="none"
                   onClick={(data) => {
@@ -126,37 +125,22 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               </PieChart>
             </ResponsiveContainer>
           </div>
-
-          <div className="mt-4 grid grid-cols-2 gap-2">
-            {[...platformCount].sort((a, b) => b.value - a.value).map((item) => (
-              <button
-                key={item.id}
-                onClick={() => { setFilter('platform', item.id); setActiveTab('content'); }}
-                className="flex items-center justify-between p-3 bg-slate-50 hover:bg-indigo-50 rounded-xl border border-slate-100 hover:border-indigo-100 transition-all group/item"
-              >
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: PLATFORM_COLORS[item.id] || '#444' }} />
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest group-hover/item:text-indigo-600 transition-colors">{item.name}</span>
-                </div>
-                <span className="text-xs font-black text-slate-900 tabular-nums">{item.value.toLocaleString()}</span>
-              </button>
-            ))}
-          </div>
         </div>
 
         {/* Vistas por plataforma */}
-        <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
-          <h3 className="text-base font-black text-slate-900 mb-6 flex items-center gap-2 uppercase tracking-tight">
-            <BarChart3 className="h-5 w-5 text-indigo-600" /> Views by Platform
+        <div className="bg-white p-5 lg:p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col h-full min-h-0">
+          <h3 className="text-[13px] font-black text-slate-900 mb-3 flex items-center gap-2 uppercase tracking-tight flex-shrink-0">
+            <BarChart3 className="h-4.5 w-4.5 text-indigo-600" /> Views by Platform
           </h3>
-          <div className="h-[260px]">
+          
+          <div className="flex-1 min-h-0 w-full h-full flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={platformViews}
-                  innerRadius={70}
-                  outerRadius={100}
-                  paddingAngle={6}
+                  innerRadius={60}
+                  outerRadius={90}
+                  paddingAngle={5}
                   dataKey="value"
                   stroke="none"
                   onClick={(data) => {
@@ -177,22 +161,6 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                 />
               </PieChart>
             </ResponsiveContainer>
-          </div>
-
-          <div className="mt-4 grid grid-cols-2 gap-2">
-            {[...platformViews].sort((a, b) => b.value - a.value).map(({ id: platform, value: views }) => (
-              <button
-                key={platform}
-                onClick={() => { setFilter('platform', platform); setActiveTab('content'); }}
-                className="flex items-center justify-between p-3 bg-slate-50 hover:bg-indigo-50 rounded-xl border border-slate-100 hover:border-indigo-100 transition-all group/item"
-              >
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: PLATFORM_COLORS[platform] || '#444' }} />
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest group-hover/item:text-indigo-600 transition-colors">{platform}</span>
-                </div>
-                <span className="text-xs font-black text-slate-900 tabular-nums">{views.toLocaleString()}</span>
-              </button>
-            ))}
           </div>
         </div>
       </div>

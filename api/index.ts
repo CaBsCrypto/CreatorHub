@@ -57,6 +57,9 @@ const allowedOrigins = [
   'https://creator-hub-three-lake.vercel.app',
   'https://creator-hub-three-lake-cabs-projects.vercel.app',
   'https://umbra-hub.vercel.app',
+  'https://umbra-hub-cabs-projects.vercel.app',
+  'https://umbrahub.vercel.app',
+  'https://umbrahub-cabs-projects.vercel.app',
   'http://localhost:5173',
   'http://localhost:3000'
 ];
@@ -146,43 +149,22 @@ app.get("/api/public-stats", async (req, res) => {
       return res.json({ views: 50000000, campaigns: 120, creators: 30 });
     }
 
-    // Fetch all three stats in parallel
-    const [viewsResult, campaignsResult, creatorsResult] = await Promise.all([
-      // Sum all views from content (excluding deleted)
-      supabaseAdmin
-        .from('content')
-        .select('views')
-        .is('deleted_at', null)
-        .neq('status', 'archived')
-        .limit(2000), // Safety limit
-      // Count campaigns (excluding deleted)
-      supabaseAdmin
-        .from('campaigns')
-        .select('id', { count: 'exact', head: true })
-        .is('deleted_at', null),
-      // Count active creators
-      supabaseAdmin
-        .from('users')
-        .select('id', { count: 'exact', head: true })
-        .eq('role', 'creator')
-        .is('deleted_at', null),
-    ]);
+    // Fetch stats in a single fast query using our SQL view
+    const { data, error } = await supabaseAdmin
+      .from('public_stats_summary')
+      .select('*')
+      .single();
 
-    if (viewsResult.error) console.error("❌ Views Query Error:", viewsResult.error);
-    if (campaignsResult.error) console.error("❌ Campaigns Query Error:", campaignsResult.error);
-    if (creatorsResult.error) console.error("❌ Creators Query Error:", creatorsResult.error);
+    if (error) {
+      console.error("❌ Stats Query Error:", error);
+      throw error;
+    }
 
-    // Sum views manually from the rows
-    const totalViews = (viewsResult.data || []).reduce(
-      (sum: number, row: any) => sum + (Number(row.views) || 0), 0
-    );
+    const finalViews = data?.total_views || 50000000;
+    const finalCampaigns = data?.total_campaigns !== undefined ? data.total_campaigns : 120;
+    const finalCreators = data?.total_creators !== undefined ? data.total_creators : 30;
 
-    console.log(`[STATS] Calculated - Views: ${totalViews}, Campaigns: ${campaignsResult.count}, Creators: ${creatorsResult.count}`);
-
-    // If data is genuinely empty, use the realistic placeholders
-    const finalViews = totalViews || 50000000;
-    const finalCampaigns = (campaignsResult.count !== null) ? campaignsResult.count : 120;
-    const finalCreators = (creatorsResult.count !== null) ? creatorsResult.count : 30;
+    console.log(`[STATS] Calculated via View - Views: ${finalViews}, Campaigns: ${finalCampaigns}, Creators: ${finalCreators}`);
 
     res.json({
       views: finalViews,

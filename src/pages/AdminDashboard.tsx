@@ -7,7 +7,7 @@ import { useDashboardData, getAgencyRank, AGENCY_TIERS } from '../hooks/useDashb
 import { useToast } from '../hooks/useToast';
 import { useFilterParams } from '../hooks/useTabNavigation';
 import { useContentActions } from '../hooks/useContentActions';
-import { useAdminActions } from '../hooks/useAdminActions';
+import { useAdminActions, EMPTY_CAMPAIGN_FORM } from '../hooks/useAdminActions';
 
 // Modular Components (Shared)
 import AdminMetricCard from '../components/dashboard/AdminMetricCard';
@@ -30,6 +30,7 @@ import CampaignNotesModal from '../components/dashboard/CampaignNotesModal';
 // Modular Layout Components
 import AdminSidebar from '../components/dashboard/AdminSidebar';
 import AdminHeader from '../components/dashboard/AdminHeader';
+import GroupSwitcher from '../components/dashboard/GroupSwitcher';
 import DeletedItemModal from '../components/dashboard/DeletedItemModal';
 
 // Modular Tab Components — lazy loaded so each tab only downloads when first opened
@@ -38,6 +39,7 @@ const CampaignsTab = React.lazy(() => import('../components/dashboard/CampaignsT
 const CreatorsTab = React.lazy(() => import('../components/dashboard/CreatorsTab'));
 const ContentTab = React.lazy(() => import('../components/dashboard/ContentTab'));
 const TeamTab = React.lazy(() => import('../components/dashboard/TeamTab'));
+const GroupsTab = React.lazy(() => import('../components/dashboard/GroupsTab'));
 const PaymentsTab = React.lazy(() => import('../components/dashboard/PaymentsTab'));
 const TrashTab = React.lazy(() => import('../components/dashboard/TrashTab'));
 const ActivityTab = React.lazy(() => import('../components/dashboard/ActivityTab'));
@@ -62,7 +64,7 @@ const PLATFORM_COLORS: Record<string, string> = {
   coinmarketcap: '#0d3efd' 
 };
 
-const ADMIN_TABS = ['overview', 'campaigns', 'content', 'creators', 'payments', 'team', 'activity', 'trash', 'scraper'] as const;
+const ADMIN_TABS = ['overview', 'groups', 'campaigns', 'content', 'creators', 'payments', 'team', 'activity', 'trash', 'scraper'] as const;
 type AdminTab = typeof ADMIN_TABS[number];
 
 export default function AdminDashboard() {
@@ -107,13 +109,14 @@ export default function AdminDashboard() {
 
   const { 
     campaigns, content, users, payments, metrics, creatorStats, campaignStats, 
-    refresh, filteredContent, deletedContent, deletedCampaigns, deletedUsers, auditLogs, loading 
+    refresh, filteredContent, deletedContent, deletedCampaigns, deletedUsers, auditLogs, loading,
+    groups, groupMembers, activeGroupId, setActiveGroupId
   } = useDashboardData('admin', dashboardFilters);
 
   const { isProcessing: isProcessingContent, handleTwitchUpload, handleContentSubmit } = useContentActions(refresh);
   
   const {
-    isCreatingCampaign, setIsCreatingCampaign,
+    isCreatingCampaign, setIsCreatingCampaign: setIsCreatingCampaignRaw,
     isEditingCampaign, setIsEditingCampaign,
     setEditingCampaignId,
     isAddingUser, setIsAddingUser,
@@ -136,6 +139,18 @@ export default function AdminDashboard() {
     handleUpdateUserPayment,
     handleCreatePayment
   } = useAdminActions(refresh, user);
+
+  // Opening the create-campaign modal defaults the campaign group to the
+  // currently active group filter (unless 'all' is selected)
+  const setIsCreatingCampaign = useCallback((open: boolean) => {
+    if (open) {
+      setNewCampaign({
+        ...EMPTY_CAMPAIGN_FORM,
+        group_id: activeGroupId !== 'all' ? activeGroupId : null
+      });
+    }
+    setIsCreatingCampaignRaw(open);
+  }, [activeGroupId, setNewCampaign, setIsCreatingCampaignRaw]);
 
   const searchTerm = filters.search;
   const filterPlatform = filters.platform;
@@ -177,7 +192,9 @@ export default function AdminDashboard() {
   const handleCopyShareLink = useCallback(async (token: string, e: React.MouseEvent, type: 'review' | 'slug' = 'review') => {
     e.stopPropagation();
     try {
-      const BASE_URL = window.location.origin;
+      const BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'https://umbrahub.vercel.app'
+        : window.location.origin;
       const path = type === 'slug' ? `/v/${token}` : `/review/${token}`;
       const url = `${BASE_URL}${path}`;
       await navigator.clipboard.writeText(url);
@@ -276,7 +293,7 @@ export default function AdminDashboard() {
   }, [refresh, success, toastError]);
 
   return (
-    <div className="flex min-h-screen bg-slate-50 selection:bg-indigo-100 selection:text-indigo-900">
+    <div className="flex h-screen lg:h-[calc(100vh-64px)] w-full overflow-hidden bg-slate-50 selection:bg-indigo-100 selection:text-indigo-900">
       <AdminSidebar 
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
@@ -284,7 +301,7 @@ export default function AdminDashboard() {
         user={user}
       />
 
-      <main className="flex-1 p-6 md:p-10 lg:p-16 overflow-y-auto pb-40 lg:pb-16">
+      <main className={`flex-1 pt-4 lg:pt-6 px-6 lg:px-10 pb-6 lg:pb-8 flex flex-col min-w-0 ${activeTab === 'overview' ? 'h-full overflow-hidden' : 'h-full overflow-y-auto pb-40 lg:pb-16'}`}>
         <AdminHeader 
           filters={filters}
           setFilter={setFilter}
@@ -301,6 +318,11 @@ export default function AdminDashboard() {
           setIsAddingUser={setIsAddingUser}
         />
 
+        {/* Creator Group filter - applies to all tabs below */}
+        <div className="flex justify-end -mt-2 mb-2">
+          <GroupSwitcher groups={groups} activeGroupId={activeGroupId} onChange={setActiveGroupId} />
+        </div>
+
         <React.Suspense fallback={<TabLoader />}>
           {activeTab === 'overview' && (
             <OverviewTab
@@ -311,6 +333,18 @@ export default function AdminDashboard() {
               setActiveTab={setActiveTab}
               setFilter={setFilter}
               isLoading={loading}
+            />
+          )}
+
+          {/* Creator groups management tab */}
+          {activeTab === 'groups' && !loading && (
+            <GroupsTab
+              groups={groups}
+              groupMembers={groupMembers}
+              users={users}
+              campaigns={campaigns}
+              content={content}
+              refresh={refresh}
             />
           )}
 
@@ -469,25 +503,14 @@ export default function AdminDashboard() {
             setIsCreatingCampaign(false);
             setIsEditingCampaign(false);
             setEditingCampaignId(null);
-            setNewCampaign({
-              name: '',
-              description: '',
-              client_id: '',
-              twitter_url: '',
-              contact_info: '',
-              budget: 0,
-              slug: '',
-              notes: '',
-              show_to_all: false,
-              assigned_creator_ids: [],
-              deliverables: { video_largo: 0, video_corto: 0, stream: 0, game_night: 0, post: 0 }
-            });
+            setNewCampaign({ ...EMPTY_CAMPAIGN_FORM });
           }} 
           onSubmit={isEditingCampaign ? handleUpdateCampaign : handleCreateCampaign} 
           newCampaign={newCampaign} 
           setNewCampaign={setNewCampaign}
           clients={users.filter(u => u.role === 'client')}
           creators={users.filter(u => u.role === 'creator')}
+          groups={groups}
         />
         <AddUserModal 
           isOpen={isAddingUser} 

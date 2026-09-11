@@ -1,8 +1,9 @@
 import React from 'react';
-import { LayoutDashboard, List, Youtube, Users, Wallet, ShieldCheck, Zap, Trash2, Sparkles, UserCircle } from 'lucide-react';
+import { LayoutDashboard, List, Youtube, Users, UsersRound, Wallet, ShieldCheck, Zap, Trash2, Sparkles, UserCircle } from 'lucide-react';
 
 export const sidebarItems = [
   { id: 'overview', label: 'Resumen', icon: LayoutDashboard },
+  { id: 'groups', label: 'Grupos', icon: UsersRound },
   { id: 'campaigns', label: 'Campañas', icon: List },
   { id: 'content', label: 'Contenido', icon: Youtube },
   { id: 'creators', label: 'Creadores', icon: Users },

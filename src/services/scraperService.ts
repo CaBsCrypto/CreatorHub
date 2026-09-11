@@ -1,6 +1,7 @@
 import axios from "axios";
 import { google } from "googleapis";
 import { logScraperAction } from "./scraperLogService.js";
+import { normalizeInstagramUrl } from "../utils/urlParser.js";
 
 const USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36";
 
@@ -122,35 +123,7 @@ export async function fetchYouTubeData(url: string) {
 const igCache = new Map<string, { data: any, timestamp: number }>();
 const IG_CACHE_TTL = 15 * 60 * 1000; // 15 mins
 
-/**
- * Converts an Instagram Media ID (from Insights links) to a public shortcode.
- */
-function idToShortcode(id: string): string {
-  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
-  let shortcode = '';
-  let idBigInt = BigInt(id);
-  while (idBigInt > 0n) {
-    let remainder = idBigInt % 64n;
-    shortcode = alphabet[Number(remainder)] + shortcode;
-    idBigInt = idBigInt / 64n;
-  }
-  return shortcode;
-}
 
-/**
- * Normalizes any Instagram URL (Posts, Reels, Insights) to a standard public URL.
- */
-function normalizeInstagramUrl(url: string): string {
-  if (url.includes('/insights/media/')) {
-    const match = url.match(/\/insights\/media\/(\d+)/);
-    if (match && match[1]) {
-      const shortcode = idToShortcode(match[1]);
-      console.log(`[IG Scraper] Converting Insights ID ${match[1]} to Shortcode ${shortcode}`);
-      return `https://www.instagram.com/p/${shortcode}/`;
-    }
-  }
-  return url;
-}
 
 function getInstagramApiKeys() {
   return [

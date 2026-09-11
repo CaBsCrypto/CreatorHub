@@ -69,6 +69,7 @@ export interface Campaign {
   slug?: string | null;
   notes?: string | null;
   show_to_all?: boolean;
+  group_id?: string | null; // Creator group the campaign belongs to (Umbra / Tellus / ...)
   created_by: string;
   deleted_at?: string | null;
   created_at: string;
@@ -146,6 +147,24 @@ export interface ContentMetricsHistory {
 export interface CampaignCreator {
   id: string;
   campaign_id: string;
+  creator_id: string;
+  created_at: string;
+}
+
+export interface CreatorGroup {
+  id: string;
+  name: string;
+  slug: string | null;
+  description?: string | null;
+  color: string; // tailwind color name: indigo, emerald, fuchsia...
+  logo_emoji?: string | null;
+  created_at: string;
+  deleted_at?: string | null;
+}
+
+export interface CreatorGroupMember {
+  id: string;
+  group_id: string;
   creator_id: string;
   created_at: string;
 }

@@ -3,6 +3,21 @@ import { supabase, UserRole, UserProfile, Campaign } from '../supabase';
 import { useToast } from './useToast';
 import { parseCampaignDeliverables, serializeCampaignDeliverables } from '../utils/campaignHelpers';
 
+export const EMPTY_CAMPAIGN_FORM = {
+  name: '',
+  description: '',
+  client_id: '',
+  twitter_url: '',
+  contact_info: '',
+  budget: 0,
+  slug: '',
+  notes: '',
+  show_to_all: false,
+  group_id: null as string | null,
+  assigned_creator_ids: [] as string[],
+  deliverables: { video_largo: 0, video_corto: 0, stream: 0, game_night: 0, post: 0 }
+};
+
 export function useAdminActions(refresh: () => Promise<void>, currentUser: UserProfile | { id: string } | null) {
   const { success, error: toastError } = useToast();
 
@@ -15,25 +30,7 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
   const [isAddingPayment, setIsAddingPayment] = useState(false);
   
-  const [newCampaign, setNewCampaign] = useState({ 
-    name: '', 
-    description: '', 
-    client_id: '',
-    twitter_url: '', 
-    contact_info: '', 
-    budget: 0,
-    slug: '',
-    notes: '',
-    show_to_all: false,
-    assigned_creator_ids: [] as string[],
-    deliverables: {
-      video_largo: 0,
-      video_corto: 0,
-      stream: 0,
-      game_night: 0,
-      post: 0
-    }
-  });
+  const [newCampaign, setNewCampaign] = useState({ ...EMPTY_CAMPAIGN_FORM });
 
   const [newUser, setNewUser] = useState<{ email: string; role: UserRole; linked_campaign_id?: string }>({ 
     email: '', 
@@ -89,6 +86,7 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
       slug: finalSlug,
       notes: newCampaign.notes || null,
       show_to_all: newCampaign.show_to_all || false,
+      group_id: newCampaign.group_id || null,
       status: 'active', 
       created_by: currentUser?.id 
     }]).select();
@@ -108,19 +106,7 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
 
       success("Campaña creada con éxito");
       setIsCreatingCampaign(false);
-      setNewCampaign({
-        name: '',
-        description: '',
-        client_id: '',
-        twitter_url: '',
-        contact_info: '',
-        budget: 0,
-        slug: '',
-        notes: '',
-        show_to_all: false,
-        assigned_creator_ids: [],
-        deliverables: { video_largo: 0, video_corto: 0, stream: 0, game_night: 0, post: 0 }
-      });
+      setNewCampaign({ ...EMPTY_CAMPAIGN_FORM });
       refresh();
     }
   }, [newCampaign, currentUser?.id, generateSecureSlug, refresh, success, toastError]);
@@ -147,6 +133,7 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
       slug: campaign.slug || '',
       notes: campaign.notes || '',
       show_to_all: campaign.show_to_all || false,
+      group_id: campaign.group_id || null,
       assigned_creator_ids: assignedIds as any,
       deliverables: targets
     });
@@ -170,7 +157,8 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
         budget: newCampaign.budget || 0,
         slug: newCampaign.slug || null,
         notes: newCampaign.notes || null,
-        show_to_all: newCampaign.show_to_all || false
+        show_to_all: newCampaign.show_to_all || false,
+        group_id: newCampaign.group_id || null
       })
       .eq('id', editingCampaignId);
 
@@ -192,19 +180,7 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
       success("Campaña actualizada con éxito");
       setIsEditingCampaign(false);
       setEditingCampaignId(null);
-      setNewCampaign({
-        name: '',
-        description: '',
-        client_id: '',
-        twitter_url: '',
-        contact_info: '',
-        budget: 0,
-        slug: '',
-        notes: '',
-        show_to_all: false,
-        assigned_creator_ids: [],
-        deliverables: { video_largo: 0, video_corto: 0, stream: 0, game_night: 0, post: 0 }
-      });
+      setNewCampaign({ ...EMPTY_CAMPAIGN_FORM });
       refresh();
     }
   }, [editingCampaignId, newCampaign, refresh, success, toastError]);
@@ -239,6 +215,9 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
       }
 
       if (newUser.role === 'client') {
+        const appBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+          ? 'https://umbrahub.vercel.app'
+          : window.location.origin;
         const emailRes = await fetch('/api/send-email', {
           method: 'POST',
           headers: { 
@@ -252,7 +231,7 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
               <h2 style="color: #4f46e5; margin-bottom: 20px;">¡Bienvenido a Umbra!</h2>
               <p style="color: #374151; font-size: 16px; line-height: 1.5;">Has sido invitado como <strong>Cliente</strong> para colaborar y ver las métricas de tu campaña en tiempo real.</p>
               <div style="margin: 30px 0;">
-                <a href="${window.location.origin}/login" style="background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Acceder a mi panel</a>
+                <a href="${appBaseUrl}/login" style="background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Acceder a mi panel</a>
               </div>
               <p style="color: #6b7280; font-size: 14px;">Inicia sesión usando Google con tu correo asociado a esta cuenta (${newUser.email}).</p>
               <hr style="border: none; border-top: 1px solid #f3f4f6; margin: 30px 0;" />

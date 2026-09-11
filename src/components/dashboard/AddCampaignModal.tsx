@@ -1,5 +1,6 @@
 import React from 'react';
-import { X, Target, List } from 'lucide-react';
+import { X, Target, List, UsersRound } from 'lucide-react';
+import { CreatorGroup } from '../../supabase';
 
 interface AddCampaignModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ interface AddCampaignModalProps {
     slug?: string | null;
     notes?: string | null;
     show_to_all?: boolean;
+    group_id?: string | null;
     deliverables?: {
       video_largo: number;
       video_corto: number;
@@ -26,6 +28,7 @@ interface AddCampaignModalProps {
   setNewCampaign: (campaign: any) => void;
   clients: any[];
   creators: any[];
+  groups?: CreatorGroup[];
   isEditing?: boolean;
 }
 
@@ -37,6 +40,7 @@ const AddCampaignModal: React.FC<AddCampaignModalProps> = ({
   setNewCampaign,
   clients,
   creators,
+  groups = [],
   isEditing = false
 }) => {
   if (!isOpen) return null;
@@ -246,6 +250,28 @@ const AddCampaignModal: React.FC<AddCampaignModalProps> = ({
                 </label>
               ))}
             </div>
+          </div>
+
+          {/* Creator Group assignment */}
+          <div className="bg-emerald-50/60 p-4 rounded-2xl border border-emerald-100">
+            <label className="flex items-center gap-1.5 text-[10px] font-black text-emerald-700 uppercase tracking-widest mb-2">
+              <UsersRound className="h-3.5 w-3.5" /> Grupo de Creadores
+            </label>
+            <select
+              value={newCampaign.group_id || ''}
+              onChange={(e) => setNewCampaign({ ...newCampaign, group_id: e.target.value || null })}
+              className="block w-full rounded-xl border border-emerald-100 bg-white py-3 px-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-300 transition-all outline-none cursor-pointer"
+            >
+              <option value="">Sin grupo asignado</option>
+              {groups.map(g => (
+                <option key={g.id} value={g.id}>
+                  {g.logo_emoji ? `${g.logo_emoji} ` : ''}{g.name}
+                </option>
+              ))}
+            </select>
+            <p className="mt-2 text-[9px] text-emerald-600/70 font-bold uppercase tracking-tighter">
+              La campaña se organizará bajo el grupo seleccionado.
+            </p>
           </div>
 
           <div className="flex gap-4 pt-4">
