@@ -22,7 +22,17 @@ export const getSupabase = () => {
   }
 
   try {
-    supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+    supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        // Bypass navigator.locks which causes notorious infinite hangs in Chrome/Chromium
+        lock: typeof window !== 'undefined' && 'navigator' in window ? async (_name: string, _acquireTimeout: number, fn: () => Promise<any>) => {
+          return await fn();
+        } : undefined,
+      }
+    });
     return supabaseClient;
   } catch (err: any) {
     console.error("❌ ScraperLogService: Failed to initialize Supabase client", err.message);

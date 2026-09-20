@@ -36,12 +36,53 @@ export const logout = async () => {
   }
 };
 
+const getInitialAuth = (): { user: User | null; profile: UserProfile | null } => {
+  if (typeof window === 'undefined') return { user: null, profile: null };
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('sb-') && key.endsWith('-auth-token')) {
+        const item = localStorage.getItem(key);
+        if (item) {
+          const parsed = JSON.parse(item);
+          const u = parsed?.user || parsed?.currentSession?.user;
+          if (u) {
+            const isSuperAdmin = u.email === 'cabscryptocontacto@gmail.com';
+            const fallbackProfile: UserProfile = {
+              id: u.id,
+              email: u.email || '',
+              display_name: u.user_metadata?.full_name || u.user_metadata?.name || (isSuperAdmin ? 'CaBs' : 'User'),
+              photo_url: u.user_metadata?.avatar_url || null,
+              role: isSuperAdmin ? 'admin' : 'creator',
+              created_at: new Date().toISOString()
+            };
+            return { user: u, profile: fallbackProfile };
+          }
+        }
+      }
+    }
+  } catch (e) {
+    // Ignore storage parse error
+  }
+  return { user: null, profile: null };
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const initial = React.useMemo(() => getInitialAuth(), []);
+  const [user, setUser] = useState<User | null>(initial.user);
+  const [profile, setProfile] = useState<UserProfile | null>(initial.profile);
+  const [loading, setLoading] = useState(initial.user ? false : true);
 
   useEffect(() => {
+    let isMounted = true;
+
+    // Hard safety timeout: Auth must NEVER stay in loading state for more than 3.5 seconds
+    const safetyTimer = setTimeout(() => {
+      if (isMounted) {
+        setLoading(false);
+      }
+    }, 3500);
+
     // 1. Fetch current session or handle OAuth callback
     const initializeAuth = async () => {
       try {
@@ -58,7 +99,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               });
               if (data?.session) {
                 window.history.replaceState(null, '', window.location.pathname + window.location.search);
-                await handleSession(data.session);
+                if (isMounted) await handleSession(data.session);
                 return;
               }
             }
@@ -76,7 +117,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               const { data, error } = await supabase.auth.exchangeCodeForSession(code);
               if (data?.session) {
                 window.history.replaceState(null, '', window.location.pathname);
-                await handleSession(data.session);
+                if (isMounted) await handleSession(data.session);
                 return;
               }
             }
@@ -90,13 +131,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (error) throw error;
 
         if (session) {
-          await handleSession(session);
+          if (isMounted) await handleSession(session);
         } else {
-          await handleSession(null);
+          if (isMounted) await handleSession(null);
         }
       } catch (err) {
         console.error("Auth initialization failed:", err);
-        setLoading(false); // Stop the spinner even on failure
+      } finally {
+        if (isMounted) setLoading(false);
       }
     };
 
@@ -106,6 +148,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     let subscription: any;
     try {
       const { data } = supabase.auth.onAuthStateChange(async (_event, session) => {
+        if (!isMounted) return;
         if (session) {
           await handleSession(session);
         } else if (_event === 'SIGNED_OUT') {
@@ -118,6 +161,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     return () => {
+      isMounted = false;
+      clearTimeout(safetyTimer);
       if (subscription) subscription.unsubscribe();
     };
   }, []);
