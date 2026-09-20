@@ -27,10 +27,12 @@ export default function Login() {
   );
 
   React.useEffect(() => {
-    if (user && profile) {
-      if (profile.role === 'admin' || profile.role === 'manager') {
+    if (user) {
+      const isSuperAdmin = user.email === 'cabscryptocontacto@gmail.com';
+      const role = isSuperAdmin ? 'admin' : (profile?.role || 'creator');
+      if (role === 'admin' || role === 'manager') {
         navigate('/admin');
-      } else if (profile.role === 'client') {
+      } else if (role === 'client') {
         navigate('/client');
       } else {
         navigate('/creator');
@@ -38,7 +40,7 @@ export default function Login() {
     }
   }, [user, profile, navigate]);
 
-  if (loading || (user && !profile) || (hasAuthTokens && !user)) {
+  if (hasAuthTokens && !user) {
     return <LoadingSpinner message="Verificando credenciales..." />;
   }
 

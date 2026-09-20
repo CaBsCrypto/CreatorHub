@@ -169,9 +169,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const handleSession = async (session: Session | null) => {
     if (session?.user) {
-      setLoading(true);
       setUser(session.user);
-      await fetchOrCreateProfile(session.user);
+      
+      const isSuperAdmin = session.user.email === 'cabscryptocontacto@gmail.com';
+      if (isSuperAdmin) {
+        setProfile({
+          id: session.user.id,
+          email: session.user.email || '',
+          display_name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || 'CaBs',
+          photo_url: session.user.user_metadata?.avatar_url || null,
+          role: 'admin',
+          created_at: new Date().toISOString()
+        });
+      }
+      
+      // Immediately unblock loading spinner
+      setLoading(false);
+
+      // Sync additional profile fields asynchronously
+      fetchOrCreateProfile(session.user);
     } else {
       setUser(null);
       setProfile(null);

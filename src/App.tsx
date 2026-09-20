@@ -26,8 +26,13 @@ const ProtectedRoute = ({ children, role }: { children: React.ReactNode, role?: 
     window.location.search.includes('code=')
   );
 
-  // While auth is still initializing, show spinner
-  if (loading || (hasAuthTokens && !user)) {
+  // If there are tokens currently being exchanged in URL, show spinner briefly
+  if (hasAuthTokens && !user) {
+    return <LoadingSpinner message="Verificando permisos..." />;
+  }
+
+  // If initial auth is actively loading on cold start and no user found yet
+  if (loading && !user) {
     return <LoadingSpinner message="Verificando permisos..." />;
   }
 
@@ -36,14 +41,9 @@ const ProtectedRoute = ({ children, role }: { children: React.ReactNode, role?: 
     return <Navigate to="/login" replace />;
   }
 
-  // Determine effective role: cabscryptocontacto@gmail.com is always admin
+  // User is authenticated! Main admin always has access
   const isSuperAdmin = user.email === 'cabscryptocontacto@gmail.com';
-  const effectiveRole = isSuperAdmin ? 'admin' : profile?.role;
-
-  // If profile is still resolving for non-superadmin, show quick spinner
-  if (!effectiveRole) {
-    return <LoadingSpinner message="Cargando perfil..." />;
-  }
+  const effectiveRole = isSuperAdmin ? 'admin' : (profile?.role || 'creator');
 
   if (role === 'admin' && effectiveRole !== 'admin' && effectiveRole !== 'manager') {
     return <Navigate to="/" replace />;
@@ -67,25 +67,27 @@ const HomeRedirect = () => {
     window.location.search.includes('code=')
   );
   
-  if (loading || (hasAuthTokens && !user)) {
+  if (hasAuthTokens && !user) {
     return <LoadingSpinner message="Autenticando en Browns Stats..." />;
   }
   
+  if (loading && !user) {
+    return <LoadingSpinner message="Autenticando en Browns Stats..." />;
+  }
+
   if (!user) {
     return <Navigate to="/login" replace />;
   }
 
   const isSuperAdmin = user.email === 'cabscryptocontacto@gmail.com';
-  const effectiveRole = isSuperAdmin ? 'admin' : profile?.role;
+  const effectiveRole = isSuperAdmin ? 'admin' : (profile?.role || 'creator');
 
   if (effectiveRole === 'admin' || effectiveRole === 'manager') {
     return <Navigate to="/admin" replace />;
-  } else if (effectiveRole === 'creator') {
-    return <Navigate to="/creator" replace />;
   } else if (effectiveRole === 'client') {
     return <Navigate to="/client" replace />;
   } else {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/creator" replace />;
   }
 };
 
