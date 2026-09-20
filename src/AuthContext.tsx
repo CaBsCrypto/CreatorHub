@@ -153,22 +153,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           .single();
 
         if (emailData) {
-          // Link this profile to the current Auth ID and update metadata
-          const { data: linkedData, error: linkError } = await supabase
-            .from('users')
-            .update({
-              id: currentUser.id, // Update the ID to match Auth ID
-              display_name: emailData.display_name || currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || null,
-              photo_url: emailData.photo_url || currentUser.user_metadata?.avatar_url || null
-            })
-            .eq('email', currentUser.email)
-            .select()
-            .single();
+          // Profile exists by email, use it directly
+          data = emailData;
 
-          if (!linkError && linkedData) {
-            data = linkedData;
-          } else {
-            console.error("Failed to link user by email:", linkError);
+          // Also attempt to update Auth ID in background if different
+          if (emailData.id !== currentUser.id) {
+            supabase
+              .from('users')
+              .update({
+                display_name: emailData.display_name || currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || null,
+                photo_url: emailData.photo_url || currentUser.user_metadata?.avatar_url || null
+              })
+              .eq('email', currentUser.email)
+              .then(() => {})
+              .catch(err => console.warn("Non-critical metadata sync error:", err));
           }
         }
       }
@@ -179,7 +177,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const { data: updatedData, error: updateError } = await supabase
             .from('users')
             .update({ role: 'admin' })
-            .eq('id', currentUser.id)
+            .eq('id', data.id)
             .select()
             .single();
             
@@ -211,7 +209,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (insertError) {
           console.error("Error creating new user profile in Supabase:", insertError);
-          setProfile(null);
+          // If insert failed because email already exists, fetch by email!
+          const { data: retryByEmail } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', currentUser.email)
+            .single();
+
+          if (retryByEmail) {
+            setProfile(retryByEmail as UserProfile);
+          } else if (currentUser.email === 'cabscryptocontacto@gmail.com') {
+            setProfile({
+              id: currentUser.id,
+              email: currentUser.email,
+              display_name: currentUser.user_metadata?.full_name || 'CaBs',
+              photo_url: currentUser.user_metadata?.avatar_url || null,
+              role: 'admin',
+              created_at: new Date().toISOString()
+            } as UserProfile);
+          } else {
+            setProfile(null);
+          }
         } else {
           setProfile(newData as UserProfile);
           

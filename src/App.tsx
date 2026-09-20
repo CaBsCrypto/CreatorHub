@@ -26,23 +26,34 @@ const ProtectedRoute = ({ children, role }: { children: React.ReactNode, role?: 
     window.location.search.includes('code=')
   );
 
-  if (loading || (user && !profile) || (hasAuthTokens && !user)) {
+  // While auth is still initializing, show spinner
+  if (loading || (hasAuthTokens && !user)) {
     return <LoadingSpinner message="Verificando permisos..." />;
   }
 
+  // Not authenticated
   if (!user) {
     return <Navigate to="/login" replace />;
   }
 
-  if (role === 'admin' && profile?.role !== 'admin' && profile?.role !== 'manager') {
+  // Determine effective role: cabscryptocontacto@gmail.com is always admin
+  const isSuperAdmin = user.email === 'cabscryptocontacto@gmail.com';
+  const effectiveRole = isSuperAdmin ? 'admin' : profile?.role;
+
+  // If profile is still resolving for non-superadmin, show quick spinner
+  if (!effectiveRole) {
+    return <LoadingSpinner message="Cargando perfil..." />;
+  }
+
+  if (role === 'admin' && effectiveRole !== 'admin' && effectiveRole !== 'manager') {
     return <Navigate to="/" replace />;
   }
 
-  if (role === 'creator' && profile?.role !== 'creator' && profile?.role !== 'admin' && profile?.role !== 'manager') {
+  if (role === 'creator' && effectiveRole !== 'creator' && effectiveRole !== 'admin' && effectiveRole !== 'manager') {
     return <Navigate to="/" replace />;
   }
 
-  if (role === 'client' && profile?.role !== 'client' && profile?.role !== 'admin' && profile?.role !== 'manager') {
+  if (role === 'client' && effectiveRole !== 'client' && effectiveRole !== 'admin' && effectiveRole !== 'manager') {
     return <Navigate to="/" replace />;
   }
 
@@ -56,7 +67,7 @@ const HomeRedirect = () => {
     window.location.search.includes('code=')
   );
   
-  if (loading || (user && !profile) || (hasAuthTokens && !user)) {
+  if (loading || (hasAuthTokens && !user)) {
     return <LoadingSpinner message="Autenticando en Browns Stats..." />;
   }
   
@@ -64,11 +75,14 @@ const HomeRedirect = () => {
     return <Navigate to="/login" replace />;
   }
 
-  if (profile?.role === 'admin' || profile?.role === 'manager') {
+  const isSuperAdmin = user.email === 'cabscryptocontacto@gmail.com';
+  const effectiveRole = isSuperAdmin ? 'admin' : profile?.role;
+
+  if (effectiveRole === 'admin' || effectiveRole === 'manager') {
     return <Navigate to="/admin" replace />;
-  } else if (profile?.role === 'creator') {
+  } else if (effectiveRole === 'creator') {
     return <Navigate to="/creator" replace />;
-  } else if (profile?.role === 'client') {
+  } else if (effectiveRole === 'client') {
     return <Navigate to="/client" replace />;
   } else {
     return <Navigate to="/login" replace />;

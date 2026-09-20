@@ -231,11 +231,19 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
     } finally {
       setLoading(false);
     }
-  }, [role, toastError]);
+  }, [role, toastError, user]);
 
   useEffect(() => {
-    if (!user) return;
-    fetchData();
+    // Safety timer: ensure loading never hangs for more than 8 seconds
+    const safetyTimer = setTimeout(() => {
+      setLoading(false);
+    }, 8000);
+
+    if (user) {
+      fetchData().finally(() => clearTimeout(safetyTimer));
+    } else {
+      clearTimeout(safetyTimer);
+    }
 
     let debounceTimer: ReturnType<typeof setTimeout>;
 
@@ -253,6 +261,7 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
       .subscribe();
 
     return () => {
+      clearTimeout(safetyTimer);
       clearTimeout(debounceTimer);
       supabase.removeChannel(channel);
     };

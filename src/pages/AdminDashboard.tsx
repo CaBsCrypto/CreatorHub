@@ -388,18 +388,26 @@ export default function AdminDashboard() {
           )}
 
           {/* Creator groups management tab */}
-          {activeTab === 'groups' && !loading && (
-            <GroupsTab
-              groups={groups}
-              groupMembers={groupMembers}
-              users={allUsers || users}
-              campaigns={allCampaigns || campaigns}
-              content={allContent || content}
-              refresh={refresh}
-              activeGroupId={activeGroupId}
-              setActiveGroupId={setActiveGroupId}
-              onEnterGroup={handleEnterGroup}
-            />
+          {activeTab === 'groups' && (
+            loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 py-4">
+                <CardSkeleton />
+                <CardSkeleton />
+                <CardSkeleton />
+              </div>
+            ) : (
+              <GroupsTab
+                groups={groups}
+                groupMembers={groupMembers}
+                users={allUsers || users}
+                campaigns={allCampaigns || campaigns}
+                content={allContent || content}
+                refresh={refresh}
+                activeGroupId={activeGroupId}
+                setActiveGroupId={setActiveGroupId}
+                onEnterGroup={handleEnterGroup}
+              />
+            )
           )}
 
           {/* Rest of the tabs handle their own rendering or are shown after loading */}
