@@ -1,6 +1,6 @@
 import { Resend } from 'resend';
 
-export async function sendNotificationEmail(subject: string, html: string, to?: string | string[]) {
+export async function sendNotificationEmail(subject: string, html: string, to?: string | string[], brand?: 'umbra' | 'tellus' | 'hub') {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     console.warn("RESEND_API_KEY not configured, skipping email.");
@@ -15,9 +15,15 @@ export async function sendNotificationEmail(subject: string, html: string, to?: 
     'lol.eminatr1x@gmail.com'
   ];
 
+  const senderName = brand === 'tellus' 
+    ? 'Tellus Cooperative' 
+    : brand === 'umbra' 
+      ? 'Umbra Agency' 
+      : 'Creator Hub';
+
   try {
     const { data, error } = await resend.emails.send({
-      from: 'Umbra Creator Hub <notifications@resend.dev>',
+      from: `${senderName} <notifications@resend.dev>`,
       to: recipients,
       subject,
       html,

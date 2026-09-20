@@ -18,6 +18,7 @@ export const SendEmailSchema = z.object({
   to: z.union([z.string().email(), z.array(z.string().email())]),
   subject: z.string().min(5),
   html: z.string().min(10),
+  brand: z.enum(['umbra', 'tellus', 'hub']).optional(),
 });
 
 export const AnalyzeTwitchSchema = z.object({

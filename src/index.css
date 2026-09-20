@@ -5,6 +5,26 @@
     --umbra-primary: #e11d48;
     --umbra-secondary: #be123c;
     --umbra-accent: #fb7185;
+
+    --tellus-primary: #10b981;
+    --tellus-secondary: #059669;
+    --tellus-accent: #34d399;
+
+    --brand-primary: var(--umbra-primary);
+    --brand-secondary: var(--umbra-secondary);
+    --brand-accent: var(--umbra-accent);
+  }
+
+  body.theme-umbra {
+    --brand-primary: var(--umbra-primary);
+    --brand-secondary: var(--umbra-secondary);
+    --brand-accent: var(--umbra-accent);
+  }
+
+  body.theme-tellus {
+    --brand-primary: var(--tellus-primary);
+    --brand-secondary: var(--tellus-secondary);
+    --brand-accent: var(--tellus-accent);
   }
 
   body {
@@ -17,6 +37,17 @@
     @apply bg-[#030303] text-slate-200 antialiased selection:bg-red-500/30 selection:text-red-100;
     background-image: 
       radial-gradient(circle at 50% 50%, rgba(220, 38, 38, 0.05) 0%, transparent 80%),
+      linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 100% 100%, 50px 50px, 50px 50px;
+    background-attachment: fixed;
+  }
+
+  /* Scoped Emerald Aesthetic for Tellus areas */
+  .tellus-emerald-aesthetic {
+    @apply bg-[#030704] text-slate-200 antialiased selection:bg-emerald-500/30 selection:text-emerald-100;
+    background-image: 
+      radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.06) 0%, transparent 80%),
       linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
       linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
     background-size: 100% 100%, 50px 50px, 50px 50px;
@@ -38,6 +69,7 @@
     background: linear-gradient(135deg, #050505 0%, #0a0a0a 100%);
   }
 
+  /* Umbra Glows */
   .text-glow-red {
     text-shadow: 0 0 20px rgba(220, 38, 38, 0.4);
   }
@@ -50,12 +82,38 @@
     @apply border border-red-500/20 shadow-[0_0_15px_rgba(220,38,38,0.1)];
   }
 
+  /* Tellus Glows */
+  .text-glow-emerald {
+    text-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+  }
+
+  .bg-glow-emerald {
+    background: radial-gradient(circle at center, rgba(16, 185, 129, 0.15) 0%, transparent 70%);
+  }
+
+  .border-glow-emerald {
+    @apply border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.15)];
+  }
+
+  /* Hub Indigo Glows */
+  .text-glow-indigo {
+    text-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+  }
+
+  .bg-glow-indigo {
+    background: radial-gradient(circle at center, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+  }
+
   .premium-shadow {
     box-shadow: 0 40px 100px -30px rgba(0, 0, 0, 0.7);
   }
 
   .premium-glow {
     @apply border-red-500/20 shadow-[0_0_40px_rgba(225,29,72,0.1)];
+  }
+
+  .premium-glow-emerald {
+    @apply border-emerald-500/20 shadow-[0_0_40px_rgba(16,185,129,0.15)];
   }
 
   .premium-hover {

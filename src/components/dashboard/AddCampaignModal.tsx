@@ -252,25 +252,29 @@ const AddCampaignModal: React.FC<AddCampaignModalProps> = ({
             </div>
           </div>
 
-          {/* Creator Group assignment */}
-          <div className="bg-emerald-50/60 p-4 rounded-2xl border border-emerald-100">
-            <label className="flex items-center gap-1.5 text-[10px] font-black text-emerald-700 uppercase tracking-widest mb-2">
-              <UsersRound className="h-3.5 w-3.5" /> Grupo de Creadores
+          {/* Creator Group / Business assignment */}
+          <div className="bg-slate-50 p-4 sm:p-5 rounded-2xl border-2 border-slate-200">
+            <label className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest mb-2">
+              <span className="flex items-center gap-1.5 text-slate-900">
+                <UsersRound className="h-3.5 w-3.5 text-indigo-600" /> Negocio / Organización asignada
+              </span>
+              <span className="text-[9px] text-rose-500 font-bold tracking-normal">* Requerido para trackeo</span>
             </label>
             <select
+              required
               value={newCampaign.group_id || ''}
               onChange={(e) => setNewCampaign({ ...newCampaign, group_id: e.target.value || null })}
-              className="block w-full rounded-xl border border-emerald-100 bg-white py-3 px-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-300 transition-all outline-none cursor-pointer"
+              className="block w-full rounded-xl border border-slate-200 bg-white py-3 px-4 text-sm font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all outline-none cursor-pointer"
             >
-              <option value="">Sin grupo asignado</option>
+              <option value="" disabled>Selecciona el Negocio / Organización...</option>
               {groups.map(g => (
                 <option key={g.id} value={g.id}>
                   {g.logo_emoji ? `${g.logo_emoji} ` : ''}{g.name}
                 </option>
               ))}
             </select>
-            <p className="mt-2 text-[9px] text-emerald-600/70 font-bold uppercase tracking-tighter">
-              La campaña se organizará bajo el grupo seleccionado.
+            <p className="mt-2 text-[9px] text-slate-500 font-medium">
+              Todo el contenido, creadores y analíticas de esta campaña se aislarán bajo este negocio.
             </p>
           </div>
 

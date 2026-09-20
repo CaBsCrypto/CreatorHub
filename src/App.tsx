@@ -18,6 +18,7 @@ const ClientDashboard = React.lazy(() => import('./pages/ClientDashboard'));
 const PublicReview = React.lazy(() => import('./pages/PublicReview'));
 const Landing = React.lazy(() => import('./pages/Landing'));
 const CreatorHubLanding = React.lazy(() => import('./pages/CreatorHubLanding'));
+const TellusPortal = React.lazy(() => import('./pages/TellusPortal'));
 
 const ProtectedRoute = ({ children, role }: { children: React.ReactNode, role?: 'admin' | 'creator' | 'client' }) => {
   const { user, profile, loading } = useAuth();
@@ -91,15 +92,19 @@ const HomeRedirect = () => {
   }
 };
 
+import { TenantProvider } from './context/TenantContext';
+
 export default function App() {
   return (
     <ToastProvider>
       <AuthProvider>
-        <Router>
-          <div className="min-h-screen bg-white">
-            <AppContent />
-          </div>
-        </Router>
+        <TenantProvider>
+          <Router>
+            <div className="min-h-screen bg-white">
+              <AppContent />
+            </div>
+          </Router>
+        </TenantProvider>
       </AuthProvider>
     </ToastProvider>
   );
@@ -108,7 +113,7 @@ export default function App() {
 function AppContent() {
   const location = useLocation();
   const pathname = location.pathname;
-  const isPublicRoute = pathname === '/' || pathname === '/umbra' || pathname.startsWith('/review/') || pathname.startsWith('/v/') || pathname.startsWith('/login');
+  const isPublicRoute = pathname === '/' || pathname === '/umbra' || pathname === '/tellus' || pathname.startsWith('/review/') || pathname.startsWith('/v/') || pathname.startsWith('/login');
   const isAdminRoute = pathname.startsWith('/admin');
 
   return (
@@ -120,6 +125,7 @@ function AppContent() {
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<CreatorHubLanding />} />
             <Route path="/umbra" element={<Landing />} />
+            <Route path="/tellus" element={<TellusPortal />} />
             <Route path="/dashboard" element={<HomeRedirect />} />
             <Route 
               path="/admin/*" 

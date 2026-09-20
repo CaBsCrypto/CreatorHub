@@ -8,6 +8,8 @@ import {
   CheckCircle2, LucideIcon
 } from 'lucide-react';
 
+import { useTenant } from '../context/TenantContext';
+
 export interface Tier {
   name: string;
   level: number;
@@ -39,6 +41,7 @@ export const getAgencyRank = (posts: number, views: number) => {
 export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform?: string, campaign?: string, creator?: string, showOnlyZeroViews?: boolean }) => {
   const { user } = useAuth();
   const { error: toastError } = useToast();
+  const { tenant, activeDbGroupId } = useTenant();
   
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [content, setContent] = useState<Content[]>([]);
@@ -55,6 +58,15 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
     try { return localStorage.getItem('creatorhub_active_group') || 'all'; } catch { return 'all'; }
   });
   const [loading, setLoading] = useState(true);
+
+  // Sync activeGroupId with TenantContext when tenant changes and matches a group
+  useEffect(() => {
+    if (tenant === 'all') {
+      setActiveGroupIdState('all');
+    } else if (activeDbGroupId) {
+      setActiveGroupIdState(activeDbGroupId);
+    }
+  }, [tenant, activeDbGroupId]);
 
   const setActiveGroupId = useCallback((groupId: string) => {
     try { localStorage.setItem('creatorhub_active_group', groupId); } catch { /* ignore */ }

@@ -79,14 +79,27 @@ export default function ClientDashboard() {
     }
   }
 
+  const [groups, setGroups] = useState<any[]>([]);
+
+  useEffect(() => {
+    supabase.from('creator_groups').select('*').is('deleted_at', null).then(({ data }) => {
+      if (data) setGroups(data);
+    });
+  }, []);
+
+  const primaryGroup = campaigns[0]?.group_id ? groups.find(g => g.id === campaigns[0].group_id) : null;
+  const brandName = primaryGroup?.name || 'Creator Hub';
+  const isTellus = primaryGroup?.slug?.includes('tellus') || primaryGroup?.name?.toLowerCase().includes('tellus');
+  const isUmbra = primaryGroup?.slug?.includes('umbra') || primaryGroup?.name?.toLowerCase().includes('umbra');
+
   if (loading) return <LoadingSpinner message="Cargando tu panel de cliente..." />;
 
   return (
     <div className="min-h-screen pb-20 relative overflow-hidden">
       {/* Background Nebula (Subtle) */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute -top-24 -left-24 w-96 h-96 bg-indigo-500/5 blur-[100px] rounded-full" />
-        <div className="absolute top-1/2 -right-24 w-80 h-80 bg-rose-500/5 blur-[100px] rounded-full" />
+        <div className={`absolute -top-24 -left-24 w-96 h-96 ${isTellus ? 'bg-emerald-500/10' : isUmbra ? 'bg-rose-500/10' : 'bg-indigo-500/5'} blur-[100px] rounded-full`} />
+        <div className="absolute top-1/2 -right-24 w-80 h-80 bg-slate-500/5 blur-[100px] rounded-full" />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 pt-12">
@@ -99,12 +112,14 @@ export default function ClientDashboard() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
               <h1 className="text-4xl font-black text-gray-900 tracking-tight mb-2 flex items-center gap-3">
-                <span className="p-3 bg-indigo-600 text-white rounded-2xl shadow-xl shadow-indigo-100 group">
+                <span className={`p-3 text-white rounded-2xl shadow-xl group ${isTellus ? 'bg-emerald-600 shadow-emerald-100' : isUmbra ? 'bg-rose-600 shadow-rose-100' : 'bg-indigo-600 shadow-indigo-100'}`}>
                   <BarChart3 className="h-8 w-8 group-hover:rotate-12 transition-transform" />
                 </span>
                 ¡Hola, {profile?.display_name || 'Cliente'}!
               </h1>
-              <p className="text-gray-500 font-medium">Gracias por colaborar con <span className="text-indigo-600 font-black">UMBRA</span>. Aquí puedes ver los resultados detallados de tu campaña.</p>
+              <p className="text-gray-500 font-medium">
+                Gracias por colaborar con <span className={`font-black ${isTellus ? 'text-emerald-600' : isUmbra ? 'text-rose-600' : 'text-indigo-600'}`}>{brandName.toUpperCase()}</span>. Aquí puedes ver los resultados detallados de tu campaña.
+              </p>
             </div>
             
             <button 

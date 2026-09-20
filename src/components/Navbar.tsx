@@ -5,11 +5,14 @@ import { logout } from '../AuthContext';
 import { LogOut, User as UserIcon, Menu, X, LayoutDashboard, UserCircle, Globe } from 'lucide-react';
 import { clsx } from 'clsx';
 
+import { useTenant, TenantType } from '../context/TenantContext';
+
 export default function Navbar() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { tenant, setTenant, config, availableTenants } = useTenant();
 
   const handleLogout = async () => {
     await logout();
@@ -26,7 +29,7 @@ export default function Navbar() {
 
   const navLinks = [
     ...(isAdmin ? [
-      { name: 'Página Pública', href: '/', icon: Globe },
+      { name: 'Página Pública', href: config.publicUrl, icon: Globe },
       { name: 'Admin Dashboard', href: '/admin', icon: LayoutDashboard },
       { name: 'Creator View', href: '/creator', icon: UserCircle },
     ] : []),
@@ -45,14 +48,43 @@ export default function Navbar() {
     )}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 justify-between items-center">
-          <div className="flex items-center">
-            <Link to="/" className="text-xl font-bold text-indigo-600 flex items-center gap-2">
-              <span className="hidden sm:inline">Browns Stats</span>
-              <span className="sm:hidden text-2xl">BS</span>
+          <div className="flex items-center gap-4">
+            <Link to="/" className="flex items-center gap-2.5">
+              <span className="text-xl font-black tracking-tight text-slate-900">
+                Creator<span className="text-indigo-600">Hub</span>
+              </span>
             </Link>
+
+            {/* Tenant Selector Pill */}
+            {availableTenants.length > 1 && (
+              <div className="flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200/80 text-[11px] font-black uppercase tracking-wider">
+                {availableTenants.map((t) => {
+                  const isActive = tenant === t;
+                  const label = t === 'all' ? 'Global' : t === 'umbra' ? 'Umbra' : 'Tellus';
+                  return (
+                    <button
+                      key={t}
+                      onClick={() => setTenant(t as TenantType)}
+                      className={clsx(
+                        "px-2.5 py-1 rounded-lg transition-all duration-200",
+                        isActive
+                          ? t === 'umbra' 
+                            ? "bg-rose-600 text-white shadow-sm" 
+                            : t === 'tellus'
+                              ? "bg-emerald-600 text-white shadow-sm"
+                              : "bg-slate-900 text-white shadow-sm"
+                          : "text-slate-500 hover:text-slate-900"
+                      )}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
             
             {/* Desktop Links */}
-            <div className="hidden sm:ml-8 sm:flex sm:space-x-4">
+            <div className="hidden sm:ml-4 sm:flex sm:space-x-2">
               {navLinks.map((link) => (
                 <a
                   key={link.name}

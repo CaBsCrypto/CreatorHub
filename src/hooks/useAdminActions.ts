@@ -218,6 +218,31 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
         const appBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
           ? 'https://stats.browns.studio'
           : window.location.origin;
+
+        // Fetch campaign to know its organization
+        let brand: 'umbra' | 'tellus' | 'hub' = 'hub';
+        let brandDisplayName = 'Creator Hub';
+        let brandColor = '#4f46e5';
+
+        if (newUser.linked_campaign_id) {
+          const { data: cData } = await supabase
+            .from('campaigns')
+            .select('group_id, creator_groups(slug, name)')
+            .eq('id', newUser.linked_campaign_id)
+            .single();
+
+          const gSlug = ((cData as any)?.creator_groups?.slug || (cData as any)?.creator_groups?.name || '').toLowerCase();
+          if (gSlug.includes('tellus')) {
+            brand = 'tellus';
+            brandDisplayName = 'Tellus Cooperative';
+            brandColor = '#10b981';
+          } else if (gSlug.includes('umbra')) {
+            brand = 'umbra';
+            brandDisplayName = 'Umbra Agency';
+            brandColor = '#e11d48';
+          }
+        }
+
         const emailRes = await fetch('/api/send-email', {
           method: 'POST',
           headers: { 
@@ -226,20 +251,21 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
           },
           body: JSON.stringify({
             to: [newUser.email, 'cabscryptocontacto@gmail.com'],
-            subject: '🎁 Invitación a Browns Stats',
-            html: `<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #f3f4f6; border-radius: 20px;">
-              <h2 style="color: #4f46e5; margin-bottom: 20px;">¡Bienvenido a Browns Stats!</h2>
-              <p style="color: #374151; font-size: 16px; line-height: 1.5;">Has sido invitado como <strong>Cliente</strong> para colaborar y ver las métricas de tu campaña en tiempo real.</p>
+            subject: `🎁 Invitación a tu panel de ${brandDisplayName}`,
+            brand,
+            html: `<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #f3f4f6; border-radius: 20px; background-color: #ffffff;">
+              <h2 style="color: ${brandColor}; margin-bottom: 20px; font-weight: 800;">¡Bienvenido a ${brandDisplayName}!</h2>
+              <p style="color: #374151; font-size: 16px; line-height: 1.6;">Has sido invitado como <strong>Cliente</strong> para colaborar y revisar el impacto y las métricas en vivo de tu campaña.</p>
               <div style="margin: 30px 0;">
-                <a href="${appBaseUrl}/login" style="background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Acceder a mi panel</a>
+                <a href="${appBaseUrl}/login" style="background-color: ${brandColor}; color: white; padding: 14px 28px; text-decoration: none; border-radius: 12px; font-weight: bold; display: inline-block;">Acceder a mi Panel</a>
               </div>
-              <p style="color: #6b7280; font-size: 14px;">Inicia sesión usando Google con tu correo asociado a esta cuenta (${newUser.email}).</p>
+              <p style="color: #6b7280; font-size: 14px;">Inicia sesión con Google usando tu correo (${newUser.email}).</p>
               <hr style="border: none; border-top: 1px solid #f3f4f6; margin: 30px 0;" />
-              <p style="color: #9ca3af; font-size: 12px; text-align: center;">El equipo de Umbra</p>
+              <p style="color: #9ca3af; font-size: 12px; text-align: center;">El equipo de ${brandDisplayName}</p>
             </div>`
           })
         });
-        if (emailRes.ok) success("Invitación enviada por correo");
+        if (emailRes.ok) success(`Invitación de ${brandDisplayName} enviada por correo`);
       }
 
       setIsAddingUser(false);

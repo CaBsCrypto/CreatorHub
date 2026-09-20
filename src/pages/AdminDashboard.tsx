@@ -5,6 +5,7 @@ import { useAuth } from '../AuthContext';
 
 // Custom Hooks
 import { useDashboardData, getAgencyRank, AGENCY_TIERS } from '../hooks/useDashboardData';
+import { useTenant } from '../context/TenantContext';
 import { useToast } from '../hooks/useToast';
 import { useFilterParams } from '../hooks/useTabNavigation';
 import { useContentActions } from '../hooks/useContentActions';
@@ -118,10 +119,24 @@ export default function AdminDashboard() {
 
   const activeGroup = useMemo(() => groups.find(g => g.id === activeGroupId) || null, [groups, activeGroupId]);
 
-  const handleEnterGroup = useCallback((groupId: string) => {
+  const handleSelectGroup = useCallback((groupId: string) => {
     setActiveGroupId(groupId);
+    if (groupId === 'all') {
+      setTenant('all');
+    } else {
+      const g = groups.find(item => item.id === groupId);
+      if (g) {
+        const s = (g.slug || g.name).toLowerCase();
+        if (s.includes('tellus')) setTenant('tellus');
+        else if (s.includes('umbra')) setTenant('umbra');
+      }
+    }
+  }, [groups, setActiveGroupId, setTenant]);
+
+  const handleEnterGroup = useCallback((groupId: string) => {
+    handleSelectGroup(groupId);
     setActiveTab('overview');
-  }, [setActiveGroupId, setActiveTab]);
+  }, [handleSelectGroup, setActiveTab]);
 
   const { isProcessing: isProcessingContent, handleTwitchUpload, handleContentSubmit } = useContentActions(refresh);
   
@@ -361,7 +376,7 @@ export default function AdminDashboard() {
           <div className="flex items-center gap-2 self-end sm:self-auto flex-shrink-0">
             {activeGroup && (
               <button
-                onClick={() => setActiveGroupId('all')}
+                onClick={() => handleSelectGroup('all')}
                 className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-black uppercase tracking-wider transition-all"
                 title="Volver a ver todas las marcas juntas"
               >
@@ -369,7 +384,7 @@ export default function AdminDashboard() {
                 <span className="hidden sm:inline">Vista</span> Global
               </button>
             )}
-            <GroupSwitcher groups={groups} activeGroupId={activeGroupId} onChange={setActiveGroupId} />
+            <GroupSwitcher groups={groups} activeGroupId={activeGroupId} onChange={handleSelectGroup} />
           </div>
         </div>
 

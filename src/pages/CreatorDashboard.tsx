@@ -27,9 +27,12 @@ import ContentDetailModal from '../components/dashboard/ContentDetailModal';
 import CampaignsTab from '../components/dashboard/CampaignsTab';
 import Skeleton, { StatsSkeleton, CardSkeleton } from '../components/dashboard/Skeleton';
 
+import { useTenant } from '../context/TenantContext';
+
 export default function CreatorDashboard() {
   const { user, profile } = useAuth();
   const { success, error: toastError, info } = useToast();
+  const { tenant, config } = useTenant();
   const [filters, setFilter, setFilters, resetFilters] = useFilterParams({ campaign: 'all', tab: 'overview' });
   const activeTab = filters.tab || 'overview';
   const setActiveTab = useCallback((tab: string) => setFilter('tab', tab), [setFilter]);
@@ -186,13 +189,26 @@ export default function CreatorDashboard() {
         <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
           <div className="cursor-pointer group" onClick={() => { setActiveTab('overview'); resetFilters(); }}>
             <div className="flex items-center gap-3 mb-1">
-              <div className="w-2.5 h-2.5 rounded-full bg-indigo-600 shadow-[0_0_12px_rgba(79,70,229,0.4)] animate-pulse" />
+              <div className={`w-2.5 h-2.5 rounded-full ${
+                tenant === 'umbra' ? 'bg-rose-600 shadow-[0_0_12px_rgba(225,29,72,0.6)]' :
+                tenant === 'tellus' ? 'bg-emerald-600 shadow-[0_0_12px_rgba(16,185,129,0.6)]' :
+                'bg-indigo-600 shadow-[0_0_12px_rgba(79,70,229,0.4)]'
+              } animate-pulse`} />
               <h1 className="text-3xl font-black text-slate-900 leading-tight tracking-tight uppercase">
                 {profile?.display_name || 'Creador'}
               </h1>
+              {tenant !== 'all' && (
+                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${config.badgeBg}`}>
+                  {config.name}
+                </span>
+              )}
             </div>
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-5">
-              Rango Actual: <span className="text-indigo-600 italic font-black">{myRank.name}</span>
+              Rango Actual: <span className={`italic font-black ${
+                tenant === 'umbra' ? 'text-rose-600' :
+                tenant === 'tellus' ? 'text-emerald-600' :
+                'text-indigo-600'
+              }`}>{myRank.name}</span>
             </p>
           </div>
           <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">

@@ -470,8 +470,8 @@ app.post("/api/analyze-creator", authenticate, validate(AnalyzeCreatorSchema), a
 
 app.post("/api/send-email", authenticate, authorize(['admin']), validate(SendEmailSchema), async (req, res) => {
   try {
-    const { subject, html, to } = req.body;
-    const result = await sendNotificationEmail(subject, html, to);
+    const { subject, html, to, brand } = req.body;
+    const result = await sendNotificationEmail(subject, html, to, brand);
     res.json(result);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
