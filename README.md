@@ -1,20 +1,43 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# 🎬 CreatorHub
 
-# Run and deploy your AI Studio app
+> Operations platform connecting content creators with clients — onboarding, delivery, review and analytics in one place.
 
-This contains everything you need to run your app locally.
+<p>
+<img alt="React" src="https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black">
+<img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white">
+<img alt="Supabase" src="https://img.shields.io/badge/Supabase-3FCF8E?style=flat-square&logo=supabase&logoColor=white">
+<img alt="Gemini" src="https://img.shields.io/badge/Gemini-8E75B2?style=flat-square&logo=googlegemini&logoColor=white">
+<img alt="Express" src="https://img.shields.io/badge/Express-000000?style=flat-square&logo=express&logoColor=white">
+</p>
 
-View your app in AI Studio: https://ai.studio/apps/54c544b5-6213-4284-8980-3ee4da5b85c8
+**[→ Live](https://creator-hub-three-lake.vercel.app)**
 
-## Run Locally
+## What it does
 
-**Prerequisites:**  Node.js
+Three roles, three views, one pipeline:
 
+| Role | Gets |
+| :-- | :-- |
+| **Creator** | Their assignments, deliverables and performance |
+| **Client** | Progress on their campaigns and content under review |
+| **Admin** | The whole board — onboarding console, scraper logs, analytics |
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+Plus a **public review page** so a client can approve work without needing an account.
+
+- AI assistance for content work (Gemini)
+- Transactional email via Resend
+- Scraping service with its own logging layer
+- Bilingual UI (`translations.ts`)
+- Rate limiting, Helmet and CORS on the API
+
+## Stack
+
+React · TypeScript · Vite · Tailwind · Supabase · Google Gemini · Express · Resend · Google APIs · Recharts · Framer Motion
+
+## Run it
+
+```bash
+npm install
+cp .env.example .env      # Supabase, Gemini, Resend keys
+npm run dev
+```
