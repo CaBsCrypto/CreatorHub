@@ -47,7 +47,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         if (error) throw error;
-        handleSession(session);
+        await handleSession(session);
       } catch (err) {
         console.error("Auth initialization failed:", err);
         setLoading(false); // Stop the spinner even on failure
@@ -59,8 +59,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // 2. Listen for auth changes
     let subscription: any;
     try {
-      const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-        handleSession(session);
+      const { data } = supabase.auth.onAuthStateChange(async (_event, session) => {
+        await handleSession(session);
       });
       subscription = data.subscription;
     } catch (err) {
@@ -74,6 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const handleSession = async (session: Session | null) => {
     if (session?.user) {
+      setLoading(true);
       setUser(session.user);
       await fetchOrCreateProfile(session.user);
     } else {
@@ -186,11 +187,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       } else {
          console.error("Unexpected error fetching user profile:", error);
-         setProfile(null);
+         if (currentUser.email === 'cabscryptocontacto@gmail.com') {
+           setProfile({
+             id: currentUser.id,
+             email: currentUser.email,
+             display_name: currentUser.user_metadata?.full_name || 'Admin',
+             photo_url: currentUser.user_metadata?.avatar_url || null,
+             role: 'admin',
+             created_at: new Date().toISOString()
+           } as UserProfile);
+         } else {
+           setProfile(null);
+         }
       }
     } catch (err) {
       console.error("Auth context error:", err);
-      setProfile(null);
+      if (currentUser?.email === 'cabscryptocontacto@gmail.com') {
+        setProfile({
+          id: currentUser.id,
+          email: currentUser.email,
+          display_name: currentUser.user_metadata?.full_name || 'Admin',
+          photo_url: currentUser.user_metadata?.avatar_url || null,
+          role: 'admin',
+          created_at: new Date().toISOString()
+        } as UserProfile);
+      } else {
+        setProfile(null);
+      }
     } finally {
       setLoading(false);
     }

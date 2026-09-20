@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './AuthContext';
 import Login from './pages/Login';
 import Navbar from './components/Navbar';
@@ -22,8 +22,8 @@ const CreatorHubLanding = React.lazy(() => import('./pages/CreatorHubLanding'));
 const ProtectedRoute = ({ children, role }: { children: React.ReactNode, role?: 'admin' | 'creator' | 'client' }) => {
   const { user, profile, loading } = useAuth();
 
-  if (loading) {
-    return <LoadingSpinner message="Verificando sesión..." />;
+  if (loading || (user && !profile)) {
+    return <LoadingSpinner message="Verificando permisos..." />;
   }
 
   if (!user) {
@@ -46,10 +46,14 @@ const ProtectedRoute = ({ children, role }: { children: React.ReactNode, role?: 
 };
 
 const HomeRedirect = () => {
-  const { profile, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
   
-  if (loading) return <LoadingSpinner message="Iniciando..." />;
+  if (loading || (user && !profile)) return <LoadingSpinner message="Iniciando..." />;
   
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
   if (profile?.role === 'admin' || profile?.role === 'manager') {
     return <Navigate to="/admin" replace />;
   } else if (profile?.role === 'creator') {
@@ -76,7 +80,8 @@ export default function App() {
 }
 
 function AppContent() {
-  const { pathname } = window.location;
+  const location = useLocation();
+  const pathname = location.pathname;
   const isPublicRoute = pathname === '/' || pathname === '/umbra' || pathname.startsWith('/review/') || pathname.startsWith('/v/') || pathname.startsWith('/login');
   const isAdminRoute = pathname.startsWith('/admin');
 
