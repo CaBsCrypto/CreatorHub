@@ -137,7 +137,7 @@ export default function CreatorDashboard() {
     e.stopPropagation();
     try {
       const BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-        ? 'https://umbrahub.vercel.app'
+        ? 'https://stats.browns.studio'
         : window.location.origin;
       const path = type === 'slug' ? `/v/${token}` : `/review/${token}`;
       const url = `${BASE_URL}${path}`;

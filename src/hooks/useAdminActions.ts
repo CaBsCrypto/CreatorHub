@@ -216,7 +216,7 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
 
       if (newUser.role === 'client') {
         const appBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-          ? 'https://umbrahub.vercel.app'
+          ? 'https://stats.browns.studio'
           : window.location.origin;
         const emailRes = await fetch('/api/send-email', {
           method: 'POST',
@@ -226,9 +226,9 @@ export function useAdminActions(refresh: () => Promise<void>, currentUser: UserP
           },
           body: JSON.stringify({
             to: [newUser.email, 'cabscryptocontacto@gmail.com'],
-            subject: '🎁 Invitación a Umbra Creator Hub',
+            subject: '🎁 Invitación a Browns Stats',
             html: `<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #f3f4f6; border-radius: 20px;">
-              <h2 style="color: #4f46e5; margin-bottom: 20px;">¡Bienvenido a Umbra!</h2>
+              <h2 style="color: #4f46e5; margin-bottom: 20px;">¡Bienvenido a Browns Stats!</h2>
               <p style="color: #374151; font-size: 16px; line-height: 1.5;">Has sido invitado como <strong>Cliente</strong> para colaborar y ver las métricas de tu campaña en tiempo real.</p>
               <div style="margin: 30px 0;">
                 <a href="${appBaseUrl}/login" style="background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Acceder a mi panel</a>

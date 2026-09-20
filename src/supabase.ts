@@ -105,6 +105,7 @@ export interface Content {
   content_type?: 'video_largo' | 'video_corto' | null;
   is_repost?: boolean;
   parent_id?: string | null;
+  last_refreshed_at?: string | null;
 }
 
 export interface DiscordSessionEvent {

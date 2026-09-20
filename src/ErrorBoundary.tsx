@@ -28,16 +28,31 @@ export class ErrorBoundary extends React.Component<Props, State> {
       return (
         <div className="flex h-screen w-full flex-col items-center justify-center bg-gray-50 p-4">
           <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
-            <h2 className="mb-4 text-2xl font-bold text-red-600">Something went wrong</h2>
-            <div className="mb-4 rounded bg-red-50 p-4 text-sm text-red-800">
-              <p className="font-mono">{this.state.error?.message}</p>
+            <h2 className="mb-2 text-2xl font-black text-rose-600 tracking-tight">Algo salió mal</h2>
+            <p className="text-xs text-slate-500 mb-4">Se detectó un error al inicializar la vista:</p>
+            <div className="mb-5 rounded-xl bg-slate-900 p-4 text-xs text-rose-300 font-mono overflow-x-auto">
+              <p>{this.state.error?.message || 'Error desconocido'}</p>
             </div>
-            <button
-              className="w-full rounded bg-indigo-600 px-4 py-2 font-bold text-white hover:bg-indigo-700"
-              onClick={() => window.location.reload()}
-            >
-              Reload Page
-            </button>
+            <div className="space-y-2">
+              <button
+                className="w-full rounded-xl bg-indigo-600 px-4 py-2.5 font-bold text-xs uppercase tracking-wider text-white hover:bg-indigo-500 transition-all shadow-md shadow-indigo-600/20"
+                onClick={() => window.location.reload()}
+              >
+                Recargar Página (F5)
+              </button>
+              <button
+                className="w-full rounded-xl bg-slate-200 px-4 py-2 font-bold text-xs uppercase tracking-wider text-slate-700 hover:bg-slate-300 transition-all"
+                onClick={() => {
+                  try {
+                    localStorage.clear();
+                    sessionStorage.clear();
+                  } catch (e) {}
+                  window.location.href = '/';
+                }}
+              >
+                Limpiar Caché e Ir al Inicio
+              </button>
+            </div>
           </div>
         </div>
       );

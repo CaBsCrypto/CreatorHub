@@ -41,6 +41,14 @@ export const RefreshMetricsSchema = z.object({
   })).min(1)
 });
 
+export const DemoRequestSchema = z.object({
+  name: z.string().min(2, "El nombre es requerido"),
+  email: z.string().email("Correo electrónico inválido"),
+  company: z.string().min(2, "El nombre de la empresa es requerido"),
+  creators_volume: z.string().optional(),
+  message: z.string().optional(),
+});
+
 // --- MIDDLEWARE ---
 
 export const validate = (schema: z.ZodSchema) => (req: Request, res: Response, next: NextFunction) => {

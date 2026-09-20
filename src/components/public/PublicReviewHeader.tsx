@@ -1,10 +1,11 @@
 import React from 'react';
 import { ArrowLeft, BarChart3 } from 'lucide-react';
-import { Campaign, UserProfile } from '../../supabase';
+import { Campaign, UserProfile, CreatorGroup } from '../../supabase';
 
 interface PublicReviewHeaderProps {
   project: UserProfile | null;
   campaign: Campaign;
+  group?: CreatorGroup | null;
   progressPercentage: number;
   lang: 'en' | 'es';
   setLang: (val: 'en' | 'es') => void;
@@ -20,6 +21,7 @@ interface PublicReviewHeaderProps {
 const PublicReviewHeader: React.FC<PublicReviewHeaderProps> = ({
   project,
   campaign,
+  group,
   progressPercentage,
   lang,
   setLang,
@@ -47,13 +49,25 @@ const PublicReviewHeader: React.FC<PublicReviewHeaderProps> = ({
             {project?.photo_url ? (
               <img src={project.photo_url} alt="" className="w-10 h-10 rounded-2xl object-cover ring-4 ring-indigo-50 flex-shrink-0" />
             ) : (
-              <div className="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-100">
-                <BarChart3 className="h-5 w-5 text-white" />
+              <div className={`w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg ${
+                group?.color === 'emerald' ? 'bg-emerald-600 shadow-emerald-100 text-white' : 'bg-indigo-600 shadow-indigo-100 text-white'
+              }`}>
+                {group?.logo_emoji ? (
+                  <span className="text-lg">{group.logo_emoji}</span>
+                ) : (
+                  <BarChart3 className="h-5 w-5 text-white" />
+                )}
               </div>
             )}
             <div className="min-w-0">
               <div className="flex items-center gap-2 mb-0.5">
-                <span className="hidden sm:inline-flex px-2 py-0.5 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-full text-[9px] font-black uppercase tracking-widest">{translations.clientReport}</span>
+                <span className={`hidden sm:inline-flex px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                  group?.color === 'emerald' 
+                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
+                    : 'bg-indigo-50 text-indigo-600 border border-indigo-100'
+                }`}>
+                  {group ? `${group.logo_emoji ? `${group.logo_emoji} ` : ''}${group.name}` : translations.clientReport}
+                </span>
                 <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
                 <span className="text-[9px] sm:text-[10px] font-black text-emerald-600 uppercase tracking-widest">{translations.live}</span>
               </div>

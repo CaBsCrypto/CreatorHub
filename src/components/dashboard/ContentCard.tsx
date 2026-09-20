@@ -1,5 +1,5 @@
 import React from 'react';
-import { Youtube, Instagram, Music2, Twitter, Globe, ExternalLink, Edit2, Trash2 } from 'lucide-react';
+import { Youtube, Instagram, Music2, Twitter, Globe, ExternalLink, Edit2, Trash2, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export interface ContentItem {
@@ -28,6 +28,7 @@ export interface ContentItem {
   content_type?: 'video_largo' | 'video_corto' | null;
   is_repost?: boolean;
   parent_id?: string | null;
+  last_refreshed_at?: string | null;
   coupledPlatforms?: string[];
   coupledPosts?: any[];
 }
@@ -141,9 +142,17 @@ const ContentCard = React.memo(({ item, campaignName, onEdit, onDelete, onClick,
       {/* Info Section */}
       <div className="p-5 flex flex-col flex-1">
         <div className="flex-1">
-          <p className="text-[9px] font-black text-indigo-500 mb-2 tracking-widest uppercase">
-            {campaignName || 'General'}
-          </p>
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <p className="text-[9px] font-black text-indigo-500 tracking-widest uppercase truncate">
+              {campaignName || 'General'}
+            </p>
+            {item.last_refreshed_at && (
+              <span className="flex items-center gap-1 text-[8px] font-bold text-slate-400 uppercase tracking-wider flex-shrink-0" title={`Última actualización: ${new Date(item.last_refreshed_at).toLocaleString()}`}>
+                <Clock className="h-2.5 w-2.5 text-emerald-500" />
+                <span>Sync</span>
+              </span>
+            )}
+          </div>
           <h3 className="text-sm font-black text-slate-900 leading-snug line-clamp-2 group-hover:text-indigo-600 transition-colors uppercase tracking-tight">
             {item.title || 'Sin título'}
           </h3>

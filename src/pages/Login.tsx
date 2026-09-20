@@ -55,7 +55,7 @@ export default function Login() {
                 <Sparkles className="text-black h-8 w-8" />
              </div>
              <span className="text-3xl font-black text-white tracking-[0.2em] uppercase">
-               Umbra <span className="text-red-600">Hub</span>
+               Browns <span className="text-red-600">Stats</span>
              </span>
           </div>
 
@@ -65,7 +65,7 @@ export default function Login() {
               <span className="text-red-600">Impacto.</span>
             </h1>
             <p className="text-xl text-white/40 font-medium max-w-lg leading-relaxed">
-              La plataforma definitiva para creadores de Web3. Analiza, optimiza y domina la narrativa cultural con precisión técnica.
+              La plataforma definitiva para creadores y marcas. Analiza, optimiza y domina el impacto de tus campañas con precisión técnica.
             </p>
           </div>
 
@@ -102,10 +102,10 @@ export default function Login() {
                 <div className="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-900/20">
                   <Sparkles className="text-black h-6 w-6" />
                 </div>
-                <span className="text-2xl font-black text-white uppercase tracking-tighter">Umbra</span>
+                <span className="text-2xl font-black text-white uppercase tracking-tighter">Browns Stats</span>
               </div>
               <h2 className="text-4xl font-black text-white mb-3 uppercase tracking-tighter">Acceso</h2>
-              <p className="text-white/40 font-medium text-sm">Ingresa al centro de comando de Umbra.</p>
+              <p className="text-white/40 font-medium text-sm">Ingresa al centro de comando de Browns Stats.</p>
             </div>
 
             <div className="space-y-8">

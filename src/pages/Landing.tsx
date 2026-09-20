@@ -312,7 +312,13 @@ export default function Landing() {
              <span className="text-xl font-black uppercase tracking-[0.4em] text-white hidden sm:block">Umbra</span>
           </div>
           
-          <div className="flex items-center gap-2 md:gap-6">
+          <div className="flex items-center gap-2 md:gap-4">
+             <button 
+               onClick={() => navigate('/')} 
+               className="px-3 md:px-4 py-2 bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 hover:text-white hover:bg-indigo-600 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all"
+             >
+               ← CreatorHub Analytics
+             </button>
              <button onClick={() => setLang(lang === 'en' ? 'es' : 'en')} className="px-3 md:px-4 py-2 border border-white/10 rounded-xl text-[9px] md:text-[10px] font-black text-white/40 hover:text-white hover:border-white/20 transition-all uppercase tracking-widest">
                 {lang === 'en' ? 'ES' : 'EN'}
              </button>

@@ -54,7 +54,7 @@ const CampaignCard = React.memo(({
     e.stopPropagation();
     try {
       const BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-        ? 'https://umbrahub.vercel.app'
+        ? 'https://stats.browns.studio'
         : window.location.origin;
 
       const tokenOrSlug = type === 'slug' ? campaign.slug : campaign.share_token;
@@ -63,7 +63,7 @@ const CampaignCard = React.memo(({
 
       let textToCopy = url;
       if (format === 'message') {
-        textToCopy = `📊 *Reporte de Campaña - Umbra Hub*\n\n¡Hola! Te comparto el enlace de seguimiento en tiempo real para la campaña *${campaign.name}*:\n🔗 ${url}\n\n¡Quedamos atentos a cualquier duda o comentario!`;
+        textToCopy = `📊 *Reporte de Campaña - Browns Stats*\n\n¡Hola! Te comparto el enlace de seguimiento en tiempo real para la campaña *${campaign.name}*:\n🔗 ${url}\n\n¡Quedamos atentos a cualquier duda o comentario!`;
       }
 
       await navigator.clipboard.writeText(textToCopy);

@@ -12,7 +12,8 @@ import {
   AnalyzePerformanceSchema,
   AnalyzeCreatorSchema,
   SendEmailSchema,
-  InviteUserSchema
+  InviteUserSchema,
+  DemoRequestSchema
 } from "../src/middleware/validation.js";
 
 // Import centralized services
@@ -137,6 +138,120 @@ app.get("/api/cron/keep-alive", async (req, res) => {
   }
 });
 
+// CRON POST METRICS REFRESH ENDPOINT
+app.all("/api/cron/refresh-metrics", async (req, res) => {
+  const isVercelCron = req.headers['x-vercel-cron'] === '1';
+  const authHeader = req.headers.authorization;
+  const cronSecret = process.env.CRON_SECRET || 'umbra_cron_secret';
+  const isAuthorized = isVercelCron || 
+    (authHeader && authHeader === `Bearer ${cronSecret}`) ||
+    (req.query.token && req.query.token === cronSecret);
+
+  if (!isAuthorized) {
+    return res.status(401).json({ error: "Unauthorized cron request" });
+  }
+
+  console.log(`[CRON] Automated Metrics Refresh triggered. Source: ${isVercelCron ? 'Vercel Cron' : 'Manual/Webhook'}`);
+
+  try {
+    if (!supabaseAdmin) throw new Error("Supabase Admin not initialized");
+
+    // Fetch active campaigns created/active in the last 30 days
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const { data: activeCampaigns, error: campError } = await supabaseAdmin
+      .from('campaigns')
+      .select('id, name, group_id')
+      .eq('status', 'active')
+      .gte('created_at', thirtyDaysAgo);
+
+    if (campError) throw campError;
+
+    if (!activeCampaigns || activeCampaigns.length === 0) {
+      return res.json({ 
+        success: true, 
+        message: "No active campaigns within the 30-day window", 
+        processed: 0 
+      });
+    }
+
+    const campaignIds = activeCampaigns.map(c => c.id);
+
+    // Fetch up to 40 posts from these campaigns (prioritizing posts not refreshed recently)
+    const { data: posts, error: postError } = await supabaseAdmin
+      .from('content')
+      .select('id, url, platform, campaign_id, views, likes, comments, last_refreshed_at')
+      .in('campaign_id', campaignIds)
+      .eq('status', 'active')
+      .order('last_refreshed_at', { ascending: true, nullsFirst: true })
+      .limit(40);
+
+    if (postError) throw postError;
+
+    if (!posts || posts.length === 0) {
+      return res.json({ success: true, message: "No active posts found to refresh", processed: 0 });
+    }
+
+    console.log(`[CRON] Refreshing ${posts.length} posts across ${activeCampaigns.length} campaigns...`);
+    const results = [];
+
+    for (const item of posts) {
+      if (!item.url || !item.platform) continue;
+
+      try {
+        let data: any = null;
+        switch (item.platform) {
+          case 'tiktok': data = await scraperService.fetchTikTokData(item.url); break;
+          case 'youtube': data = await scraperService.fetchYouTubeData(item.url); break;
+          case 'instagram': 
+          case 'instagram_story': data = await scraperService.fetchInstagramData(item.url); break;
+          case 'x':
+          case 'x_video': data = await scraperService.fetchXData(item.url); break;
+          case 'coinmarketcap': data = await scraperService.fetchCMCData(item.url); break;
+          default: continue;
+        }
+
+        if (data && !data.error) {
+          const nowIso = new Date().toISOString();
+          const updates: any = { last_refreshed_at: nowIso };
+          if (data.title && data.title !== 'Instagram Post') updates.title = data.title;
+          if (data.thumbnail) updates.thumbnail = data.thumbnail;
+          if (data.views > 0) updates.views = data.views;
+          if (data.likes > 0) updates.likes = data.likes;
+          if (data.comments > 0) updates.comments = data.comments;
+
+          await supabaseAdmin.from('content').update(updates).eq('id', item.id);
+
+          // Save snapshot in content_metrics_history
+          await supabaseAdmin.from('content_metrics_history').insert({
+            content_id: item.id,
+            views: updates.views ?? item.views,
+            likes: updates.likes ?? item.likes,
+            comments: updates.comments ?? item.comments,
+            recorded_at: nowIso
+          });
+
+          results.push({ id: item.id, platform: item.platform, views: updates.views });
+        }
+
+        // Polite sleep of 500ms between requests to avoid rate limits
+        await new Promise(r => setTimeout(r, 500));
+      } catch (itemErr: any) {
+        console.error(`[CRON] Error refreshing item ${item.id} (${item.url}):`, itemErr.message);
+      }
+    }
+
+    return res.json({
+      success: true,
+      processed: posts.length,
+      refreshed: results.length,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error: any) {
+    console.error("[CRON] Metrics refresh job failed:", error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // PUBLIC STATS ENDPOINT - No auth required (landing page)
 app.get("/api/public-stats", async (req, res) => {
   const isCron = req.headers['x-vercel-cron'] === '1';
@@ -174,6 +289,51 @@ app.get("/api/public-stats", async (req, res) => {
   } catch (error: any) {
     console.error("Public stats fatal error:", error.message);
     res.json({ views: 50000000, campaigns: 120, creators: 30 });
+  }
+});
+
+// PUBLIC DEMO REQUEST / LEAD CAPTURE ENDPOINT
+app.post("/api/demo-request", validate(DemoRequestSchema), async (req, res) => {
+  try {
+    const { name, email, company, creators_volume, message } = req.body;
+    
+    // Insert into demo_requests in Supabase
+    if (supabaseAdmin) {
+      const { error: dbError } = await supabaseAdmin.from('demo_requests').insert({
+        name,
+        email,
+        company,
+        creators_volume: creators_volume || null,
+        message: message || null,
+        status: 'pending'
+      });
+      if (dbError) console.error("[LEAD] Failed to save demo request to DB:", dbError.message);
+    }
+
+    // Attempt to notify admin by email
+    try {
+      await emailService.sendNotificationEmail(
+        `🚀 Nueva Solicitud de Acceso / Demo: ${company}`,
+        `
+        <h2>Nueva solicitud de acceso a CreatorHub Analytics</h2>
+        <p><strong>Nombre:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Empresa / Agencia:</strong> ${company}</p>
+        <p><strong>Volumen de creadores:</strong> ${creators_volume || 'No especificado'}</p>
+        <p><strong>Mensaje:</strong> ${message || 'Sin mensaje adicional'}</p>
+        <hr/>
+        <p>Fecha: ${new Date().toLocaleString()}</p>
+        `,
+        SUPERADMIN_EMAIL
+      );
+    } catch (mailErr: any) {
+      console.warn("[LEAD] Could not send email notification:", mailErr.message);
+    }
+
+    res.json({ success: true, message: "Solicitud recibida exitosamente. Nos pondremos en contacto a la brevedad." });
+  } catch (error: any) {
+    console.error("[LEAD] Error processing demo request:", error.message);
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -271,7 +431,18 @@ app.post("/api/refresh-metrics", authenticate, authorize(['admin', 'creator']), 
           if (data.comments > 0) updates.comments = data.comments;
 
           if (Object.keys(updates).length > 0) {
+            const nowIso = new Date().toISOString();
+            updates.last_refreshed_at = nowIso;
             await supabaseAdmin.from('content').update(updates).eq('id', item.id);
+
+            // Record snapshot in content_metrics_history
+            await supabaseAdmin.from('content_metrics_history').insert({
+              content_id: item.id,
+              views: updates.views || 0,
+              likes: updates.likes || 0,
+              comments: updates.comments || 0,
+              recorded_at: nowIso
+            });
           }
           results.push({ id: item.id, ...data });
         }

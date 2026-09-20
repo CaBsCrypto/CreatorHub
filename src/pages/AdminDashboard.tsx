@@ -26,6 +26,7 @@ import CampaignReportModal from '../components/dashboard/CampaignReportModal';
 import Skeleton, { StatsSkeleton, CardSkeleton } from '../components/dashboard/Skeleton';
 import AuditLogDetailModal from '../components/dashboard/AuditLogDetailModal';
 import CampaignNotesModal from '../components/dashboard/CampaignNotesModal';
+import CompanyViewsModal from '../components/dashboard/CompanyViewsModal';
 
 // Modular Layout Components
 import AdminSidebar from '../components/dashboard/AdminSidebar';
@@ -79,6 +80,7 @@ export default function AdminDashboard() {
   const [managingUser, setManagingUser] = useState<UserProfile | null>(null);
   const [selectedCampaignReport, setSelectedCampaignReport] = useState<string | null>(null);
   const [editingNotesCampaign, setEditingNotesCampaign] = useState<any | null>(null);
+  const [isCompanyViewsModalOpen, setIsCompanyViewsModalOpen] = useState(false);
   
   // Processing states
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -193,7 +195,7 @@ export default function AdminDashboard() {
     e.stopPropagation();
     try {
       const BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-        ? 'https://umbrahub.vercel.app'
+        ? 'https://stats.browns.studio'
         : window.location.origin;
       const path = type === 'slug' ? `/v/${token}` : `/review/${token}`;
       const url = `${BASE_URL}${path}`;
@@ -333,6 +335,7 @@ export default function AdminDashboard() {
               setActiveTab={setActiveTab}
               setFilter={setFilter}
               isLoading={loading}
+              onOpenCompanyViews={() => setIsCompanyViewsModalOpen(true)}
             />
           )}
 
@@ -596,6 +599,15 @@ export default function AdminDashboard() {
           users={users}
           payments={payments}
           campaigns={campaigns}
+        />
+
+        <CompanyViewsModal
+          isOpen={isCompanyViewsModalOpen}
+          onClose={() => setIsCompanyViewsModalOpen(false)}
+          groups={groups}
+          campaigns={campaigns}
+          content={content}
+          onSelectGroup={(groupId) => setActiveGroupId(groupId)}
         />
       </main>
     </div>

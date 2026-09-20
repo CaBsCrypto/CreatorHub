@@ -18,6 +18,7 @@ interface OverviewTabProps {
   setFilter: (key: string, value: any) => void;
   PLATFORM_COLORS: Record<string, string>;
   isLoading?: boolean;
+  onOpenCompanyViews?: () => void;
 }
 
 const OverviewTab: React.FC<OverviewTabProps> = ({
@@ -27,7 +28,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
   setActiveTab,
   setFilter,
   PLATFORM_COLORS,
-  isLoading
+  isLoading,
+  onOpenCompanyViews
 }) => {
   const platformCount = React.useMemo(() => [
     { name: 'Youtube', id: 'youtube', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'youtube').length },
@@ -66,7 +68,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               title="Vistas Totales"
               value={metrics.totalViews.toLocaleString()}
               icon={TrendingUp}
-              onClick={() => setActiveTab('content')}
+              onClick={() => onOpenCompanyViews ? onOpenCompanyViews() : setActiveTab('content')}
             />
             <AdminMetricCard
               title="Creadores"

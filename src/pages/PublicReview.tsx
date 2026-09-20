@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { supabase, Campaign, Content, UserProfile } from '../supabase';
+import { supabase, Campaign, Content, UserProfile, CreatorGroup } from '../supabase';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { Globe, StickyNote, Youtube, Instagram, Music2, Twitter, X, ExternalLink, ArrowLeft, Eye, Heart, MessageSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -44,6 +44,7 @@ export default function PublicReview() {
   const [content, setContent] = useState<Content[]>([]);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [project, setProject] = useState<UserProfile | null>(null);
+  const [group, setGroup] = useState<CreatorGroup | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [viewingCoupledContent, setViewingCoupledContent] = useState<Content | null>(null);
@@ -170,6 +171,11 @@ export default function PublicReview() {
           const { data: projectData } = await supabase.from('users').select('*').eq('id', campaignData.client_id).single();
           if (projectData) setProject(projectData);
         }
+
+        if (campaignData.group_id) {
+          const { data: groupData } = await supabase.from('creator_groups').select('*').eq('id', campaignData.group_id).single();
+          if (groupData) setGroup(groupData);
+        }
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -286,6 +292,7 @@ export default function PublicReview() {
       <PublicReviewHeader
         project={project}
         campaign={campaign}
+        group={group}
         progressPercentage={progressPercentage}
         lang={lang}
         setLang={setLang}

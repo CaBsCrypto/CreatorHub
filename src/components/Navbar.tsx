@@ -47,8 +47,8 @@ export default function Navbar() {
         <div className="flex h-16 justify-between items-center">
           <div className="flex items-center">
             <Link to="/" className="text-xl font-bold text-indigo-600 flex items-center gap-2">
-              <span className="hidden sm:inline">Umbra Creator Hub</span>
-              <span className="sm:hidden text-2xl">UCH</span>
+              <span className="hidden sm:inline">Browns Stats</span>
+              <span className="sm:hidden text-2xl">BS</span>
             </Link>
             
             {/* Desktop Links */}

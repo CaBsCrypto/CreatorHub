@@ -2,7 +2,7 @@ import React from 'react';
 import { Loader2, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-export default function LoadingSpinner({ message = "Iniciando Umbra Creator Hub..." }: { message?: string }) {
+export default function LoadingSpinner({ message = "Iniciando Browns Stats..." }: { message?: string }) {
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center bg-gray-50 space-y-8 relative overflow-hidden">
       {/* Background decorations */}
