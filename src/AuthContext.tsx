@@ -45,33 +45,52 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // 1. Fetch current session or handle OAuth callback
     const initializeAuth = async () => {
       try {
-        const hasHashToken = typeof window !== 'undefined' && window.location.hash.includes('access_token');
-        const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-        const code = searchParams?.get('code');
-
-        // If PKCE authorization code is present in URL query params, exchange it explicitly
-        if (code) {
+        // A. If URL hash contains OAuth tokens (implicit flow)
+        if (typeof window !== 'undefined' && window.location.hash.includes('access_token')) {
           try {
-            const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-            if (data?.session) {
-              await handleSession(data.session);
-              return;
+            const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+            const accessToken = hashParams.get('access_token');
+            const refreshToken = hashParams.get('refresh_token');
+            if (accessToken && refreshToken) {
+              const { data, error } = await supabase.auth.setSession({
+                access_token: accessToken,
+                refresh_token: refreshToken
+              });
+              if (data?.session) {
+                window.history.replaceState(null, '', window.location.pathname + window.location.search);
+                await handleSession(data.session);
+                return;
+              }
             }
-          } catch (codeErr) {
-            console.error("Failed to exchange code for session:", codeErr);
+          } catch (hashErr) {
+            console.error("Failed to parse/set session from URL hash:", hashErr);
           }
         }
 
-        // Fetch current session from storage or URL hash
+        // B. If URL query params contain PKCE code (PKCE flow)
+        if (typeof window !== 'undefined' && window.location.search.includes('code=')) {
+          try {
+            const searchParams = new URLSearchParams(window.location.search);
+            const code = searchParams.get('code');
+            if (code) {
+              const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+              if (data?.session) {
+                window.history.replaceState(null, '', window.location.pathname);
+                await handleSession(data.session);
+                return;
+              }
+            }
+          } catch (codeErr) {
+            console.error("Failed to exchange PKCE code for session:", codeErr);
+          }
+        }
+
+        // C. Standard session retrieval from storage
         const { data: { session }, error } = await supabase.auth.getSession();
         if (error) throw error;
 
         if (session) {
           await handleSession(session);
-        } else if (hasHashToken) {
-          // If hash token is present, Supabase client is still parsing the hash asynchronously.
-          // Don't set loading to false immediately; let onAuthStateChange handle it.
-          console.log("Waiting for Supabase to parse OAuth hash tokens...");
         } else {
           await handleSession(null);
         }
