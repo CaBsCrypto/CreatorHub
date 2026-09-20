@@ -13,11 +13,18 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+import LoadingSpinner from '../components/LoadingSpinner';
+
 export default function Login() {
   const navigate = useNavigate();
   const { user, profile, loading } = useAuth();
   const [loginError, setLoginError] = React.useState('');
   const [isLoggingIn, setIsLoggingIn] = React.useState(false);
+
+  const hasAuthTokens = typeof window !== 'undefined' && (
+    window.location.hash.includes('access_token') || 
+    window.location.search.includes('code=')
+  );
 
   React.useEffect(() => {
     if (user && profile) {
@@ -30,6 +37,10 @@ export default function Login() {
       }
     }
   }, [user, profile, navigate]);
+
+  if (loading || (user && !profile) || (hasAuthTokens && !user)) {
+    return <LoadingSpinner message="Verificando credenciales..." />;
+  }
 
   const handleLogin = async () => {
     setLoginError('');

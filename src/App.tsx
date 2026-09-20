@@ -21,8 +21,12 @@ const CreatorHubLanding = React.lazy(() => import('./pages/CreatorHubLanding'));
 
 const ProtectedRoute = ({ children, role }: { children: React.ReactNode, role?: 'admin' | 'creator' | 'client' }) => {
   const { user, profile, loading } = useAuth();
+  const hasAuthTokens = typeof window !== 'undefined' && (
+    window.location.hash.includes('access_token') || 
+    window.location.search.includes('code=')
+  );
 
-  if (loading || (user && !profile)) {
+  if (loading || (user && !profile) || (hasAuthTokens && !user)) {
     return <LoadingSpinner message="Verificando permisos..." />;
   }
 
@@ -47,8 +51,14 @@ const ProtectedRoute = ({ children, role }: { children: React.ReactNode, role?: 
 
 const HomeRedirect = () => {
   const { user, profile, loading } = useAuth();
+  const hasAuthTokens = typeof window !== 'undefined' && (
+    window.location.hash.includes('access_token') || 
+    window.location.search.includes('code=')
+  );
   
-  if (loading || (user && !profile)) return <LoadingSpinner message="Iniciando..." />;
+  if (loading || (user && !profile) || (hasAuthTokens && !user)) {
+    return <LoadingSpinner message="Autenticando en Browns Stats..." />;
+  }
   
   if (!user) {
     return <Navigate to="/login" replace />;

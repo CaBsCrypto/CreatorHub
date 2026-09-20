@@ -42,12 +42,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 1. Fetch current session immediately
+    // 1. Fetch current session or handle OAuth callback
     const initializeAuth = async () => {
       try {
+        const hasHashToken = typeof window !== 'undefined' && window.location.hash.includes('access_token');
+        const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+        const code = searchParams?.get('code');
+
+        // If PKCE authorization code is present in URL query params, exchange it explicitly
+        if (code) {
+          try {
+            const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+            if (data?.session) {
+              await handleSession(data.session);
+              return;
+            }
+          } catch (codeErr) {
+            console.error("Failed to exchange code for session:", codeErr);
+          }
+        }
+
+        // Fetch current session from storage or URL hash
         const { data: { session }, error } = await supabase.auth.getSession();
         if (error) throw error;
-        await handleSession(session);
+
+        if (session) {
+          await handleSession(session);
+        } else if (hasHashToken) {
+          // If hash token is present, Supabase client is still parsing the hash asynchronously.
+          // Don't set loading to false immediately; let onAuthStateChange handle it.
+          console.log("Waiting for Supabase to parse OAuth hash tokens...");
+        } else {
+          await handleSession(null);
+        }
       } catch (err) {
         console.error("Auth initialization failed:", err);
         setLoading(false); // Stop the spinner even on failure
@@ -60,7 +87,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     let subscription: any;
     try {
       const { data } = supabase.auth.onAuthStateChange(async (_event, session) => {
-        await handleSession(session);
+        if (session) {
+          await handleSession(session);
+        } else if (_event === 'SIGNED_OUT') {
+          await handleSession(null);
+        }
       });
       subscription = data.subscription;
     } catch (err) {
