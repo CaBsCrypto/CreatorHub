@@ -9,3 +9,31 @@ entrypoint = "./functions/invite-user/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/invite-user/*.html" ]
+
+[auth]
+additional_redirect_urls = ["https://stats.browns.studio/**", "https://stats.browns.studio/dashboard", "https://stats.browns.studio/admin", "https://umbrahub.vercel.app/**", "https://umbra-hub.vercel.app/**", "https://creator-hub-three-lake.vercel.app/**", "http://localhost:5173/**", "http://localhost:3000/**"]
+site_url = "https://stats.browns.studio"
+
+[auth.email]
+enable_confirmations = true
+max_frequency = "1m0s"
+otp_length = 8
+
+[auth.external.google]
+client_id = "201896960723-840sqdq12c3n7f5qtesuqa0s0ipn4jub.apps.googleusercontent.com"
+enabled = true
+
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
+
+[db.pooler]
+default_pool_size = 15
+max_client_conn = 200
+
+[storage.analytics]
+enabled = true
+max_namespaces = 10
+
+[storage.image_transformation]
+enabled = true
