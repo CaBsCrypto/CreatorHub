@@ -62,14 +62,16 @@ export const CreatorHubLanding: React.FC = () => {
   // FAQ accordion state
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
-  // Theme state: dark / light
+  // Theme state: light by default
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    return (localStorage.getItem('creatorhub_theme') as 'dark' | 'light') || 'dark';
+    const saved = localStorage.getItem('browns_stats_theme');
+    if (saved === 'dark' || saved === 'light') return saved;
+    return 'light';
   });
 
   // Sync theme with localStorage and root HTML class
   useEffect(() => {
-    localStorage.setItem('creatorhub_theme', theme);
+    localStorage.setItem('browns_stats_theme', theme);
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
