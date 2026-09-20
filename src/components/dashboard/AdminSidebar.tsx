@@ -1,5 +1,6 @@
 import React from 'react';
-import { LayoutDashboard, List, Youtube, Users, UsersRound, Wallet, ShieldCheck, Zap, Trash2, Sparkles, UserCircle } from 'lucide-react';
+import { LayoutDashboard, List, Youtube, Users, UsersRound, Wallet, ShieldCheck, Zap, Trash2, Sparkles, UserCircle, Globe } from 'lucide-react';
+import { CreatorGroup } from '../../supabase';
 
 export const sidebarItems = [
   { id: 'overview', label: 'Resumen', icon: LayoutDashboard },
@@ -19,11 +20,22 @@ interface AdminSidebarProps {
   setActiveTab: (tab: any) => void;
   resetFilters: (params?: any) => void;
   user: any;
+  activeGroup?: CreatorGroup | null;
+  activeGroupId?: string;
+  onClearGroup?: () => void;
 }
 
 const SUPERADMIN_EMAIL = 'cabscryptocontacto@gmail.com';
 
-const AdminSidebar = React.memo(({ activeTab, setActiveTab, resetFilters, user }: AdminSidebarProps) => {
+const AdminSidebar = React.memo(({ 
+  activeTab, 
+  setActiveTab, 
+  resetFilters, 
+  user,
+  activeGroup,
+  activeGroupId = 'all',
+  onClearGroup
+}: AdminSidebarProps) => {
   const displayItems = React.useMemo(() => {
     if (user?.email === SUPERADMIN_EMAIL) {
       return [...sidebarItems, { id: 'scraper', label: 'Salud Logs', icon: ShieldCheck }];
@@ -34,16 +46,45 @@ const AdminSidebar = React.memo(({ activeTab, setActiveTab, resetFilters, user }
   return (
     <>
       <aside className="w-72 bg-white border-r border-slate-200 p-8 hidden lg:flex flex-col h-screen sticky top-0 shadow-sm">
-        <div 
-          onClick={() => resetFilters({ tab: 'overview' } as any)}
-          className="flex items-center gap-3 px-2 mb-10 cursor-pointer group active:scale-95 transition-all"
-        >
-          <div className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-200 group-hover:rotate-12 transition-transform">
-            <Sparkles className="text-white h-5 w-5" />
+        {/* Brand Header */}
+        <div className="mb-8">
+          <div 
+            onClick={() => resetFilters({ tab: 'overview' } as any)}
+            className="flex items-center gap-3 px-2 cursor-pointer group active:scale-95 transition-all"
+          >
+            <div className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-200 group-hover:rotate-12 transition-transform text-white text-xl flex-shrink-0">
+              {activeGroup?.logo_emoji ? activeGroup.logo_emoji : <Sparkles className="text-white h-5 w-5" />}
+            </div>
+            <div className="min-w-0">
+              <span className="text-base font-black text-slate-900 tracking-tighter group-hover:text-indigo-600 transition-colors block truncate">
+                {activeGroup ? (
+                  <>
+                    {activeGroup.name} <span className="text-indigo-600">Space</span>
+                  </>
+                ) : (
+                  <>
+                    Browns <span className="text-indigo-600">Admin</span>
+                  </>
+                )}
+              </span>
+              <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 block">
+                {activeGroup ? '● Espacio Activo' : '🌐 Vista Global'}
+              </span>
+            </div>
           </div>
-          <span className="text-xl font-black text-slate-900 tracking-tighter group-hover:text-indigo-600 transition-colors">
-            Umbra <span className="text-indigo-600 group-hover:text-indigo-700">Admin</span>
-          </span>
+
+          {activeGroup && onClearGroup && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onClearGroup();
+              }}
+              className="mt-3 w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-slate-600 text-[10px] font-black uppercase tracking-widest transition-all"
+            >
+              <Globe className="h-3 w-3 text-indigo-600" />
+              Salir a Vista Global
+            </button>
+          )}
         </div>
 
         <nav className="space-y-1.5 flex-1 overflow-y-auto no-scrollbar pr-2">

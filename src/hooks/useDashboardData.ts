@@ -432,11 +432,24 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
 
   const creatorStats = useMemo(() => {
     const stats: Record<string, any> = {};
+
+    // Seed stats with all visible creators for this active group/view
+    const targetCreators = role === 'admin' 
+      ? visibleUsers.filter(u => u.role === 'creator') 
+      : users.filter(u => u.id === user?.id);
+
+    targetCreators.forEach(u => {
+      stats[u.id] = { views: 0, engagement: 0, contentCount: 0, estimatedValue: 0 };
+    });
+
     const statsContent = role === 'admin' ? groupFilteredBaseContent : filteredContent;
     
     statsContent.forEach(c => {
       // Skip orphaned content or content without a valid creator linked
       if (!c.creator_id || c.creator_id === 'null' || c.creator_id === 'undefined') return;
+
+      // If active group filter is applied, only count if creator is a member of this group
+      if (groupMemberCreatorIds && !groupMemberCreatorIds.has(c.creator_id)) return;
       
       if (!stats[c.creator_id]) stats[c.creator_id] = { views: 0, engagement: 0, contentCount: 0, estimatedValue: 0 };
       const views = c.views || 0;
@@ -449,8 +462,8 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
     });
 
     return Object.entries(stats).map(([id, data]) => {
-      const u = users.find(usr => usr.id === id);
-      const totalPaid = payments.filter(p => p.creator_id === id).reduce((s, p) => s + Number(p.amount), 0);
+      const u = visibleUsers.find(usr => usr.id === id) || users.find(usr => usr.id === id);
+      const totalPaid = visiblePayments.filter(p => p.creator_id === id).reduce((s, p) => s + Number(p.amount), 0);
       return {
         creator_id: id,
         name: (role === 'admin' && u?.admin_alias) ? u.admin_alias : (u?.display_name || u?.email || 'Unknown'),
@@ -461,13 +474,17 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
         ...data
       };
     }).sort((a, b) => b.views - a.views);
-  }, [groupFilteredBaseContent, filteredContent, users, payments, role]);
+  }, [groupFilteredBaseContent, filteredContent, visibleUsers, users, visiblePayments, role, user, groupMemberCreatorIds]);
 
   return {
-    campaigns,
+    campaigns: visibleCampaignsForGroup,
+    allCampaigns: campaigns,
     content: groupFilteredBaseContent,
+    allContent: content,
     users: visibleUsers,
+    allUsers: users,
     payments: visiblePayments,
+    allPayments: payments,
     groups,
     groupMembers,
     activeGroupId,

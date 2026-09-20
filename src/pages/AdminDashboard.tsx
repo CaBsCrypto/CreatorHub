@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
+import { Globe } from 'lucide-react';
 import { supabase, UserProfile } from '../supabase';
 import { useAuth } from '../AuthContext';
 
@@ -110,10 +111,17 @@ export default function AdminDashboard() {
   }), [filters.platform, filters.campaign, filters.creator, filters.zero_views]);
 
   const { 
-    campaigns, content, users, payments, metrics, creatorStats, campaignStats, 
+    campaigns, allCampaigns, content, allContent, users, allUsers, payments, allPayments, metrics, creatorStats, campaignStats, 
     refresh, filteredContent, deletedContent, deletedCampaigns, deletedUsers, auditLogs, loading,
     groups, groupMembers, activeGroupId, setActiveGroupId
   } = useDashboardData('admin', dashboardFilters);
+
+  const activeGroup = useMemo(() => groups.find(g => g.id === activeGroupId) || null, [groups, activeGroupId]);
+
+  const handleEnterGroup = useCallback((groupId: string) => {
+    setActiveGroupId(groupId);
+    setActiveTab('overview');
+  }, [setActiveGroupId, setActiveTab]);
 
   const { isProcessing: isProcessingContent, handleTwitchUpload, handleContentSubmit } = useContentActions(refresh);
   
@@ -301,6 +309,9 @@ export default function AdminDashboard() {
         setActiveTab={setActiveTab} 
         resetFilters={resetFilters} 
         user={user}
+        activeGroup={activeGroup}
+        activeGroupId={activeGroupId}
+        onClearGroup={() => setActiveGroupId('all')}
       />
 
       <main className={`flex-1 pt-4 lg:pt-6 px-6 lg:px-10 pb-6 lg:pb-8 flex flex-col min-w-0 ${activeTab === 'overview' ? 'h-full overflow-hidden' : 'h-full overflow-y-auto pb-40 lg:pb-16'}`}>
@@ -320,9 +331,46 @@ export default function AdminDashboard() {
           setIsAddingUser={setIsAddingUser}
         />
 
-        {/* Creator Group filter - applies to all tabs below */}
-        <div className="flex justify-end -mt-2 mb-2">
-          <GroupSwitcher groups={groups} activeGroupId={activeGroupId} onChange={setActiveGroupId} />
+        {/* Workspace Control Bar - allows Main Admin to navigate between Global and isolated Group Workspaces */}
+        <div className="mb-4 bg-white p-3 sm:p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0 shadow-sm ${
+              activeGroup ? 'bg-indigo-50 border border-indigo-100' : 'bg-slate-100 border border-slate-200'
+            }`}>
+              {activeGroup?.logo_emoji || <Globe className="h-5 w-5 text-indigo-600" />}
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${
+                  activeGroup ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-600'
+                }`}>
+                  {activeGroup ? 'Espacio Activo' : 'Red Global'}
+                </span>
+                {activeGroup && (
+                  <span className="text-[11px] font-bold text-slate-400 hidden md:inline">
+                    • {campaigns.length} {campaigns.length === 1 ? 'campaña' : 'campañas'} • {users.filter(u => u.role === 'creator').length} creadores
+                  </span>
+                )}
+              </div>
+              <h2 className="text-sm sm:text-base font-black text-slate-900 truncate">
+                {activeGroup ? `${activeGroup.name} Workspace` : 'Vista Global (Todas las Marcas)'}
+              </h2>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 self-end sm:self-auto flex-shrink-0">
+            {activeGroup && (
+              <button
+                onClick={() => setActiveGroupId('all')}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-black uppercase tracking-wider transition-all"
+                title="Volver a ver todas las marcas juntas"
+              >
+                <Globe className="h-3.5 w-3.5 text-indigo-600" />
+                <span className="hidden sm:inline">Vista</span> Global
+              </button>
+            )}
+            <GroupSwitcher groups={groups} activeGroupId={activeGroupId} onChange={setActiveGroupId} />
+          </div>
         </div>
 
         <React.Suspense fallback={<TabLoader />}>
@@ -344,10 +392,13 @@ export default function AdminDashboard() {
             <GroupsTab
               groups={groups}
               groupMembers={groupMembers}
-              users={users}
-              campaigns={campaigns}
-              content={content}
+              users={allUsers || users}
+              campaigns={allCampaigns || campaigns}
+              content={allContent || content}
               refresh={refresh}
+              activeGroupId={activeGroupId}
+              setActiveGroupId={setActiveGroupId}
+              onEnterGroup={handleEnterGroup}
             />
           )}
 
