@@ -68,21 +68,21 @@ const AdminSidebar = React.memo(({
                 )}
               </span>
               <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 block">
-                {activeGroup ? '● Espacio Activo' : '🌐 Vista Global'}
+                ● Espacio Activo
               </span>
             </div>
           </div>
 
-          {activeGroup && onClearGroup && (
+          {onClearGroup && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onClearGroup();
               }}
-              className="mt-3 w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-slate-600 text-[10px] font-black uppercase tracking-widest transition-all"
+              className="mt-3 w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-black uppercase tracking-widest transition-all"
             >
-              <Globe className="h-3 w-3 text-indigo-600" />
-              Salir a Vista Global
+              <Sparkles className="h-3 w-3 text-indigo-600" />
+              Cambiar de Negocio
             </button>
           )}
         </div>

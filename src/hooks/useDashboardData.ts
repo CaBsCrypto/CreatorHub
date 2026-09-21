@@ -54,23 +54,30 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
   const [assignedCampaignIds, setAssignedCampaignIds] = useState<string[]>([]);
   const [groups, setGroups] = useState<CreatorGroup[]>([]);
   const [groupMembers, setGroupMembers] = useState<CreatorGroupMember[]>([]);
-  const [activeGroupId, setActiveGroupIdState] = useState<string>(() => {
-    try { return localStorage.getItem('creatorhub_active_group') || 'all'; } catch { return 'all'; }
+  const [activeGroupId, setActiveGroupIdState] = useState<string | null>(() => {
+    try { 
+      const saved = localStorage.getItem('creatorhub_active_group');
+      return (saved && saved !== 'all') ? saved : null;
+    } catch { return null; }
   });
   const [loading, setLoading] = useState(true);
 
   // Sync activeGroupId with TenantContext when tenant changes and matches a group
   useEffect(() => {
-    if (tenant === 'all') {
-      setActiveGroupIdState('all');
-    } else if (activeDbGroupId) {
+    if (activeDbGroupId) {
       setActiveGroupIdState(activeDbGroupId);
     }
-  }, [tenant, activeDbGroupId]);
+  }, [activeDbGroupId]);
 
-  const setActiveGroupId = useCallback((groupId: string) => {
-    try { localStorage.setItem('creatorhub_active_group', groupId); } catch { /* ignore */ }
-    setActiveGroupIdState(groupId);
+  const setActiveGroupId = useCallback((groupId: string | null) => {
+    try { 
+      if (groupId && groupId !== 'all') {
+        localStorage.setItem('creatorhub_active_group', groupId);
+      } else {
+        localStorage.removeItem('creatorhub_active_group');
+      }
+    } catch { /* ignore */ }
+    setActiveGroupIdState(groupId && groupId !== 'all' ? groupId : null);
   }, []);
 
   const fetchData = useCallback(async () => {
@@ -279,47 +286,45 @@ export const useDashboardData = (role: 'admin' | 'creator', filters?: { platform
     };
   }, [user, fetchData]);
 
-  // --- GROUP FILTERING (view-level ordering, not RLS isolation) ---
-  // activeGroupId 'all' => no filtering. Otherwise: campaigns of that group,
-  // content of those campaigns, creators that are members of that group.
+  // --- GROUP FILTERING (Strict Multi-Tenant Isolation) ---
+  // When activeGroupId is null (no organization selected), return empty to enforce selection
   const groupCampaignIds = useMemo(() => {
-    if (activeGroupId === 'all') return null; // null = no group filtering
+    if (!activeGroupId) return new Set<string>();
     return new Set(campaigns.filter(c => c.group_id === activeGroupId).map(c => c.id));
   }, [campaigns, activeGroupId]);
 
   const groupMemberCreatorIds = useMemo(() => {
-    if (activeGroupId === 'all') return null;
+    if (!activeGroupId) return new Set<string>();
     return new Set(groupMembers.filter(m => m.group_id === activeGroupId).map(m => m.creator_id));
   }, [groupMembers, activeGroupId]);
 
-  // Campaigns restricted to the active group (for tabs consuming `campaigns`-derived data)
+  // Campaigns restricted to the active group
   const visibleCampaignsForGroup = useMemo(() => {
-    if (!groupCampaignIds) return campaigns;
+    if (!activeGroupId) return [];
     return campaigns.filter(c => groupCampaignIds.has(c.id));
-  }, [campaigns, groupCampaignIds]);
+  }, [campaigns, groupCampaignIds, activeGroupId]);
 
-  // Users restricted to the active group membership (guest creators are group-agnostic)
+  // Users restricted to the active group membership
   const visibleUsers = useMemo(() => {
-    if (!groupMemberCreatorIds) return users;
+    if (!activeGroupId) return [];
     return users.filter(u => u.role === 'admin' || groupMemberCreatorIds.has(u.id));
-  }, [users, groupMemberCreatorIds]);
+  }, [users, groupMemberCreatorIds, activeGroupId]);
 
   // Content restricted to the active group
   const groupFilteredBaseContent = useMemo(() => {
-    if (!groupCampaignIds) return content;
+    if (!activeGroupId) return [];
     return content.filter(c => groupCampaignIds.has(c.campaign_id));
-  }, [content, groupCampaignIds]);
+  }, [content, groupCampaignIds, activeGroupId]);
 
-  // Payments visible for the active group: tied to a group campaign, or campaign-less
-  // payments for group members. Campaign-less guests/hidden entries show only on 'all'.
+  // Payments visible for the active group
   const visiblePayments = useMemo(() => {
-    if (!groupCampaignIds) return payments;
+    if (!activeGroupId) return [];
     return payments.filter(p => {
       if (p.campaign_id) return groupCampaignIds.has(p.campaign_id);
       if (p.creator_id) return groupMemberCreatorIds?.has(p.creator_id) ?? false;
       return false;
     });
-  }, [payments, groupCampaignIds, groupMemberCreatorIds]);
+  }, [payments, groupCampaignIds, groupMemberCreatorIds, activeGroupId]);
 
   const filteredContent = useMemo(() => {
     let result = role === 'creator' ? groupFilteredBaseContent.filter(c => c.creator_id === user?.id) : groupFilteredBaseContent;

@@ -67,22 +67,8 @@ const GroupSwitcher: React.FC<GroupSwitcherProps> = ({ groups, activeGroupId, on
             "absolute right-0 top-full z-[100] mt-2 w-64 origin-top-right rounded-xl border border-gray-100 bg-white p-2 shadow-xl shadow-slate-900/10 animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-200"
           )}>
             <p className="px-3 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-              Filtrar Dashboard por Grupo
+              Organizaciones Activas
             </p>
-
-            {/* All Groups Option */}
-            <div
-              onClick={() => handleSelect('all')}
-              className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-2.5 text-sm font-bold text-slate-700 hover:bg-gray-50 transition-colors"
-            >
-              <div className="flex items-center gap-2 min-w-0">
-                <Layers className="h-4 w-4 text-slate-400" />
-                <span className="truncate">Todos los Grupos</span>
-              </div>
-              {activeGroupId === 'all' && <Check className="h-4 w-4 text-indigo-600" />}
-            </div>
-
-            <div className="my-1 h-px bg-gray-100" />
 
             {/* Dynamic Group Options */}
             <div className="max-h-64 overflow-y-auto space-y-0.5 pr-1">

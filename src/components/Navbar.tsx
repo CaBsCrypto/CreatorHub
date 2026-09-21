@@ -60,7 +60,7 @@ export default function Navbar() {
               <div className="flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200/80 text-[11px] font-black uppercase tracking-wider">
                 {availableTenants.map((t) => {
                   const isActive = tenant === t;
-                  const label = t === 'all' ? 'Global' : t === 'umbra' ? 'Umbra' : 'Tellus';
+                  const label = t === 'umbra' ? 'Umbra' : 'Tellus';
                   return (
                     <button
                       key={t}
@@ -70,9 +70,7 @@ export default function Navbar() {
                         isActive
                           ? t === 'umbra' 
                             ? "bg-rose-600 text-white shadow-sm" 
-                            : t === 'tellus'
-                              ? "bg-emerald-600 text-white shadow-sm"
-                              : "bg-slate-900 text-white shadow-sm"
+                            : "bg-emerald-600 text-white shadow-sm"
                           : "text-slate-500 hover:text-slate-900"
                       )}
                     >

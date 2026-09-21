@@ -57,7 +57,7 @@ export const TENANT_CONFIGS: Record<TenantType, TenantConfig> = {
   all: {
     id: 'all',
     name: 'Creator Hub',
-    shortName: 'Hub Global',
+    shortName: 'Hub',
     tagline: 'Multi-Agency & Multi-Ecosystem Platform',
     primaryColor: '#4f46e5', // indigo-600
     colorName: 'indigo',
@@ -68,7 +68,7 @@ export const TENANT_CONFIGS: Record<TenantType, TenantConfig> = {
     themeClass: 'theme-hub',
     glowClass: 'text-glow-indigo',
     publicUrl: '/',
-    description: 'Vista consolidada de organizaciones, analíticas y gestión global.'
+    description: 'Gestión organizada por marca.'
   }
 };
 
@@ -84,10 +84,10 @@ interface TenantContextType {
 }
 
 const TenantContext = createContext<TenantContextType>({
-  tenant: 'all',
+  tenant: 'umbra',
   setTenant: () => {},
-  config: TENANT_CONFIGS.all,
-  availableTenants: ['all', 'umbra', 'tellus'],
+  config: TENANT_CONFIGS.umbra,
+  availableTenants: ['umbra', 'tellus'],
   groups: [],
   activeDbGroupId: null,
   loading: true,
@@ -103,11 +103,11 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [tenant, setTenantState] = useState<TenantType>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem(STORAGE_KEY) as TenantType;
-      if (saved && ['umbra', 'tellus', 'all'].includes(saved)) {
+      if (saved && ['umbra', 'tellus'].includes(saved)) {
         return saved;
       }
     }
-    return 'all';
+    return 'umbra';
   });
 
   const [groups, setGroups] = useState<CreatorGroup[]>([]);
@@ -171,20 +171,20 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const config = useMemo(() => TENANT_CONFIGS[tenant] || TENANT_CONFIGS.all, [tenant]);
 
-  // Si es un creator restringido, limitamos las opciones disponibles
+  // Opciones disponibles de organizaciones (Umbra y Tellus exclusivamente)
   const availableTenants: TenantType[] = useMemo(() => {
     if (profile?.role === 'admin' || user?.email === 'cabscryptocontacto@gmail.com') {
-      return ['all', 'umbra', 'tellus'];
+      return ['umbra', 'tellus'];
     }
     if (profile?.role === 'creator') {
       const canUmbra = userGroupSlugs.some(s => s.includes('umbra'));
       const canTellus = userGroupSlugs.some(s => s.includes('tellus'));
 
-      if (canUmbra && canTellus) return ['all', 'umbra', 'tellus'];
+      if (canUmbra && canTellus) return ['umbra', 'tellus'];
       if (canTellus) return ['tellus'];
       if (canUmbra) return ['umbra'];
     }
-    return ['all', 'umbra', 'tellus'];
+    return ['umbra', 'tellus'];
   }, [profile?.role, user?.email, userGroupSlugs]);
 
   // Id de base de datos coincidente si existe un CreatorGroup con nombre/slug similar

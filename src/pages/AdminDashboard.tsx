@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { Globe } from 'lucide-react';
+import { Globe, Sparkles } from 'lucide-react';
 import { supabase, UserProfile } from '../supabase';
 import { useAuth } from '../AuthContext';
 
@@ -30,11 +30,11 @@ import AuditLogDetailModal from '../components/dashboard/AuditLogDetailModal';
 import CampaignNotesModal from '../components/dashboard/CampaignNotesModal';
 import CompanyViewsModal from '../components/dashboard/CompanyViewsModal';
 
-// Modular Layout Components
 import AdminSidebar from '../components/dashboard/AdminSidebar';
 import AdminHeader from '../components/dashboard/AdminHeader';
 import GroupSwitcher from '../components/dashboard/GroupSwitcher';
 import DeletedItemModal from '../components/dashboard/DeletedItemModal';
+import WorkspaceGateModal from '../components/dashboard/WorkspaceGateModal';
 
 // Modular Tab Components — lazy loaded so each tab only downloads when first opened
 const OverviewTab = React.lazy(() => import('../components/dashboard/OverviewTab'));
@@ -118,20 +118,19 @@ export default function AdminDashboard() {
     groups, groupMembers, activeGroupId, setActiveGroupId
   } = useDashboardData('admin', dashboardFilters);
 
+  const [isGateOpen, setIsGateOpen] = useState(false);
+
   const activeGroup = useMemo(() => groups.find(g => g.id === activeGroupId) || null, [groups, activeGroupId]);
 
   const handleSelectGroup = useCallback((groupId: string) => {
     setActiveGroupId(groupId);
-    if (groupId === 'all') {
-      setTenant('all');
-    } else {
-      const g = groups.find(item => item.id === groupId);
-      if (g) {
-        const s = (g.slug || g.name).toLowerCase();
-        if (s.includes('tellus')) setTenant('tellus');
-        else if (s.includes('umbra')) setTenant('umbra');
-      }
+    const g = groups.find(item => item.id === groupId);
+    if (g) {
+      const s = (g.slug || g.name).toLowerCase();
+      if (s.includes('tellus')) setTenant('tellus');
+      else if (s.includes('umbra')) setTenant('umbra');
     }
+    setIsGateOpen(false);
   }, [groups, setActiveGroupId, setTenant]);
 
   const handleEnterGroup = useCallback((groupId: string) => {
@@ -326,8 +325,8 @@ export default function AdminDashboard() {
         resetFilters={resetFilters} 
         user={user}
         activeGroup={activeGroup}
-        activeGroupId={activeGroupId}
-        onClearGroup={() => setActiveGroupId('all')}
+        activeGroupId={activeGroupId || undefined}
+        onClearGroup={() => setIsGateOpen(true)}
       />
 
       <main className={`flex-1 pt-4 lg:pt-6 px-6 lg:px-10 pb-6 lg:pb-8 flex flex-col min-w-0 ${activeTab === 'overview' ? 'h-full overflow-hidden' : 'h-full overflow-y-auto pb-40 lg:pb-16'}`}>
@@ -347,20 +346,18 @@ export default function AdminDashboard() {
           setIsAddingUser={setIsAddingUser}
         />
 
-        {/* Workspace Control Bar - allows Main Admin to navigate between Global and isolated Group Workspaces */}
+        {/* Workspace Control Bar - allows Main Admin to switch easily between isolated Group Workspaces */}
         <div className="mb-4 bg-white p-3 sm:p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0 shadow-sm ${
               activeGroup ? 'bg-indigo-50 border border-indigo-100' : 'bg-slate-100 border border-slate-200'
             }`}>
-              {activeGroup?.logo_emoji || <Globe className="h-5 w-5 text-indigo-600" />}
+              {activeGroup?.logo_emoji || <Sparkles className="h-5 w-5 text-indigo-600" />}
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${
-                  activeGroup ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-600'
-                }`}>
-                  {activeGroup ? 'Espacio Activo' : 'Red Global'}
+                <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-indigo-100 text-indigo-700">
+                  Espacio Activo
                 </span>
                 {activeGroup && (
                   <span className="text-[11px] font-bold text-slate-400 hidden md:inline">
@@ -369,25 +366,35 @@ export default function AdminDashboard() {
                 )}
               </div>
               <h2 className="text-sm sm:text-base font-black text-slate-900 truncate">
-                {activeGroup ? `${activeGroup.name} Workspace` : 'Vista Global (Todas las Marcas)'}
+                {activeGroup ? `${activeGroup.name} Workspace` : 'Selecciona una Organización'}
               </h2>
             </div>
           </div>
 
           <div className="flex items-center gap-2 self-end sm:self-auto flex-shrink-0">
-            {activeGroup && (
-              <button
-                onClick={() => handleSelectGroup('all')}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-black uppercase tracking-wider transition-all"
-                title="Volver a ver todas las marcas juntas"
-              >
-                <Globe className="h-3.5 w-3.5 text-indigo-600" />
-                <span className="hidden sm:inline">Vista</span> Global
-              </button>
-            )}
-            <GroupSwitcher groups={groups} activeGroupId={activeGroupId} onChange={handleSelectGroup} />
+            <button
+              onClick={() => setIsGateOpen(true)}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs font-black uppercase tracking-wider transition-all shadow-xs"
+              title="Seleccionar otra organización de trabajo"
+            >
+              <Sparkles className="h-3.5 w-3.5 text-indigo-600" />
+              <span>Cambiar Negocio</span>
+            </button>
+            <GroupSwitcher groups={groups} activeGroupId={activeGroupId || ''} onChange={handleSelectGroup} />
           </div>
         </div>
+
+        {/* Workspace Gate Modal (Zona de Espera / Selección Obligatoria) */}
+        <WorkspaceGateModal
+          isOpen={!activeGroupId || isGateOpen}
+          groups={groups}
+          campaigns={allCampaigns}
+          users={allUsers}
+          onSelectGroup={handleSelectGroup}
+          onRefreshGroups={refresh}
+          canClose={!!activeGroupId}
+          onClose={() => setIsGateOpen(false)}
+        />
 
         <React.Suspense fallback={<TabLoader />}>
           {activeTab === 'overview' && (
