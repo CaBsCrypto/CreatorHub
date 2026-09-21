@@ -72,6 +72,7 @@ type AdminTab = typeof ADMIN_TABS[number];
 
 export default function AdminDashboard() {
   const { user } = useAuth();
+  const { setTenant } = useTenant();
   const { success, error: toastError, info } = useToast();
   
   // Modals state

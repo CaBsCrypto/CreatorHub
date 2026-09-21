@@ -54,6 +54,10 @@ const getInitialAuth = (): { user: User | null; profile: UserProfile | null } =>
               display_name: u.user_metadata?.full_name || u.user_metadata?.name || (isSuperAdmin ? 'CaBs' : 'User'),
               photo_url: u.user_metadata?.avatar_url || null,
               role: isSuperAdmin ? 'admin' : 'creator',
+              payment_method: null,
+              binance_id: null,
+              wallet_address: null,
+              wallet_network: null,
               created_at: new Date().toISOString()
             };
             return { user: u, profile: fallbackProfile };
@@ -179,6 +183,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           display_name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || 'CaBs',
           photo_url: session.user.user_metadata?.avatar_url || null,
           role: 'admin',
+          payment_method: null,
+          binance_id: null,
+          wallet_address: null,
+          wallet_network: null,
           created_at: new Date().toISOString()
         });
       }
