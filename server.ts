@@ -9,6 +9,7 @@ import {
   fetchInstagramData,
   fetchXData,
   fetchCMCData,
+  fetchLinkedInData,
   fetchTwitchProfile,
   fetchInstagramProfile,
   fetchYouTubeProfile
@@ -165,6 +166,7 @@ app.all("/api/cron/refresh-metrics", async (req, res) => {
           case 'x':
           case 'x_video': data = await fetchXData(item.url); break;
           case 'coinmarketcap': data = await fetchCMCData(item.url); break;
+          case 'linkedin': data = await fetchLinkedInData(item.url); break;
           default: continue;
         }
 
@@ -330,6 +332,7 @@ app.post("/api/fetch-metadata", authenticate, validate(FetchMetadataSchema), asy
       case 'instagram': data = await fetchInstagramData(url); break;
       case 'x': data = await fetchXData(url); break;
       case 'coinmarketcap': data = await fetchCMCData(url); break;
+      case 'linkedin': data = await fetchLinkedInData(url); break;
       default: data = { title: "New Upload", views: 0, likes: 0, comments: 0, thumbnail: "" };
     }
     res.json(data);
@@ -371,6 +374,7 @@ app.post("/api/refresh-metrics", authenticate, authorize(['admin']), validate(Re
           case 'instagram': data = await fetchInstagramData(item.url); break;
           case 'x': data = await fetchXData(item.url); break;
           case 'coinmarketcap': data = await fetchCMCData(item.url); break;
+          case 'linkedin': data = await fetchLinkedInData(item.url); break;
           default: continue;
         }
         results.push({ id: item.id, ...data });
@@ -420,6 +424,7 @@ app.post("/api/refresh-creator-metrics", authenticate, authorize(['creator']), v
           case 'instagram': data = await fetchInstagramData(item.url); break;
           case 'x': data = await fetchXData(item.url); break;
           case 'coinmarketcap': data = await fetchCMCData(item.url); break;
+          case 'linkedin': data = await fetchLinkedInData(item.url); break;
           default: continue;
         }
         results.push({ id: item.id, ...data });

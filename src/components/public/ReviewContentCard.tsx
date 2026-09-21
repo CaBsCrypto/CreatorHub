@@ -34,6 +34,7 @@ const ReviewContentCard: React.FC<ReviewContentCardProps> = ({
   const platformColors: Record<string, string> = {
     youtube: 'from-rose-600 to-red-700', instagram: 'from-pink-600 to-rose-600',
     tiktok: 'from-gray-800 to-gray-900', x: 'from-sky-600 to-blue-700',
+    linkedin: 'from-blue-600 to-sky-700',
     twitch: 'from-violet-700 to-purple-800', coinmarketcap: 'from-amber-600 to-orange-600',
     discord: 'from-indigo-600 to-blue-700', baseapp: 'from-blue-600 to-indigo-700',
     instagram_story: 'from-rose-500 to-pink-600'

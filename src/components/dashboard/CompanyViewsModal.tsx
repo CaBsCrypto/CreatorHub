@@ -42,6 +42,7 @@ const PLATFORM_ICONS: Record<string, string> = {
   instagram: '📸 Instagram',
   instagram_story: '📸 Story',
   x: '𝕏 Post',
+  linkedin: '💼 LinkedIn',
   twitch: '🟣 Twitch',
   coinmarketcap: '🟡 CMC',
   baseapp: '🔵 Base',

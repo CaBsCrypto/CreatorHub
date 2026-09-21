@@ -1,11 +1,11 @@
 import React from 'react';
-import { Youtube, Instagram, Music2, Twitter, Globe, ExternalLink, Edit2, Trash2, Clock } from 'lucide-react';
+import { Youtube, Instagram, Music2, Twitter, Globe, ExternalLink, Edit2, Trash2, Clock, Linkedin } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export interface ContentItem {
   id: string;
   campaign_id: string;
-  platform: 'youtube' | 'instagram' | 'tiktok' | 'x' | 'coinmarketcap' | 'twitch' | 'discord' | 'baseapp' | 'instagram_story' | 'stream';
+  platform: 'youtube' | 'instagram' | 'tiktok' | 'x' | 'coinmarketcap' | 'twitch' | 'discord' | 'baseapp' | 'instagram_story' | 'stream' | 'linkedin';
   url: string;
   title: string | null;
   description?: string | null;
@@ -49,6 +49,7 @@ const platformConfig = {
   instagram: { icon: Instagram, color: 'text-pink-600', bg: 'bg-pink-50', border: 'border-pink-100' },
   tiktok: { icon: Music2, color: 'text-slate-900', bg: 'bg-slate-50', border: 'border-slate-200' },
   x: { icon: Twitter, color: 'text-slate-900', bg: 'bg-slate-50', border: 'border-slate-200' },
+  linkedin: { icon: Linkedin, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
   coinmarketcap: { icon: Globe, color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-100' },
   twitch: { icon: Globe, color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-100' },
   discord: { icon: DiscordIcon, color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-100' },

@@ -36,6 +36,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
     { name: 'Instagram', id: 'instagram', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'instagram').length },
     { name: 'TikTok', id: 'tiktok', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'tiktok').length },
     { name: 'X', id: 'x', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'x').length },
+    { name: 'LinkedIn', id: 'linkedin', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'linkedin').length },
     { name: 'Stream', id: 'twitch', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'twitch').length },
     { name: 'CMC', id: 'coinmarketcap', value: filteredContent.filter(c => c.platform?.toLowerCase() === 'coinmarketcap').length }
   ].filter(d => d.value > 0), [filteredContent]);

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { X, Download, Youtube, Instagram, Twitter, Globe, Zap, Users, Music2, FileSpreadsheet, Star, BarChart3 } from 'lucide-react';
+import { X, Download, Youtube, Instagram, Twitter, Globe, Zap, Users, Music2, FileSpreadsheet, Star, BarChart3, Linkedin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Campaign, Content, UserProfile } from '../../supabase';
 import { useToast } from '../../hooks/useToast';
@@ -94,7 +94,7 @@ export default function CampaignReportModal({
   }, [campaign, content, filterPlatform]);
 
   const stats = useMemo(() => {
-    const defaultPlatforms = { tiktok: 0, instagram: 0, youtube: 0, x: 0, x_video: 0, twitch: 0, coinmarketcap: 0 };
+    const defaultPlatforms = { tiktok: 0, instagram: 0, youtube: 0, x: 0, x_video: 0, linkedin: 0, twitch: 0, coinmarketcap: 0 };
     const platformCounts = { ...defaultPlatforms };
     let totalViews = 0;
     
@@ -237,7 +237,7 @@ export default function CampaignReportModal({
     try {
       if (!campaign || stats.creatorStats.length === 0) return;
 
-      const headers = ['Creador', 'TikTok', 'Instagram', 'YouTube', 'X', 'CMC', 'Twitch', 'Vistas Totales'];
+      const headers = ['Creador', 'TikTok', 'Instagram', 'YouTube', 'X', 'LinkedIn', 'CMC', 'Twitch', 'Vistas Totales'];
       let tsvContent = headers.join('\t') + '\n';
 
       stats.creatorStats.forEach(creator => {
@@ -248,6 +248,7 @@ export default function CampaignReportModal({
           creator.platforms.instagram,
           creator.platforms.youtube,
           creator.platforms.x + creator.platforms.x_video,
+          creator.platforms.linkedin,
           creator.platforms.coinmarketcap,
           creator.platforms.twitch,
           creator.totalViews
@@ -309,6 +310,7 @@ export default function CampaignReportModal({
       case 'youtube': return <Youtube className={className} />;
       case 'x': return <Twitter className={className} />;
       case 'x_video': return <Twitter className={className} />;
+      case 'linkedin': return <Linkedin className={className} />;
       case 'twitch': return <Globe className={className} />;
       case 'coinmarketcap': return <Zap className={className} />;
       default: return <Globe className={className} />;
@@ -385,6 +387,7 @@ export default function CampaignReportModal({
                 <option value="instagram">Instagram</option>
                 <option value="youtube">YouTube</option>
                 <option value="x">X / Twitter</option>
+                <option value="linkedin">LinkedIn</option>
                 <option value="twitch">Twitch</option>
                 <option value="coinmarketcap">CoinMarketCap</option>
               </select>
@@ -547,6 +550,7 @@ export default function CampaignReportModal({
                       case 'youtube': return 'YouTube';
                       case 'x': return 'X (Twitter)';
                       case 'x_video': return 'X Video';
+                      case 'linkedin': return 'LinkedIn';
                       case 'twitch': return 'Twitch';
                       case 'coinmarketcap': return 'CoinMarketCap';
                       default: return p.toUpperCase();
@@ -612,6 +616,7 @@ export default function CampaignReportModal({
                         <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Instagram</th>
                         <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">YouTube</th>
                         <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">X</th>
+                        <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">LinkedIn</th>
                         <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">CMC</th>
                         <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Twitch</th>
                         <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Total</th>
@@ -665,6 +670,15 @@ export default function CampaignReportModal({
                               disabled={(creator.platforms.x + creator.platforms.x_video) === 0}
                             >
                               {creator.platforms.x + creator.platforms.x_video}
+                            </button>
+                          </td>
+                          <td className="px-6 py-4 text-center">
+                            <button 
+                              onClick={() => onFilterChange?.({ platform: 'linkedin', creatorId: creator.user?.id, campaignId: campaign.id })}
+                              className={`bg-transparent border-none p-0 outline-none text-sm font-bold transition-all hover:scale-110 ${creator.platforms.linkedin > 0 ? 'text-blue-400 cursor-pointer hover:opacity-70' : 'text-slate-700'}`}
+                              disabled={creator.platforms.linkedin === 0}
+                            >
+                              {creator.platforms.linkedin}
                             </button>
                           </td>
                           <td className="px-6 py-4 text-center">

@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Youtube, Instagram, Music2, Twitter, Globe, ExternalLink, RefreshCw } from 'lucide-react';
+import { X, Youtube, Instagram, Music2, Twitter, Globe, ExternalLink, RefreshCw, Linkedin } from 'lucide-react';
 import { supabase, Campaign, Content, UserProfile } from '../../supabase';
 import { resizeImage } from '../../utils/imageUtils';
 import DiscordIcon from '../icons/DiscordIcon';
@@ -107,6 +107,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
     { id: 'instagram_story', icon: Instagram, color: 'text-rose-500', label: 'Historia IG' },
     { id: 'tiktok', icon: Music2, color: 'text-black', label: 'TikTok' },
     { id: 'x', icon: Twitter, color: 'text-slate-900', label: 'X' },
+    { id: 'linkedin', icon: Linkedin, color: 'text-blue-600', label: 'LinkedIn' },
     { id: 'coinmarketcap', icon: Globe, color: 'text-indigo-600', label: 'CMC' },
     { id: 'stream', icon: Globe, color: 'text-purple-600', label: 'Streams' },
     { id: 'baseapp', icon: Globe, color: 'text-blue-600', label: 'BaseApp' },

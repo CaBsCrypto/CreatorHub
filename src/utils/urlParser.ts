@@ -42,6 +42,12 @@ export function normalizeUrl(url: string, platform: string): string {
       return origin + urlObj.pathname;
     }
 
+    if (platform === 'linkedin') {
+      // LinkedIn post format: /posts/username-activity-12345 or /feed/update/urn:li:activity:12345
+      // Clean query params (e.g. ?utm_source=...&rcm=...) and normalize origin
+      return urlObj.origin + urlObj.pathname.replace(/\/+$/, '');
+    }
+
     // Default fallback: return origin + pathname (strips all queries and fragments)
     return urlObj.origin + urlObj.pathname;
   } catch (e) {

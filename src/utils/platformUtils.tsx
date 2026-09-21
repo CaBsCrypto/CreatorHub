@@ -1,5 +1,5 @@
 import React from 'react';
-import { Music2, Instagram, Youtube, Twitter, Zap, TrendingUp, Globe } from 'lucide-react';
+import { Music2, Instagram, Youtube, Twitter, Zap, TrendingUp, Globe, Linkedin } from 'lucide-react';
 
 /**
  * Get the appropriate Lucide icon for a given platform.
@@ -14,6 +14,7 @@ export function getPlatformIcon(platform: string, className = 'h-4 w-4') {
     case 'x': return <Twitter className={className} />;
     case 'twitch': return <Zap className={className} />;
     case 'coinmarketcap': return <TrendingUp className={className} />;
+    case 'linkedin': return <Linkedin className={className} />;
     default: return <Globe className={className} />;
   }
 }
@@ -31,6 +32,7 @@ export function getPlatformColor(platform: string) {
     case 'x': return 'bg-sky-50 text-sky-600';
     case 'twitch': return 'bg-indigo-50 text-indigo-600';
     case 'coinmarketcap': return 'bg-amber-50 text-amber-600';
+    case 'linkedin': return 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400';
     default: return 'bg-gray-50 text-gray-400';
   }
 }

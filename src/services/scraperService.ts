@@ -443,6 +443,106 @@ export async function fetchCMCData(url: string) {
   }
 }
 
+// --- LINKEDIN POST SCRAPER ---
+export async function fetchLinkedInData(url: string) {
+  const start = Date.now();
+  let title = "LinkedIn Post", author = "", views = 0, likes = 0, comments = 0, thumbnail = "";
+
+  try {
+    // 1. First attempt: LinkedIn official oEmbed endpoint
+    try {
+      const oembedUrl = `https://www.linkedin.com/embedding/oembed?url=${encodeURIComponent(url)}&format=json`;
+      const oembedRes = await axios.get(oembedUrl, {
+        headers: { "User-Agent": USER_AGENT },
+        timeout: 6000,
+        validateStatus: () => true
+      });
+
+      if (oembedRes.status === 200 && oembedRes.data) {
+        if (oembedRes.data.title) title = oembedRes.data.title;
+        if (oembedRes.data.author_name) author = oembedRes.data.author_name;
+        if (oembedRes.data.thumbnail_url) thumbnail = oembedRes.data.thumbnail_url;
+      }
+    } catch (oembedErr: any) {
+      console.warn("[LinkedIn Scraper] oEmbed notice:", oembedErr.message);
+    }
+
+    // 2. Second attempt: OpenGraph & HTML parsing fallback
+    try {
+      const pageRes = await axios.get(url, {
+        headers: {
+          "User-Agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+          "Accept-Language": "es-ES,es;q=0.9,en;q=0.8"
+        },
+        timeout: 8000,
+        validateStatus: () => true
+      });
+
+      if (pageRes.status === 200 && pageRes.data) {
+        const html = pageRes.data;
+
+        // OpenGraph Title fallback
+        if (title === "LinkedIn Post") {
+          const ogTitle = html.match(/<meta property="og:title" content="([^"]+)"/i) 
+                       || html.match(/<meta name="title" content="([^"]+)"/i);
+          if (ogTitle && ogTitle[1]) title = ogTitle[1].replace(/ \| LinkedIn$/i, '');
+        }
+
+        // OpenGraph Image fallback
+        if (!thumbnail) {
+          const ogImg = html.match(/<meta property="og:image" content="([^"]+)"/i)
+                     || html.match(/<meta name="twitter:image" content="([^"]+)"/i);
+          if (ogImg && ogImg[1]) thumbnail = ogImg[1];
+        }
+
+        // Author extraction
+        if (!author) {
+          const authorMatch = html.match(/"author":\{[^}]*"name":"([^"]+)"/i)
+                           || html.match(/<meta name="author" content="([^"]+)"/i);
+          if (authorMatch && authorMatch[1]) author = authorMatch[1];
+        }
+
+        // Reactions / Likes heuristic from meta / public JSON-LD if present
+        const likesMatch = html.match(/"numLikes":(\d+)/i) 
+                        || html.match(/"likesCount":(\d+)/i)
+                        || html.match(/"socialDetail":\{[^}]*"totalSocialActivityCounts":\{[^}]*"numLikes":(\d+)/i);
+        if (likesMatch && likesMatch[1]) likes = parseInt(likesMatch[1], 10);
+
+        const commentsMatch = html.match(/"numComments":(\d+)/i) 
+                           || html.match(/"commentsCount":(\d+)/i);
+        if (commentsMatch && commentsMatch[1]) comments = parseInt(commentsMatch[1], 10);
+      }
+    } catch (pageErr: any) {
+      console.warn("[LinkedIn Scraper] HTML fetch notice:", pageErr.message);
+    }
+
+    const duration = Date.now() - start;
+    const finalTitle = (author && !title.includes(author) ? `${author} - ${title}` : title).substring(0, 120);
+
+    await logScraperAction(
+      'linkedin',
+      url,
+      'success',
+      undefined,
+      duration,
+      { views, likes, comments }
+    );
+
+    return {
+      title: finalTitle || "LinkedIn Post",
+      views,
+      likes,
+      comments,
+      thumbnail
+    };
+  } catch (error: any) {
+    const duration = Date.now() - start;
+    console.error("[LinkedIn Scraper] Critical error:", error.message);
+    await logScraperAction('linkedin', url, 'error', error.message, duration);
+    return { title: "LinkedIn Post", views: 0, likes: 0, comments: 0, thumbnail: "" };
+  }
+}
 
 // --- PROFILE SCRAERS (REFINED FOR MONTHLY REACH) ---
 

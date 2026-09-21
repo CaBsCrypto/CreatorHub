@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { supabase, Campaign, Content, UserProfile, CreatorGroup } from '../supabase';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { Globe, StickyNote, Youtube, Instagram, Music2, Twitter, X, ExternalLink, ArrowLeft, Eye, Heart, MessageSquare } from 'lucide-react';
+import { Globe, StickyNote, Youtube, Instagram, Music2, Twitter, X, ExternalLink, ArrowLeft, Eye, Heart, MessageSquare, Linkedin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Refactored Components
@@ -23,6 +23,7 @@ const platformConfig = {
   instagram_story: { icon: Instagram, color: 'text-rose-500', bg: 'bg-rose-50', label: 'Instagram Story' },
   tiktok: { icon: Music2, color: 'text-gray-900', bg: 'bg-gray-100', label: 'TikTok' },
   x: { icon: Twitter, color: 'text-indigo-900', bg: 'bg-indigo-50', label: 'X (Twitter)' },
+  linkedin: { icon: Linkedin, color: 'text-blue-600', bg: 'bg-blue-50', label: 'LinkedIn' },
   coinmarketcap: { icon: Globe, color: 'text-indigo-600', bg: 'bg-indigo-50', label: 'CoinMarketCap' },
   twitch: { icon: Globe, color: 'text-purple-600', bg: 'bg-purple-50', label: 'Stream' },
   discord: { icon: Globe, color: 'text-indigo-500', bg: 'bg-indigo-50', label: 'Discord' },

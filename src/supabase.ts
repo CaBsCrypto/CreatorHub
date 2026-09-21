@@ -90,7 +90,7 @@ export interface Content {
   campaign_id: string;
   creator_id: string | null;
   guest_name?: string | null;
-  platform: 'youtube' | 'instagram' | 'tiktok' | 'x' | 'coinmarketcap' | 'twitch' | 'stream' | 'discord' | 'baseapp' | 'instagram_story';
+  platform: 'youtube' | 'instagram' | 'tiktok' | 'x' | 'coinmarketcap' | 'twitch' | 'stream' | 'discord' | 'baseapp' | 'instagram_story' | 'linkedin';
   url: string;
   title: string | null;
   description?: string | null;

@@ -119,6 +119,7 @@ const PublicContentGrid: React.FC<PublicContentGridProps> = ({
             <option value="instagram">Instagram</option>
             <option value="youtube">YouTube</option>
             <option value="x">X / Twitter</option>
+            <option value="linkedin">LinkedIn</option>
             <option value="twitch">Stream</option>
             <option value="coinmarketcap">CMC</option>
           </select>

@@ -63,6 +63,7 @@ const PLATFORM_COLORS: Record<string, string> = {
   instagram: '#e1306c', 
   youtube: '#ff0000', 
   x: '#1da1f2', 
+  linkedin: '#0a66c2',
   twitch: '#9146ff', 
   coinmarketcap: '#0d3efd' 
 };
