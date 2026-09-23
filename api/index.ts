@@ -55,6 +55,8 @@ app.use(helmet());
 
 // CORS Hardening
 const allowedOrigins = [
+  'https://stats.browns.studio',
+  'https://www.stats.browns.studio',
   'https://creator-hub-three-lake.vercel.app',
   'https://creator-hub-three-lake-cabs-projects.vercel.app',
   'https://umbra-hub.vercel.app',

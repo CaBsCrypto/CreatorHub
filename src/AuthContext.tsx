@@ -80,12 +80,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     let isMounted = true;
 
-    // Hard safety timeout: Auth must NEVER stay in loading state for more than 3.5 seconds
+    // Hard safety timeout: Auth must NEVER stay in loading state for more than 2 seconds
     const safetyTimer = setTimeout(() => {
       if (isMounted) {
         setLoading(false);
       }
-    }, 3500);
+    }, 2000);
 
     // 1. Fetch current session or handle OAuth callback
     const initializeAuth = async () => {
@@ -109,6 +109,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
           } catch (hashErr) {
             console.error("Failed to parse/set session from URL hash:", hashErr);
+            window.history.replaceState(null, '', window.location.pathname);
           }
         }
 
@@ -127,6 +128,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
           } catch (codeErr) {
             console.error("Failed to exchange PKCE code for session:", codeErr);
+            window.history.replaceState(null, '', window.location.pathname);
           }
         }
 

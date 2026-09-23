@@ -40,7 +40,7 @@ export default function Login() {
     }
   }, [user, profile, navigate]);
 
-  if (hasAuthTokens && !user) {
+  if (hasAuthTokens && loading && !user) {
     return <LoadingSpinner message="Verificando credenciales..." />;
   }
 

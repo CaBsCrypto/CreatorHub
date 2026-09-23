@@ -27,8 +27,8 @@ const ProtectedRoute = ({ children, role }: { children: React.ReactNode, role?: 
     window.location.search.includes('code=')
   );
 
-  // If there are tokens currently being exchanged in URL, show spinner briefly
-  if (hasAuthTokens && !user) {
+  // If there are tokens currently being exchanged in URL, show spinner only while actively loading
+  if (hasAuthTokens && loading && !user) {
     return <LoadingSpinner message="Verificando permisos..." />;
   }
 
@@ -68,7 +68,7 @@ const HomeRedirect = () => {
     window.location.search.includes('code=')
   );
   
-  if (hasAuthTokens && !user) {
+  if (hasAuthTokens && loading && !user) {
     return <LoadingSpinner message="Autenticando en Browns Stats..." />;
   }
   
