@@ -41,3 +41,8 @@ npm install
 cp .env.example .env      # Supabase, Gemini, Resend keys
 npm run dev
 ```
+
+## 📦 Database & Migrations
+
+All database schema migrations, RLS policies, and setup instructions are managed via Supabase.
+See the full migration guide and catalog in **[MIGRATION.md](file:///d:/00%20PROGRAMANDO/CreatorHub/MIGRATION.md)**.
