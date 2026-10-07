@@ -418,7 +418,26 @@ export default function CreatorDashboard() {
                           <div className="flex items-center gap-2 mt-1">
                             <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1.5 py-0.5 bg-gray-50 rounded-md border border-gray-100">{item.platform}</span>
                             <span className="text-[9px] font-bold text-indigo-400 uppercase tracking-widest">{campaigns.find(c => c.id === item.campaign_id)?.name || 'General'}</span>
+                            {(item as any).coupledPlatforms && (item as any).coupledPlatforms.length > 1 && (
+                              <span className="px-1.5 py-0.5 bg-indigo-600 text-white text-[8px] font-black uppercase tracking-wider rounded shadow-sm">
+                                MULTIPLATAFORMA
+                              </span>
+                            )}
                           </div>
+                          {(item as any).coupledPosts && (item as any).coupledPosts.length > 1 && (
+                            <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                              {(item as any).coupledPosts.map((post: any) => (
+                                <span 
+                                  key={post.id} 
+                                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[9px] font-bold bg-slate-50 border border-slate-200/80 text-slate-700"
+                                  title={post.title || post.url}
+                                >
+                                  <span className="uppercase text-[8px] font-black text-indigo-500">{post.platform}:</span>
+                                  <span className="font-mono font-black text-slate-900">{(post.views || 0).toLocaleString()}</span>
+                                </span>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </div>
 
@@ -454,6 +473,7 @@ export default function CreatorDashboard() {
                         item={item as any} 
                         index={i} 
                         onEdit={(c) => { setEditingContent(c); setIsContentModalOpen(true); }} 
+                        onRefresh={() => handleRefresh()}
                         onDelete={async (id) => { 
                             if(confirm("¿Mover este contenido a la papelera?")) {
                                 await supabase.from('content').update({ deleted_at: new Date().toISOString() }).eq('id', id);
@@ -514,6 +534,7 @@ export default function CreatorDashboard() {
           isOpen={true}
           onClose={() => setViewingContent(null)}
           item={viewingContent}
+          onRefresh={refresh}
         />
       )}
 

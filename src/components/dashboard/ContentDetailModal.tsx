@@ -1,12 +1,14 @@
-import React from 'react';
-import { X, ExternalLink, Youtube, Instagram, Music2, Twitter, Globe, Clock, Users, Eye, TrendingUp, BarChart3, MessageSquare, Monitor, Linkedin } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, ExternalLink, Youtube, Instagram, Music2, Twitter, Globe, Clock, Users, Eye, TrendingUp, BarChart3, MessageSquare, Monitor, Linkedin, RefreshCw, Edit2, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ContentItem } from './ContentCard';
+import { supabase } from '../../supabase';
 
 interface ContentDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   item: ContentItem | null;
+  onRefresh?: () => void;
 }
 
 const platformConfig = {
@@ -22,8 +24,104 @@ const platformConfig = {
   baseapp: { icon: Globe, color: 'text-blue-600', bg: 'bg-blue-50', label: 'BaseApp' }
 };
 
-const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose, item }) => {
+const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose, item, onRefresh }) => {
+  const [coupledPostsList, setCoupledPostsList] = useState<any[]>([]);
+  const [syncingId, setSyncingId] = useState<string | null>(null);
+  const [isSyncingAll, setIsSyncingAll] = useState(false);
+  const [editingViewsPostId, setEditingViewsPostId] = useState<string | null>(null);
+  const [tempViewsInput, setTempViewsInput] = useState<string>('');
+
+  useEffect(() => {
+    if (item?.coupledPosts) {
+      setCoupledPostsList(item.coupledPosts);
+    } else {
+      setCoupledPostsList([]);
+    }
+  }, [item]);
+
   if (!item) return null;
+
+  const handleSyncSingle = async (post: any) => {
+    setSyncingId(post.id);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch('/api/fetch-metadata', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json', 
+          'Authorization': `Bearer ${session?.access_token}` 
+        },
+        body: JSON.stringify({ url: post.url, platform: post.platform, contentId: post.id })
+      });
+      if (res.ok) {
+        const metadata = await res.json();
+        const updates: any = { last_refreshed_at: new Date().toISOString() };
+        if (metadata.views > 0) updates.views = metadata.views;
+        if (metadata.likes > 0) updates.likes = metadata.likes;
+        if (metadata.comments > 0) updates.comments = metadata.comments;
+        if (metadata.thumbnail) updates.thumbnail = metadata.thumbnail;
+
+        await supabase.from('content').update(updates).eq('id', post.id);
+
+        setCoupledPostsList(prev => prev.map(p => p.id === post.id ? { ...p, ...updates } : p));
+        if (onRefresh) onRefresh();
+      }
+    } catch (err) {
+      console.error("Error syncing post:", err);
+    } finally {
+      setSyncingId(null);
+    }
+  };
+
+  const handleSyncAll = async () => {
+    if (isSyncingAll || !coupledPostsList.length) return;
+    setIsSyncingAll(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      await Promise.allSettled(coupledPostsList.map(async (p) => {
+        try {
+          const res = await fetch('/api/fetch-metadata', {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json', 
+              'Authorization': `Bearer ${session?.access_token}` 
+            },
+            body: JSON.stringify({ url: p.url, platform: p.platform, contentId: p.id })
+          });
+          if (res.ok) {
+            const metadata = await res.json();
+            const updates: any = { last_refreshed_at: new Date().toISOString() };
+            if (metadata.views > 0) updates.views = metadata.views;
+            if (metadata.likes > 0) updates.likes = metadata.likes;
+            if (metadata.comments > 0) updates.comments = metadata.comments;
+            if (metadata.thumbnail) updates.thumbnail = metadata.thumbnail;
+
+            await supabase.from('content').update(updates).eq('id', p.id);
+            setCoupledPostsList(prev => prev.map(itemP => itemP.id === p.id ? { ...itemP, ...updates } : itemP));
+          }
+        } catch (err) {
+          console.error("Error syncing post:", err);
+        }
+      }));
+      if (onRefresh) onRefresh();
+    } finally {
+      setIsSyncingAll(false);
+    }
+  };
+
+  const handleSaveManualViews = async (postId: string) => {
+    const parsed = parseInt(tempViewsInput, 10);
+    if (!isNaN(parsed) && parsed >= 0) {
+      try {
+        await supabase.from('content').update({ views: parsed }).eq('id', postId);
+        setCoupledPostsList(prev => prev.map(p => p.id === postId ? { ...p, views: parsed } : p));
+        if (onRefresh) onRefresh();
+      } catch (err) {
+        console.error("Error saving manual views:", err);
+      }
+    }
+    setEditingViewsPostId(null);
+  };
 
   const config = platformConfig[item.platform] || { icon: Globe, color: 'text-gray-400', bg: 'bg-gray-50', label: item.platform };
   const Icon = config.icon;
@@ -213,49 +311,103 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
                 );
               })()}
 
-              {item.coupledPosts && item.coupledPosts.length > 1 && (
+              {coupledPostsList && coupledPostsList.length > 1 && (
                 <div className="mt-8 pt-6 border-t border-slate-100">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">
-                    Publicaciones Acopladas ({item.coupledPosts.length})
-                  </p>
+                  <div className="flex items-center justify-between mb-4">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                      Publicaciones Acopladas ({coupledPostsList.length})
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleSyncAll}
+                      disabled={isSyncingAll}
+                      className="flex items-center gap-1.5 px-3 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all disabled:opacity-50"
+                      title="Sincronizar todas las redes acopladas"
+                    >
+                      <RefreshCw className={`h-3 w-3 ${isSyncingAll ? 'animate-spin' : ''}`} />
+                      <span>{isSyncingAll ? 'Sincronizando...' : 'Sincronizar Todas'}</span>
+                    </button>
+                  </div>
                   <div className="space-y-3">
-                    {item.coupledPosts.map((post) => {
+                    {coupledPostsList.map((post) => {
                       const postConfig = platformConfig[post.platform as 'youtube'] || { icon: Globe, color: 'text-gray-400', bg: 'bg-gray-50', label: post.platform };
                       const PostIcon = postConfig.icon;
+                      const isEditingThis = editingViewsPostId === post.id;
+                      const isSyncingThis = syncingId === post.id;
                       
                       return (
-                        <a
+                        <div
                           key={post.id}
-                          href={post.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-between p-3.5 bg-slate-50 border border-slate-100 rounded-2xl hover:border-indigo-200 hover:bg-indigo-50/20 transition-all cursor-pointer text-left group"
+                          className="flex items-center justify-between p-3.5 bg-slate-50 border border-slate-100 rounded-2xl hover:border-indigo-200 transition-all text-left group"
                         >
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div className={`w-8 h-8 rounded-xl ${postConfig.bg} flex items-center justify-center`}>
+                          <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <div className={`w-8 h-8 rounded-xl ${postConfig.bg} flex items-center justify-center shrink-0`}>
                               <PostIcon className={`h-4 w-4 ${postConfig.color}`} />
                             </div>
-                            <div className="min-w-0">
-                              <p className="text-xs font-black text-slate-800 uppercase tracking-wide truncate max-w-[200px] leading-tight">
+                            <div className="min-w-0 flex-1">
+                              <p className="text-xs font-black text-slate-800 uppercase tracking-wide truncate max-w-[180px] leading-tight">
                                 {postConfig.label}
                               </p>
-                              <p className="text-[9px] font-medium text-slate-400 truncate max-w-[200px] leading-none mt-0.5">
+                              <p className="text-[9px] font-medium text-slate-400 truncate max-w-[180px] leading-none mt-0.5" title={post.url}>
                                 {post.title || post.url}
                               </p>
                             </div>
                           </div>
-                          <div className="flex items-center gap-3 shrink-0">
-                            {/* Views */}
-                            <div className="text-right min-w-[45px]">
-                              <p className="text-[10px] font-bold text-slate-800 leading-tight">
-                                {(post.views || 0).toLocaleString()}
-                              </p>
-                              <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none mt-0.5">
-                                Vistas
-                              </p>
+                          
+                          <div className="flex items-center gap-2.5 shrink-0">
+                            {/* Views with manual edit */}
+                            <div className="text-right min-w-[55px]">
+                              {isEditingThis ? (
+                                <div className="flex items-center gap-1">
+                                  <input 
+                                    type="number"
+                                    value={tempViewsInput}
+                                    onChange={(e) => setTempViewsInput(e.target.value)}
+                                    className="w-16 px-1.5 py-0.5 text-xs font-bold bg-white border border-indigo-300 rounded text-slate-900 outline-none"
+                                    placeholder="0"
+                                    autoFocus
+                                  />
+                                  <button 
+                                    onClick={() => handleSaveManualViews(post.id)}
+                                    className="p-1 bg-emerald-600 text-white rounded hover:bg-emerald-700"
+                                    title="Guardar vistas"
+                                  >
+                                    <Check className="h-3 w-3" />
+                                  </button>
+                                  <button 
+                                    onClick={() => setEditingViewsPostId(null)}
+                                    className="p-1 bg-slate-200 text-slate-600 rounded hover:bg-slate-300"
+                                    title="Cancelar"
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </button>
+                                </div>
+                              ) : (
+                                <div className="flex items-center justify-end gap-1 group/views">
+                                  <div>
+                                    <p className="text-[11px] font-black text-slate-800 leading-tight">
+                                      {(post.views || 0).toLocaleString()}
+                                    </p>
+                                    <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none mt-0.5">
+                                      Vistas
+                                    </p>
+                                  </div>
+                                  <button
+                                    onClick={() => {
+                                      setEditingViewsPostId(post.id);
+                                      setTempViewsInput(String(post.views || 0));
+                                    }}
+                                    className="p-1 opacity-0 group-hover:opacity-100 hover:text-indigo-600 transition-opacity"
+                                    title="Editar vistas manualmente"
+                                  >
+                                    <Edit2 className="h-2.5 w-2.5" />
+                                  </button>
+                                </div>
+                              )}
                             </div>
+
                             {/* Likes */}
-                            <div className="text-right min-w-[40px]">
+                            <div className="text-right min-w-[35px] hidden sm:block">
                               <p className="text-[10px] font-bold text-slate-600 leading-tight">
                                 {(post.likes || 0).toLocaleString()}
                               </p>
@@ -263,20 +415,29 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ isOpen, onClose
                                 Likes
                               </p>
                             </div>
-                            {/* Comments */}
-                            <div className="text-right min-w-[40px]">
-                              <p className="text-[10px] font-bold text-slate-600 leading-tight">
-                                {(post.comments || 0).toLocaleString()}
-                              </p>
-                              <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none mt-0.5">
-                                Coment.
-                              </p>
-                            </div>
-                            <div className="p-2 text-slate-400 group-hover:text-indigo-650 group-hover:bg-white rounded-xl shadow-sm border border-slate-100 group-hover:border-indigo-200 transition-all">
+
+                            {/* Sync button for single post */}
+                            <button
+                              onClick={() => handleSyncSingle(post)}
+                              disabled={isSyncingThis}
+                              className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-white rounded-xl shadow-xs border border-transparent hover:border-slate-200 transition-all disabled:opacity-50"
+                              title="Sincronizar esta plataforma"
+                            >
+                              <RefreshCw className={`h-3.5 w-3.5 ${isSyncingThis ? 'animate-spin text-indigo-600' : ''}`} />
+                            </button>
+
+                            {/* External link */}
+                            <a
+                              href={post.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-white rounded-xl shadow-xs border border-transparent hover:border-slate-200 transition-all"
+                              title="Abrir enlace"
+                            >
                               <ExternalLink className="h-3.5 w-3.5" />
-                            </div>
+                            </a>
                           </div>
-                        </a>
+                        </div>
                       );
                     })}
                   </div>

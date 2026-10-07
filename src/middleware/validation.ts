@@ -11,7 +11,8 @@ export const InviteUserSchema = z.object({
 
 export const FetchMetadataSchema = z.object({
   url: z.string().url("URL inválida"),
-  platform: z.enum(['tiktok', 'youtube', 'instagram', 'x', 'coinmarketcap', 'twitch', 'linkedin']),
+  platform: z.string().min(1, "Plataforma requerida"),
+  contentId: z.string().uuid().optional(),
 });
 
 export const SendEmailSchema = z.object({

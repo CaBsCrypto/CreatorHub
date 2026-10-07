@@ -127,7 +127,7 @@ export function useContentActions(refresh: () => void) {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${session?.access_token}`
             },
-            body: JSON.stringify({ url: urlStr, platform: platformStr })
+            body: JSON.stringify({ url: urlStr, platform: platformStr, contentId })
           });
           if (res.status === 429) {
             const errorData = await res.json();

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Youtube, Instagram, Music2, Twitter, Globe, ExternalLink, Edit2, Trash2, Clock, Linkedin } from 'lucide-react';
+import { Youtube, Instagram, Music2, Twitter, Globe, ExternalLink, Edit2, Trash2, Clock, Linkedin, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export interface ContentItem {
@@ -38,6 +38,7 @@ interface ContentCardProps {
   campaignName?: string;
   onEdit: (item: ContentItem) => void;
   onDelete: (id: string) => void;
+  onRefresh?: (item: ContentItem) => void;
   onClick?: () => void;
   index: number;
 }
@@ -57,7 +58,7 @@ const platformConfig = {
   instagram_story: { icon: Instagram, color: 'text-rose-500', bg: 'bg-rose-50', border: 'border-rose-100' }
 };
 
-const ContentCard = React.memo(({ item, campaignName, onEdit, onDelete, onClick, index }: ContentCardProps) => {
+const ContentCard = React.memo(({ item, campaignName, onEdit, onDelete, onRefresh, onClick, index }: ContentCardProps) => {
   const { icon: PlatformIcon, color: platformColor, bg: platformBg, border: platformBorder } = platformConfig[item.platform] || { icon: Globe, color: 'text-slate-500', bg: 'bg-slate-50', border: 'border-slate-100' };
   const isGamenight = item.platform === 'discord' || item.platform === 'baseapp';
 
@@ -125,6 +126,15 @@ const ContentCard = React.memo(({ item, campaignName, onEdit, onDelete, onClick,
 
         {/* Action Buttons Overlay */}
         <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all duration-300 z-20">
+          {onRefresh && (
+            <button 
+              onClick={(e) => { e.stopPropagation(); onRefresh(item); }} 
+              className="p-2 rounded-lg bg-white/90 text-slate-600 hover:text-indigo-600 shadow-lg border border-white transition-colors"
+              title={item.coupledPosts && item.coupledPosts.length > 1 ? "Sincronizar todas las plataformas" : "Sincronizar video"}
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+            </button>
+          )}
           <button 
             onClick={(e) => { e.stopPropagation(); onEdit(item); }} 
             className="p-2 rounded-lg bg-white/90 text-slate-600 hover:text-indigo-600 shadow-lg border border-white transition-colors"
@@ -157,6 +167,22 @@ const ContentCard = React.memo(({ item, campaignName, onEdit, onDelete, onClick,
           <h3 className="text-sm font-black text-slate-900 leading-snug line-clamp-2 group-hover:text-indigo-600 transition-colors uppercase tracking-tight">
             {item.title || 'Sin título'}
           </h3>
+
+          {/* Multiplatform individual views breakdown */}
+          {item.coupledPosts && item.coupledPosts.length > 1 && (
+            <div className="flex flex-wrap gap-1.5 mt-3 pt-2.5 border-t border-slate-100">
+              {item.coupledPosts.map((post: any) => (
+                <span 
+                  key={post.id} 
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[8px] font-bold bg-slate-50 border border-slate-200/70 text-slate-700"
+                  title={post.title || post.url}
+                >
+                  <span className="uppercase text-[7px] font-black text-indigo-500">{post.platform}:</span>
+                  <span className="font-mono font-black text-slate-800">{(post.views || 0).toLocaleString()}</span>
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         
         <div className="mt-6 flex items-center justify-between border-t border-gray-50 pt-4">

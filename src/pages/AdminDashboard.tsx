@@ -579,6 +579,7 @@ export default function AdminDashboard() {
             isOpen={true}
             onClose={() => setViewingContent(null)}
             item={viewingContent}
+            onRefresh={refresh}
           />
         )}
 

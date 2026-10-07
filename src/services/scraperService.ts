@@ -30,9 +30,15 @@ export async function fetchTikTokData(url: string) {
         const thumbMatch = html.match(/<meta property="og:image" content="([^"]+)"/);
         if (thumbMatch) thumbnail = thumbMatch[1];
       }
-      const playMatch = html.match(/"playCount":(\d+)/);
-      const diggMatch = html.match(/"diggCount":(\d+)/);
-      const commentMatch = html.match(/"commentCount":(\d+)/);
+      const playMatch = html.match(/"playCount":\s*(\d+)/i) || 
+                        html.match(/"play_count":\s*(\d+)/i) || 
+                        html.match(/playCount["']:\s*["'](\d+)["']/i);
+      const diggMatch = html.match(/"diggCount":\s*(\d+)/i) || 
+                        html.match(/"digg_count":\s*(\d+)/i) || 
+                        html.match(/diggCount["']:\s*["'](\d+)["']/i);
+      const commentMatch = html.match(/"commentCount":\s*(\d+)/i) || 
+                           html.match(/"comment_count":\s*(\d+)/i) || 
+                           html.match(/commentCount["']:\s*["'](\d+)["']/i);
       if (playMatch) views = parseInt(playMatch[1], 10);
       if (diggMatch) likes = parseInt(diggMatch[1], 10);
       if (commentMatch) comments = parseInt(commentMatch[1], 10);
@@ -87,27 +93,76 @@ export async function fetchYouTubeData(url: string) {
     if (videoId) thumbnail = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
 
     if (videoId && process.env.YOUTUBE_API_KEY) {
-      const youtube = google.youtube({ version: 'v3', auth: process.env.YOUTUBE_API_KEY });
-      const response = await youtube.videos.list({ part: ['snippet', 'statistics'], id: [videoId] });
-      if (response.data.items?.[0]) {
-        const video = response.data.items[0];
-        title = video.snippet?.title || title;
-        author = video.snippet?.channelTitle || author;
-        views = parseInt(video.statistics?.viewCount || '0', 10);
-        likes = parseInt(video.statistics?.likeCount || '0', 10);
-        comments = parseInt(video.statistics?.commentCount || '0', 10);
-      } else {
-        console.warn(`[YT Scraper] No video found for ID ${videoId}`);
+      try {
+        const youtube = google.youtube({ version: 'v3', auth: process.env.YOUTUBE_API_KEY });
+        const response = await youtube.videos.list({ part: ['snippet', 'statistics'], id: [videoId] });
+        if (response.data.items?.[0]) {
+          const video = response.data.items[0];
+          title = video.snippet?.title || title;
+          author = video.snippet?.channelTitle || author;
+          views = parseInt(video.statistics?.viewCount || '0', 10);
+          likes = parseInt(video.statistics?.likeCount || '0', 10);
+          comments = parseInt(video.statistics?.commentCount || '0', 10);
+        } else {
+          console.warn(`[YT Scraper] No video found for ID ${videoId}`);
+        }
+      } catch (apiErr: any) {
+        console.warn(`[YT Scraper] API call failed (${apiErr.message}), falling back to HTML/oEmbed...`);
       }
-    } else {
-      const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`;
-      const oembedRes = await axios.get(oembedUrl);
-      title = oembedRes.data.title || title;
-      author = oembedRes.data.author_name || author;
+    }
+
+    // Fallback 1: oEmbed for Title & Author if missing
+    if (!author || title === "YouTube Video") {
+      try {
+        const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`;
+        const oembedRes = await axios.get(oembedUrl, { timeout: 4000 });
+        if (oembedRes.data.title) title = oembedRes.data.title;
+        if (oembedRes.data.author_name) author = oembedRes.data.author_name;
+        if (oembedRes.data.thumbnail_url && !thumbnail) thumbnail = oembedRes.data.thumbnail_url;
+      } catch (oembedErr: any) {
+        // ignore
+      }
+    }
+
+    // Fallback 2: HTML scraping for view count (vital for YouTube Shorts & when API key is unavailable/exhausted)
+    if (views === 0) {
+      try {
+        const pageRes = await axios.get(url, {
+          headers: {
+            "User-Agent": USER_AGENT,
+            "Accept-Language": "en-US,en;q=0.9"
+          },
+          timeout: 5000
+        });
+        const html = pageRes.data;
+
+        // Interaction count meta tag: <meta itemprop="interactionCount" content="12345">
+        const metaMatch = html.match(/itemprop=["']interactionCount["']\s+content=["'](\d+)["']/i);
+        if (metaMatch) {
+          views = parseInt(metaMatch[1], 10);
+        } else {
+          // viewCount JSON tag in initial player response: "viewCount":"12345"
+          const jsonMatch = html.match(/"viewCount":\s*"?(\d+)"?/);
+          if (jsonMatch) {
+            views = parseInt(jsonMatch[1], 10);
+          }
+        }
+
+        // Likes extraction fallback
+        if (likes === 0) {
+          const likeMatch = html.match(/"defaultText":\s*\{\s*"accessibility":\s*\{\s*"accessibilityData":\s*\{\s*"label":\s*"([\d,.]+)\s*likes"/i) ||
+                            html.match(/"label":\s*"([\d,.]+)\s*likes/i);
+          if (likeMatch) {
+            likes = parseInt(likeMatch[1].replace(/[,.]/g, ''), 10) || 0;
+          }
+        }
+      } catch (htmlErr: any) {
+        console.warn(`[YT Scraper] HTML fallback failed: ${htmlErr.message}`);
+      }
     }
 
     const duration = Date.now() - start;
-    await logScraperAction('youtube', url, views === 0 ? 'error' : 'success', views === 0 ? 'YouTube returned 0 views (Quota or Invalid ID?)' : undefined, duration, { views, likes });
+    await logScraperAction('youtube', url, views === 0 ? 'error' : 'success', views === 0 ? 'YouTube returned 0 views' : undefined, duration, { views, likes });
 
     return { title: (author ? `${author} - ${title}` : title).substring(0, 100), views, likes, comments, thumbnail };
   } catch (error: any) {

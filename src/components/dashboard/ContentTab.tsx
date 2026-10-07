@@ -66,18 +66,63 @@ const ContentTab: React.FC<ContentTabProps> = ({
   const [isViewsModalOpen, setIsViewsModalOpen] = useState(false);
 
   const handleRefreshItem = async (item: any) => {
-    info("Sincronizando video...");
+    const isMulti = item.coupledPosts && item.coupledPosts.length > 1;
+    const postsToRefresh: any[] = isMulti ? item.coupledPosts : [item];
+
+    info(isMulti 
+      ? `Sincronizando ${postsToRefresh.length} plataformas acopladas...` 
+      : "Sincronizando video..."
+    );
+
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch('/api/fetch-metadata', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
-        body: JSON.stringify({ url: item.url, platform: item.platform, contentId: item.id })
-      });
-      if (!res.ok) throw new Error("Error al obtener metadata");
-      
-      success("Video actualizado desde el servidor");
-      refresh();
+      let updatedCount = 0;
+
+      await Promise.allSettled(postsToRefresh.map(async (target) => {
+        try {
+          const res = await fetch('/api/fetch-metadata', {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json', 
+              'Authorization': `Bearer ${session?.access_token}` 
+            },
+            body: JSON.stringify({ 
+              url: target.url, 
+              platform: target.platform, 
+              contentId: target.id 
+            })
+          });
+
+          if (res.ok) {
+            const metadata = await res.json();
+            const updates: any = { last_refreshed_at: new Date().toISOString() };
+            if (metadata.title && !['Instagram Post', 'YouTube Video', 'TikTok Post'].includes(metadata.title)) {
+              updates.title = metadata.title;
+            }
+            if (metadata.thumbnail) updates.thumbnail = metadata.thumbnail;
+            if (metadata.views > 0) updates.views = metadata.views;
+            if (metadata.likes > 0) updates.likes = metadata.likes;
+            if (metadata.comments > 0) updates.comments = metadata.comments;
+
+            if (Object.keys(updates).length > 0) {
+              await supabase.from('content').update(updates).eq('id', target.id);
+            }
+            updatedCount++;
+          }
+        } catch (err) {
+          console.error(`Error al sincronizar ${target.platform}:`, err);
+        }
+      }));
+
+      if (updatedCount > 0) {
+        success(isMulti 
+          ? `¡${updatedCount} de ${postsToRefresh.length} plataformas sincronizadas correctamente!` 
+          : "Video actualizado desde el servidor"
+        );
+        refresh();
+      } else {
+        toastError("No se pudieron obtener métricas actualizadas en este momento.");
+      }
     } catch (e: any) {
       toastError("Error: " + e.message);
     }
@@ -493,6 +538,22 @@ const ContentTab: React.FC<ContentTabProps> = ({
                       {campaigns.find(c => c.id === item.campaign_id)?.name || 'Sin campaña'}
                     </span>
                   </div>
+
+                  {/* Multi-platform individual views breakdown */}
+                  {item.coupledPosts && item.coupledPosts.length > 1 && (
+                    <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                      {item.coupledPosts.map((post: any) => (
+                        <span 
+                          key={post.id} 
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[9px] font-bold bg-slate-50 border border-slate-200/80 text-slate-700"
+                          title={post.title || post.url}
+                        >
+                          <span className="uppercase text-[8px] font-black text-indigo-500">{post.platform}:</span>
+                          <span className="font-mono font-black text-slate-900">{(post.views || 0).toLocaleString()}</span>
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div className="hidden md:flex flex-col items-end w-24 shrink-0">
@@ -504,13 +565,14 @@ const ContentTab: React.FC<ContentTabProps> = ({
                   <button
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleRefreshItem(item); }}
                     className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                    title={item.coupledPosts && item.coupledPosts.length > 1 ? "Sincronizar todas las plataformas" : "Sincronizar video"}
                   >
                     <RefreshCw className="h-4 w-4" />
                   </button>
                   <button 
                     onClick={(e) => { 
-                      e.preventDefault();
-                      e.stopPropagation();
+                      e.preventDefault(); 
+                      e.stopPropagation(); 
                       setEditingContent(item as any); 
                       setIsContentModalOpen(true); 
                     }}
@@ -549,6 +611,7 @@ const ContentTab: React.FC<ContentTabProps> = ({
                   setEditingContent(content);
                   setIsContentModalOpen(true);
                 }}
+                onRefresh={(content) => handleRefreshItem(content)}
                 onDelete={async (id) => {
                   if (confirm("¿Mover este contenido a la papelera?")) {
                     setDeletedContentIds(prev => [...prev, id]);

@@ -28,6 +28,20 @@ import {
 } from "./src/middleware/validation.js";
 import { analyzeTwitchScreenshot } from "./src/services/aiService.js";
 
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
+
+let supabaseAdmin: any = null;
+if (supabaseUrl && supabaseServiceKey) {
+  supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+    auth: { autoRefreshToken: false, persistSession: false }
+  });
+} else {
+  console.warn("⚠️ Server: Supabase configuration missing for admin operations");
+}
+
 // Cooldown memory store for creators (15 minutes = 900000 ms)
 const creatorRefreshCooldowns = new Map<string, number>();
 const COOLDOWN_MS = 15 * 60 * 1000;
@@ -324,19 +338,36 @@ app.post("/api/demo-request", validate(DemoRequestSchema), async (req, res) => {
 
 app.post("/api/fetch-metadata", authenticate, validate(FetchMetadataSchema), async (req, res) => {
   try {
-    const { url, platform } = req.body;
+    const { url, platform, contentId } = req.body;
     if (!url) return res.status(400).json({ error: "URL is required" });
 
     let data;
     switch(platform) {
       case 'tiktok': data = await fetchTikTokData(url); break;
       case 'youtube': data = await fetchYouTubeData(url); break;
-      case 'instagram': data = await fetchInstagramData(url); break;
-      case 'x': data = await fetchXData(url); break;
+      case 'instagram': 
+      case 'instagram_story': data = await fetchInstagramData(url); break;
+      case 'x': 
+      case 'x_video': data = await fetchXData(url); break;
       case 'coinmarketcap': data = await fetchCMCData(url); break;
       case 'linkedin': data = await fetchLinkedInData(url); break;
       default: data = { title: "New Upload", views: 0, likes: 0, comments: 0, thumbnail: "" };
     }
+
+    if (contentId && supabaseAdmin && data && !(data as any).error) {
+      const nowIso = new Date().toISOString();
+      const updates: any = { last_refreshed_at: nowIso };
+      if (data.title && data.title !== 'Instagram Post' && data.title !== 'YouTube Video' && data.title !== 'TikTok Post') {
+        updates.title = data.title;
+      }
+      if (data.thumbnail) updates.thumbnail = data.thumbnail;
+      if (data.views > 0) updates.views = data.views;
+      if (data.likes > 0) updates.likes = data.likes;
+      if (data.comments > 0) updates.comments = data.comments;
+
+      await supabaseAdmin.from('content').update(updates).eq('id', contentId);
+    }
+
     res.json(data);
   } catch (error: any) {
     if (error.message === 'IG_QUOTA_EXCEEDED') {
